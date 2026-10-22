@@ -105,6 +105,13 @@ a:hover{text-decoration-color:currentColor}
     <div class="wrap"><table id="t-lena"><thead><tr><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
   </section>
 
+  <section class="card">
+    <h2>Активные клиенты Лены (2025–2026)</h2>
+    <p class="note" id="lc-note">По сводке файлов Лены. Сначала те, кто должен оплатить, потом с открытыми делами.</p>
+    <div class="wrap"><table id="t-lc"><thead><tr><th>Клиент</th><th class="detail">Годы и услуги</th><th>Открытые дела</th><th class="amt">Ждём оплату, ₽</th><th>Ближайший срок</th></tr></thead><tbody></tbody></table></div>
+    <div><button class="chip" type="button" id="lc-all">Показать всех</button></div>
+  </section>
+
   <div class="grid">
     <section class="card">
       <h2>Бухгалтерия</h2>
@@ -141,7 +148,7 @@ a:hover{text-decoration-color:currentColor}
   const today = pad(now.getDate()) + '.' + pad(now.getMonth() + 1) + '.' + now.getFullYear();
   const parseRu = (s) => { const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(s || ''); return m ? new Date(+m[3], +m[2] - 1, +m[1]) : null; };
   const state = {q: '', f: 'all'};
-  let last = {tasks: [], summary: []};
+  let last = {tasks: [], summary: [], lc: []};
 
   const $ = (id) => document.getElementById(id);
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -155,6 +162,7 @@ a:hover{text-decoration-color:currentColor}
   $('theme').addEventListener('click', () => { theme = themes[(themes.indexOf(theme) + 1) % 3]; try { localStorage.setItem('svodka-theme', theme); } catch (e) {} applyTheme(); });
   applyTheme();
 
+  $('lc-all').addEventListener('click', () => { state.lcAll = !state.lcAll; draw(); });
   $('q').addEventListener('input', (e) => { state.q = e.target.value.trim().toLowerCase(); draw(); });
   document.querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => {
     state.f = b.dataset.f;
@@ -226,6 +234,17 @@ a:hover{text-decoration-color:currentColor}
     fill('t-buh', sec('Бухгалтерия'), [C.client, C.title, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
     fill('t-edo', sec('Диадок'), [C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
     fill('t-other', sec('Прочее'), [C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
+    const lc = last.lc.filter((r) => !state.q || [r.client, r.services, r.todo].join(' ').toLowerCase().includes(state.q));
+    $('lc-note').textContent = 'По сводке файлов Лены: активных ' + last.lc.length + ', с открытыми делами ' + last.lc.filter((r) => r.open).length + '. Сначала те, кто должен оплатить.';
+    const lcShown = state.lcAll ? lc : lc.filter((r) => r.open);
+    const lcBtn = $('lc-all'); lcBtn.textContent = state.lcAll ? 'Скрыть клиентов без дел' : 'Показать всех активных (' + lc.length + ')';
+    fill('t-lc', lcShown, [
+      (r) => el('td', 'client', r.client),
+      (r) => { const td = el('td', 'detail'); const d = el('div', 'clamp', r.years + '. ' + r.services); d.addEventListener('click', () => d.classList.toggle('open')); td.append(d); return td; },
+      (r) => { const td = el('td'); if (r.open) { td.append(el('b', null, String(r.open)), ' ', el('span', 'detail', r.todo)); } else td.append(el('span', 'empty', 'нет')); return td; },
+      (r) => el('td', 'amt', r.wait ? fmtRub(r.wait) : ''),
+      C.due,
+    ], 'Нет клиентов с открытыми делами.');
     fill('t-proj', summary.filter((r) => r.section === 'Проекты'), [C.client, (r) => {
       const td = el('td'); if (r.flag === 'warn') td.append(el('span', 'pill warn', 'ждёт'), ' '); td.append(r.text); return td;
     }], 'Нет данных по проектам.');
@@ -236,7 +255,7 @@ a:hover{text-decoration-color:currentColor}
       const res = await fetch('/data/svodka.json?t=' + Date.now(), {cache: 'no-store'});
       if (!res.ok) throw new Error(res.status);
       const d = await res.json();
-      last = {tasks: d.tasks || [], summary: d.summary || []};
+      last = {tasks: d.tasks || [], summary: d.summary || [], lc: d.lena_clients || []};
       const u = new Date(d.updated);
       const hours = (Date.now() - u) / 36e5;
       const upd = $('upd');

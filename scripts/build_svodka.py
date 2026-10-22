@@ -8,8 +8,10 @@
 
 Запуск: python3 scripts/build_svodka.py <db_dir> <summary.json> [data/svodka.json]
 """
+import csv
 import glob
 import json
+import re
 import os
 import sys
 from datetime import datetime, timedelta, timezone
@@ -55,6 +57,52 @@ def section_of(t):
     return "Прочее"
 
 
+LENA_CSV = "/mnt/project-files/daily-control/svodka/klienty-leny.csv"
+STOP = {"ооо", "ао", "пао", "зао", "оао", "ип", "нпп", "пф", "тд", "гк", "завод", "группа", "групп", "компания"}
+
+
+def compact(text):
+    return "".join(re.findall(r"[a-zа-яё0-9]+", text.lower().replace("ё", "е")))
+
+
+def name_keys(name):
+    words = [w.replace("ё", "е") for w in re.findall(r"[a-zа-яё0-9]+", name.lower())]
+    return [w for w in words if len(w) >= 3 and w not in STOP]
+
+
+def matches(keys, text):
+    # короткое слово (СПБ, СХМ, АВК) — только целым словом, длинное — как часть текста
+    words = set(re.findall(r"[a-zа-я0-9]+", text.lower().replace("ё", "е")))
+    flat = compact(text)
+    return all((k in words) if len(k) <= 3 else (k in flat) for k in keys)
+
+
+def lena_clients(tasks):
+    """Активные клиенты Лены из сводки по файлам (klienty-leny.csv) + их открытые задачи из db."""
+    if not os.path.exists(LENA_CSV):
+        return []
+    rows = list(csv.DictReader(open(LENA_CSV, encoding="utf-8-sig"), delimiter=";"))
+    lena = [t for t in tasks if t["mgr"] != "Ольга" and t["section"] != "Мои клиенты"]
+    out = []
+    for r in rows:
+        if (r.get("Активен 2025–2026") or "").strip().lower() != "да":
+            continue
+        name = r["Клиент"].strip()
+        keys = name_keys(name)
+        mine = [t for t in lena if keys and matches(keys, t["client"] + " " + t["title"])]
+        out.append({
+            "client": name[:1].upper() + name[1:],
+            "years": r.get("Годы", ""),
+            "services": r.get("Услуги (по названиям файлов)", ""),
+            "open": len(mine),
+            "wait": sum(float(t["amount"] or 0) for t in mine if t["money"] == "ждём"),
+            "todo": "; ".join(t["title"] for t in mine[:3]),
+            "due": min((t["due"] for t in mine if t["due"]), key=lambda d: d[6:] + d[3:5] + d[:2], default=""),
+        })
+    out.sort(key=lambda x: (-x["wait"], -x["open"], x["client"]))
+    return out
+
+
 def main():
     db_dir, summary_path = sys.argv[1], sys.argv[2]
     out = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(__file__), "..", "data", "svodka.json")
@@ -87,10 +135,11 @@ def main():
         "updated": datetime.now(MSK).strftime("%Y-%m-%dT%H:%M:%S+03:00"),
         "tasks": tasks,
         "summary": summary,
+        "lena_clients": lena_clients(tasks),
     }
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(data, fh, ensure_ascii=False, indent=1)
-    print(f"tasks {len(tasks)}, summary {len(summary)} -> {out}")
+    print(f"tasks {len(tasks)}, summary {len(summary)}, lena_clients {len(data['lena_clients'])} -> {out}")
 
 
 if __name__ == "__main__":
