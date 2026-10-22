@@ -20,7 +20,7 @@ export default function middleware(request) {
   return new Response('Нужен пароль', {
     status: 401,
     headers: {
-      'www-authenticate': 'Basic realm="Svodka RЕI", charset="UTF-8"',
+      'www-authenticate': 'Basic realm="Svodka REI", charset="UTF-8"',
       'content-type': 'text/plain; charset=utf-8',
     },
   });
