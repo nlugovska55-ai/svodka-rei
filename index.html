@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Сводка дня РЭИ</title>
+<style>
+:root{--bg:#f6f5f1;--panel:#fff;--fg:#1f1e1b;--muted:#6b6862;--line:#e3e0d8;--bad:#b3261e;--warn:#9a6200;--ok:#1d7a45;--bar:#c9c4b8;--accent:#1f1e1b;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1917;--panel:#23221f;--fg:#ecebe6;--muted:#a3a097;--line:#38362f;--bad:#f2867d;--warn:#e0a84a;--ok:#6cc792;--bar:#55524a;--accent:#ecebe6;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1a1917;--panel:#23221f;--fg:#ecebe6;--muted:#a3a097;--line:#38362f;--bad:#f2867d;--warn:#e0a84a;--ok:#6cc792;--bar:#55524a;--accent:#ecebe6;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+.sd{max-width:1200px;margin:0 auto;padding:20px 16px 48px;display:grid;gap:18px}
+.head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
+h1{font:400 28px/1.15 Georgia,"Times New Roman",serif;margin:0}
+.upd{font-size:13px;color:var(--muted)}
+.upd.stale{color:var(--bad);font-weight:600}
+.take{margin:0;color:var(--muted);max-width:75ch}
+.take b{color:var(--fg)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:12px}
+.kpi,.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;min-width:0}
+.kpi{padding:12px 16px;display:grid;gap:2px}
+.kpi .lab,.kpi .sub{font-size:13px;color:var(--muted)}
+.kpi .num{font:400 26px/1.15 Georgia,serif}
+.kpi.alert .num{color:var(--bad)}
+.card{padding:16px;display:grid;gap:8px}
+.card h2{margin:0;font-size:17px;font-weight:600}
+.card .note{margin:0;font-size:13px;color:var(--muted)}
+.card.need{border-color:var(--bad)}
+.card.need h2{color:var(--bad)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:12px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tools input{flex:1 1 220px;min-width:0;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-weight:500;font-size:12px;color:var(--muted);padding:4px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.client{font-weight:500}
+td.detail{color:var(--muted);font-size:13px;max-width:40ch}
+.clamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
+.clamp.open{display:block}
+.amt{text-align:right;white-space:nowrap}
+td.due{white-space:nowrap;font-size:13px}
+td.due.late{color:var(--bad);font-weight:600}
+a{color:inherit;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:2px}
+a:hover{text-decoration-color:currentColor}
+.pill{display:inline-block;padding:0 8px;border-radius:999px;font-size:12px;border:1px solid var(--line);white-space:nowrap}
+.pill.bad{color:var(--bad);border-color:var(--bad)}
+.pill.warn{color:var(--warn);border-color:var(--warn)}
+.pill.ok{color:var(--ok);border-color:var(--ok)}
+.bar{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.bar i{display:block;height:6px;border-radius:3px;background:var(--bar)}
+.empty{color:var(--muted);font-size:13px}
+.err{color:var(--bad)}
+.foot{font-size:12px;color:var(--muted)}
+.theme{border:0;background:none;color:var(--muted);font:inherit;font-size:13px;cursor:pointer;padding:0}
+@media (max-width:640px){td.detail,th.detail{display:none}h1{font-size:24px}}
+</style>
+</head>
+<body>
+<div class="sd">
+  <header>
+    <div class="head"><h1>Сводка дня</h1><span class="upd" id="upd">Загрузка…</span></div>
+    <p class="take" id="take"></p>
+  </header>
+
+  <section class="kpis" aria-label="Главные цифры">
+    <div class="kpi alert"><span class="lab">Нужно от вас</span><span class="num" id="k-need">—</span><span class="sub" id="k-urgent"></span></div>
+    <div class="kpi"><span class="lab">Ждём оплату от клиентов</span><span class="num" id="k-wait">—</span><span class="sub" id="k-wait-n"></span></div>
+    <div class="kpi"><span class="lab">Пришло, не внесено на портал</span><span class="num" id="k-came">—</span><span class="sub" id="k-came-n"></span></div>
+    <div class="kpi"><span class="lab">Открытых задач</span><span class="num" id="k-open">—</span><span class="sub" id="k-open-sub"></span></div>
+  </section>
+
+  <section class="card need">
+    <h2>Нужно от вас</h2>
+    <div class="wrap"><table id="t-need"><thead><tr><th>Срочность</th><th>Что сделать</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Деньги клиентов</h2>
+    <p class="note">Ждём оплату, пришло и надо внести на портал, надо выставить счёт. Название клиента открывает заказ на портале (только с вашего компьютера).</p>
+    <div class="wrap"><table id="t-money"><thead><tr><th>Статус</th><th>Клиент</th><th>Менеджер</th><th>Что</th><th class="amt">Сумма, ₽</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <div class="tools">
+    <input id="q" type="search" placeholder="Поиск по задачам: клиент, сумма, слово" aria-label="Поиск по задачам">
+    <button class="chip" type="button" data-f="all" aria-pressed="true">Все</button>
+    <button class="chip" type="button" data-f="due" aria-pressed="false">Со сроком</button>
+    <button class="chip" type="button" data-f="new" aria-pressed="false">Новые за сегодня</button>
+  </div>
+
+  <section class="card">
+    <h2>Мои клиенты</h2>
+    <p class="note">Логика молока, GEA, ВкусВилл, Виртекс, Востряково. Сначала оплаты.</p>
+    <div class="wrap"><table id="t-mine"><thead><tr><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Клиенты Лены</h2>
+    <p class="note">Сначала оплаты.</p>
+    <div class="wrap"><table id="t-lena"><thead><tr><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Бухгалтерия</h2>
+      <p class="note">Поставщики, налоги, 1С, вопросы Ларисе.</p>
+      <div class="wrap"><table id="t-buh"><thead><tr><th>Кто</th><th>Что</th><th class="amt">Сумма, ₽</th></tr></thead><tbody></tbody></table></div>
+    </section>
+    <section class="card">
+      <h2>Диадок</h2>
+      <p class="note">Я только смотрю и напоминаю, подписываете вы.</p>
+      <div class="wrap"><table id="t-edo"><thead><tr><th>Что</th><th class="detail">Подробности</th></tr></thead><tbody></tbody></table></div>
+    </section>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Проекты</h2>
+      <div class="wrap"><table id="t-proj"><thead><tr><th>Проект</th><th>Состояние</th></tr></thead><tbody></tbody></table></div>
+    </section>
+    <section class="card">
+      <h2>Прочее</h2>
+      <div class="wrap"><table id="t-other"><thead><tr><th>Что</th><th class="detail">Подробности</th></tr></thead><tbody></tbody></table></div>
+    </section>
+  </div>
+
+  <p class="foot">Данные собирает Claude из системы заданий по будням в 9:30, 13:00 и 17:00 МСК. Отметить задачу выполненной — в системе заданий. <button class="theme" id="theme" type="button">Тема: авто</button></p>
+</div>
+
+<script>
+(() => {
+  const rub = new Intl.NumberFormat('ru-RU', {maximumFractionDigits: 0});
+  const fmtRub = (v) => (v == null || v === '' ? '' : rub.format(Number(v)));
+  const pad = (n) => String(n).padStart(2, '0');
+  const now = new Date();
+  const today = pad(now.getDate()) + '.' + pad(now.getMonth() + 1) + '.' + now.getFullYear();
+  const parseRu = (s) => { const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(s || ''); return m ? new Date(+m[3], +m[2] - 1, +m[1]) : null; };
+  const state = {q: '', f: 'all'};
+  let last = {tasks: [], summary: []};
+
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const linkOr = (td, text, href) => { if (href) { const a = el('a', null, text); a.href = href; a.target = '_blank'; a.rel = 'noopener'; td.append(a); } else td.textContent = text; return td; };
+
+  // Тема: авто → светлая → тёмная
+  const themes = ['auto', 'light', 'dark'], names = {auto: 'авто', light: 'светлая', dark: 'тёмная'};
+  let theme = 'auto';
+  try { theme = localStorage.getItem('svodka-theme') || 'auto'; } catch (e) {}
+  const applyTheme = () => { if (theme === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.dataset.theme = theme; $('theme').textContent = 'Тема: ' + names[theme]; };
+  $('theme').addEventListener('click', () => { theme = themes[(themes.indexOf(theme) + 1) % 3]; try { localStorage.setItem('svodka-theme', theme); } catch (e) {} applyTheme(); });
+  applyTheme();
+
+  $('q').addEventListener('input', (e) => { state.q = e.target.value.trim().toLowerCase(); draw(); });
+  document.querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => {
+    state.f = b.dataset.f;
+    document.querySelectorAll('.chip').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    draw();
+  }));
+
+  const C = {
+    client: (r) => linkOr(el('td', 'client'), r.client, r.link),
+    title: (r) => el('td', null, r.title),
+    detail: (r) => { const td = el('td', 'detail'); const d = el('div', 'clamp', r.detail); d.title = 'Нажмите, чтобы раскрыть'; d.addEventListener('click', () => d.classList.toggle('open')); td.append(d); return td; },
+    amount: (r) => el('td', 'amt', fmtRub(r.amount)),
+    mgr: (r) => el('td', null, r.mgr),
+    due: (r) => {
+      const td = el('td', 'due', r.due); const d = parseRu(r.due); const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+      if (d && d - t0 <= 3 * 864e5) td.classList.add('late'); return td;
+    },
+  };
+  const order = (a, b) => (b.pay - a.pay) || ((parseRu(a.due) || 9e15) - (parseRu(b.due) || 9e15)) || ((Number(b.amount) || 0) - (Number(a.amount) || 0));
+  const match = (r) => {
+    if (state.f === 'due' && !r.due) return false;
+    if (state.f === 'new' && r.added !== today) return false;
+    if (!state.q) return true;
+    return [r.client, r.title, r.detail, r.amount, r.due].join(' ').toLowerCase().includes(state.q);
+  };
+  const fill = (id, rows, cols, emptyText) => {
+    const tb = document.querySelector('#' + id + ' tbody'); tb.replaceChildren();
+    if (!rows.length) { const tr = el('tr'); const td = el('td', 'empty', emptyText); td.colSpan = 9; tr.append(td); tb.append(tr); return; }
+    rows.forEach((r) => { const tr = el('tr'); cols.forEach((c) => tr.append(c(r))); tb.append(tr); });
+  };
+  const sum = (a) => a.reduce((s, r) => s + (Number(r.amount) || 0), 0);
+
+  function kpis() {
+    const {tasks, summary} = last;
+    const need = summary.filter((r) => r.section === 'Нужно от вас');
+    const urgent = need.filter((r) => r.flag === 'срочно').length;
+    const wait = tasks.filter((r) => r.money === 'ждём');
+    const came = tasks.filter((r) => r.money === 'пришло');
+    $('k-need').textContent = need.length; $('k-urgent').textContent = 'срочных: ' + urgent;
+    $('k-wait').textContent = rub.format(sum(wait)) + ' ₽'; $('k-wait-n').textContent = 'позиций: ' + wait.length;
+    $('k-came').textContent = rub.format(sum(came)) + ' ₽'; $('k-came-n').textContent = 'поступлений: ' + came.length;
+    $('k-open').textContent = tasks.length;
+    $('k-open-sub').textContent = 'мои клиенты ' + tasks.filter((r) => r.mgr === 'Ольга').length + ', Лены ' + tasks.filter((r) => r.mgr === 'Лена').length;
+    const take = $('take'); take.replaceChildren();
+    take.append('От вас ждут ', el('b', null, String(need.length)), ' дел, из них срочных ', el('b', null, String(urgent)), '. Клиенты должны ', el('b', null, rub.format(sum(wait)) + ' ₽'), '.');
+  }
+
+  function draw() {
+    const {tasks, summary} = last;
+    const need = summary.filter((r) => r.section === 'Нужно от вас').sort((a, b) => (b.flag === 'срочно') - (a.flag === 'срочно'));
+    fill('t-need', need, [
+      (r) => { const td = el('td'); if (r.flag) td.append(el('span', 'pill ' + (r.flag === 'срочно' ? 'bad' : r.flag === 'ok' ? 'ok' : 'warn'), r.flag === 'warn' ? 'ждёт' : r.flag)); return td; },
+      (r) => linkOr(el('td'), r.text, r.link),
+    ], 'Сейчас ничего не ждёт вас.');
+
+    const rank = {'ждём': 0, 'пришло': 1, 'выставить счёт': 2};
+    const money = tasks.filter((r) => r.money && match(r)).sort((a, b) => ((rank[a.money] ?? 3) - (rank[b.money] ?? 3)) || ((Number(b.amount) || 0) - (Number(a.amount) || 0)));
+    const max = Math.max(1, ...money.map((r) => Number(r.amount) || 0));
+    fill('t-money', money, [
+      (r) => { const td = el('td'); td.append(el('span', 'pill ' + (r.money === 'ждём' ? 'warn' : r.money === 'пришло' ? 'ok' : ''), r.money)); return td; },
+      C.client, C.mgr, C.title,
+      (r) => { const td = el('td', 'amt'); const w = el('div', 'bar'); const i = el('i'); i.style.width = Math.max(2, Math.round(64 * (Number(r.amount) || 0) / max)) + 'px'; w.append(el('span', null, fmtRub(r.amount)), i); td.append(w); return td; },
+    ], 'Нет оплат по этому фильтру.');
+
+    const sec = (s) => tasks.filter((r) => r.section === s && match(r)).sort(order);
+    fill('t-mine', sec('Мои клиенты'), [C.client, C.title, C.detail, C.amount, C.due], 'Нет задач по этому фильтру.');
+    fill('t-lena', sec('Клиенты Лены'), [C.client, C.title, C.detail, C.amount, C.due], 'Нет задач по этому фильтру.');
+    fill('t-buh', sec('Бухгалтерия'), [C.client, C.title, C.amount], 'Нет задач по этому фильтру.');
+    fill('t-edo', sec('Диадок'), [C.title, C.detail], 'Нет задач по этому фильтру.');
+    fill('t-other', sec('Прочее'), [C.title, C.detail], 'Нет задач по этому фильтру.');
+    fill('t-proj', summary.filter((r) => r.section === 'Проекты'), [C.client, (r) => {
+      const td = el('td'); if (r.flag === 'warn') td.append(el('span', 'pill warn', 'ждёт'), ' '); td.append(r.text); return td;
+    }], 'Нет данных по проектам.');
+  }
+
+  async function load() {
+    try {
+      const res = await fetch('/data/svodka.json?t=' + Date.now(), {cache: 'no-store'});
+      if (!res.ok) throw new Error(res.status);
+      const d = await res.json();
+      last = {tasks: d.tasks || [], summary: d.summary || []};
+      const u = new Date(d.updated);
+      const hours = (Date.now() - u) / 36e5;
+      const upd = $('upd');
+      upd.textContent = 'Обновлено ' + u.toLocaleString('ru-RU', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow'}) + ' МСК' + (hours > 30 ? ' — данные устарели' : '');
+      upd.classList.toggle('stale', hours > 30);
+      kpis(); draw();
+    } catch (e) {
+      $('upd').textContent = 'Не удалось загрузить данные'; $('upd').classList.add('err');
+    }
+  }
+  load();
+  setInterval(load, 10 * 60 * 1000);
+})();
+</script>
+</body>
+</html>

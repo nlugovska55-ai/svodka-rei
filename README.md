@@ -1,0 +1,34 @@
+# Сводка дня РЭИ на Vercel
+
+Закрытая страница для Ольги: обычная ссылка в браузере, вход по паролю.
+Репозиторий GitHub `nlugovska55-ai/svodka-rei` (private) → Vercel выкладывает каждый push сам.
+
+## Из чего состоит
+- `index.html` — страница (без сборки, без внешних библиотек).
+- `data/svodka.json` — данные: `{updated, tasks[], summary[]}`. Меняется только этот файл.
+- `middleware.js` — пароль (Basic Auth). Пароль в Vercel: Settings → Environment Variables → `DASH_PASSWORD`. Без него сайт закрыт полностью.
+- `scripts/build_svodka.py` — собирает `data/svodka.json` из выгрузки db `tasks` и файла `summary.json`.
+
+## Откуда данные
+| Что на странице | Источник | Кто пишет |
+|---|---|---|
+| Задачи (все таблицы, деньги, цифры) | db `tasks` системы заданий https://claude.ai/artifact/3FMn9JyWFXrL6ZzgAx5JAY | все ветки, каждая свои задачи |
+| «Нужно от вас» | `/mnt/project-files/daily-control/svodka/summary.json`, section «Нужно от вас» | «Утро и задачи» |
+| «Проекты» | тот же файл, section «Проекты» | «Утро и задачи» по отчётам «Управления проектами» |
+
+## Кто что делает
+- **«Утро и задачи» (Sonnet, low)** — единственный, кто выкладывает сайт. Будни 9:30 МСК: утренний сбор, `summary.json`, выгрузка. 13:00 и 17:00: только выгрузка свежей db (без чтения почты).
+- **«Бухгалтерия» (Opus, medium)** — ведёт свои задачи в db (cat `tax`, `supplier`, owner «Лариса»); закрытое отмечает `status: done`. Сайт сама не выкладывает.
+- **«Браузер» (Sonnet, low)** — задачи Диадока (cat `edo`) и оплат портала/банка (cat `pay`, поле `money`: ждём | пришло | выставить счёт) в db.
+- **«Управление проектами» (Opus, medium)** — раз в день пишет «Утру» 1–2 строки состояния проектов для блока «Проекты».
+- Срочное днём (оплата пришла, подписано): ветка правит db и пишет «Утру» `message_thread` «обнови сводку» — та выгружает вне расписания.
+
+Одна выкладывающая ветка — нет конфликтов в git и лишних токенов у других веток.
+
+## Как выгрузить (ветка «Утро и задачи»)
+1. `ArtifactData list` url=https://claude.ai/artifact/3FMn9JyWFXrL6ZzgAx5JAY collection=`tasks` query.limit=1000 out_dir=`<tmp>/db`
+2. `python3 -I scripts/build_svodka.py <tmp>/db /mnt/project-files/daily-control/svodka/summary.json data/svodka.json`
+3. `git add data/svodka.json && git commit -m "Сводка <дата время>" && git push` → через ~30 сек. на сайте.
+
+Правила раздела и денег (`section`, `money`) — в `build_svodka.py`; если в задаче db есть поле `money` или `section`, берётся оно.
+Страница сама перечитывает данные каждые 10 минут; если данные старше 30 часов, вверху красным «данные устарели».
