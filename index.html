@@ -14,7 +14,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-app
 .sd{max-width:1200px;margin:0 auto;padding:20px 16px 48px;display:grid;gap:18px}
 .head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
 h1{font:400 28px/1.15 Georgia,"Times New Roman",serif;margin:0}
-.upd{font-size:13px;color:var(--muted)}
+.upd{font-size:15px;font-weight:600;color:var(--fg)}
 .upd.stale{color:var(--bad);font-weight:600}
 .take{margin:0;color:var(--muted);max-width:75ch}
 .take b{color:var(--fg)}
@@ -96,25 +96,25 @@ a:hover{text-decoration-color:currentColor}
   <section class="card">
     <h2>Мои клиенты</h2>
     <p class="note">Логика молока, GEA, ВкусВилл, Виртекс, Востряково. Сначала оплаты.</p>
-    <div class="wrap"><table id="t-mine"><thead><tr><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th></tr></thead><tbody></tbody></table></div>
+    <div class="wrap"><table id="t-mine"><thead><tr><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
   </section>
 
   <section class="card">
     <h2>Клиенты Лены</h2>
     <p class="note">Сначала оплаты.</p>
-    <div class="wrap"><table id="t-lena"><thead><tr><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th></tr></thead><tbody></tbody></table></div>
+    <div class="wrap"><table id="t-lena"><thead><tr><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
   </section>
 
   <div class="grid">
     <section class="card">
       <h2>Бухгалтерия</h2>
       <p class="note">Поставщики, налоги, 1С, вопросы Ларисе.</p>
-      <div class="wrap"><table id="t-buh"><thead><tr><th>Кто</th><th>Что</th><th class="amt">Сумма, ₽</th></tr></thead><tbody></tbody></table></div>
+      <div class="wrap"><table id="t-buh"><thead><tr><th>Кто</th><th>Что</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
     </section>
     <section class="card">
       <h2>Диадок</h2>
       <p class="note">Я только смотрю и напоминаю, подписываете вы.</p>
-      <div class="wrap"><table id="t-edo"><thead><tr><th>Что</th><th class="detail">Подробности</th></tr></thead><tbody></tbody></table></div>
+      <div class="wrap"><table id="t-edo"><thead><tr><th>Что</th><th class="detail">Подробности</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
     </section>
   </div>
 
@@ -125,7 +125,7 @@ a:hover{text-decoration-color:currentColor}
     </section>
     <section class="card">
       <h2>Прочее</h2>
-      <div class="wrap"><table id="t-other"><thead><tr><th>Что</th><th class="detail">Подробности</th></tr></thead><tbody></tbody></table></div>
+      <div class="wrap"><table id="t-other"><thead><tr><th>Что</th><th class="detail">Подробности</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
     </section>
   </div>
 
@@ -168,8 +168,9 @@ a:hover{text-decoration-color:currentColor}
     detail: (r) => { const td = el('td', 'detail'); const d = el('div', 'clamp', r.detail); d.title = 'Нажмите, чтобы раскрыть'; d.addEventListener('click', () => d.classList.toggle('open')); td.append(d); return td; },
     amount: (r) => el('td', 'amt', fmtRub(r.amount)),
     mgr: (r) => el('td', null, r.mgr),
+    owner: (r) => el('td', 'due', r.owner || '—'),
     due: (r) => {
-      const td = el('td', 'due', r.due); const d = parseRu(r.due); const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+      const td = el('td', 'due', r.due || '—'); const d = parseRu(r.due); const t0 = new Date(); t0.setHours(0, 0, 0, 0);
       if (d && d - t0 <= 3 * 864e5) td.classList.add('late'); return td;
     },
   };
@@ -220,11 +221,11 @@ a:hover{text-decoration-color:currentColor}
     ], 'Нет оплат по этому фильтру.');
 
     const sec = (s) => tasks.filter((r) => r.section === s && match(r)).sort(order);
-    fill('t-mine', sec('Мои клиенты'), [C.client, C.title, C.detail, C.amount, C.due], 'Нет задач по этому фильтру.');
-    fill('t-lena', sec('Клиенты Лены'), [C.client, C.title, C.detail, C.amount, C.due], 'Нет задач по этому фильтру.');
-    fill('t-buh', sec('Бухгалтерия'), [C.client, C.title, C.amount], 'Нет задач по этому фильтру.');
-    fill('t-edo', sec('Диадок'), [C.title, C.detail], 'Нет задач по этому фильтру.');
-    fill('t-other', sec('Прочее'), [C.title, C.detail], 'Нет задач по этому фильтру.');
+    fill('t-mine', sec('Мои клиенты'), [C.client, C.title, C.detail, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-lena', sec('Клиенты Лены'), [C.client, C.title, C.detail, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-buh', sec('Бухгалтерия'), [C.client, C.title, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-edo', sec('Диадок'), [C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-other', sec('Прочее'), [C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
     fill('t-proj', summary.filter((r) => r.section === 'Проекты'), [C.client, (r) => {
       const td = el('td'); if (r.flag === 'warn') td.append(el('span', 'pill warn', 'ждёт'), ' '); td.append(r.text); return td;
     }], 'Нет данных по проектам.');
