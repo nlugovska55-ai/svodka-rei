@@ -6,7 +6,7 @@
 ## Из чего состоит
 - `index.html` — страница (без сборки, без внешних библиотек).
 - `data/svodka.json` — данные: `{updated, tasks[], summary[]}`. Меняется только этот файл.
-- `middleware.js` — пароль (Basic Auth). Пароль в Vercel: Settings → Environment Variables → `DASH_PASSWORD`. Без него сайт закрыт полностью.
+- `middleware.js` — страница входа по паролю, вход помнится 30 дней (cookie); принимает пароль и в другой раскладке. Пароль в Vercel: Settings → Environment Variables → `DASH_PASSWORD`. Без него сайт закрыт полностью.
 - `scripts/build_svodka.py` — собирает `data/svodka.json` из выгрузки db `tasks` и файла `summary.json`.
 
 ## Откуда данные
