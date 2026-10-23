@@ -118,6 +118,7 @@ def prognoz():
         "source": p.get("source", ""),
         "next6_expected": sum(m["expected"] for m in months[:6]),
         "next6_potential": sum(m["potential"] for m in months[:6]),
+        "next6_expected_olga": sum(m.get("expected_olga", 0) for m in months[:6]),
         "total_expected": sum(m["expected"] for m in months),
         "months": months,
     }
