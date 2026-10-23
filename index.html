@@ -138,6 +138,13 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
     <div><button class="chip" type="button" id="lc-all">Показать всех</button></div>
   </section>
 
+  <section class="card" id="pg-card" hidden>
+    <h2>Прогноз: продления сертификатов и деклараций</h2>
+    <p class="note" id="pg-note"></p>
+    <div class="wrap"><table id="t-pg"><thead><tr><th>Месяц окончания</th><th>Документов</th><th class="detail">Клиенты (кол-во док.)</th><th class="amt">Ожидаемо, ₽</th><th class="amt">в т.ч. мои, ₽</th><th class="amt">Потенциал, ₽</th><th>ИК (расчётно)</th></tr></thead><tbody></tbody></table></div>
+    <div><button class="chip" type="button" id="pg-all">Показать до конца 2027</button></div>
+  </section>
+
   <div class="grid">
     <section class="card">
       <h2>Бухгалтерия</h2>
@@ -174,7 +181,7 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
   const today = pad(now.getDate()) + '.' + pad(now.getMonth() + 1) + '.' + now.getFullYear();
   const parseRu = (s) => { const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(s || ''); return m ? new Date(+m[3], +m[2] - 1, +m[1]) : null; };
   const state = {q: '', f: 'all'};
-  let last = {tasks: [], summary: [], lc: []};
+  let last = {tasks: [], summary: [], lc: [], pg: null};
 
   const $ = (id) => document.getElementById(id);
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -189,6 +196,7 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
   applyTheme();
 
   $('lc-all').addEventListener('click', () => { state.lcAll = !state.lcAll; draw(); });
+  $('pg-all').addEventListener('click', () => { state.pgAll = !state.pgAll; draw(); });
   $('q').addEventListener('input', (e) => { state.q = e.target.value.trim().toLowerCase(); draw(); });
   document.querySelectorAll('.chip').forEach((b) => b.addEventListener('click', () => {
     state.f = b.dataset.f;
@@ -310,6 +318,21 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
       (r) => el('td', 'amt', r.wait ? fmtRub(r.wait) : ''),
       C.due,
     ], 'Нет клиентов с открытыми делами.');
+    const pg = last.pg;
+    $('pg-card').hidden = !pg;
+    if (pg) {
+      $('pg-note').textContent = 'По реестру ФСА на ' + pg.built.split('-').reverse().join('.') + ': ближайшие 6 месяцев ожидаемо ' + fmtRub(pg.next6_expected) + ' ₽ (потенциал ' + fmtRub(pg.next6_potential) + ' ₽), из них мои клиенты ' + fmtRub(pg.next6_expected_olga) + ' ₽. Месяц — когда кончается срок, работа и оплата обычно на 1–2 месяца раньше. Менеджеру напоминание за 2 месяца — задачей в разделе клиентов.';
+      $('pg-all').textContent = state.pgAll ? 'Только 6 месяцев' : 'Показать до конца 2027 (ожидаемо ' + fmtRub(pg.total_expected) + ' ₽)';
+      fill('t-pg', state.pgAll ? pg.months : pg.months.slice(0, 6), [
+        (r) => el('td', 'client', r.label),
+        (r) => el('td', null, r.n_docs ? String(r.n_docs) : ''),
+        (r) => el('td', 'detail', r.who),
+        (r) => el('td', 'amt', r.expected ? fmtRub(r.expected) : ''),
+        (r) => el('td', 'amt', r.expected_olga ? fmtRub(r.expected_olga) : ''),
+        (r) => el('td', 'amt', r.potential ? fmtRub(r.potential) : ''),
+        (r) => el('td', null, r.ik ? String(r.ik) : ''),
+      ], 'Нет продлений в этом периоде.');
+    }
     fill('t-proj', summary.filter((r) => r.section === 'Проекты'), [C.client, (r) => {
       const td = el('td'); if (r.flag === 'warn') td.append(el('span', 'pill warn', 'ждёт'), ' '); td.append(r.text); return td;
     }], 'Нет данных по проектам.');
@@ -320,7 +343,7 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
       const res = await fetch('/data/svodka.json?t=' + Date.now(), {cache: 'no-store'});
       if (!res.ok) throw new Error(res.status);
       const d = await res.json();
-      last = {tasks: d.tasks || [], summary: d.summary || [], lc: d.lena_clients || []};
+      last = {tasks: d.tasks || [], summary: d.summary || [], lc: d.lena_clients || [], pg: d.prognoz || null};
       const u = new Date(d.updated);
       const hours = (Date.now() - u) / 36e5;
       const upd = $('upd');
