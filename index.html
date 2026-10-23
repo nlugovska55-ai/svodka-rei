@@ -57,6 +57,18 @@ a:hover{text-decoration-color:currentColor}
 .empty{color:var(--muted);font-size:13px}
 .err{color:var(--bad)}
 .foot{font-size:12px;color:var(--muted)}
+button.kpi{font:inherit;color:inherit;text-align:left;cursor:pointer}
+button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
+.how .src{margin:0;font-size:13px;color:var(--muted)}
+.stamp{margin:0;font-size:12px;color:var(--muted)}
+.wk{display:grid;grid-template-columns:minmax(90px,140px) 1fr auto;gap:6px 10px;align-items:center;font-size:13px}
+.wk .tr{display:flex;height:14px;border-radius:3px;overflow:hidden;background:var(--line)}
+.wk .tr i{display:block;height:100%}
+.wk .o,.legend .o{background:var(--accent)}
+.wk .l,.legend .l{background:var(--bar)}
+.wk .late{color:var(--bad);font-weight:600}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 .theme{border:0;background:none;color:var(--muted);font:inherit;font-size:13px;cursor:pointer;padding:0}
 @media (max-width:640px){td.detail,th.detail{display:none}h1{font-size:24px}}
 </style>
@@ -69,10 +81,17 @@ a:hover{text-decoration-color:currentColor}
   </header>
 
   <section class="kpis" aria-label="Главные цифры">
-    <div class="kpi alert"><span class="lab">Нужно от вас</span><span class="num" id="k-need">—</span><span class="sub" id="k-urgent"></span></div>
-    <div class="kpi"><span class="lab">Ждём оплату от клиентов</span><span class="num" id="k-wait">—</span><span class="sub" id="k-wait-n"></span></div>
-    <div class="kpi"><span class="lab">Пришло, не внесено на портал</span><span class="num" id="k-came">—</span><span class="sub" id="k-came-n"></span></div>
-    <div class="kpi"><span class="lab">Открытых задач</span><span class="num" id="k-open">—</span><span class="sub" id="k-open-sub"></span></div>
+    <button type="button" class="kpi alert" data-how="need" aria-expanded="false"><span class="lab">Нужно от вас</span><span class="num" id="k-need">—</span><span class="sub" id="k-urgent"></span></button>
+    <button type="button" class="kpi" data-how="wait" aria-expanded="false"><span class="lab">Ждём оплату от клиентов</span><span class="num" id="k-wait">—</span><span class="sub" id="k-wait-n"></span></button>
+    <button type="button" class="kpi" data-how="came" aria-expanded="false"><span class="lab">Пришло, не внесено на портал</span><span class="num" id="k-came">—</span><span class="sub" id="k-came-n"></span></button>
+    <button type="button" class="kpi" data-how="open" aria-expanded="false"><span class="lab">Открытых задач</span><span class="num" id="k-open">—</span><span class="sub" id="k-open-sub"></span></button>
+  </section>
+  <p class="stamp">Нажмите на цифру, чтобы увидеть, из чего она сложилась.</p>
+
+  <section class="card how" id="how" hidden>
+    <h2 id="how-h"></h2>
+    <p class="src" id="how-src"></p>
+    <div class="wrap"><table id="t-how"><thead><tr><th>Клиент</th><th>Что</th><th class="amt">Сумма, ₽</th><th>Срок</th></tr></thead><tbody></tbody></table></div>
   </section>
 
   <section class="card need">
@@ -84,6 +103,13 @@ a:hover{text-decoration-color:currentColor}
     <h2>Деньги клиентов</h2>
     <p class="note">Ждём оплату, пришло и надо внести на портал, надо выставить счёт. Название клиента открывает заказ на портале (только с вашего компьютера).</p>
     <div class="wrap"><table id="t-money"><thead><tr><th>Статус</th><th>Клиент</th><th>Менеджер</th><th>Что</th><th class="amt">Сумма, ₽</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Когда ждём оплату</h2>
+    <p class="note">Позиции «ждём» по сроку задачи. Красное — срок прошёл.</p>
+    <div class="legend"><span><i class="o"></i>мои клиенты</span><span><i class="l"></i>клиенты Лены</span></div>
+    <div class="wk" id="wk"></div>
   </section>
 
   <div class="tools">
@@ -211,6 +237,45 @@ a:hover{text-decoration-color:currentColor}
     take.append('От вас ждут ', el('b', null, String(need.length)), ' дел, из них срочных ', el('b', null, String(urgent)), '. Клиенты должны ', el('b', null, rub.format(sum(wait)) + ' ₽'), '.');
   }
 
+  // «Как посчитано»: состав цифры и откуда она
+  const HOW = {
+    need: ['Нужно от вас', 'Сводка утра (раздел «Нужно от вас»), её собирает Claude из почты и веток. Срочные сверху.', () => last.summary.filter((r) => r.section === 'Нужно от вас').map((r) => ({client: r.flag || '', title: r.text, link: r.link}))],
+    wait: ['Ждём оплату от клиентов', 'Система заданий: задачи с отметкой денег «ждём». Сумма = сумма поля «Сумма» этих задач.', () => last.tasks.filter((r) => r.money === 'ждём')],
+    came: ['Пришло, не внесено на портал', 'Система заданий: задачи с отметкой денег «пришло» (оплата в банке есть, на портале ещё нет).', () => last.tasks.filter((r) => r.money === 'пришло')],
+    open: ['Открытых задач', 'Система заданий: все невыполненные задачи всех веток.', () => last.tasks],
+  };
+  let howOpen = '';
+  function how() {
+    document.querySelectorAll('button.kpi').forEach((b) => b.setAttribute('aria-expanded', String(b.dataset.how === howOpen)));
+    $('how').hidden = !howOpen;
+    if (!howOpen) return;
+    const [h, src, rows] = HOW[howOpen];
+    const list = rows().slice().sort((a, b) => (Number(b.amount) || 0) - (Number(a.amount) || 0));
+    $('how-h').textContent = h + ': из чего сложилось';
+    $('how-src').textContent = 'Откуда: ' + src + ' Данные на ' + $('upd').dataset.at + '.';
+    fill('t-how', list, [C.client, C.title, C.amount, C.due], 'Пусто.');
+  }
+  document.querySelectorAll('button.kpi').forEach((b) => b.addEventListener('click', () => { howOpen = howOpen === b.dataset.how ? '' : b.dataset.how; how(); }));
+
+  // Ожидаемые оплаты по неделям срока
+  function weeks() {
+    const box = $('wk'); box.replaceChildren();
+    const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+    const mon = new Date(t0); mon.setDate(t0.getDate() - ((t0.getDay() + 6) % 7));
+    const b = [['Срок прошёл', true], ['Эта неделя'], ['Следующая неделя'], ['Позже'], ['Без срока']].map(([n, late]) => ({n, late, o: 0, l: 0, k: 0}));
+    last.tasks.filter((r) => r.money === 'ждём').forEach((r) => {
+      const d = parseRu(r.due); let i = 4;
+      if (d) i = d < t0 ? 0 : d < new Date(+mon + 7 * 864e5) ? 1 : d < new Date(+mon + 14 * 864e5) ? 2 : 3;
+      b[i][r.mgr === 'Лена' ? 'l' : 'o'] += Number(r.amount) || 0; b[i].k++;
+    });
+    const max = Math.max(1, ...b.map((x) => x.o + x.l));
+    b.forEach((x) => {
+      const tr = el('div', 'tr'); tr.title = 'мои ' + rub.format(x.o) + ' ₽, Лены ' + rub.format(x.l) + ' ₽';
+      [['o', x.o], ['l', x.l]].forEach(([c, v]) => { if (v) { const i = el('i', c); i.style.width = (100 * v / max) + '%'; tr.append(i); } });
+      box.append(el('span', x.late && x.k ? 'late' : null, x.n), tr, el('span', 'amt', x.k ? rub.format(x.o + x.l) + ' ₽ · ' + x.k : '—'));
+    });
+  }
+
   function draw() {
     const {tasks, summary} = last;
     const need = summary.filter((r) => r.section === 'Нужно от вас').sort((a, b) => (b.flag === 'срочно') - (a.flag === 'срочно'));
@@ -261,7 +326,8 @@ a:hover{text-decoration-color:currentColor}
       const upd = $('upd');
       upd.textContent = 'Обновлено ' + u.toLocaleString('ru-RU', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow'}) + ' МСК' + (hours > 30 ? ' — данные устарели' : '');
       upd.classList.toggle('stale', hours > 30);
-      kpis(); draw();
+      upd.dataset.at = u.toLocaleString('ru-RU', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow'}) + ' МСК';
+      kpis(); draw(); weeks(); how();
     } catch (e) {
       $('upd').textContent = 'Не удалось загрузить данные'; $('upd').classList.add('err');
     }
