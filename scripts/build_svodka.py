@@ -103,6 +103,26 @@ def lena_clients(tasks):
     return out
 
 
+PROGNOZ_JSON = "/mnt/project-files/daily-control/prodleniya/prognoz.json"
+
+
+def prognoz():
+    """Прогноз продлений СС/ДС по реестру ФСА (готовит ветка «Продления сертификатов и прогноз»)."""
+    if not os.path.exists(PROGNOZ_JSON):
+        return None
+    p = json.load(open(PROGNOZ_JSON, encoding="utf-8"))
+    month = datetime.now(MSK).strftime("%Y-%m")
+    months = [m for m in p.get("months", []) if m["month"] >= month]
+    return {
+        "built": p.get("built", ""),
+        "source": p.get("source", ""),
+        "next6_expected": sum(m["expected"] for m in months[:6]),
+        "next6_potential": sum(m["potential"] for m in months[:6]),
+        "total_expected": sum(m["expected"] for m in months),
+        "months": months,
+    }
+
+
 def main():
     db_dir, summary_path = sys.argv[1], sys.argv[2]
     out = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(__file__), "..", "data", "svodka.json")
@@ -136,6 +156,7 @@ def main():
         "tasks": tasks,
         "summary": summary,
         "lena_clients": lena_clients(tasks),
+        "prognoz": prognoz(),
     }
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(data, fh, ensure_ascii=False, indent=1)
