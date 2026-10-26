@@ -133,6 +133,7 @@ def main():
             "wait": 1 if t.get("status") == "wait" else 0,
             "waitSince": t.get("waitSince") or "",
             "prio": 1 if t.get("prio") else 0,
+            "evening": 1 if (t.get("evening") or t.get("when") == "вечер") else 0,
             "link": t.get("url") or t.get("link") or "",
         })
     summary = json.load(open(summary_path, encoding="utf-8"))
