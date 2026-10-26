@@ -310,7 +310,7 @@ td.st .pill{margin:0 4px 2px 0}
     if (r.prio) td.append(el('span', 'pill bad', 'приоритет'));
     if (r.evening) td.append(el('span', 'pill eve', 'на вечер'));
     if (r.expert) td.append(el('span', 'pill exp', 'ждём эксперта'));
-    if (r.wait) td.append(el('span', 'pill warn', 'ждём клиента' + (r.waitSince ? ' с ' + String(r.waitSince).slice(0, 5) : '')));
+    if (r.wait && !r.expert) td.append(el('span', 'pill warn', 'ждём клиента' + (r.waitSince ? ' с ' + String(r.waitSince).slice(0, 5) : '')));
     if (r.money) td.append(el('span', 'pill ' + (r.money === 'пришло' ? 'ok' : r.money === 'ждём' ? 'warn' : ''), r.money));
     if (!td.childNodes.length) td.append(el('span', 'pill', r.pay ? 'оплата' : 'в работе'));
     return td;
@@ -384,7 +384,7 @@ td.st .pill{margin:0 4px 2px 0}
     if (state.f === 'due' && !r.due) return false;
     if (state.f === 'new' && r.added !== today) return false;
     if (state.f === 'eve' && !r.evening) return false;
-    if (state.f === 'wait' && !r.wait) return false;
+    if (state.f === 'wait' && !(r.wait && !r.expert)) return false;
     if (state.f === 'expert' && !r.expert) return false;
     if (!state.q) return true;
     return [r.client, r.title, r.detail, r.amount, r.due].join(' ').toLowerCase().includes(state.q);
