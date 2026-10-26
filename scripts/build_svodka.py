@@ -110,7 +110,7 @@ def main():
     for f in sorted(glob.glob(os.path.join(db_dir, "tasks", "*.json"))):
         t = json.load(open(f, encoding="utf-8"))
         t.setdefault("id", os.path.splitext(os.path.basename(f))[0])
-        if t.get("status") not in ("open", "wait"):
+        if t.get("status") not in ("open", "wait", "expert"):
             continue
         m = money_of(t)
         if m == "ждём" and not t.get("src"):
@@ -130,7 +130,8 @@ def main():
             "added": t.get("added") or "",
             "money": m,
             "pay": 1 if (m or t.get("cat") == "pay") else 0,
-            "wait": 1 if t.get("status") == "wait" else 0,
+            "wait": 1 if t.get("status") in ("wait", "expert") else 0,
+            "expert": 1 if t.get("status") == "expert" else 0,
             "waitSince": t.get("waitSince") or "",
             "prio": 1 if t.get("prio") else 0,
             "evening": 1 if (t.get("evening") or t.get("when") == "вечер") else 0,
