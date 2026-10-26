@@ -119,6 +119,8 @@ def main():
             "client": t.get("who") or "",
             "title": t.get("title") or "",
             "detail": (t.get("detail") or "").strip(),
+            "next": (t.get("next") or "").strip(),
+            "lastMove": (t.get("lastMove") or "").strip(),
             "amount": t.get("amount"),
             "due": t.get("due") or "",
             "mgr": t.get("mgr") or "",

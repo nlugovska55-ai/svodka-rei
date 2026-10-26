@@ -199,7 +199,7 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
   const C = {
     client: (r) => linkOr(el('td', 'client'), r.client, r.link),
     title: (r) => el('td', null, r.title),
-    detail: (r) => { const td = el('td', 'detail'); const d = el('div', 'clamp', r.detail); d.title = 'Нажмите, чтобы раскрыть'; d.addEventListener('click', () => d.classList.toggle('open')); td.append(d); return td; },
+    detail: (r) => { const td = el('td', 'detail'); const d = el('div', 'clamp', (r.next ? 'Дальше: ' + r.next + '. ' : '') + (r.lastMove ? '[' + r.lastMove + '] ' : '') + r.detail); d.title = 'Нажмите, чтобы раскрыть'; d.addEventListener('click', () => d.classList.toggle('open')); td.append(d); return td; },
     amount: (r) => el('td', 'amt', fmtRub(r.amount)),
     mgr: (r) => el('td', null, r.mgr),
     owner: (r) => el('td', 'due', r.owner || '—'),
