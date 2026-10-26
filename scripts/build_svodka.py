@@ -113,6 +113,8 @@ def main():
         if t.get("status") != "open":
             continue
         m = money_of(t)
+        if m == "ждём" and not t.get("src"):
+            m = "проверяется"  # правило 26.10: «ждём» только с источником (src)
         tasks.append({
             "id": t["id"],
             "section": section_of(t),
