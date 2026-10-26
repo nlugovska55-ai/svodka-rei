@@ -52,6 +52,7 @@ a:hover{text-decoration-color:currentColor}
 .pill{display:inline-block;padding:0 8px;border-radius:999px;font-size:12px;border:1px solid var(--line);white-space:nowrap}
 .pill.bad{color:var(--bad);border-color:var(--bad)}
 .pill.warn{color:var(--warn);border-color:var(--warn)}
+.pill.eve{color:#5b4bb3;border-color:#5b4bb3}
 .pill.ok{color:var(--ok);border-color:var(--ok)}
 .bar{display:flex;align-items:center;justify-content:flex-end;gap:8px}
 .bar i{display:block;height:6px;border-radius:3px;background:var(--bar)}
@@ -79,7 +80,15 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
 .tab[hidden]{display:none}
 .src-line{margin:0;font-size:12px;color:var(--muted)}
 .more{justify-self:start}
-.cmlink{display:inline-block;margin-top:8px;padding:8px 14px;border-radius:8px;background:var(--accent);color:var(--bg);text-decoration:none;font-weight:600}
+.cmlink{display:inline-block;padding:8px 14px;border:0;border-radius:8px;background:var(--accent);color:var(--bg);font:inherit;font-weight:600;cursor:pointer}
+.cmlink:disabled{opacity:.45;cursor:default}
+.sendbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:8px}
+.cmb{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:2px 8px;cursor:pointer;font:inherit;font-size:13px;color:var(--fg);white-space:nowrap}
+.cmb.has{border-color:var(--warn);color:var(--warn)}
+tr.cmrow td{background:var(--bg)}
+tr.cmrow textarea{width:100%;max-width:min(860px,calc(100vw - 80px));display:block;min-height:64px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit;resize:vertical}
+td.st{white-space:nowrap}
+td.st .pill{margin:0 4px 2px 0}
 @media (max-width:640px){.kpis{grid-template-columns:1fr 1fr}.kpi{padding:10px 12px}.kpi .num{font-size:22px}.tab>.stamp{display:none}}
 @media (max-width:640px){td.detail,th.detail{display:none}h1{font-size:24px}}
 </style>
@@ -89,8 +98,7 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
   <header>
     <div class="head"><h1>Сводка дня</h1><span class="upd" id="upd">Загрузка…</span></div>
     <p class="take" id="take"></p>
-    <a class="cmlink" href="https://claude.ai/artifact/3FMn9JyWFXrL6ZzgAx5JAY#cmBox" target="_blank" rel="noopener">Оставить комментарий для Claude</a>
-    <p class="src-line">Комментарии сохраняются на странице задач; Claude разбирает их в 10:00, 13:00 и 18:00 и по команде «посмотри комментарии».</p>
+    <div class="sendbar"><button type="button" class="cmlink" id="cm-send" disabled>Отправить Claude</button><span class="stamp" id="cm-state">Напишите комментарий у клиента (кнопка 💬), потом нажмите «Отправить». Claude разбирает в 10:00, 13:00 и 18:00.</span></div>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Разделы">
@@ -148,27 +156,29 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
     <button class="chip" type="button" data-f="all" aria-pressed="true">Все</button>
     <button class="chip" type="button" data-f="due" aria-pressed="false">Со сроком</button>
     <button class="chip" type="button" data-f="new" aria-pressed="false">Новые за сегодня</button>
+    <button class="chip" type="button" data-f="eve" aria-pressed="false">На вечер</button>
+    <button class="chip" type="button" data-f="wait" aria-pressed="false">Ждём клиента</button>
   </div>
 
   <div class="tab" data-tab="clients" hidden>
   <section class="card">
     <h2>Мои клиенты</h2>
     <p class="note">Логика молока, GEA, ВкусВилл, Виртекс, Востряково. Сначала оплаты.</p>
-    <div class="wrap"><table id="t-mine"><thead><tr><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+    <div class="wrap"><table id="t-mine"><thead><tr><th></th><th>Статус</th><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
     <p class="src-line" data-src="система заданий"></p>
   </section>
 
   <section class="card">
     <h2>Клиенты Лены</h2>
     <p class="note">Сначала оплаты.</p>
-    <div class="wrap"><table id="t-lena"><thead><tr><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+    <div class="wrap"><table id="t-lena"><thead><tr><th></th><th>Статус</th><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
     <p class="src-line" data-src="система заданий"></p>
   </section>
 
   <section class="card">
     <h2>Активные клиенты Лены (2025–2026)</h2>
     <p class="note" id="lc-note">По сводке файлов Лены. Сначала те, кто должен оплатить, потом с открытыми делами.</p>
-    <div class="wrap"><table id="t-lc"><thead><tr><th>Клиент</th><th class="detail">Годы и услуги</th><th>Открытые дела</th><th class="amt">Ждём оплату, ₽</th><th>Ближайший срок</th></tr></thead><tbody></tbody></table></div>
+    <div class="wrap"><table id="t-lc"><thead><tr><th></th><th>Клиент</th><th class="detail">Годы и услуги</th><th>Открытые дела</th><th class="amt">Ждём оплату, ₽</th><th>Ближайший срок</th></tr></thead><tbody></tbody></table></div>
     <div><button class="chip" type="button" id="lc-all">Показать всех</button></div>
     <p class="src-line" data-src="сводка файлов Лены (CSV с ПК) + система заданий"></p>
   </section>
@@ -179,13 +189,13 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
     <section class="card">
       <h2>Бухгалтерия</h2>
       <p class="note">Поставщики, налоги, 1С, вопросы Ларисе.</p>
-      <div class="wrap"><table id="t-buh"><thead><tr><th>Кто</th><th>Что</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+      <div class="wrap"><table id="t-buh"><thead><tr><th>Статус</th><th>Кто</th><th>Что</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
       <p class="src-line" data-src="система заданий (ветка «Бухгалтерия»)"></p>
     </section>
     <section class="card">
       <h2>Диадок</h2>
       <p class="note">Я только смотрю и напоминаю, подписываете вы.</p>
-      <div class="wrap"><table id="t-edo"><thead><tr><th>Что</th><th class="detail">Подробности</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+      <div class="wrap"><table id="t-edo"><thead><tr><th>Статус</th><th>Что</th><th class="detail">Подробности</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
       <p class="src-line" data-src="система заданий (ветка «Браузер»)"></p>
     </section>
   </div>
@@ -200,7 +210,7 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
     </section>
     <section class="card">
       <h2>Прочее</h2>
-      <div class="wrap"><table id="t-other"><thead><tr><th>Что</th><th class="detail">Подробности</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+      <div class="wrap"><table id="t-other"><thead><tr><th>Статус</th><th>Что</th><th class="detail">Подробности</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
       <p class="src-line" data-src="система заданий"></p>
     </section>
   </div>
@@ -266,17 +276,85 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
       if (d && d - t0 <= 3 * 864e5) td.classList.add('late'); return td;
     },
   };
+  // Статус задачи: приоритет, ждём клиента (с даты), деньги, иначе «в работе»
+  C.status = (r) => {
+    const td = el('td', 'st');
+    if (r.prio) td.append(el('span', 'pill bad', 'приоритет'));
+    if (r.evening) td.append(el('span', 'pill eve', 'на вечер'));
+    if (r.wait) td.append(el('span', 'pill warn', 'ждём клиента' + (r.waitSince ? ' с ' + String(r.waitSince).slice(0, 5) : '')));
+    if (r.money) td.append(el('span', 'pill ' + (r.money === 'пришло' ? 'ok' : r.money === 'ждём' ? 'warn' : ''), r.money));
+    if (!td.childNodes.length) td.append(el('span', 'pill', r.pay ? 'оплата' : 'в работе'));
+    return td;
+  };
+
+  // Комментарии для Claude: черновики хранятся в этом браузере до нажатия «Отправить»
+  let drafts = {};
+  try { drafts = JSON.parse(localStorage.getItem('svodka-cm') || '{}'); } catch (e) {}
+  const saveDrafts = () => { try { localStorage.setItem('svodka-cm', JSON.stringify(drafts)); } catch (e) {} sendState(); };
+  const openCm = new Set();
+  const filled = (d) => (d.text && d.text.trim()) || d.action;
+  const cmKey = (r) => r.id || ('client:' + r.client);
+  function sendState(msg) {
+    const n = Object.values(drafts).filter(filled).length;
+    const b = $('cm-send'); b.disabled = !n; b.textContent = n ? 'Отправить Claude (' + n + ')' : 'Отправить Claude';
+    if (msg) $('cm-state').textContent = msg;
+  }
+  C.cm = (r) => {
+    const td = el('td'); const k = cmKey(r);
+    const b = el('button', 'cmb' + (drafts[k] && filled(drafts[k]) ? ' has' : ''), '💬'); b.type = 'button'; b.title = 'Комментарий для Claude';
+    b.addEventListener('click', () => { openCm.has(k) ? openCm.delete(k) : openCm.add(k); draw(); });
+    td.append(b); return td;
+  };
+  const cmRow = (r, span) => {
+    const k = cmKey(r); const tr = el('tr', 'cmrow'); const td = el('td'); td.colSpan = span;
+    const ta = el('textarea'); ta.placeholder = 'Комментарий для Claude по «' + r.client + '»: что сделать, что изменилось'; ta.value = (drafts[k] && drafts[k].text) || '';
+    ta.addEventListener('input', () => {
+      const d = drafts[k] || {client: r.client, taskId: r.id || null, taskTitle: r.title || null, action: ''};
+      d.text = ta.value; d.at = new Date().toISOString();
+      if (d.text.trim() || d.action) drafts[k] = d; else delete drafts[k];
+      saveDrafts();
+    });
+    // Быстрые статусы: уходят вместе с комментарием, Claude ставит их в базе задач
+    const acts = el('div', 'tools');
+    [['eve', 'На вечер'], ['prio', 'В приоритет'], ['wait', 'Ждём клиента'], ['done', 'Сделано']].forEach(([a, label]) => {
+      const c = el('button', 'chip', label); c.type = 'button';
+      c.setAttribute('aria-pressed', String(!!(drafts[k] && drafts[k].action === a)));
+      c.addEventListener('click', () => {
+        const d = drafts[k] || {client: r.client, taskId: r.id || null, taskTitle: r.title || null, text: '', at: new Date().toISOString()};
+        d.action = d.action === a ? '' : a; d.actionLabel = d.action ? label : '';
+        if (!d.text && !d.action) delete drafts[k]; else drafts[k] = d;
+        saveDrafts(); draw();
+      });
+      acts.append(c);
+    });
+    td.append(acts, ta); tr.append(td); return tr;
+  };
+  $('cm-send').addEventListener('click', async () => {
+    const items = Object.values(drafts).filter(filled);
+    if (!items.length) return;
+    $('cm-send').disabled = true; sendState('Отправляю…');
+    try {
+      const res = await fetch('/api/comments', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({items})});
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j.ok) throw new Error(j.error || res.status);
+      drafts = {}; openCm.clear(); saveDrafts(); draw();
+      const t = new Date(); sendState('Отправлено ' + items.length + ' в ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + '. Claude разберёт на ближайшем разборе (10:00, 13:00, 18:00).');
+    } catch (e) { sendState('Не отправилось: ' + e.message + '. Черновики сохранены, попробуйте ещё раз.'); }
+  });
+
   const order = (a, b) => ((b.prio || 0) - (a.prio || 0)) || (b.pay - a.pay) || ((parseRu(a.due) || 9e15) - (parseRu(b.due) || 9e15)) || ((Number(b.amount) || 0) - (Number(a.amount) || 0));
   const match = (r) => {
     if (state.f === 'due' && !r.due) return false;
     if (state.f === 'new' && r.added !== today) return false;
+    if (state.f === 'eve' && !r.evening) return false;
+    if (state.f === 'wait' && !r.wait) return false;
     if (!state.q) return true;
     return [r.client, r.title, r.detail, r.amount, r.due].join(' ').toLowerCase().includes(state.q);
   };
   const fill = (id, rows, cols, emptyText) => {
     const tb = document.querySelector('#' + id + ' tbody'); tb.replaceChildren();
     if (!rows.length) { const tr = el('tr'); const td = el('td', 'empty', emptyText); td.colSpan = 9; tr.append(td); tb.append(tr); return; }
-    rows.forEach((r) => { const tr = el('tr'); cols.forEach((c) => tr.append(c(r))); tb.append(tr); });
+    rows.forEach((r) => { const tr = el('tr'); cols.forEach((c) => tr.append(c(r))); tb.append(tr); if (cols.includes(C.cm) && openCm.has(cmKey(r))) tb.append(cmRow(r, cols.length)); });
   };
   const sum = (a) => a.reduce((s, r) => s + (Number(r.amount) || 0), 0);
 
@@ -356,17 +434,18 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
     ], 'Нет оплат по этому фильтру.');
 
     const sec = (s) => tasks.filter((r) => r.section === s && !r.wait && match(r)).sort(order);
-    fill('t-mine', sec('Мои клиенты'), [C.client, C.title, C.detail, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
-    fill('t-lena', sec('Клиенты Лены'), [C.client, C.title, C.detail, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
-    fill('t-buh', sec('Бухгалтерия'), [C.client, C.title, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
-    fill('t-edo', sec('Диадок'), [C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
-    fill('t-other', sec('Прочее'), [C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-mine', sec('Мои клиенты'), [C.cm, C.status, C.client, C.title, C.detail, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-lena', sec('Клиенты Лены'), [C.cm, C.status, C.client, C.title, C.detail, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-buh', sec('Бухгалтерия'), [C.status, C.client, C.title, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-edo', sec('Диадок'), [C.status, C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-other', sec('Прочее'), [C.status, C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
     fill('t-wait', tasks.filter((r) => r.wait && match(r)).sort(order), [C.client, C.title, (r) => el('td', null, r.waitSince || ''), C.owner], 'Никого не ждём.');
     const lc = last.lc.filter((r) => !state.q || [r.client, r.services, r.todo].join(' ').toLowerCase().includes(state.q));
     $('lc-note').textContent = 'По сводке файлов Лены: активных ' + last.lc.length + ', с открытыми делами ' + last.lc.filter((r) => r.open).length + '. Сначала те, кто должен оплатить.';
     const lcShown = state.lcAll ? lc : lc.filter((r) => r.open);
     const lcBtn = $('lc-all'); lcBtn.textContent = state.lcAll ? 'Скрыть клиентов без дел' : 'Показать всех активных (' + lc.length + ')';
     fill('t-lc', lcShown, [
+      C.cm,
       (r) => el('td', 'client', r.client),
       (r) => { const td = el('td', 'detail'); const d = el('div', 'clamp', r.years + '. ' + r.services); d.addEventListener('click', () => d.classList.toggle('open')); td.append(d); return td; },
       (r) => { const td = el('td'); if (r.open) { td.append(el('b', null, String(r.open)), ' ', el('span', 'detail', r.todo)); } else td.append(el('span', 'empty', 'нет')); return td; },
@@ -400,6 +479,7 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
       $('upd').textContent = 'Не удалось загрузить данные'; $('upd').classList.add('err');
     }
   }
+  sendState();
   load();
   setInterval(load, 10 * 60 * 1000);
 })();
