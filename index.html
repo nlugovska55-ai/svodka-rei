@@ -52,6 +52,7 @@ a:hover{text-decoration-color:currentColor}
 .pill{display:inline-block;padding:0 8px;border-radius:999px;font-size:12px;border:1px solid var(--line);white-space:nowrap}
 .pill.bad{color:var(--bad);border-color:var(--bad)}
 .pill.warn{color:var(--warn);border-color:var(--warn)}
+.pill.exp{color:#0b6e8a;border-color:#0b6e8a}
 .pill.eve{color:#5b4bb3;border-color:#5b4bb3}
 .pill.ok{color:var(--ok);border-color:var(--ok)}
 .bar{display:flex;align-items:center;justify-content:flex-end;gap:8px}
@@ -89,6 +90,21 @@ tr.cmrow td{background:var(--bg)}
 tr.cmrow .tools{margin-top:6px}
 tr.cmrow textarea{width:100%;max-width:min(860px,calc(100vw - 80px));display:block;min-height:64px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit;resize:vertical}
 td.st{white-space:nowrap}
+.groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,520px),1fr));gap:12px}
+.cc{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:8px;background:var(--panel);min-width:0;align-content:start}
+.cc-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;align-items:baseline}
+.cc-h .client{font-weight:600;font-size:16px}
+.cc-h .sum{font-size:13px;color:var(--muted)}
+.ct{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;padding-top:8px;border-top:1px solid var(--line)}
+.cc-h+.ct{border-top:0;padding-top:0}
+.ct .body{display:grid;gap:4px;min-width:0}
+.ct>.cmb{align-self:start}
+.ct .meta{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:13px;color:var(--muted)}
+.ct .meta .late{color:var(--bad);font-weight:600}
+.ct .ttl{font-weight:500}
+.ct .det{font-size:13px;color:var(--muted)}
+.ct .cmbox{grid-column:1/-1;background:var(--bg);border-radius:8px;padding:8px;display:grid;gap:6px}
+.ct .cmbox textarea{width:100%;min-height:64px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit;resize:vertical}
 td.st .pill{margin:0 4px 2px 0}
 @media (max-width:640px){.kpis{grid-template-columns:1fr 1fr}.kpi{padding:10px 12px}.kpi .num{font-size:22px}.tab>.stamp{display:none}}
 @media (max-width:640px){td.detail,th.detail{display:none}h1{font-size:24px}}
@@ -159,20 +175,21 @@ td.st .pill{margin:0 4px 2px 0}
     <button class="chip" type="button" data-f="new" aria-pressed="false">Новые за сегодня</button>
     <button class="chip" type="button" data-f="eve" aria-pressed="false">На вечер</button>
     <button class="chip" type="button" data-f="wait" aria-pressed="false">Ждём клиента</button>
+    <button class="chip" type="button" data-f="expert" aria-pressed="false">Ждём эксперта</button>
   </div>
 
   <div class="tab" data-tab="clients" hidden>
   <section class="card">
     <h2>Мои клиенты</h2>
     <p class="note">Логика молока, GEA, ВкусВилл, Виртекс, Востряково. Сначала оплаты.</p>
-    <div class="wrap"><table id="t-mine"><thead><tr><th></th><th>Статус</th><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+    <div class="groups" id="g-mine"></div>
     <p class="src-line" data-src="система заданий"></p>
   </section>
 
   <section class="card">
     <h2>Клиенты Лены</h2>
     <p class="note">Сначала оплаты.</p>
-    <div class="wrap"><table id="t-lena"><thead><tr><th></th><th>Статус</th><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+    <div class="groups" id="g-lena"></div>
     <p class="src-line" data-src="система заданий"></p>
   </section>
 
@@ -267,8 +284,8 @@ td.st .pill{margin:0 4px 2px 0}
 
   const C = {
     client: (r) => linkOr(el('td', 'client'), r.client, r.link),
-    title: (r) => el("td", null, (r.prio ? "★ " : "") + r.title),
-    detail: (r) => { const td = el('td', 'detail'); const d = el('div', 'clamp', (r.next ? 'Дальше: ' + r.next + '. ' : '') + (r.lastMove ? '[' + r.lastMove + '] ' : '') + r.detail); d.title = 'Нажмите, чтобы раскрыть'; d.addEventListener('click', () => d.classList.toggle('open')); td.append(d); return td; },
+    title: (r) => el("td", null, (r.prio ? "★ " : "") + clean(r.title)),
+    detail: (r) => { const td = el('td', 'detail'); const d = el('div', 'clamp', clean((r.next ? 'Дальше: ' + r.next + '. ' : '') + (r.lastMove ? '[' + r.lastMove + '] ' : '') + r.detail)); d.title = 'Нажмите, чтобы раскрыть'; d.addEventListener('click', () => d.classList.toggle('open')); td.append(d); return td; },
     amount: (r) => el('td', 'amt', fmtRub(r.amount)),
     mgr: (r) => el('td', null, r.mgr),
     owner: (r) => el('td', 'due', r.owner || '—'),
@@ -277,11 +294,22 @@ td.st .pill{margin:0 4px 2px 0}
       if (d && d - t0 <= 3 * 864e5) td.classList.add('late'); return td;
     },
   };
+  // Внутренние коды задач (len1602, lena2110, m01…) Ольге не показываем
+  const ID = '(?<![\\w@./\\\\-])[a-z]{1,10}\\d[a-z0-9-]*(?![\\w@./\\\\])\\??';
+  const clean = (t) => String(t || '')
+    .replace(/(Ветка\s+)?cmsg_\w+\.?/g, '').replace(/session_\w+/g, '')
+    .replace(new RegExp('\\s*\\((?:\\s*' + ID + '\\s*[,;]?)+\\)', 'g'), '')
+    .replace(new RegExp('(^|\\s)(с|со)\\s+' + ID, 'g'), '$1с другой задачей')
+    .replace(new RegExp('(^|\\s)(в|по)\\s+' + ID, 'g'), '$1$2 записи')
+    .replace(new RegExp('(?:задач[аиу]?\\s+)?' + ID + '(?:\\s*(?:и|,)\\s*' + ID + ')*', 'g'), '')
+    .replace(/\(\s*(см\.)?\s*\)/g, '').replace(/[;,]?\s*см\.\s*$/g, '').replace(/\(\s*[,;]\s*/g, '(').replace(/\s+([,.;:)])/g, '$1').replace(/([,;])\s*([,;.])/g, '$2').replace(/\s{2,}/g, ' ').replace(/^[\s,;:—-]+|[\s,;:—-]+$/g, '');
+
   // Статус задачи: приоритет, ждём клиента (с даты), деньги, иначе «в работе»
   C.status = (r) => {
     const td = el('td', 'st');
     if (r.prio) td.append(el('span', 'pill bad', 'приоритет'));
     if (r.evening) td.append(el('span', 'pill eve', 'на вечер'));
+    if (r.expert) td.append(el('span', 'pill exp', 'ждём эксперта'));
     if (r.wait) td.append(el('span', 'pill warn', 'ждём клиента' + (r.waitSince ? ' с ' + String(r.waitSince).slice(0, 5) : '')));
     if (r.money) td.append(el('span', 'pill ' + (r.money === 'пришло' ? 'ok' : r.money === 'ждём' ? 'warn' : ''), r.money));
     if (!td.childNodes.length) td.append(el('span', 'pill', r.pay ? 'оплата' : 'в работе'));
@@ -318,7 +346,7 @@ td.st .pill{margin:0 4px 2px 0}
     });
     // Быстрые статусы: уходят вместе с комментарием, Claude ставит их в базе задач
     const acts = el('div', 'tools');
-    [['eve', 'На вечер'], ['prio', 'В приоритет'], ['wait', 'Ждём клиента'], ['done', 'Сделано']].forEach(([a, label]) => {
+    [['eve', 'На вечер'], ['prio', 'В приоритет'], ['wait', 'Ждём клиента'], ['expert', 'Ждём эксперта'], ['done', 'Сделано']].forEach(([a, label]) => {
       const c = el('button', 'chip', label); c.type = 'button';
       c.setAttribute('aria-pressed', String(!!(drafts[k] && drafts[k].action === a)));
       c.addEventListener('click', () => {
@@ -357,6 +385,7 @@ td.st .pill{margin:0 4px 2px 0}
     if (state.f === 'new' && r.added !== today) return false;
     if (state.f === 'eve' && !r.evening) return false;
     if (state.f === 'wait' && !r.wait) return false;
+    if (state.f === 'expert' && !r.expert) return false;
     if (!state.q) return true;
     return [r.client, r.title, r.detail, r.amount, r.due].join(' ').toLowerCase().includes(state.q);
   };
@@ -421,6 +450,39 @@ td.st .pill{margin:0 4px 2px 0}
     });
   }
 
+  // Карточка = клиент, внутри все его задачи; у каждой свой статус и комментарий
+  function groups(id, rows) {
+    const box = $(id); box.replaceChildren();
+    if (!rows.length) { box.append(el('p', 'empty', 'Нет задач по этому фильтру.')); return; }
+    const by = new Map();
+    rows.forEach((r) => { const k = (r.client || '—').trim(); if (!by.has(k)) by.set(k, []); by.get(k).push(r); });
+    const word = (n) => n % 10 === 1 && n % 100 !== 11 ? 'задача' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'задачи' : 'задач';
+    by.forEach((list, client) => {
+      const card = el('article', 'cc');
+      const h = el('div', 'cc-h'); const name = el('span', 'client');
+      const ln = list.find((r) => r.link);
+      if (ln) { const a = el('a', null, client); a.href = ln.link; a.target = '_blank'; a.rel = 'noopener'; name.append(a); } else name.textContent = client;
+      const total = sum(list);
+      h.append(name, el('span', 'sum', list.length + ' ' + word(list.length) + (total ? ' · ' + rub.format(total) + ' ₽' : '')));
+      card.append(h);
+      list.forEach((r) => {
+        const row = el('div', 'ct');
+        const body = el('div', 'body');
+        const meta = el('div', 'meta'); meta.append(...C.status(r).childNodes);
+        if (r.amount) meta.append(el('span', null, fmtRub(r.amount) + ' ₽'));
+        if (r.due) { const d = el('span', null, 'срок ' + r.due); const dd = parseRu(r.due); const t0 = new Date(); t0.setHours(0, 0, 0, 0); if (dd && dd - t0 <= 3 * 864e5) d.className = 'late'; meta.append(d); }
+        if (r.owner) meta.append(el('span', null, r.owner));
+        body.append(meta, el('div', 'ttl', (r.prio ? '★ ' : '') + clean(r.title)));
+        const det = clean((r.next ? 'Дальше: ' + r.next + '. ' : '') + (r.detail || ''));
+        if (det) { const d = el('div', 'det clamp', det); d.title = 'Нажмите, чтобы раскрыть'; d.addEventListener('click', () => d.classList.toggle('open')); body.append(d); }
+        row.append(C.cm(r).firstChild, body);
+        if (openCm.has(cmKey(r))) { const b2 = el('div', 'cmbox'); b2.append(...cmRow(r, 1).firstChild.childNodes); row.append(b2); }
+        card.append(row);
+      });
+      box.append(card);
+    });
+  }
+
   function draw() {
     const {tasks, summary} = last;
     const fr = {'срочно': 0, warn: 1, '': 2, ok: 3};
@@ -443,8 +505,8 @@ td.st .pill{margin:0 4px 2px 0}
     ], 'Нет оплат по этому фильтру.');
 
     const sec = (s) => tasks.filter((r) => r.section === s && !r.wait && match(r)).sort(order);
-    fill('t-mine', sec('Мои клиенты'), [C.cm, C.status, C.client, C.title, C.detail, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
-    fill('t-lena', sec('Клиенты Лены'), [C.cm, C.status, C.client, C.title, C.detail, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
+    groups('g-mine', sec('Мои клиенты'));
+    groups('g-lena', sec('Клиенты Лены'));
     fill('t-buh', sec('Бухгалтерия'), [C.status, C.client, C.title, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
     fill('t-edo', sec('Диадок'), [C.status, C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
     fill('t-other', sec('Прочее'), [C.status, C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
