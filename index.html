@@ -118,6 +118,8 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
     <div class="wrap"><table id="t-need"><thead><tr><th>Срочность</th><th>Что сделать</th></tr></thead><tbody></tbody></table></div>
     <button class="chip more" type="button" id="need-all" hidden></button>
     <p class="src-line" data-src="сводка утра (раздел «Нужно от вас»)"></p>
+    <h2>Ждём клиента</h2>
+    <div class="wrap"><table id="t-wait"><thead><tr><th>Клиент</th><th>Что</th><th>С какого дня</th><th>Кто следит</th></tr></thead><tbody></tbody></table></div>
   </section>
   </div>
 
@@ -251,7 +253,7 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
 
   const C = {
     client: (r) => linkOr(el('td', 'client'), r.client, r.link),
-    title: (r) => el('td', null, r.title),
+    title: (r) => el("td", null, (r.prio ? "★ " : "") + r.title),
     detail: (r) => { const td = el('td', 'detail'); const d = el('div', 'clamp', (r.next ? 'Дальше: ' + r.next + '. ' : '') + (r.lastMove ? '[' + r.lastMove + '] ' : '') + r.detail); d.title = 'Нажмите, чтобы раскрыть'; d.addEventListener('click', () => d.classList.toggle('open')); td.append(d); return td; },
     amount: (r) => el('td', 'amt', fmtRub(r.amount)),
     mgr: (r) => el('td', null, r.mgr),
@@ -261,7 +263,7 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
       if (d && d - t0 <= 3 * 864e5) td.classList.add('late'); return td;
     },
   };
-  const order = (a, b) => (b.pay - a.pay) || ((parseRu(a.due) || 9e15) - (parseRu(b.due) || 9e15)) || ((Number(b.amount) || 0) - (Number(a.amount) || 0));
+  const order = (a, b) => ((b.prio || 0) - (a.prio || 0)) || (b.pay - a.pay) || ((parseRu(a.due) || 9e15) - (parseRu(b.due) || 9e15)) || ((Number(b.amount) || 0) - (Number(a.amount) || 0));
   const match = (r) => {
     if (state.f === 'due' && !r.due) return false;
     if (state.f === 'new' && r.added !== today) return false;
@@ -284,7 +286,7 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
     $('k-need').textContent = need.length; $('k-urgent').textContent = 'срочных: ' + urgent;
     $('k-wait').textContent = rub.format(sum(wait)) + ' ₽'; $('k-wait-n').textContent = 'позиций: ' + wait.length;
     $('k-came').textContent = rub.format(sum(came)) + ' ₽'; $('k-came-n').textContent = 'поступлений: ' + came.length;
-    $('k-open').textContent = tasks.length;
+    $('k-open').textContent = tasks.filter((r) => !r.wait).length;
     $('k-open-sub').textContent = 'мои клиенты ' + tasks.filter((r) => r.mgr === 'Ольга').length + ', Лены ' + tasks.filter((r) => r.mgr === 'Лена').length;
     const take = $('take'); take.replaceChildren();
     take.append('От вас ждут ', el('b', null, String(need.length)), ' дел, из них срочных ', el('b', null, String(urgent)), '. Клиенты должны ', el('b', null, rub.format(sum(wait)) + ' ₽'), '.');
@@ -350,12 +352,13 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
       (r) => { const td = el('td', 'amt'); const w = el('div', 'bar'); const i = el('i'); i.style.width = Math.max(2, Math.round(64 * (Number(r.amount) || 0) / max)) + 'px'; w.append(el('span', null, fmtRub(r.amount)), i); td.append(w); return td; },
     ], 'Нет оплат по этому фильтру.');
 
-    const sec = (s) => tasks.filter((r) => r.section === s && match(r)).sort(order);
+    const sec = (s) => tasks.filter((r) => r.section === s && !r.wait && match(r)).sort(order);
     fill('t-mine', sec('Мои клиенты'), [C.client, C.title, C.detail, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
     fill('t-lena', sec('Клиенты Лены'), [C.client, C.title, C.detail, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
     fill('t-buh', sec('Бухгалтерия'), [C.client, C.title, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
     fill('t-edo', sec('Диадок'), [C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
     fill('t-other', sec('Прочее'), [C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-wait', tasks.filter((r) => r.wait && match(r)).sort(order), [C.client, C.title, (r) => el('td', null, r.waitSince || ''), C.owner], 'Никого не ждём.');
     const lc = last.lc.filter((r) => !state.q || [r.client, r.services, r.todo].join(' ').toLowerCase().includes(state.q));
     $('lc-note').textContent = 'По сводке файлов Лены: активных ' + last.lc.length + ', с открытыми делами ' + last.lc.filter((r) => r.open).length + '. Сначала те, кто должен оплатить.';
     const lcShown = state.lcAll ? lc : lc.filter((r) => r.open);
