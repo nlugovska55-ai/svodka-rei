@@ -79,6 +79,7 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
 .tab[hidden]{display:none}
 .src-line{margin:0;font-size:12px;color:var(--muted)}
 .more{justify-self:start}
+.cmlink{display:inline-block;margin-top:8px;padding:8px 14px;border-radius:8px;background:var(--accent);color:var(--bg);text-decoration:none;font-weight:600}
 @media (max-width:640px){.kpis{grid-template-columns:1fr 1fr}.kpi{padding:10px 12px}.kpi .num{font-size:22px}.tab>.stamp{display:none}}
 @media (max-width:640px){td.detail,th.detail{display:none}h1{font-size:24px}}
 </style>
@@ -88,6 +89,8 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
   <header>
     <div class="head"><h1>Сводка дня</h1><span class="upd" id="upd">Загрузка…</span></div>
     <p class="take" id="take"></p>
+    <a class="cmlink" href="https://claude.ai/artifact/3FMn9JyWFXrL6ZzgAx5JAY#cmBox" target="_blank" rel="noopener">Оставить комментарий для Claude</a>
+    <p class="src-line">Комментарии сохраняются на странице задач; Claude разбирает их в 10:00, 13:00 и 18:00 и по команде «посмотри комментарии».</p>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Разделы">
