@@ -86,6 +86,7 @@ nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
 .cmb{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:2px 8px;cursor:pointer;font:inherit;font-size:13px;color:var(--fg);white-space:nowrap}
 .cmb.has{border-color:var(--warn);color:var(--warn)}
 tr.cmrow td{background:var(--bg)}
+tr.cmrow .tools{margin-top:6px}
 tr.cmrow textarea{width:100%;max-width:min(860px,calc(100vw - 80px));display:block;min-height:64px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit;resize:vertical}
 td.st{white-space:nowrap}
 td.st .pill{margin:0 4px 2px 0}
@@ -296,12 +297,13 @@ td.st .pill{margin:0 4px 2px 0}
   const cmKey = (r) => r.id || ('client:' + r.client);
   function sendState(msg) {
     const n = Object.values(drafts).filter(filled).length;
-    const b = $('cm-send'); b.disabled = !n; b.textContent = n ? 'Отправить Claude (' + n + ')' : 'Отправить Claude';
+    const b = $('cm-send'); b.disabled = !n; b.textContent = n ? 'Отправить Claude (' + n + ' в черновиках)' : 'Отправить Claude';
     if (msg) $('cm-state').textContent = msg;
   }
   C.cm = (r) => {
     const td = el('td'); const k = cmKey(r);
-    const b = el('button', 'cmb' + (drafts[k] && filled(drafts[k]) ? ' has' : ''), '💬'); b.type = 'button'; b.title = 'Комментарий для Claude';
+    const saved = drafts[k] && filled(drafts[k]);
+    const b = el('button', 'cmb' + (saved ? ' has' : ''), saved ? '💬 сохранено' : '💬'); b.type = 'button'; b.title = 'Комментарий для Claude';
     b.addEventListener('click', () => { openCm.has(k) ? openCm.delete(k) : openCm.add(k); draw(); });
     td.append(b); return td;
   };
@@ -327,7 +329,14 @@ td.st .pill{margin:0 4px 2px 0}
       });
       acts.append(c);
     });
-    td.append(acts, ta); tr.append(td); return tr;
+    // «Сохранить»: черновик остаётся в этом браузере до «Отправить Claude», окно закрывается
+    const foot = el('div', 'tools');
+    const save = el('button', 'chip', 'Сохранить'); save.type = 'button'; save.setAttribute('aria-pressed', 'true');
+    const note = el('span', 'stamp', drafts[k] ? 'Сохранено в этом браузере, уйдёт по кнопке «Отправить Claude».' : 'Текст сохраняется сам, пока вы печатаете.');
+    save.addEventListener('click', () => { if (ta.value.trim() || (drafts[k] && drafts[k].action)) { openCm.delete(k); draw(); sendState('Черновик по «' + r.client + '» сохранён. Отправить можно позже.'); } else { openCm.delete(k); draw(); } });
+    ta.addEventListener('input', () => { note.textContent = 'Сохранено ' + new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}) + ', уйдёт по кнопке «Отправить Claude».'; });
+    foot.append(save, note);
+    td.append(acts, ta, foot); tr.append(td); return tr;
   };
   $('cm-send').addEventListener('click', async () => {
     const items = Object.values(drafts).filter(filled);
