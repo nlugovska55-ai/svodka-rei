@@ -185,7 +185,7 @@ td.st .pill{margin:0 4px 2px 0}
   </div>
 
   <div class="tab" data-tab="clients" hidden>
-  <div class="legend-lv"><span class="lv l1">Горит</span>сегодня / просрочено <span class="lv l2">Важно</span>до 3 дней, большие деньги <span class="lv l3">В работе</span> <span class="lv l4">Ждём / потом</span>не на нас · поставить руками — 💬</div>
+  <div class="legend-lv"><span class="lv l1">Горит</span>вы отметили; просрочено больше 3 дней; срок сегодня и ≥ 100 000 ₽ <span class="lv l2">Важно</span>срок до 3 дней, ждём ≥ 100 000 ₽, ваш клиент на неделе <span class="lv l3">В работе</span> <span class="lv l4">Ждём / потом</span>не на нас · поставить руками — 💬</div>
   <section class="card">
     <h2>Мои клиенты</h2>
     <p class="note">Логика молока, GEA, ВкусВилл, Виртекс, Востряково. Сначала оплаты.</p>
@@ -319,10 +319,10 @@ td.st .pill{margin:0 4px 2px 0}
     const t0 = new Date(); t0.setHours(0, 0, 0, 0); const d = parseRu(r.due); const days = d ? Math.round((d - t0) / 864e5) : null;
     const amt = Number(r.amount) || 0;
     if (r.wait || r.expert) return {n: 4, why: r.expert ? 'ждём эксперта' : 'ждём клиента'};
-    if (days !== null && days < 0) return {n: 1, why: 'срок прошёл ' + r.due.slice(0, 5)};
-    if (days === 0) return {n: 1, why: 'срок сегодня'};
-    if (days !== null && days <= 3 && amt >= 100000) return {n: 1, why: 'срок через ' + days + ' дн., ' + rub.format(amt) + ' ₽'};
-    if (days !== null && days <= 3) return {n: 2, why: 'срок через ' + days + ' дн.'};
+    const when = days === null ? '' : days < 0 ? 'срок прошёл ' + r.due.slice(0, 5) : days === 0 ? 'срок сегодня' : 'срок через ' + days + ' дн.';
+    if (days !== null && days <= 0 && amt >= 100000) return {n: 1, why: when + ', ' + rub.format(amt) + ' ₽'};
+    if (days !== null && days < -3) return {n: 1, why: when + ' (больше 3 дней)'};
+    if (days !== null && days <= 3) return {n: 2, why: when};
     if (r.money === 'ждём' && amt >= 100000) return {n: 2, why: 'ждём ' + rub.format(amt) + ' ₽'};
     if (r.mgr === 'Ольга' && days !== null && days <= 7) return {n: 2, why: 'ваш клиент, срок ' + r.due.slice(0, 5)};
     return {n: 3, why: 'обычный порядок'};
