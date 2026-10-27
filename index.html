@@ -52,6 +52,11 @@ a:hover{text-decoration-color:currentColor}
 .pill{display:inline-block;padding:0 8px;border-radius:999px;font-size:12px;border:1px solid var(--line);white-space:nowrap}
 .pill.bad{color:var(--bad);border-color:var(--bad)}
 .pill.warn{color:var(--warn);border-color:var(--warn)}
+.lv{display:inline-block;padding:1px 10px;border-radius:999px;font-size:12px;font-weight:600;color:#fff;white-space:nowrap}
+.lv.l1{background:#b3261e}.lv.l2{background:#c26a00}.lv.l3{background:#6b6862}.lv.l4{background:#a3a097;color:#1f1e1b}
+.why{font-size:12px;color:var(--muted)}
+.cc.l1{border-left:4px solid #b3261e}.cc.l2{border-left:4px solid #c26a00}
+.legend-lv{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);align-items:center}
 .pill.exp{color:#0b6e8a;border-color:#0b6e8a}
 .pill.eve{color:#5b4bb3;border-color:#5b4bb3}
 .pill.ok{color:var(--ok);border-color:var(--ok)}
@@ -173,12 +178,14 @@ td.st .pill{margin:0 4px 2px 0}
     <button class="chip" type="button" data-f="all" aria-pressed="true">Все</button>
     <button class="chip" type="button" data-f="due" aria-pressed="false">Со сроком</button>
     <button class="chip" type="button" data-f="new" aria-pressed="false">Новые за сегодня</button>
+    <button class="chip" type="button" data-f="hot" aria-pressed="false">Горит и важно</button>
     <button class="chip" type="button" data-f="eve" aria-pressed="false">На вечер</button>
     <button class="chip" type="button" data-f="wait" aria-pressed="false">Ждём клиента</button>
     <button class="chip" type="button" data-f="expert" aria-pressed="false">Ждём эксперта</button>
   </div>
 
   <div class="tab" data-tab="clients" hidden>
+  <div class="legend-lv"><span class="lv l1">Горит</span>сегодня / просрочено <span class="lv l2">Важно</span>до 3 дней, большие деньги <span class="lv l3">В работе</span> <span class="lv l4">Ждём / потом</span>не на нас · поставить руками — 💬</div>
   <section class="card">
     <h2>Мои клиенты</h2>
     <p class="note">Логика молока, GEA, ВкусВилл, Виртекс, Востряково. Сначала оплаты.</p>
@@ -304,17 +311,36 @@ td.st .pill{margin:0 4px 2px 0}
     .replace(new RegExp('(?:задач[аиу]?\\s+)?' + ID + '(?:\\s*(?:и|,)\\s*' + ID + ')*', 'g'), '')
     .replace(/\(\s*(см\.)?\s*\)/g, '').replace(/[;,]?\s*см\.\s*$/g, '').replace(/\(\s*[,;]\s*/g, '(').replace(/\s+([,.;:)])/g, '$1').replace(/([,;])\s*([,;.])/g, '$2').replace(/\s{2,}/g, ' ').replace(/^[\s,;:—-]+|[\s,;:—-]+$/g, '');
 
+  // Уровень приоритета: ручной (level 1–4, prio) сильнее автоматического; why — почему такой
+  const LV = {1: ['Горит', 'l1'], 2: ['Важно', 'l2'], 3: ['В работе', 'l3'], 4: ['Ждём / потом', 'l4']};
+  const level = (r) => {
+    if (r.level >= 1 && r.level <= 4) return {n: r.level, why: 'вы отметили'};
+    if (r.prio) return {n: 1, why: 'вы отметили «в приоритет»'};
+    const t0 = new Date(); t0.setHours(0, 0, 0, 0); const d = parseRu(r.due); const days = d ? Math.round((d - t0) / 864e5) : null;
+    const amt = Number(r.amount) || 0;
+    if (r.wait || r.expert) return {n: 4, why: r.expert ? 'ждём эксперта' : 'ждём клиента'};
+    if (days !== null && days < 0) return {n: 1, why: 'срок прошёл ' + r.due.slice(0, 5)};
+    if (days === 0) return {n: 1, why: 'срок сегодня'};
+    if (days !== null && days <= 3 && amt >= 100000) return {n: 1, why: 'срок через ' + days + ' дн., ' + rub.format(amt) + ' ₽'};
+    if (days !== null && days <= 3) return {n: 2, why: 'срок через ' + days + ' дн.'};
+    if (r.money === 'ждём' && amt >= 100000) return {n: 2, why: 'ждём ' + rub.format(amt) + ' ₽'};
+    if (r.mgr === 'Ольга' && days !== null && days <= 7) return {n: 2, why: 'ваш клиент, срок ' + r.due.slice(0, 5)};
+    return {n: 3, why: 'обычный порядок'};
+  };
+  const lvPill = (r) => { const v = level(r); const p = el('span', 'lv ' + LV[v.n][1], LV[v.n][0]); p.title = 'Почему: ' + v.why; return [p, el('span', 'why', v.why)]; };
+
   // Статус задачи: приоритет, ждём клиента (с даты), деньги, иначе «в работе»
-  C.status = (r) => {
+  C.status = (r, noDefault) => {
     const td = el('td', 'st');
-    if (r.prio) td.append(el('span', 'pill bad', 'приоритет'));
     if (r.evening) td.append(el('span', 'pill eve', 'на вечер'));
     if (r.expert) td.append(el('span', 'pill exp', 'ждём эксперта'));
     if (r.wait && !r.expert) td.append(el('span', 'pill warn', 'ждём клиента' + (r.waitSince ? ' с ' + String(r.waitSince).slice(0, 5) : '')));
     if (r.money) td.append(el('span', 'pill ' + (r.money === 'пришло' ? 'ok' : r.money === 'ждём' ? 'warn' : ''), r.money));
-    if (!td.childNodes.length) td.append(el('span', 'pill', r.pay ? 'оплата' : 'в работе'));
+    if (!td.childNodes.length && !noDefault) td.append(el('span', 'pill', r.pay ? 'оплата' : 'в работе'));
     return td;
   };
+
+  C.lvst = (r) => { const td = C.status(r, true); td.prepend(lvPill(r)[0]); return td; };
 
   // Комментарии для Claude: черновики хранятся в этом браузере до нажатия «Отправить»
   let drafts = {};
@@ -346,7 +372,7 @@ td.st .pill{margin:0 4px 2px 0}
     });
     // Быстрые статусы: уходят вместе с комментарием, Claude ставит их в базе задач
     const acts = el('div', 'tools');
-    [['eve', 'На вечер'], ['prio', 'В приоритет'], ['wait', 'Ждём клиента'], ['expert', 'Ждём эксперта'], ['done', 'Сделано']].forEach(([a, label]) => {
+    [['l1', 'Горит'], ['l2', 'Важно'], ['l3', 'В работе'], ['l4', 'Потом'], ['eve', 'На вечер'], ['wait', 'Ждём клиента'], ['expert', 'Ждём эксперта'], ['done', 'Сделано']].forEach(([a, label]) => {
       const c = el('button', 'chip', label); c.type = 'button';
       c.setAttribute('aria-pressed', String(!!(drafts[k] && drafts[k].action === a)));
       c.addEventListener('click', () => {
@@ -379,11 +405,12 @@ td.st .pill{margin:0 4px 2px 0}
     } catch (e) { sendState('Не отправилось: ' + e.message + '. Черновики сохранены, попробуйте ещё раз.'); }
   });
 
-  const order = (a, b) => ((b.prio || 0) - (a.prio || 0)) || (b.pay - a.pay) || ((parseRu(a.due) || 9e15) - (parseRu(b.due) || 9e15)) || ((Number(b.amount) || 0) - (Number(a.amount) || 0));
+  const order = (a, b) => (level(a).n - level(b).n) || (b.pay - a.pay) || ((parseRu(a.due) || 9e15) - (parseRu(b.due) || 9e15)) || ((Number(b.amount) || 0) - (Number(a.amount) || 0));
   const match = (r) => {
     if (state.f === 'due' && !r.due) return false;
     if (state.f === 'new' && r.added !== today) return false;
     if (state.f === 'eve' && !r.evening) return false;
+    if (state.f === 'hot' && level(r).n > 2) return false;
     if (state.f === 'wait' && !(r.wait && !r.expert)) return false;
     if (state.f === 'expert' && !r.expert) return false;
     if (!state.q) return true;
@@ -457,8 +484,10 @@ td.st .pill{margin:0 4px 2px 0}
     const by = new Map();
     rows.forEach((r) => { const k = (r.client || '—').trim(); if (!by.has(k)) by.set(k, []); by.get(k).push(r); });
     const word = (n) => n % 10 === 1 && n % 100 !== 11 ? 'задача' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'задачи' : 'задач';
-    by.forEach((list, client) => {
-      const card = el('article', 'cc');
+    by.forEach((list) => list.sort((a, b) => (level(a).n - level(b).n) || ((parseRu(a.due) || 9e15) - (parseRu(b.due) || 9e15))));
+    const best = (list) => level(list[0]).n;
+    [...by.entries()].sort((a, b) => (best(a[1]) - best(b[1])) || ((parseRu(a[1][0].due) || 9e15) - (parseRu(b[1][0].due) || 9e15))).forEach(([client, list]) => {
+      const card = el('article', 'cc ' + LV[best(list)][1]);
       const h = el('div', 'cc-h'); const name = el('span', 'client');
       const ln = list.find((r) => r.link);
       if (ln) { const a = el('a', null, client); a.href = ln.link; a.target = '_blank'; a.rel = 'noopener'; name.append(a); } else name.textContent = client;
@@ -468,7 +497,7 @@ td.st .pill{margin:0 4px 2px 0}
       list.forEach((r) => {
         const row = el('div', 'ct');
         const body = el('div', 'body');
-        const meta = el('div', 'meta'); meta.append(...C.status(r).childNodes);
+        const meta = el('div', 'meta'); meta.append(...lvPill(r), ...C.status(r, true).childNodes);
         if (r.amount) meta.append(el('span', null, fmtRub(r.amount) + ' ₽'));
         if (r.due) { const d = el('span', null, 'срок ' + r.due); const dd = parseRu(r.due); const t0 = new Date(); t0.setHours(0, 0, 0, 0); if (dd && dd - t0 <= 3 * 864e5) d.className = 'late'; meta.append(d); }
         if (r.owner) meta.append(el('span', null, r.owner));
@@ -507,9 +536,9 @@ td.st .pill{margin:0 4px 2px 0}
     const sec = (s) => tasks.filter((r) => r.section === s && !r.wait && match(r)).sort(order);
     groups('g-mine', sec('Мои клиенты'));
     groups('g-lena', sec('Клиенты Лены'));
-    fill('t-buh', sec('Бухгалтерия'), [C.status, C.client, C.title, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
-    fill('t-edo', sec('Диадок'), [C.status, C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
-    fill('t-other', sec('Прочее'), [C.status, C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-buh', sec('Бухгалтерия'), [C.lvst, C.client, C.title, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-edo', sec('Диадок'), [C.lvst, C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-other', sec('Прочее'), [C.lvst, C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
     fill('t-wait', tasks.filter((r) => r.wait && match(r)).sort(order), [C.client, C.title, (r) => el('td', null, r.waitSince || ''), C.owner], 'Никого не ждём.');
     const lc = last.lc.filter((r) => !state.q || [r.client, r.services, r.todo].join(' ').toLowerCase().includes(state.q));
     $('lc-note').textContent = 'По сводке файлов Лены: активных ' + last.lc.length + ', с открытыми делами ' + last.lc.filter((r) => r.open).length + '. Сначала те, кто должен оплатить.';

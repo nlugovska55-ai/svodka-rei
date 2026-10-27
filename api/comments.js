@@ -35,7 +35,7 @@ export default async function handler(req, res) {
       taskId: x.taskId ? String(x.taskId).slice(0, 100) : null,
       taskTitle: x.taskTitle ? String(x.taskTitle).slice(0, 300) : null,
       text: String(x.text || '').trim().slice(0, 4000),
-      action: ['eve', 'prio', 'wait', 'expert', 'done'].includes(x.action) ? x.action : '',
+      action: ['eve', 'prio', 'l1', 'l2', 'l3', 'l4', 'wait', 'expert', 'done'].includes(x.action) ? x.action : '',
       actionLabel: String(x.actionLabel || '').slice(0, 40),
       at: String(x.at || '').slice(0, 40),
     }))

@@ -133,6 +133,7 @@ def main():
             "wait": 1 if t.get("status") in ("wait", "expert") else 0,  # «ждём эксперта» тоже ожидание
             "waitSince": t.get("waitSince") or "",
             "prio": 1 if t.get("prio") else 0,
+            "level": int(t.get("level") or 0) if str(t.get("level") or "0").isdigit() else 0,
             "evening": 1 if (t.get("evening") or t.get("when") == "вечер") else 0,
             "expert": 1 if (t.get("status") == "expert" or t.get("expert")) else 0,
             "link": t.get("url") or t.get("link") or "",
