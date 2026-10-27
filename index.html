@@ -10,6 +10,7 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1917;--panel:#23221f;--fg:#ecebe6;--muted:#a3a097;--line:#38362f;--bad:#f2867d;--warn:#e0a84a;--ok:#6cc792;--bar:#55524a;--accent:#ecebe6;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#1a1917;--panel:#23221f;--fg:#ecebe6;--muted:#a3a097;--line:#38362f;--bad:#f2867d;--warn:#e0a84a;--ok:#6cc792;--bar:#55524a;--accent:#ecebe6;color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
 .sd{max-width:1200px;margin:0 auto;padding:20px 16px 48px;display:grid;gap:18px}
 .head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
@@ -51,6 +52,7 @@ a:hover{text-decoration-color:currentColor}
 .pill{display:inline-block;padding:0 8px;border-radius:999px;font-size:12px;border:1px solid var(--line);white-space:nowrap}
 .pill.bad{color:var(--bad);border-color:var(--bad)}
 .pill.warn{color:var(--warn);border-color:var(--warn)}
+.pill.eve{color:#5b4bb3;border-color:#5b4bb3}
 .pill.ok{color:var(--ok);border-color:var(--ok)}
 .bar{display:flex;align-items:center;justify-content:flex-end;gap:8px}
 .bar i{display:block;height:6px;border-radius:3px;background:var(--bar)}
@@ -70,6 +72,24 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
 .legend{display:flex;gap:14px;font-size:12px;color:var(--muted)}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 .theme{border:0;background:none;color:var(--muted);font:inherit;font-size:13px;cursor:pointer;padding:0}
+nav.tabs{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;gap:6px;overflow-x:auto;padding:6px 0;border-bottom:1px solid var(--line);scrollbar-width:none}
+nav.tabs button{flex:0 0 auto;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:999px;padding:6px 14px;font:inherit;font-size:14px;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+nav.tabs .n{font-size:12px;opacity:.75;margin-left:4px}
+.tab{display:grid;gap:18px}
+.tab[hidden]{display:none}
+.src-line{margin:0;font-size:12px;color:var(--muted)}
+.more{justify-self:start}
+.cmlink{display:inline-block;padding:8px 14px;border:0;border-radius:8px;background:var(--accent);color:var(--bg);font:inherit;font-weight:600;cursor:pointer}
+.cmlink:disabled{opacity:.45;cursor:default}
+.sendbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:8px}
+.cmb{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:2px 8px;cursor:pointer;font:inherit;font-size:13px;color:var(--fg);white-space:nowrap}
+.cmb.has{border-color:var(--warn);color:var(--warn)}
+tr.cmrow td{background:var(--bg)}
+tr.cmrow textarea{width:100%;max-width:min(860px,calc(100vw - 80px));display:block;min-height:64px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--fg);font:inherit;resize:vertical}
+td.st{white-space:nowrap}
+td.st .pill{margin:0 4px 2px 0}
+@media (max-width:640px){.kpis{grid-template-columns:1fr 1fr}.kpi{padding:10px 12px}.kpi .num{font-size:22px}.tab>.stamp{display:none}}
 @media (max-width:640px){td.detail,th.detail{display:none}h1{font-size:24px}}
 </style>
 </head>
@@ -78,8 +98,18 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
   <header>
     <div class="head"><h1>Сводка дня</h1><span class="upd" id="upd">Загрузка…</span></div>
     <p class="take" id="take"></p>
+    <div class="sendbar"><button type="button" class="cmlink" id="cm-send" disabled>Отправить Claude</button><span class="stamp" id="cm-state">Напишите комментарий у клиента (кнопка 💬), потом нажмите «Отправить». Claude разбирает в 10:00, 13:00 и 18:00.</span></div>
   </header>
 
+  <nav class="tabs" role="tablist" aria-label="Разделы">
+    <button type="button" role="tab" data-tab="today" aria-selected="true">Сегодня</button>
+    <button type="button" role="tab" data-tab="money" aria-selected="false">Деньги</button>
+    <button type="button" role="tab" data-tab="clients" aria-selected="false">Клиенты<span class="n" id="n-clients"></span></button>
+    <button type="button" role="tab" data-tab="buh" aria-selected="false">Бухгалтерия и Диадок<span class="n" id="n-buh"></span></button>
+    <button type="button" role="tab" data-tab="proj" aria-selected="false">Проекты<span class="n" id="n-proj"></span></button>
+  </nav>
+
+  <div class="tab" data-tab="today">
   <section class="kpis" aria-label="Главные цифры">
     <button type="button" class="kpi alert" data-how="need" aria-expanded="false"><span class="lab">Нужно от вас</span><span class="num" id="k-need">—</span><span class="sub" id="k-urgent"></span></button>
     <button type="button" class="kpi" data-how="wait" aria-expanded="false"><span class="lab">Ждём оплату от клиентов</span><span class="num" id="k-wait">—</span><span class="sub" id="k-wait-n"></span></button>
@@ -95,14 +125,21 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
   </section>
 
   <section class="card need">
-    <h2>Нужно от вас</h2>
+    <h2>Сегодня от вас</h2>
     <div class="wrap"><table id="t-need"><thead><tr><th>Срочность</th><th>Что сделать</th></tr></thead><tbody></tbody></table></div>
+    <button class="chip more" type="button" id="need-all" hidden></button>
+    <p class="src-line" data-src="сводка утра (раздел «Нужно от вас»)"></p>
+    <h2>Ждём клиента</h2>
+    <div class="wrap"><table id="t-wait"><thead><tr><th>Клиент</th><th>Что</th><th>С какого дня</th><th>Кто следит</th></tr></thead><tbody></tbody></table></div>
   </section>
+  </div>
 
+  <div class="tab" data-tab="money" hidden>
   <section class="card">
     <h2>Деньги клиентов</h2>
     <p class="note">Ждём оплату, пришло и надо внести на портал, надо выставить счёт. Название клиента открывает заказ на портале (только с вашего компьютера).</p>
     <div class="wrap"><table id="t-money"><thead><tr><th>Статус</th><th>Клиент</th><th>Менеджер</th><th>Что</th><th class="amt">Сумма, ₽</th></tr></thead><tbody></tbody></table></div>
+    <p class="src-line" data-src="система заданий, поле «деньги»"></p>
   </section>
 
   <section class="card">
@@ -110,32 +147,40 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
     <p class="note">Позиции «ждём» по сроку задачи. Красное — срок прошёл.</p>
     <div class="legend"><span><i class="o"></i>мои клиенты</span><span><i class="l"></i>клиенты Лены</span></div>
     <div class="wk" id="wk"></div>
+    <p class="src-line" data-src="система заданий, задачи «ждём» по сроку"></p>
   </section>
+  </div>
 
-  <div class="tools">
+  <div class="tools" id="tools" hidden>
     <input id="q" type="search" placeholder="Поиск по задачам: клиент, сумма, слово" aria-label="Поиск по задачам">
     <button class="chip" type="button" data-f="all" aria-pressed="true">Все</button>
     <button class="chip" type="button" data-f="due" aria-pressed="false">Со сроком</button>
     <button class="chip" type="button" data-f="new" aria-pressed="false">Новые за сегодня</button>
+    <button class="chip" type="button" data-f="eve" aria-pressed="false">На вечер</button>
+    <button class="chip" type="button" data-f="wait" aria-pressed="false">Ждём клиента</button>
   </div>
 
+  <div class="tab" data-tab="clients" hidden>
   <section class="card">
     <h2>Мои клиенты</h2>
     <p class="note">Логика молока, GEA, ВкусВилл, Виртекс, Востряково. Сначала оплаты.</p>
-    <div class="wrap"><table id="t-mine"><thead><tr><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+    <div class="wrap"><table id="t-mine"><thead><tr><th></th><th>Статус</th><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+    <p class="src-line" data-src="система заданий"></p>
   </section>
 
   <section class="card">
     <h2>Клиенты Лены</h2>
     <p class="note">Сначала оплаты.</p>
-    <div class="wrap"><table id="t-lena"><thead><tr><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+    <div class="wrap"><table id="t-lena"><thead><tr><th></th><th>Статус</th><th>Клиент</th><th>Что</th><th class="detail">Подробности</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+    <p class="src-line" data-src="система заданий"></p>
   </section>
 
   <section class="card">
     <h2>Активные клиенты Лены (2025–2026)</h2>
     <p class="note" id="lc-note">По сводке файлов Лены. Сначала те, кто должен оплатить, потом с открытыми делами.</p>
-    <div class="wrap"><table id="t-lc"><thead><tr><th>Клиент</th><th class="detail">Годы и услуги</th><th>Открытые дела</th><th class="amt">Ждём оплату, ₽</th><th>Ближайший срок</th></tr></thead><tbody></tbody></table></div>
+    <div class="wrap"><table id="t-lc"><thead><tr><th></th><th>Клиент</th><th class="detail">Годы и услуги</th><th>Открытые дела</th><th class="amt">Ждём оплату, ₽</th><th>Ближайший срок</th></tr></thead><tbody></tbody></table></div>
     <div><button class="chip" type="button" id="lc-all">Показать всех</button></div>
+    <p class="src-line" data-src="сводка файлов Лены (CSV с ПК) + система заданий"></p>
   </section>
 
   <section class="card" id="pg-card" hidden>
@@ -143,30 +188,40 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
     <p class="note" id="pg-note"></p>
     <div class="wrap"><table id="t-pg"><thead><tr><th>Месяц окончания</th><th>Документов</th><th class="detail">Клиенты (кол-во док.)</th><th class="amt">Ожидаемо, ₽</th><th class="amt">в т.ч. мои, ₽</th><th class="amt">Потенциал, ₽</th><th>ИК (расчётно)</th></tr></thead><tbody></tbody></table></div>
     <div><button class="chip" type="button" id="pg-all">Показать до конца 2027</button></div>
+    <p class="src-line" data-src="реестр ФСА (prodleniya/prognoz.json)"></p>
   </section>
+  </div>
 
+  <div class="tab" data-tab="buh" hidden>
   <div class="grid">
     <section class="card">
       <h2>Бухгалтерия</h2>
       <p class="note">Поставщики, налоги, 1С, вопросы Ларисе.</p>
-      <div class="wrap"><table id="t-buh"><thead><tr><th>Кто</th><th>Что</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+      <div class="wrap"><table id="t-buh"><thead><tr><th>Статус</th><th>Кто</th><th>Что</th><th class="amt">Сумма, ₽</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+      <p class="src-line" data-src="система заданий (ветка «Бухгалтерия»)"></p>
     </section>
     <section class="card">
       <h2>Диадок</h2>
       <p class="note">Я только смотрю и напоминаю, подписываете вы.</p>
-      <div class="wrap"><table id="t-edo"><thead><tr><th>Что</th><th class="detail">Подробности</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+      <div class="wrap"><table id="t-edo"><thead><tr><th>Статус</th><th>Что</th><th class="detail">Подробности</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+      <p class="src-line" data-src="система заданий (ветка «Браузер»)"></p>
     </section>
   </div>
+  </div>
 
+  <div class="tab" data-tab="proj" hidden>
   <div class="grid">
     <section class="card">
       <h2>Проекты</h2>
       <div class="wrap"><table id="t-proj"><thead><tr><th>Проект</th><th>Состояние</th></tr></thead><tbody></tbody></table></div>
+      <p class="src-line" data-src="сводка утра (раздел «Проекты»)"></p>
     </section>
     <section class="card">
       <h2>Прочее</h2>
-      <div class="wrap"><table id="t-other"><thead><tr><th>Что</th><th class="detail">Подробности</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+      <div class="wrap"><table id="t-other"><thead><tr><th>Статус</th><th>Что</th><th class="detail">Подробности</th><th>Срок</th><th>Кто делает</th></tr></thead><tbody></tbody></table></div>
+      <p class="src-line" data-src="система заданий"></p>
     </section>
+  </div>
   </div>
 
   <p class="foot">Данные собирает Claude из системы заданий по будням в 9:30, 13:00 и 17:00 МСК. Отметить задачу выполненной — в системе заданий. <button class="theme" id="theme" type="button">Тема: авто</button></p>
@@ -195,6 +250,20 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
   $('theme').addEventListener('click', () => { theme = themes[(themes.indexOf(theme) + 1) % 3]; try { localStorage.setItem('svodka-theme', theme); } catch (e) {} applyTheme(); });
   applyTheme();
 
+  // Вкладки: выбранная видна в адресе (#money), по умолчанию «Сегодня»
+  const TABS = ['today', 'money', 'clients', 'buh', 'proj'];
+  const showTab = (t) => {
+    if (!TABS.includes(t)) t = 'today';
+    document.querySelectorAll('nav.tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
+    document.querySelectorAll('div.tab').forEach((d) => { d.hidden = d.dataset.tab !== t; });
+    $('tools').hidden = !['clients', 'buh', 'proj'].includes(t);
+    if (location.hash.slice(1) !== t) history.replaceState(null, '', t === 'today' ? location.pathname : '#' + t);
+  };
+  document.querySelectorAll('nav.tabs button').forEach((b) => b.addEventListener('click', () => { showTab(b.dataset.tab); window.scrollTo(0, 0); }));
+  window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+  showTab(location.hash.slice(1) || 'today');
+  $('need-all').addEventListener('click', () => { state.needAll = !state.needAll; draw(); });
+
   $('lc-all').addEventListener('click', () => { state.lcAll = !state.lcAll; draw(); });
   $('pg-all').addEventListener('click', () => { state.pgAll = !state.pgAll; draw(); });
   $('q').addEventListener('input', (e) => { state.q = e.target.value.trim().toLowerCase(); draw(); });
@@ -206,8 +275,8 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
 
   const C = {
     client: (r) => linkOr(el('td', 'client'), r.client, r.link),
-    title: (r) => el('td', null, r.title),
-    detail: (r) => { const td = el('td', 'detail'); const d = el('div', 'clamp', r.detail); d.title = 'Нажмите, чтобы раскрыть'; d.addEventListener('click', () => d.classList.toggle('open')); td.append(d); return td; },
+    title: (r) => el("td", null, (r.prio ? "★ " : "") + r.title),
+    detail: (r) => { const td = el('td', 'detail'); const d = el('div', 'clamp', (r.next ? 'Дальше: ' + r.next + '. ' : '') + (r.lastMove ? '[' + r.lastMove + '] ' : '') + r.detail); d.title = 'Нажмите, чтобы раскрыть'; d.addEventListener('click', () => d.classList.toggle('open')); td.append(d); return td; },
     amount: (r) => el('td', 'amt', fmtRub(r.amount)),
     mgr: (r) => el('td', null, r.mgr),
     owner: (r) => el('td', 'due', r.owner || '—'),
@@ -216,17 +285,85 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
       if (d && d - t0 <= 3 * 864e5) td.classList.add('late'); return td;
     },
   };
-  const order = (a, b) => (b.pay - a.pay) || ((parseRu(a.due) || 9e15) - (parseRu(b.due) || 9e15)) || ((Number(b.amount) || 0) - (Number(a.amount) || 0));
+  // Статус задачи: приоритет, ждём клиента (с даты), деньги, иначе «в работе»
+  C.status = (r) => {
+    const td = el('td', 'st');
+    if (r.prio) td.append(el('span', 'pill bad', 'приоритет'));
+    if (r.evening) td.append(el('span', 'pill eve', 'на вечер'));
+    if (r.wait) td.append(el('span', 'pill warn', 'ждём клиента' + (r.waitSince ? ' с ' + String(r.waitSince).slice(0, 5) : '')));
+    if (r.money) td.append(el('span', 'pill ' + (r.money === 'пришло' ? 'ok' : r.money === 'ждём' ? 'warn' : ''), r.money));
+    if (!td.childNodes.length) td.append(el('span', 'pill', r.pay ? 'оплата' : 'в работе'));
+    return td;
+  };
+
+  // Комментарии для Claude: черновики хранятся в этом браузере до нажатия «Отправить»
+  let drafts = {};
+  try { drafts = JSON.parse(localStorage.getItem('svodka-cm') || '{}'); } catch (e) {}
+  const saveDrafts = () => { try { localStorage.setItem('svodka-cm', JSON.stringify(drafts)); } catch (e) {} sendState(); };
+  const openCm = new Set();
+  const filled = (d) => (d.text && d.text.trim()) || d.action;
+  const cmKey = (r) => r.id || ('client:' + r.client);
+  function sendState(msg) {
+    const n = Object.values(drafts).filter(filled).length;
+    const b = $('cm-send'); b.disabled = !n; b.textContent = n ? 'Отправить Claude (' + n + ')' : 'Отправить Claude';
+    if (msg) $('cm-state').textContent = msg;
+  }
+  C.cm = (r) => {
+    const td = el('td'); const k = cmKey(r);
+    const b = el('button', 'cmb' + (drafts[k] && filled(drafts[k]) ? ' has' : ''), '💬'); b.type = 'button'; b.title = 'Комментарий для Claude';
+    b.addEventListener('click', () => { openCm.has(k) ? openCm.delete(k) : openCm.add(k); draw(); });
+    td.append(b); return td;
+  };
+  const cmRow = (r, span) => {
+    const k = cmKey(r); const tr = el('tr', 'cmrow'); const td = el('td'); td.colSpan = span;
+    const ta = el('textarea'); ta.placeholder = 'Комментарий для Claude по «' + r.client + '»: что сделать, что изменилось'; ta.value = (drafts[k] && drafts[k].text) || '';
+    ta.addEventListener('input', () => {
+      const d = drafts[k] || {client: r.client, taskId: r.id || null, taskTitle: r.title || null, action: ''};
+      d.text = ta.value; d.at = new Date().toISOString();
+      if (d.text.trim() || d.action) drafts[k] = d; else delete drafts[k];
+      saveDrafts();
+    });
+    // Быстрые статусы: уходят вместе с комментарием, Claude ставит их в базе задач
+    const acts = el('div', 'tools');
+    [['eve', 'На вечер'], ['prio', 'В приоритет'], ['wait', 'Ждём клиента'], ['done', 'Сделано']].forEach(([a, label]) => {
+      const c = el('button', 'chip', label); c.type = 'button';
+      c.setAttribute('aria-pressed', String(!!(drafts[k] && drafts[k].action === a)));
+      c.addEventListener('click', () => {
+        const d = drafts[k] || {client: r.client, taskId: r.id || null, taskTitle: r.title || null, text: '', at: new Date().toISOString()};
+        d.action = d.action === a ? '' : a; d.actionLabel = d.action ? label : '';
+        if (!d.text && !d.action) delete drafts[k]; else drafts[k] = d;
+        saveDrafts(); draw();
+      });
+      acts.append(c);
+    });
+    td.append(acts, ta); tr.append(td); return tr;
+  };
+  $('cm-send').addEventListener('click', async () => {
+    const items = Object.values(drafts).filter(filled);
+    if (!items.length) return;
+    $('cm-send').disabled = true; sendState('Отправляю…');
+    try {
+      const res = await fetch('/api/comments', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({items})});
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j.ok) throw new Error(j.error || res.status);
+      drafts = {}; openCm.clear(); saveDrafts(); draw();
+      const t = new Date(); sendState('Отправлено ' + items.length + ' в ' + pad(t.getHours()) + ':' + pad(t.getMinutes()) + '. Claude разберёт на ближайшем разборе (10:00, 13:00, 18:00).');
+    } catch (e) { sendState('Не отправилось: ' + e.message + '. Черновики сохранены, попробуйте ещё раз.'); }
+  });
+
+  const order = (a, b) => ((b.prio || 0) - (a.prio || 0)) || (b.pay - a.pay) || ((parseRu(a.due) || 9e15) - (parseRu(b.due) || 9e15)) || ((Number(b.amount) || 0) - (Number(a.amount) || 0));
   const match = (r) => {
     if (state.f === 'due' && !r.due) return false;
     if (state.f === 'new' && r.added !== today) return false;
+    if (state.f === 'eve' && !r.evening) return false;
+    if (state.f === 'wait' && !r.wait) return false;
     if (!state.q) return true;
     return [r.client, r.title, r.detail, r.amount, r.due].join(' ').toLowerCase().includes(state.q);
   };
   const fill = (id, rows, cols, emptyText) => {
     const tb = document.querySelector('#' + id + ' tbody'); tb.replaceChildren();
     if (!rows.length) { const tr = el('tr'); const td = el('td', 'empty', emptyText); td.colSpan = 9; tr.append(td); tb.append(tr); return; }
-    rows.forEach((r) => { const tr = el('tr'); cols.forEach((c) => tr.append(c(r))); tb.append(tr); });
+    rows.forEach((r) => { const tr = el('tr'); cols.forEach((c) => tr.append(c(r))); tb.append(tr); if (cols.includes(C.cm) && openCm.has(cmKey(r))) tb.append(cmRow(r, cols.length)); });
   };
   const sum = (a) => a.reduce((s, r) => s + (Number(r.amount) || 0), 0);
 
@@ -239,7 +376,7 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
     $('k-need').textContent = need.length; $('k-urgent').textContent = 'срочных: ' + urgent;
     $('k-wait').textContent = rub.format(sum(wait)) + ' ₽'; $('k-wait-n').textContent = 'позиций: ' + wait.length;
     $('k-came').textContent = rub.format(sum(came)) + ' ₽'; $('k-came-n').textContent = 'поступлений: ' + came.length;
-    $('k-open').textContent = tasks.length;
+    $('k-open').textContent = tasks.filter((r) => !r.wait).length;
     $('k-open-sub').textContent = 'мои клиенты ' + tasks.filter((r) => r.mgr === 'Ольга').length + ', Лены ' + tasks.filter((r) => r.mgr === 'Лена').length;
     const take = $('take'); take.replaceChildren();
     take.append('От вас ждут ', el('b', null, String(need.length)), ' дел, из них срочных ', el('b', null, String(urgent)), '. Клиенты должны ', el('b', null, rub.format(sum(wait)) + ' ₽'), '.');
@@ -286,7 +423,11 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
 
   function draw() {
     const {tasks, summary} = last;
-    const need = summary.filter((r) => r.section === 'Нужно от вас').sort((a, b) => (b.flag === 'срочно') - (a.flag === 'срочно'));
+    const fr = {'срочно': 0, warn: 1, '': 2, ok: 3};
+    const needAll = summary.filter((r) => r.section === 'Нужно от вас').sort((a, b) => (fr[a.flag || ''] ?? 2) - (fr[b.flag || ''] ?? 2));
+    const need = state.needAll ? needAll : needAll.slice(0, 5);
+    const nb = $('need-all'); nb.hidden = needAll.length <= 5;
+    nb.textContent = state.needAll ? 'Показать только главные 5' : 'Ещё ' + (needAll.length - 5) + ' дел';
     fill('t-need', need, [
       (r) => { const td = el('td'); if (r.flag) td.append(el('span', 'pill ' + (r.flag === 'срочно' ? 'bad' : r.flag === 'ok' ? 'ok' : 'warn'), r.flag === 'warn' ? 'ждёт' : r.flag)); return td; },
       (r) => linkOr(el('td'), r.text, r.link),
@@ -301,17 +442,19 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
       (r) => { const td = el('td', 'amt'); const w = el('div', 'bar'); const i = el('i'); i.style.width = Math.max(2, Math.round(64 * (Number(r.amount) || 0) / max)) + 'px'; w.append(el('span', null, fmtRub(r.amount)), i); td.append(w); return td; },
     ], 'Нет оплат по этому фильтру.');
 
-    const sec = (s) => tasks.filter((r) => r.section === s && match(r)).sort(order);
-    fill('t-mine', sec('Мои клиенты'), [C.client, C.title, C.detail, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
-    fill('t-lena', sec('Клиенты Лены'), [C.client, C.title, C.detail, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
-    fill('t-buh', sec('Бухгалтерия'), [C.client, C.title, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
-    fill('t-edo', sec('Диадок'), [C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
-    fill('t-other', sec('Прочее'), [C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
+    const sec = (s) => tasks.filter((r) => r.section === s && !r.wait && match(r)).sort(order);
+    fill('t-mine', sec('Мои клиенты'), [C.cm, C.status, C.client, C.title, C.detail, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-lena', sec('Клиенты Лены'), [C.cm, C.status, C.client, C.title, C.detail, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-buh', sec('Бухгалтерия'), [C.status, C.client, C.title, C.amount, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-edo', sec('Диадок'), [C.status, C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-other', sec('Прочее'), [C.status, C.title, C.detail, C.due, C.owner], 'Нет задач по этому фильтру.');
+    fill('t-wait', tasks.filter((r) => r.wait && match(r)).sort(order), [C.client, C.title, (r) => el('td', null, r.waitSince || ''), C.owner], 'Никого не ждём.');
     const lc = last.lc.filter((r) => !state.q || [r.client, r.services, r.todo].join(' ').toLowerCase().includes(state.q));
     $('lc-note').textContent = 'По сводке файлов Лены: активных ' + last.lc.length + ', с открытыми делами ' + last.lc.filter((r) => r.open).length + '. Сначала те, кто должен оплатить.';
     const lcShown = state.lcAll ? lc : lc.filter((r) => r.open);
     const lcBtn = $('lc-all'); lcBtn.textContent = state.lcAll ? 'Скрыть клиентов без дел' : 'Показать всех активных (' + lc.length + ')';
     fill('t-lc', lcShown, [
+      C.cm,
       (r) => el('td', 'client', r.client),
       (r) => { const td = el('td', 'detail'); const d = el('div', 'clamp', r.years + '. ' + r.services); d.addEventListener('click', () => d.classList.toggle('open')); td.append(d); return td; },
       (r) => { const td = el('td'); if (r.open) { td.append(el('b', null, String(r.open)), ' ', el('span', 'detail', r.todo)); } else td.append(el('span', 'empty', 'нет')); return td; },
@@ -333,6 +476,10 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
         (r) => el('td', null, r.ik ? String(r.ik) : ''),
       ], 'Нет продлений в этом периоде.');
     }
+    const cnt = (ss) => tasks.filter((r) => ss.includes(r.section)).length;
+    $('n-clients').textContent = cnt(['Мои клиенты', 'Клиенты Лены']);
+    $('n-buh').textContent = cnt(['Бухгалтерия', 'Диадок']);
+    $('n-proj').textContent = summary.filter((r) => r.section === 'Проекты').length + cnt(['Прочее']);
     fill('t-proj', summary.filter((r) => r.section === 'Проекты'), [C.client, (r) => {
       const td = el('td'); if (r.flag === 'warn') td.append(el('span', 'pill warn', 'ждёт'), ' '); td.append(r.text); return td;
     }], 'Нет данных по проектам.');
@@ -350,11 +497,13 @@ button.kpi:hover,button.kpi[aria-expanded="true"]{border-color:var(--accent)}
       upd.textContent = 'Обновлено ' + u.toLocaleString('ru-RU', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow'}) + ' МСК' + (hours > 30 ? ' — данные устарели' : '');
       upd.classList.toggle('stale', hours > 30);
       upd.dataset.at = u.toLocaleString('ru-RU', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Moscow'}) + ' МСК';
+      document.querySelectorAll('.src-line').forEach((p) => { p.textContent = 'Источник: ' + p.dataset.src + ' · данные на ' + upd.dataset.at; });
       kpis(); draw(); weeks(); how();
     } catch (e) {
       $('upd').textContent = 'Не удалось загрузить данные'; $('upd').classList.add('err');
     }
   }
+  sendState();
   load();
   setInterval(load, 10 * 60 * 1000);
 })();
