@@ -131,6 +131,27 @@ def prognoz():
     }
 
 
+SPISANIYA_JSON = "/mnt/project-files/daily-control/svodka/spisaniya.json"
+
+
+def spisaniya():
+    """Предстоящие списания на 30 дней (реестр платежей, налоговые платёжки; ведёт «Бухгалтерия»)."""
+    if not os.path.exists(SPISANIYA_JSON):
+        return None
+    p = json.load(open(SPISANIYA_JSON, encoding="utf-8"))
+    today = datetime.now(MSK).date()
+    rows = []
+    for r in p.get("rows", []):
+        if r.get("paid"):
+            continue
+        d = datetime.strptime(r["date"], "%Y-%m-%d").date()
+        if (d - today).days > 30:
+            continue
+        rows.append({**r, "date": d.strftime("%d.%m.%Y"), "late": 1 if d < today else 0})
+    rows.sort(key=lambda r: r["date"][6:] + r["date"][3:5] + r["date"][:2])
+    return {"built": p.get("built", ""), "note": p.get("note", ""), "rows": rows}
+
+
 def main():
     db_dir, summary_path = sys.argv[1], sys.argv[2]
     out = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(__file__), "..", "data", "svodka.json")
@@ -175,6 +196,7 @@ def main():
         "summary": summary,
         "lena_clients": lena_clients(tasks),
         "prognoz": prognoz(),
+        "spisaniya": spisaniya(),
     }
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(data, fh, ensure_ascii=False, indent=1)

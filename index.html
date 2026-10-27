@@ -171,6 +171,13 @@ td.st .pill{margin:0 4px 2px 0}
     <div class="wk" id="wk"></div>
     <p class="src-line" data-src="система заданий, задачи «ждём» по сроку"></p>
   </section>
+
+  <section class="card" id="sp-card" hidden>
+    <h2>Предстоящие списания</h2>
+    <p class="note" id="sp-note"></p>
+    <div class="wrap"><table id="t-sp"><thead><tr><th>Когда</th><th>Кто платит</th><th>Что</th><th class="amt">Сумма, ₽</th><th>Состояние</th></tr></thead><tbody></tbody></table></div>
+    <p class="src-line" data-src="реестр обязательных платежей, налоговые платёжки Ларисы, 1С"></p>
+  </section>
   </div>
 
   <div class="tools" id="tools" hidden>
@@ -577,6 +584,20 @@ td.st .pill{margin:0 4px 2px 0}
         (r) => el('td', null, r.ik ? String(r.ik) : ''),
       ], 'Нет продлений в этом периоде.');
     }
+    const sp = last.sp;
+    $('sp-card').hidden = !sp;
+    if (sp) {
+      const kop = new Intl.NumberFormat('ru-RU', {maximumFractionDigits: 2});
+      const sum = sp.rows.reduce((a, r) => a + (r.amount || 0), 0);
+      $('sp-note').textContent = 'Ближайшие 30 дней: ' + kop.format(sum) + ' ₽ (без зарплаты). Сумма 0 — списания не будет или ждём счёт. Список на ' + sp.built + '.';
+      fill('t-sp', sp.rows, [
+        (r) => el('td', r.late ? 'due late' : 'due', r.date.slice(0, 5)),
+        (r) => el('td', null, r.who),
+        (r) => el('td', 'detail', r.what),
+        (r) => el('td', 'amt', r.amount ? kop.format(r.amount) : '—'),
+        (r) => el('td', null, r.state),
+      ], 'Списаний на 30 дней нет.');
+    }
     const cnt = (ss) => tasks.filter((r) => ss.includes(r.section)).length;
     $('n-clients').textContent = cnt(['Мои клиенты', 'Клиенты Лены']);
     $('n-buh').textContent = cnt(['Бухгалтерия', 'Диадок']);
@@ -591,7 +612,7 @@ td.st .pill{margin:0 4px 2px 0}
       const res = await fetch('/data/svodka.json?t=' + Date.now(), {cache: 'no-store'});
       if (!res.ok) throw new Error(res.status);
       const d = await res.json();
-      last = {tasks: d.tasks || [], summary: d.summary || [], lc: d.lena_clients || [], pg: d.prognoz || null};
+      last = {tasks: d.tasks || [], summary: d.summary || [], lc: d.lena_clients || [], pg: d.prognoz || null, sp: d.spisaniya || null};
       const u = new Date(d.updated);
       const hours = (Date.now() - u) / 36e5;
       const upd = $('upd');
