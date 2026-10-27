@@ -24,6 +24,13 @@ MONEY_OVERRIDE = {
 }
 
 
+def ru_date(v):
+    """Срок в ДД.ММ.ГГГГ: ветки иногда пишут ISO (2026-10-27)."""
+    v = (v or "").strip()
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", v)
+    return f"{m[3]}.{m[2]}.{m[1]}" if m else v
+
+
 def money_of(t):
     if t.get("money"):
         return t["money"]
@@ -124,7 +131,7 @@ def main():
             "next": (t.get("next") or "").strip(),
             "lastMove": (t.get("lastMove") or "").strip(),
             "amount": t.get("amount"),
-            "due": t.get("due") or "",
+            "due": ru_date(t.get("due")),
             "mgr": t.get("mgr") or "",
             "owner": t.get("owner") or "",
             "added": t.get("added") or "",

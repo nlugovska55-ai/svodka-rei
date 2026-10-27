@@ -482,7 +482,8 @@ td.st .pill{margin:0 4px 2px 0}
     const box = $(id); box.replaceChildren();
     if (!rows.length) { box.append(el('p', 'empty', 'Нет задач по этому фильтру.')); return; }
     const by = new Map();
-    rows.forEach((r) => { const k = (r.client || '—').trim(); if (!by.has(k)) by.set(k, []); by.get(k).push(r); });
+    const ALIAS = {'ГЕА': 'GEA', 'гея': 'GEA'};
+    rows.forEach((r) => { let k = (r.client || '—').trim(); k = ALIAS[k] || k; if (!by.has(k)) by.set(k, []); by.get(k).push(r); });
     const word = (n) => n % 10 === 1 && n % 100 !== 11 ? 'задача' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'задачи' : 'задач';
     by.forEach((list) => list.sort((a, b) => (level(a).n - level(b).n) || ((parseRu(a.due) || 9e15) - (parseRu(b.due) || 9e15))));
     const best = (list) => level(list[0]).n;
