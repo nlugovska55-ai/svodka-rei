@@ -240,7 +240,12 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   applyTheme();
 
   // ---------- данные ----------
-  const MS = 864e5, now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const MS = 864e5;
+  // «Сейчас» и «сегодня» по Москве; пересчитываются при каждом обновлении, вкладка не застывает во вчерашнем дне
+  const mskYmd = (x) => new Date(new Date(x).getTime() + 3 * 36e5).toISOString().slice(0, 10);
+  let now, today;
+  const tick = () => { now = new Date(); const [y, m, d] = mskYmd(now).split('-').map(Number); today = new Date(y, m - 1, d); };
+  tick();
   const parseRu = (s) => { if (!s) return null; let m = /^(\d{1,2})\.(\d{1,2})\.(\d{4})/.exec(s); if (m) return new Date(+m[3], m[2] - 1, +m[1]); m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s); return m ? new Date(+m[1], m[2] - 1, +m[3]) : null; };
   const days = (s) => { const d = parseRu(s); return d ? Math.round((d - today) / MS) : null; };
   const rub = (a) => !a ? '' : a >= 1e6 ? (a / 1e6).toFixed(2).replace('.', ',').replace(/,?0+$/, '') + ' млн ₽' : a >= 1e3 ? Math.round(a / 1e3) + ' тыс ₽' : Math.round(a) + ' ₽';
@@ -326,7 +331,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     });
   }
   // «Отложить» прячет дело только до конца дня, «сделано» и «ждём клиента» — пока Claude не внесёт отметку в базу
-  const isOpen = (t) => { const p = pend[t.id]; if (!p) return true; if (p.action === 'later') return p.ts < today.getTime(); return !['done', 'wait'].includes(p.action); };
+  const isOpen = (t) => { const p = pend[t.id]; if (!p) return true; if (p.action === 'later') return mskYmd(p.ts) < mskYmd(now); return !['done', 'wait'].includes(p.action); };
   const order = (x, y) => (y.hot - x.hot) || ((x.dd ?? 99) - (y.dd ?? 99)) || (y.a - x.a);
   const mineAll = () => T.filter((t) => t.who === 'я' && isOpen(t)).sort((x, y) => (y.hot - x.hot) || (y.fromSummary ? 1 : 0) - (x.fromSummary ? 1 : 0) || order(x, y));
   const isToday = (t) => t.urg === 'сегодня' || (t.dd !== null && t.dd <= 0);
@@ -636,19 +641,35 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     } catch (e) { syncNote = 'отметки с других устройств не загрузились: ' + e.message; }
     if (syncNote) $('#fresh').insertAdjacentHTML('beforeend', `<span class="sync" title="${esc(syncNote)}" style="color:var(--warn)"> · ${esc(syncNote)}</span>`);
   }
-  async function load() {
+  async function load(refresh = false) {
+    tick(); loadedAt = Date.now();
     try {
       const res = await fetch('/data/svodka.json?t=' + Date.now(), {cache: 'no-store'});
       if (!res.ok) throw new Error('ответ ' + res.status);
-      prep(await res.json());
+      const data = await res.json();
+      // открытая карточка, черновик, разбор по одному или окно «Отменить» — не перерисовываем, повторим позже
+      if (refresh && busy()) { setTimeout(() => load(true), 30e3); return; }
+      prep(data);
       await pull();
-      const h = location.hash.slice(1); tab = ['utro', 'money', 'all'].includes(h) ? h : 'utro';
+      if (!refresh) { const h = location.hash.slice(1); tab = ['utro', 'money', 'all'].includes(h) ? h : 'utro'; }
       render(); if (outbox.length || inflight) flush();
     } catch (e) {
+      if (refresh && D) { $('#fresh').insertAdjacentHTML('beforeend', `<span class="sync" style="color:var(--warn)"> · обновить не удалось (${esc(e.message)}), показаны данные прошлой загрузки</span>`); return; }
       $('#view').innerHTML = `<div class="empty"><b>Данные не загрузились</b><span>${esc(e.message)}. Обновите страницу; если не помогло, напишите ветке «Утро и задачи».</span><button class="btn small" onclick="location.reload()">Обновить</button></div>`;
     }
   }
+  let loadedAt = 0;
+  const busy = () => !!undo || $('#drawer').classList.contains('on') || !$('#focus').hidden
+    || (document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName))
+    || [...document.querySelectorAll('textarea')].some((x) => x.value.trim());
   load();
+  // автообновление: каждые 10 минут, при возврате на вкладку (если прошло больше минуты) и при смене московской даты
+  const REFRESH = 10 * 6e4;
+  setInterval(() => { if (document.visibilityState === 'visible') load(true); }, REFRESH);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - loadedAt > 6e4) load(true); });
+  let day = mskYmd(Date.now());
+  setInterval(() => { const d = mskYmd(Date.now()); if (d !== day) { day = d; load(true); } }, 6e4);
+  window.__svodkaRefresh = () => load(true);  // для тестов
 })();
 </script>
 </body>

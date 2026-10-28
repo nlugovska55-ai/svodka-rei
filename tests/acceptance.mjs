@@ -34,7 +34,9 @@ let inbox = [], apiMode = 'ok'; const batches = new Set();
 async function device(data, opts = {}) {
   const ctx = await browser.newContext({viewport: opts.viewport || {width: 1280, height: 1000}, colorScheme: opts.scheme || 'light', isMobile: !!opts.mobile, hasTouch: !!opts.mobile});
   const p = await ctx.newPage(); p.errors = []; p.on('pageerror', (e) => p.errors.push(e.message));
-  await p.route('**/data/svodka.json*', (r) => typeof data === 'number' ? r.fulfill({status: data, body: 'err'}) : r.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify(data)}));
+  if (opts.clock) await p.clock.install({time: opts.clock});
+  p.dataHits = 0;
+  await p.route('**/data/svodka.json*', (r) => { p.dataHits++; const v = typeof data === 'function' ? data() : data; return typeof v === 'number' ? r.fulfill({status: v, body: 'err'}) : r.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify(v)}); });
   await p.route('**/api/comments*', async (r) => {
     if (apiMode === 'fail') return r.fulfill({status: 503, contentType: 'application/json', body: JSON.stringify({ok: false, error: 'Не задан GITHUB_TOKEN в настройках Vercel'})});
     if (r.request().method() === 'POST') { const b = JSON.parse(r.request().postData()); if (!batches.has(b.batchId)) { batches.add(b.batchId); inbox.push(...b.items); } return r.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({ok: true, count: b.items.length})}); }
@@ -240,6 +242,58 @@ try {
     const fr = await S.p.textContent('#fresh'), dot = await S.p.$eval('#fresh .dot', (e) => e.getAttribute('style'));
     check('Устаревшие данные: не зелёная точка и слово «Устарело»', /Устарело/.test(fr) && /warn/.test(dot), `шапка «${fr.trim().slice(0, 90)}»`);
     await S.ctx.close();
+  }
+
+  // 8. Автообновление: каждые 10 минут, черновик и окно отмены не сбрасываются, московская дата пересчитывается
+  {
+    inbox = []; apiMode = 'ok';
+    let cur = fresh();
+    const z = new Date(Date.now() + 3 * 36e5), start = new Date(Date.UTC(z.getUTCFullYear(), z.getUTCMonth(), z.getUTCDate(), 15, 0));  // 18:00 МСК сегодня
+    const {ctx, p} = await device(() => cur, {clock: start}); await go(p);
+    const before = p.dataHits, id0 = (await ask(p))[0];
+    const nd = fresh(); nd.updated = iso(new Date(start.getTime() + 5 * 6e4)); const t0 = nd.tasks.find((t) => t.id === id0); t0.status = 'done'; nd.tasks = nd.tasks.filter((t) => t.id !== id0); cur = nd;
+    await p.clock.fastForward('10:05'); await p.waitForTimeout(800);
+    const after = await ask(p);
+    check('Вкладка сама перечитывает данные через 10 минут', p.dataHits > before && !after.includes(id0), `загрузок данных: было ${before}, стало ${p.dataHits}; новое состояние на экране: ${!after.includes(id0)}`);
+    // черновик в карточке
+    await p.click(`.rw [data-open]`); await p.waitForTimeout(400); await p.fill('#aiText', 'черновик Ольги');
+    const hits = p.dataHits; await p.clock.fastForward('10:05'); await p.waitForTimeout(800);
+    const draft = await p.inputValue('#aiText').catch(() => ''), drawerOn = await p.$eval('#drawer', (e) => e.classList.contains('on'));
+    check('Автообновление не сбрасывает открытую карточку и черновик', draft === 'черновик Ольги' && drawerOn && p.dataHits > hits, `черновик «${draft}», карточка открыта: ${drawerOn}, загрузка была: ${p.dataHits > hits}`);
+    await p.fill('#aiText', ''); await p.keyboard.press('Escape'); await p.waitForTimeout(300);
+    // окно «Отменить»
+    const id1 = (await ask(p))[0], sentBefore = inbox.length;
+    await p.click(`.rw[data-id="${id1}"] .chk`); await p.waitForTimeout(200);
+    await p.evaluate(() => window.__svodkaRefresh()); await p.waitForTimeout(500);
+    await p.click('#tu'); await p.clock.fastForward('00:06'); await p.waitForTimeout(500);
+    check('Обновление во время окна «Отменить» не мешает отмене', (await ask(p)).includes(id1) && inbox.length === sentBefore, `дело на месте: ${(await ask(p)).includes(id1)}, отправлено лишнего: ${inbox.length - sentBefore}`);
+    await ctx.close();
+    // смена московской даты у оставленной вкладки
+    const late = new Date(Date.UTC(z.getUTCFullYear(), z.getUTCMonth(), z.getUTCDate(), 20, 58));  // 23:58 МСК
+    const dd = fresh(); dd.updated = iso(new Date(late.getTime() - 6 * 36e5));
+    const R2 = await device(dd, {clock: late}); await go(R2.p);
+    const w0 = await R2.p.textContent('.warnline').catch(() => '');
+    await R2.p.clock.fastForward('03:00'); await R2.p.waitForTimeout(800);
+    const w1 = await R2.p.textContent('.warnline').catch(() => '');
+    check('В полночь по Москве вкладка пересчитывает дату и предупреждает об устаревании', !/не выкладывали/.test(w0) && /не выкладывали/.test(w1), `до полуночи: «${w0.trim().slice(0, 40)}», после: «${w1.trim().slice(0, 70)}»`);
+    await R2.ctx.close();
+  }
+
+  // 9. Новая сборка без подтверждений: на устройстве, где отмечали, и на чистом — одно и то же
+  {
+    inbox = []; apiMode = 'ok';
+    const A = await device(D); await go(A.p);
+    const [i0, i1] = await ask(A.p);
+    await A.p.click(`.rw[data-id="${i0}"] .chk`); await A.p.waitForTimeout(5800);
+    const nb = fresh(); nb.updated = iso(new Date(Date.now() + 60e3));
+    await A.p.unroute('**/data/svodka.json*'); await A.p.route('**/data/svodka.json*', (r) => r.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify(nb)}));
+    await go(A.p, '#utro'); await A.p.reload(); await A.p.waitForTimeout(800);
+    const B = await device(nb); await go(B.p);
+    const a = await ask(A.p), b = await ask(B.p);
+    await go(A.p, '#all'); await go(B.p, '#all');
+    const ca = await A.p.$$eval('.rw', (x) => x.length), cb = await B.p.$$eval('.rw', (x) => x.length);
+    check('После новой сборки A и чистый B показывают одинаково', JSON.stringify(a) === JSON.stringify(b) && ca === cb && !a.includes(i0) && a.includes(i1), `«Нужно от вас»: A ${a.length}, B ${b.length}; «Все дела»: A ${ca}, B ${cb}`);
+    await A.ctx.close(); await B.ctx.close();
   }
 
   // 7. Скриншоты ПК и телефона на обезличенных данных + ошибки JS
