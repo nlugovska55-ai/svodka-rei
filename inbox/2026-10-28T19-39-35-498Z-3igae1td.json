@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-10-28T19:39:37.034Z",
+  "batchId": "2026-10-28T19-39-35-498Z-3igae1td",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Прочее",
+      "taskId": "bx2610-spam",
+      "taskTitle": "info@: 4 спам-комментария отметить спамом",
+      "text": "",
+      "action": "reopen",
+      "actionLabel": "Вернуть в работу",
+      "at": "2026-10-28T19:39:30.495Z",
+      "eid": "emvsiq6v3y713pk3e"
+    }
+  ]
+}
