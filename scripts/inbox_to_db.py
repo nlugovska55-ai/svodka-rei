@@ -10,7 +10,7 @@
 import json, subprocess, sys
 from datetime import datetime, timedelta, timezone
 
-ACTIONS = {"eve": "на вечер", "prio": "в приоритет", "wait": "ждём клиента", "done": "сделано"}
+ACTIONS = {"eve": "на вечер", "prio": "в приоритет", "wait": "ждём клиента", "done": "сделано", "later": "отложить до завтра"}
 MSK = timezone(timedelta(hours=3))
 
 

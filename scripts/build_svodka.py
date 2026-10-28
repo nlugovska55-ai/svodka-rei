@@ -157,6 +157,10 @@ def main():
             "prio": 1 if t.get("prio") else 0,
             "evening": 1 if (t.get("evening") or t.get("when") == "вечер") else 0,
             "link": t.get("url") or t.get("link") or "",
+            # Для пульта «Утро»: если ветка их не записала, сайт вычислит сам
+            "short": (t.get("short") or "").strip()[:70],
+            "waiting": t.get("waiting") or "",  # я / клиент / Лена / Claude
+            "urgency": t.get("urgency") or "",  # сегодня / неделя / фон
         })
     summary = json.load(open(summary_path, encoding="utf-8"))
     if isinstance(summary, dict):
