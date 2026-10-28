@@ -253,7 +253,11 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     const pre = s.indexOf(':'); if (pre > 1 && pre < 42) s = s.slice(pre + 1).trim();
     s = s.replace(/^[\d\s)\]:.,–-]+/, '');
     const cut = s.slice(16).search(/ — |; |\. | \(|: /); if (cut >= 0) s = s.slice(0, 16 + cut);
-    if (s.length > 64) s = s.slice(0, 62).replace(/\s\S*$/, '') + '…';
+    s = s.replace(/(?<!\p{L})[А-ЯЁA-Z]{3,}(?:\s+[А-ЯЁA-Z]{3,})*(?!\p{L})/gu, (w) => /^(ООО|ИП|АО|ПАО|УПД|НДФЛ|ФСА|ЭДО|УСН|ТР|ТС|ГОСТ|СС|ДС|ИИИ|РПН|ФБУЗ|ЕНП|КЭП|ПК|ИДК|РЭИ|ВК|GEA|USB)$/.test(w) ? w : w.toLowerCase());
+    const long = s.length > 60; if (long) s = s.slice(0, 60).replace(/\s\S*$/, '');
+    s = s.replace(/[\s,;:—–-]+$/, '');
+    const open = (s.match(/«/g) || []).length - (s.match(/»/g) || []).length; if (open > 0) s += '»'.repeat(open);
+    if (long && !/[.»)!?]$/.test(s)) s += '…';
     return cap(s) || cap(client);
   };
   let D = null, T = [];
@@ -372,7 +376,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
       <h1>${m.length ? `Сегодня за вами <em>${plural(m.length, 'дело', 'дела', 'дел')}</em>` : 'Утро разобрано'}. Ждём оплату ${rub(wait.s) || '0 ₽'}${late ? `, из них ${rub(late)} просрочено` : ''}.${wc.length ? ` ${plural(wc.length, 'дело ждёт', 'дела ждут', 'дел ждут')} клиента.` : ''}</h1>
       <div class="cta">${m.length ? `<button class="btn" data-focus>Разобрать утро <kbd style="background:transparent;color:inherit;border-color:currentColor;opacity:.7">R</kbd></button>` : ''}${m.length ? '<span class="hint desk">По одному делу на экране: сделано, отложить или передать Claude</span>' : ''}</div></section>
     <section class="sec"><div class="sh"><h2>За вами</h2><span class="c">сегодня и просроченное</span>${m.length > 7 ? '<button class="link" data-focus>Ещё ' + (m.length - 7) + ' в разборе</button>' : ''}</div>
-      ${shown.length ? `<div class="rows">${shown.map((t) => row(t)).join('')}</div>` : `<div class="empty"><b>Утро разобрано</b><span>На сегодня за вами ничего. ${esc($('#fresh').textContent.replace(/^.*следующее/, 'Следующее обновление'))}</span></div>`}</section>
+      ${shown.length ? `<div class="rows">${shown.map((t) => row(t)).join('')}</div>` : `<div class="hint">${esc(/следующее/.test($('#fresh').textContent) ? $('#fresh').textContent.replace(/^.*следующее/, 'Следующее обновление') : 'Новых дел за вами нет')}</div>`}</section>
     <section class="sec"><div class="sh"><h2>Деньги</h2><button class="link" data-go="money">Подробно</button></div>${stripHTML(g, 'money')}</section>
     <section class="sec"><div class="sh"><h2>Остальное</h2><span class="c">свёрнуто, откройте нужное</span></div>
       <div class="buckets">${bucket('week', week.length, 'На неделе', week.length ? 'за вами, не сегодня' : 'пусто')}${bucket('wait', wc.length, 'Ждём клиента', oldest ? 'самое долгое ожидание ' + oldest + ' дн' : 'от нас ничего не нужно')}
