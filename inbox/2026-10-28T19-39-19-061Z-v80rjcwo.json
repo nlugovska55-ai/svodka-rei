@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-10-28T19:39:20.592Z",
+  "batchId": "2026-10-28T19-39-19-061Z-v80rjcwo",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "ИКЦ ПромЭкспертСертификация",
+      "taskId": "ikc2210",
+      "taskTitle": "ИКЦ: акт сверки № 31 за 2024 не подписывать, разобраться",
+      "text": "",
+      "action": "reopen",
+      "actionLabel": "Вернуть в работу",
+      "at": "2026-10-28T19:39:14.059Z",
+      "eid": "emvsipu6je4apeijc"
+    }
+  ]
+}
