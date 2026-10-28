@@ -245,6 +245,9 @@ def main():
             "invoice": t.get("invoice") or "",
             "payment": t.get("payment") or "",
             "dedupe": t.get("dedupe") or "",
+            # reference — справочная сумма (погашено/история): пульт не считает её деньгами в пути
+            "amountKind": t.get("amountKind") or "",
+            "amountNote": (t.get("amountNote") or "").strip(),
         })
     with open(summary_path, encoding="utf-8-sig") as fh:
         summary = json.load(fh)

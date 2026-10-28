@@ -307,12 +307,13 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     for (const [id, p] of Object.entries(pend)) if (p.eid ? APPLIED.has(p.eid) : Date.now() - p.ts > 2 * MS) delete pend[id];
     store.set('svodka-pending', pend);
     T = (d.tasks || []).map((t) => {
-      const dd = days(t.due), a = Number(t.amount) || 0, nx = t.next || '';
+      // amountKind=reference — справочная сумма (погашено, история): не деньги в пути, в метки и итоги не входит
+      const ref = t.amountKind === 'reference', dd = days(t.due), a = ref ? 0 : Number(t.amount) || 0, nx = t.next || '';
       const who = t.waiting || (t.wait ? (t.expert ? 'эксперт' : 'клиент') : (/^Ольг/.test(nx) || t.owner === 'Ольга') ? 'я' : t.mgr === 'Лена' ? 'Лена' : 'Claude');
       const hot = !!(t.prio || (dd !== null && dd < -3 && !t.wait) || (dd !== null && dd <= 0 && a >= 100000 && !t.wait));
       const urg = t.urgency || (t.wait ? 'фон' : (hot || (dd !== null && dd <= 0)) ? 'сегодня' : (dd !== null && dd <= 7) ? 'неделя' : 'фон');
       const internal = INTERNAL.has(t.client);
-      return {...t, a, dd, who, hot, urg, short: t.short || shorten(t.title, t.client), cl: internal ? (who === 'я' ? 'Лично вам' : t.section) : t.client, internal};
+      return {...t, a, refA: ref ? Number(t.amount) || 0 : 0, dd, who, hot, urg, short: t.short || shorten(t.title, t.client), cl: internal ? (who === 'я' ? 'Лично вам' : t.section) : t.client, internal};
     });
     // «Нужно от вас» из сводки «Утра» — тоже дела за Ольгой
     const norm = (x) => String(x || '').toLowerCase().replace(/[^a-zа-яё0-9]+/g, ' ').trim().slice(0, 28);
@@ -517,7 +518,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     dTask = t;
     $('#dc').textContent = t.cl; $('#dt').textContent = cap(t.title);
     const p = pend[t.id];
-    $('#db').innerHTML = `<div class="meta">${duePill(t)}${t.a ? `<span class="pill p-acc num">${full(t.a)}</span>` : ''}${t.money ? `<span class="pill p-wait">${esc(t.money)}</span>` : ''}${av(t)}<span class="hint">${t.who === 'я' ? 'за вами' : 'ведёт ' + esc(t.who)}</span></div>
+    $('#db').innerHTML = `<div class="meta">${duePill(t)}${t.a ? `<span class="pill p-acc num">${full(t.a)}</span>` : ''}${t.refA ? `<span class="hint">справочно ${full(t.refA)}${t.amountNote ? ': ' + esc(t.amountNote.slice(0, 160)) : ''}</span>` : ''}${t.money ? `<span class="pill p-wait">${esc(t.money)}</span>` : ''}${av(t)}<span class="hint">${t.who === 'я' ? 'за вами' : 'ведёт ' + esc(t.who)}</span></div>
       ${t.detail ? `<div class="fact"><span class="k">Подробности</span><span>${esc(t.detail)}</span></div>` : ''}
       ${t.next ? `<div class="fact"><span class="k">Следующий шаг</span><span>${esc(t.next)}</span></div>` : ''}
       ${t.lastMove ? `<div class="fact"><span class="k">Последнее движение</span><span>${esc(t.lastMove)}</span></div>` : ''}

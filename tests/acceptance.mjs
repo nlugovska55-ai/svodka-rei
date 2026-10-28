@@ -172,6 +172,19 @@ try {
     await B.ctx.close();
   }
 
+  // 4d. Справочная (погашенная) сумма: amountKind=reference не попадает в метки и итоги
+  {
+    const d = fresh(); const s0 = d.summary.find((x) => x.section === 'Нужно от вас'); const tk = d.tasks.find((t) => t.id === s0.id);
+    const base = await device(structuredClone(d)); await go(base.p); const h0 = await base.p.textContent('h1'); await base.ctx.close();
+    Object.assign(tk, {amount: 176103.19, amountKind: 'reference', amountNote: 'погашено, справочно', money: '', pay: 0});
+    const {ctx, p} = await device(d); await go(p);
+    const rowAm = await p.$eval(`.rw[data-id="${tk.id}"] .am`, (e) => e.textContent.trim()).catch(() => '?');
+    const h1 = await p.textContent('h1');
+    await p.click(`.rw[data-id="${tk.id}"] [data-open]`); await p.waitForTimeout(400); const dr = await p.textContent('#db');
+    check('Справочная сумма (amountKind=reference) не в метке строки и не в итогах', rowAm === '' && h1 === h0 && /справочно 176/.test(dr), `метка строки «${rowAm}», заголовок не изменился: ${h1 === h0}, в карточке «справочно»: ${/справочно 176/.test(dr)}`);
+    await ctx.close();
+  }
+
   // 4c. Codex (2): дата сверки с годом и ISO; прошлое и будущее не «сегодня»
   {
     const z = new Date(Date.now() + 3 * 36e5), Y = z.getUTCFullYear(), dd = String(z.getUTCDate()).padStart(2, '0'), mm = String(z.getUTCMonth() + 1).padStart(2, '0');

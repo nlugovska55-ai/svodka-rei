@@ -119,6 +119,11 @@ class BuilderAcceptance(unittest.TestCase):
             (comments / (ident + ".json")).write_text(json.dumps({"eventId": ident, "status": status}), encoding="utf-8")
         self.assertEqual(["applied"], self.build()["appliedEvents"])
 
+    def test_reference_amount_kind_is_passed(self):
+        self.task(amount="176103.19", amountKind="reference", amountNote="погашено")
+        row = self.build()["tasks"][0]
+        self.assertEqual(("reference", "погашено", 176103.19), (row["amountKind"], row["amountNote"], row["amount"]))
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-28T22:22:53+03:00",
+ "updated": "2026-10-28T22:29:47+03:00",
  "tasks": [
   {
    "id": "avk2110",
@@ -32,7 +32,9 @@
    "proof": "Ольга в чате 28.10 16:37: «АВК отправила»; черновик 10 док. подтвердил «Браузер»",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "bx2610-spam",
@@ -65,7 +67,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "d1602",
@@ -98,7 +102,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "diadok2810-akt131",
@@ -131,7 +137,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "edo4",
@@ -164,7 +172,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "fb2810-fbuz",
@@ -197,7 +207,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "garanty2610",
@@ -230,7 +242,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "gea-fsa-yandex2810",
@@ -263,7 +277,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "gea-pamyatka2810",
@@ -296,7 +312,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "gea-termo2610",
@@ -329,7 +347,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "gea2610",
@@ -362,7 +382,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "gea2810-ds73240",
@@ -395,7 +417,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "gea2810-kg-status",
@@ -428,7 +452,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "iii2710-kontrol",
@@ -461,7 +487,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "ik-2026q4",
@@ -494,7 +522,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "ikc2210",
@@ -527,7 +557,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "kl2710-teams-portal",
@@ -560,7 +592,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "kl2810-voprosy",
@@ -593,7 +627,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "kv2110",
@@ -626,7 +662,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "lar1",
@@ -659,7 +697,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "lar3",
@@ -692,7 +732,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "lar4",
@@ -725,7 +767,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "len2310ermash",
@@ -758,7 +802,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "len2310uks",
@@ -791,7 +837,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "lena2110",
@@ -824,7 +872,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "lk2610-avansy2",
@@ -857,7 +907,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "lk2610-chzmek-portal",
@@ -890,7 +942,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "lk2610-dolgi1c",
@@ -923,7 +977,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "lk2610-kuper",
@@ -956,7 +1012,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "lk2610-moreplas",
@@ -989,7 +1047,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "lk2610-v2lab",
@@ -1022,7 +1082,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "lk2810-mediavizor-sbis",
@@ -1055,7 +1117,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "lost-lena-202610",
@@ -1088,7 +1152,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "lz2810-shchetki-partiya",
@@ -1121,7 +1187,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m01",
@@ -1154,7 +1222,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m02",
@@ -1187,7 +1257,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m03",
@@ -1220,7 +1292,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m04",
@@ -1253,7 +1327,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m07",
@@ -1286,7 +1362,9 @@
    "proof": "вопрос о номере счёта по прил. 19 — в письме Лене, отправлено Ольгой 26.10",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m09",
@@ -1319,7 +1397,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m11",
@@ -1352,7 +1432,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m12",
@@ -1385,7 +1467,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m14",
@@ -1418,7 +1502,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m18",
@@ -1451,7 +1537,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m21",
@@ -1484,7 +1572,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m22",
@@ -1517,7 +1607,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m23",
@@ -1550,7 +1642,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m24",
@@ -1583,7 +1677,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m25",
@@ -1616,7 +1712,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m26",
@@ -1649,7 +1747,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m27",
@@ -1682,7 +1782,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m28",
@@ -1715,7 +1817,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m29",
@@ -1748,7 +1852,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m31",
@@ -1781,7 +1887,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m34",
@@ -1814,7 +1922,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m36",
@@ -1847,7 +1957,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m37",
@@ -1880,7 +1992,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m39",
@@ -1913,7 +2027,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m40",
@@ -1946,7 +2062,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "m41",
@@ -1979,7 +2097,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "p01",
@@ -2012,7 +2132,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "p06",
@@ -2045,7 +2167,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pochta2610-4",
@@ -2078,7 +2202,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pochta2610-5",
@@ -2111,7 +2237,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pochta2610-6",
@@ -2144,7 +2272,9 @@
    "proof": "письмо Лене с актом 129 отправлено Ольгой 26.10",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pochta2710-1",
@@ -2177,7 +2307,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pochta2710-2",
@@ -2210,7 +2342,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pochta2810-uks-portal",
@@ -2243,7 +2377,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pp2610-aistandart",
@@ -2276,7 +2412,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pr-emkabel-202611",
@@ -2309,7 +2447,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pr-emkabel-202612",
@@ -2342,7 +2482,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pr-flyuidbiznes-202612",
@@ -2375,7 +2517,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pr-geoelektronika-202612",
@@ -2408,7 +2552,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pr-globalelektrog-202612",
@@ -2441,7 +2587,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pr-ishimbayskiyma-202612",
@@ -2474,7 +2622,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pr-krioservis-202611",
@@ -2507,7 +2657,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pr-stanke-202611",
@@ -2540,7 +2692,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "prom2710-opora",
@@ -2573,7 +2727,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "pult2610",
@@ -2581,8 +2737,8 @@
    "client": "Claude",
    "title": "Дашборд svodka-rei: перестроить в утренний пульт (выгрузки → data.json, надзорщик)",
    "detail": "Ветка cmsg_01QRJQVrqURwSa3N8eUXJQrg8tAbd4Z71X5AKsWbefzymY. Выгрузки делает Браузер по будням 8:45; почта каждые 30 мин настроена.",
-   "next": "Ольге: одно нажатие «да» на скриншот PR #5 (её правило: публикация сайта только после «да»). Пока жду, делаю 28–29.10 должников и «Состояние системы» на сайте; Браузер кладёт Битрикс24 и банк",
-   "lastMove": "27.10 13:10 PR #2 слит; в PR #5 добавлены «Предстоящие списания», скриншот Ольге показан",
+   "next": "PR #5 не сливать, его заменяет PR #7 (новый пульт, приёмка Codex). Ждём проверки Vercel и решения Ольги по PR #7",
+   "lastMove": "28.10 22:30 PR #5 заменён PR #7; список того, что есть только в PR #5, передан ветке PR #7",
    "amount": null,
    "due": "29.10.2026",
    "mgr": "Ольга",
@@ -2597,7 +2753,7 @@
    "evening": 0,
    "link": "",
    "short": "Перестроить сводку в утренний пульт",
-   "waiting": "я",
+   "waiting": "Claude",
    "urgency": "неделя",
    "checked": "26.10.2026",
    "src": "чат проекта",
@@ -2606,7 +2762,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "q08",
@@ -2639,7 +2797,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "sait-pc2710",
@@ -2672,7 +2832,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "severmash2210",
@@ -2705,7 +2867,9 @@
    "proof": "письмо Лене отправлено Ольгой 26.10",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "sipnet2210",
@@ -2738,7 +2902,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "srvcloud2210",
@@ -2771,7 +2937,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "stanke2210",
@@ -2804,7 +2972,9 @@
    "proof": "письмо Лене отправлено Ольгой 26.10",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "sup5",
@@ -2837,7 +3007,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "sup6",
@@ -2870,7 +3042,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "tambov2710-idk",
@@ -2903,7 +3077,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "tax2110e",
@@ -2936,7 +3112,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "tax2110f",
@@ -2969,7 +3147,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "tax2110g",
@@ -3002,7 +3182,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "tnd2110",
@@ -3035,7 +3217,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "up2610-02",
@@ -3068,7 +3252,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "up2610-04",
@@ -3101,7 +3287,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "up2610-05",
@@ -3134,16 +3322,18 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "up2610-06",
    "section": "Бухгалтерия",
    "client": "ИП Пономаренко",
-   "title": "Налоги ИП: справка о принадлежности ЕНП за 2023 (IU_SPPRINSUMENP) и возврат Виталика 176 103,19 в налоговую",
+   "title": "Налоги ИП: справка о принадлежности ЕНП за 2023 (IU_SPPRINSUMENP)",
    "detail": "Упущено, найдено инвентаризацией 26.10. Следующий шаг: Ветка проверяет файл 2023 в Загрузках, который видит Ольга; если не тот — Ольга заказывает справку в ЛК ИП; итог для Виталика",
    "next": "Справка о принадлежности сумм ЕНП за 2023 (IU_SPPRINSUMENP) нужна для разбора 2023 года; погашение ЕНП 179 тыс. её не заменяет. Заказать в ЛК ИП с КЭП может только Ольга: «Утро» включает в её список. Сверка возврата (28.10, «Налоги ИП»): Виталик внёс ~179 000 (СМС, сумма округлена, fakty стр. 126–127) против 176 103,19, которые он должен был вернуть; разница ~2 896,81 по смыслу покрывает пени (на 22.10 оценка ~2 286,30, к 28.10 подросли). Возврат 176 103,19 считаем погашенным полностью. Точную сумму и дату платежа подтвердит выписка ЕНС (IU_SPKRO) после 28.10 — запросить вместе со справкой за 2023.",
-   "lastMove": "28.10 Утро: добавлено pay:false и amountNote, сумма 176 103,19 сохранена; в списке Ольги только заказ справки в ЛК ИП с КЭП",
+   "lastMove": "28.10 22:30 «Налоги ИП» (приёмка пульта PR #7): amountKind=reference — 176 103,19 справочная, возврат погашен, в метки/итоги не идёт. Прежний заголовок: «Налоги ИП: справка о принадлежности ЕНП за 2023 (IU_SPPRINSUMENP) и возврат Виталика 176 103,19 в налоговую» — часть про возврат убрана, т. к. он покрыт погашением ЕНП ~179 тыс. (fakty 126–127). Ранее: 28.10 Утро добавило pay:false и amountNote.",
    "amount": 176103.19,
    "due": "30.10.2026",
    "mgr": "Ольга",
@@ -3167,7 +3357,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "reference",
+   "amountNote": "176 103,19 — сумма возврата Виталика, сверена с погашением ЕНП 179 тыс. (покрыт, разница ≈2,9 тыс. — пени); это НЕ повторный платёж. Остаётся только справка IU_SPPRINSUMENP за 2023"
   },
   {
    "id": "up2610-11",
@@ -3200,7 +3392,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "up2610-12",
@@ -3233,7 +3427,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "up2610-13",
@@ -3266,7 +3462,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "up2610-15",
@@ -3299,7 +3497,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "up2610-16",
@@ -3332,7 +3532,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "up2610-17",
@@ -3365,7 +3567,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "up2610-19",
@@ -3398,7 +3602,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "up2610-21",
@@ -3431,7 +3637,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "up2610-23",
@@ -3464,7 +3672,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "up2610-25",
@@ -3497,7 +3707,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "up2610-27",
@@ -3530,7 +3742,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "virtex2610-sez",
@@ -3563,7 +3777,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   },
   {
    "id": "virtex2610",
@@ -3596,7 +3812,9 @@
    "proof": "",
    "invoice": "",
    "payment": "",
-   "dedupe": ""
+   "dedupe": "",
+   "amountKind": "",
+   "amountNote": ""
   }
  ],
  "summary": [
