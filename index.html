@@ -263,10 +263,23 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   };
   let D = null, T = [], FRESH = {};
   // Сверено «Утром» сегодня (§14): checked с сегодняшней датой + источник src + ветка или происхождение (thread/origin)
-  const okToday = (c) => !!c && String(c).startsWith(FRESH.todayRu);
+  // Дата сверки: «28.10 …» (текущий год), «28.10.2026 …», «2026-10-28», ISO со временем и поясом (→ МСК). Прошлое и будущее — не сегодня.
+  const p2 = (n) => String(n).padStart(2, '0');
+  const checkedDay = (c) => {
+    const s = String(c || '').trim();
+    let m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?)(Z|[+-]\d{2}:?\d{2})?)?(?![\d-])/);
+    if (m) { if (m[5]) { const d = new Date(m[0].replace(' ', 'T')); return isNaN(d) ? '' : FRESH.ymd(d); } return m[1] + '-' + m[2] + '-' + m[3]; }
+    m = s.match(/^(\d{1,2})\.(\d{1,2})(?:\.(\d{4}))?(?![\d.])/);
+    if (!m) return '';
+    return (m[3] || FRESH.year) + '-' + p2(m[2]) + '-' + p2(m[1]);
+  };
+  const okToday = (c) => !!c && checkedDay(c) === FRESH.todayYmd;
   const verifiedRow = (x) => okToday(x.checked) && !!x.src && !!(x.thread || x.origin);
   const pend = store.get('svodka-pending', {});  // отмеченное на сайте, пока не пришло в базу
   const outbox = store.get('svodka-outbox', []);
+  let inflight = store.get('svodka-inflight', null);  // партия в отправке: повтор уходит с тем же batchId, сервер не создаёт второй файл
+  let APPLIED = new Set();
+  const rid = () => Math.random().toString(36).slice(2, 10).padEnd(8, '0');
   function prep(d) {
     D = d; const upd = new Date(d.updated);
     // свежесть: всё по Москве, по расписанию выкладок «Утра» (будни 9:30, 13:00, 17:00 МСК)
@@ -278,11 +291,16 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     for (let k = -7; k <= 7; k++) { const base = at(nm.y, nm.mo, nm.d + k, 12, 0), b = M(base); if (b.dow === 0 || b.dow === 6) continue;
       for (const [h, mi] of SL) { const t = at(b.y, b.mo, b.d, h, mi); if (t <= now) lastS = t; else if (!nextS) nextS = t; } }
     const late = lastS && upd < new Date(lastS.getTime() - 15 * 6e4);
-    FRESH = {upd, lastS, nextS, late, todayRu: dm(now), sameDay: dm(upd) === dm(now), hm, dm};
+    const ymd = (x) => { const m = M(x); return m.y + '-' + String(m.mo + 1).padStart(2, '0') + '-' + String(m.d).padStart(2, '0'); };
+    FRESH = {upd, lastS, nextS, late, todayRu: dm(now), todayYmd: ymd(now), year: M(now).y, sameDay: ymd(upd) === ymd(now), hm, dm, ymd};
     $('#fresh').innerHTML = `<span class="dot" style="background:${late ? 'var(--warn)' : 'var(--ok)'}"></span>`
       + (late ? `<b style="color:var(--warn);font-weight:500">Устарело:</b> данные ${FRESH.sameDay ? '' : dm(upd) + ' '}${hm(upd)} МСК, выкладка ${hm(lastS)} не пришла` : `Сборка ${FRESH.sameDay ? '' : dm(upd) + ' '}${hm(upd)} МСК`)
       + (nextS ? ` · следующая ${dm(nextS) === dm(now) ? '' : dm(nextS) + ' '}${hm(nextS)}` : '');
-    for (const [id, p] of Object.entries(pend)) if (Date.now() - p.ts > 2 * MS) delete pend[id];
+    // Отметка снимается, только когда её событие подтверждено разбором (appliedEvents из db comments со статусом done).
+    // Время сборки не подтверждение: сборка из неизменённой db не «съедает» свежие отметки.
+    APPLIED = new Set(d.appliedEvents || []);
+    for (const [id, p] of Object.entries(pend)) if (p.eid ? APPLIED.has(p.eid) : Date.now() - p.ts > 2 * MS) delete pend[id];
+    store.set('svodka-pending', pend);
     T = (d.tasks || []).map((t) => {
       const dd = days(t.due), a = Number(t.amount) || 0, nx = t.next || '';
       const who = t.waiting || (t.wait ? (t.expert ? 'эксперт' : 'клиент') : (/^Ольг/.test(nx) || t.owner === 'Ольга') ? 'я' : t.mgr === 'Лена' ? 'Лена' : 'Claude');
@@ -325,9 +343,9 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   }
   $('#tu').onclick = () => { if (undo) undo(); undo = null; $('#toast').classList.remove('on'); };
   function act(t, action, text = '') {
-    const item = {client: t.cl, taskId: String(t.id).startsWith('sum-') ? null : t.id, taskTitle: t.title.slice(0, 300), text, action: action === 'ai' ? '' : action, actionLabel: LABEL[action], at: new Date().toISOString(), qid: Math.random().toString(36).slice(2)};
+    const item = {client: t.cl, taskId: String(t.id).startsWith('sum-') ? null : t.id, taskTitle: t.title.slice(0, 300), text, action: action === 'ai' ? '' : action, actionLabel: LABEL[action], at: new Date().toISOString(), qid: rid(), eid: 'e' + Date.now().toString(36) + rid()};
     const prev = pend[t.id];
-    if (action === 'reopen') delete pend[t.id]; else if (action !== 'ai') pend[t.id] = {action, ts: Date.now()};
+    if (action === 'reopen') delete pend[t.id]; else if (action !== 'ai') pend[t.id] = {action, ts: Date.now(), eid: item.eid};
     outbox.push(item); store.set('svodka-pending', pend); store.set('svodka-outbox', outbox);
     render();
     toast(LABEL[action] + (action === 'ai' ? '' : ': ' + t.short), () => {
@@ -338,14 +356,18 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   }
   let sending = false;
   async function flush() {
-    if (sending || !outbox.length) return; sending = true;
-    const items = outbox.slice();
+    if (sending || (!inflight && !outbox.length)) return; sending = true;
+    if (!inflight) { inflight = {id: new Date().toISOString().replace(/[:.]/g, '-') + '-' + rid(), items: outbox.slice()}; store.set('svodka-inflight', inflight); }
+    const items = inflight.items;
     try {
-      const res = await fetch('/api/comments', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({items})});
+      const res = await fetch('/api/comments', {method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify({batchId: inflight.id, items})});
       const j = await res.json().catch(() => ({}));
       if (!res.ok || !j.ok) throw new Error(j.error || ('ответ ' + res.status));
-      outbox.splice(0, items.length); store.set('svodka-outbox', outbox);
+      const sent = new Set(items.map((x) => x.qid));
+      for (let i = outbox.length - 1; i >= 0; i--) if (sent.has(outbox[i].qid)) outbox.splice(i, 1);
+      inflight = null; store.set('svodka-inflight', null); store.set('svodka-outbox', outbox);
       toast('Отправлено в ветку inbox: ' + plural(items.length, 'отметка', 'отметки', 'отметок') + '. Claude внесёт на разборе (10, 13, 18 ч)');
+      if (outbox.length) setTimeout(flush, 0);
     } catch (e) {
       $('#tt').textContent = 'Не дошло: ' + e.message + '. Отметки сохранены'; $('#tu').hidden = false; $('#tu').textContent = 'Повторить';
       undo = () => { $('#tu').textContent = 'Отменить'; flush(); }; $('#toast').classList.add('on'); clearTimeout(toast.t);
@@ -368,12 +390,16 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   const openG = new Set();
   const STAGES = [['выставить счёт', 'Выставить счёт', 'var(--faint)'], ['ждём подпись', 'Ждём подпись', 'var(--warn)'], ['ждём', 'Ждём оплату', 'var(--accent)'], ['пришло', 'Пришло', 'var(--ok)']];
   const CHECK = ['проверяется', 'Проверяем источник', 'var(--violet)'];
-  const ckey = (t) => (String(t.client || '').toLowerCase().match(/[a-zа-яё0-9]{3,}/) || [''])[0] + '|' + Math.round(t.a);
-  let dupes = [];
+  // Одна операция доказывается только явным id (dedupe / invoice / payment). Тот же клиент и сумма — лишь «возможный дубль»: обе суммы остаются.
+  const opId = (t) => String(t.dedupe || t.invoice || t.payment || '').trim();
+  const ckey = (t) => String(t.client || '').toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-я0-9]+/g, ' ').trim() + '|' + Math.round(t.a);
+  let dupes = [], maybe = [];
   function money() {
-    const o = T.filter(isOpen), came = new Set(o.filter((t) => t.money === 'пришло' && t.a).map(ckey));
-    // одна и та же сумма одного клиента в «пришло» и на другом этапе — это одни деньги: считаем только в «пришло»
-    dupes = o.filter((t) => t.a && t.money && t.money !== 'пришло' && came.has(ckey(t)));
+    const o = T.filter(isOpen), came = o.filter((t) => t.money === 'пришло' && t.a);
+    const cameOp = new Set(came.map(opId).filter(Boolean)), cameKey = new Set(came.map(ckey));
+    const other = o.filter((t) => t.a && t.money && t.money !== 'пришло');
+    dupes = other.filter((t) => opId(t) && cameOp.has(opId(t)));
+    maybe = other.filter((t) => !dupes.includes(t) && cameKey.has(ckey(t)));
     const dup = new Set(dupes.map((t) => t.id));
     return [...STAGES, CHECK].map(([k, l, c]) => { const a = o.filter((t) => t.money === k && !dup.has(t.id)), v = a.filter((t) => okToday(t.checked) && t.src);
       return {k, l, c, n: a.length, s: a.reduce((x, t) => x + t.a, 0), sv: v.reduce((x, t) => x + t.a, 0), nv: v.length, late: a.filter((t) => t.dd !== null && t.dd < 0).reduce((x, t) => x + t.a, 0)}; });
@@ -381,7 +407,8 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   const stripHTML = (all, clickTo) => { const g = all.filter((x) => x.k !== CHECK[0]), chk = all.find((x) => x.k === CHECK[0]), tot = g.reduce((x, y) => x + y.s, 0) || 1;
     return `<div class="strip"><div class="pipe">${g.filter((x) => x.s).map((x) => `<span style="flex:${x.s / tot};background:${x.c}" title="${x.l}: ${full(x.s)}"></span>`).join('')}</div>
     <div class="stages">${g.map((x) => `<button class="stg" data-mf="${x.k}" data-go="${clickTo}" aria-pressed="${tab === 'money' && mf === x.k}"><span class="k"><span class="dot" style="background:${x.c}"></span>${x.l} · ${x.n}</span><span class="v">${rub(x.s) || '—'}</span>${x.s ? `<span class="x" style="color:var(--muted)">${x.sv ? 'сверено сегодня ' + rub(x.sv) : 'сегодня не сверено'}${x.sv && x.sv < x.s ? ', без сверки ' + rub(x.s - x.sv) : ''}</span>` : ''}${x.late ? `<span class="x">из них ${rub(x.late)} просрочено</span>` : ''}</button>`).join('')}</div>
-    ${dupes.length ? `<div class="hint">Не считаю дважды: ${dupes.map((t) => esc(t.cl) + ' ' + rub(t.a) + ' (' + esc(t.money) + ' = пришло)').join(', ')}</div>` : ''}
+    ${dupes.length ? `<div class="hint">Не считаю дважды (одна операция по id): ${dupes.map((t) => esc(t.cl) + ' ' + rub(t.a) + ' (' + esc(t.money) + ' = пришло, ' + esc(opId(t)) + ')').join(', ')}</div>` : ''}
+    ${maybe.length ? `<div class="hint" style="color:var(--warn)">Возможный дубль, обе суммы оставлены до сверки: ${maybe.map((t) => esc(t.cl) + ' ' + rub(t.a) + ' (' + esc(t.money) + ' и пришло)').join(', ')}</div>` : ''}
     ${chk && chk.s ? `<button class="link" style="margin:0;justify-self:start;color:var(--muted)" data-mf="${CHECK[0]}" data-go="${clickTo}">Ещё ${rub(chk.s)} на проверке источника · ${plural(chk.n, 'дело', 'дела', 'дел')}</button>` : ''}</div>`; };
 
   // «Автоматика»: статусы потоков, проверенные «Утром» (summary, section «Автоматика»). Нет строк — раздела нет, без «0 сбоев».
@@ -410,7 +437,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     const moneyTot = g.reduce((x, y) => x + y.s, 0);
     const moneyLine = !moneyTot ? 'Сумм в пути в данных нет.' : !wait.s ? 'Оплат в ожидании в данных нет.' : wait.sv ? `Ждём оплату ${rub(wait.sv)}, сверено сегодня${wait.sv < wait.s ? `; ещё ${rub(wait.s - wait.sv)} без сегодняшней сверки` : ''}.` : `Ждём оплату ${rub(wait.s)}, сегодня не сверено.`;
     const status = !fresh ? `<div class="warnline">Данные от ${FRESH.dm(upd)} ${FRESH.hm(upd)} МСК: сегодня сводку ещё не выкладывали, цифры могут быть устаревшими.</div>` : FRESH.late ? `<div class="warnline">Данные собраны в ${FRESH.hm(upd)} МСК, выкладка ${FRESH.hm(FRESH.lastS)} не пришла. Всё ниже — на ${FRESH.hm(upd)}.</div>` : '';
-    const unsent = outbox.length && !sending ? `<div class="warnline">${plural(outbox.length, 'отметка не отправлена', 'отметки не отправлены', 'отметок не отправлено')}, они сохранены в этом браузере. <button class="link" style="margin:0" data-retry>Отправить снова</button></div>` : '';
+    const unsent = (outbox.length || inflight) && !sending ? `<div class="warnline">${plural(outbox.length, 'отметка не отправлена', 'отметки не отправлены', 'отметок не отправлено')}, они сохранены в этом браузере. <button class="link" style="margin:0" data-retry>Отправить снова</button></div>` : '';
     return `<section class="lead"><div class="day">${cap(dn)}</div>
       ${status}${unsent}
       <h1>${m.length ? `Сегодня от вас <em>${plural(m.length, 'дело', 'дела', 'дел')}</em>` : week.length ? `${plural(week.length, 'дело от вас ждёт', 'дела от вас ждут', 'дел от вас ждут')} сверки «Утра»` : listToday ? 'Утро разобрано' : 'Список дел на сегодня ещё не собран'}. ${moneyLine}${wc.length ? ` ${plural(wc.length, 'дело ждёт', 'дела ждут', 'дел ждут')} клиента.` : ''}</h1>
@@ -585,13 +612,25 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   let syncNote = '';
   async function pull() {
     try {
-      const res = await fetch('/api/comments', {cache: 'no-store'});
-      const j = await res.json().catch(() => ({}));
-      if (!res.ok || !j.ok) throw new Error(j.error || ('ответ ' + res.status));
+      const all = []; let cursor = '', complete = false;
+      for (let i = 0; i < 50; i++) {
+        const res = await fetch('/api/comments' + (cursor ? '?cursor=' + encodeURIComponent(cursor) : ''), {cache: 'no-store'});
+        const j = await res.json().catch(() => ({}));
+        if (!res.ok || !j.ok) throw new Error(j.error || ('ответ ' + res.status));
+        all.push(...(j.items || []));
+        if (!j.nextCursor) { complete = true; break; }
+        cursor = j.nextCursor;
+      }
+      if (!complete) throw new Error('список отметок неполный');
+      // старые отметки без id события (до 28.10) — по времени сборки, остальные — пока разбор не подтвердил их id
       const since = Date.parse(D.updated);
-      for (const x of (j.items || []).filter((x) => x.taskId && Date.parse(x.at) > since).sort((a, b) => Date.parse(a.at) - Date.parse(b.at))) {
+      const open = all.filter((x) => x.taskId && (x.eid ? !APPLIED.has(x.eid) : Date.parse(x.at) > since));
+      for (const x of open.sort((a, b) => Date.parse(a.at) - Date.parse(b.at))) {
+        const cur = pend[x.taskId], ts = Date.parse(x.at);
+        if (cur && cur.eid === x.eid) continue;
+        if (cur && !cur.remote && cur.ts > ts) continue;  // своя более поздняя отметка важнее
         if (x.action === 'reopen') delete pend[x.taskId];
-        else if (['done', 'later', 'wait', 'eve', 'prio'].includes(x.action)) pend[x.taskId] = {action: x.action, ts: Date.parse(x.at), remote: true};
+        else if (['done', 'later', 'wait', 'eve', 'prio'].includes(x.action)) pend[x.taskId] = {action: x.action, ts, eid: x.eid || '', remote: true};
       }
       store.set('svodka-pending', pend); syncNote = '';
     } catch (e) { syncNote = 'отметки с других устройств не загрузились: ' + e.message; }
@@ -604,7 +643,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
       prep(await res.json());
       await pull();
       const h = location.hash.slice(1); tab = ['utro', 'money', 'all'].includes(h) ? h : 'utro';
-      render(); if (outbox.length) flush();
+      render(); if (outbox.length || inflight) flush();
     } catch (e) {
       $('#view').innerHTML = `<div class="empty"><b>Данные не загрузились</b><span>${esc(e.message)}. Обновите страницу; если не помогло, напишите ветке «Утро и задачи».</span><button class="btn small" onclick="location.reload()">Обновить</button></div>`;
     }

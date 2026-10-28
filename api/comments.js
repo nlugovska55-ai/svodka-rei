@@ -23,30 +23,61 @@ async function ensureBranch(token) {
   if (!made.ok && made.status !== 422) throw new Error('branch ' + made.status);
 }
 
-// GET отдаёт отметки за последние 48 часов, чтобы они были видны на другом устройстве до разбора.
-async function recent(token) {
-  const list = await gh('/contents/inbox?ref=' + BRANCH, token);
-  if (list.status === 404) return [];
-  if (!list.ok) throw new Error('list ' + list.status);
+// Имя файла партии: время + случайный хвост. Клиент присылает его как batchId и повторяет при сбое — файл один.
+const BATCH = /^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z(?:-[a-z0-9]{6,16})?$/;
+const timeOf = (id) => Date.parse(id.slice(0, 24).replace(/^(\d{4}-\d{2}-\d{2}T\d{2})-(\d{2})-(\d{2})-(\d{3})Z$/, '$1:$2:$3.$4Z'));
+const decode = (b64) => JSON.parse(Buffer.from(b64, 'base64').toString('utf8'));
+
+// Полный список inbox через git trees (у Contents API предел 1000 файлов); обрезанный список — ошибка, не тишина.
+async function inboxFiles(token) {
+  const ref = await gh('/git/ref/heads/' + BRANCH, token);
+  if (ref.status === 404) return [];
+  if (!ref.ok) throw new Error('ref ' + ref.status);
+  const commit = await gh('/git/commits/' + (await ref.json()).object.sha, token);
+  if (!commit.ok) throw new Error('commit ' + commit.status);
+  const root = await gh('/git/trees/' + (await commit.json()).tree.sha, token);
+  if (!root.ok) throw new Error('tree ' + root.status);
+  const rj = await root.json();
+  if (rj.truncated) throw new Error('список ветки неполный');
+  const dir = (rj.tree || []).find((e) => e.path === 'inbox' && e.type === 'tree');
+  if (!dir) return [];
+  const t = await gh('/git/trees/' + dir.sha, token);
+  if (!t.ok) throw new Error('inbox tree ' + t.status);
+  const tj = await t.json();
+  if (tj.truncated) throw new Error('список inbox неполный');
+  return (tj.tree || []).filter((e) => e.type === 'blob' && e.path.endsWith('.json')).map((e) => ({ name: e.path, sha: e.sha }));
+}
+
+// GET отдаёт отметки за 48 часов страницами по PAGE файлов; nextCursor есть, пока файлы не кончились.
+const PAGE = 40;
+async function recent(token, cursor) {
   const since = Date.now() - 48 * 3600e3;
-  const names = (await list.json()).map((f) => f.name).filter((n) => n.endsWith('.json'))
-    .filter((n) => { const iso = n.slice(0, -5).replace(/^(\d{4}-\d{2}-\d{2}T\d{2})-(\d{2})-(\d{2})-(\d{3})Z$/, '$1:$2:$3.$4Z'); const t = Date.parse(iso); return !isNaN(t) && t >= since; })
-    .sort().slice(-40);
-  const out = [];
-  for (const n of names) {
-    const f = await gh('/contents/inbox/' + n + '?ref=' + BRANCH, token);
-    if (!f.ok) throw new Error('file ' + f.status);
-    const j = JSON.parse(Buffer.from((await f.json()).content, 'base64').toString('utf8'));
-    for (const x of j.items || []) out.push({ taskId: x.taskId, action: x.action, at: x.at || j.sentAt, text: x.text ? 1 : 0 });
+  const files = (await inboxFiles(token)).filter((f) => { const t = timeOf(f.name.slice(0, -5)); return !isNaN(t) && t >= since; })
+    .sort((a, b) => (a.name < b.name ? -1 : 1)).filter((f) => !cursor || f.name > cursor);
+  const page = files.slice(0, PAGE);
+  const items = [];
+  for (const f of page) {
+    const b = await gh('/git/blobs/' + f.sha, token);
+    if (!b.ok) throw new Error('file ' + b.status);
+    const j = decode((await b.json()).content);
+    for (const x of j.items || []) items.push({ taskId: x.taskId, action: x.action, at: x.at || j.sentAt, eid: x.eid || '', text: x.text ? 1 : 0 });
   }
-  return out;
+  return { items, nextCursor: files.length > PAGE ? page[page.length - 1].name : null };
+}
+
+async function existing(path, token) {
+  const r = await gh(path + '?ref=' + BRANCH, token);
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error('check ' + r.status);
+  return decode((await r.json()).content);
 }
 
 export default async function handler(req, res) {
   const token = process.env.GITHUB_TOKEN;
   if (req.method === 'GET') {
     if (!token) return res.status(503).json({ ok: false, error: 'Не задан GITHUB_TOKEN в настройках Vercel' });
-    try { return res.status(200).json({ ok: true, items: await recent(token) }); } catch (e) { return res.status(502).json({ ok: false, error: 'Не удалось прочитать отметки: ' + e.message }); }
+    const cursor = (req.query && req.query.cursor) || new URL(req.url || '/', 'http://x').searchParams.get('cursor') || '';
+    try { return res.status(200).json({ ok: true, ...(await recent(token, String(cursor))) }); } catch (e) { return res.status(502).json({ ok: false, error: 'Не удалось прочитать отметки: ' + e.message }); }
   }
   if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'Только GET и POST' });
   if (!token) return res.status(503).json({ ok: false, error: 'Не задан GITHUB_TOKEN в настройках Vercel' });
@@ -61,26 +92,33 @@ export default async function handler(req, res) {
       action: ['eve', 'prio', 'wait', 'done', 'later', 'reopen'].includes(x.action) ? x.action : '',
       actionLabel: String(x.actionLabel || '').slice(0, 40),
       at: String(x.at || '').slice(0, 40),
+      eid: /^[a-z0-9]{6,40}$/i.test(x.eid || '') ? x.eid : '',
     }))
     .filter((x) => x.text || x.action);
   if (!items.length) return res.status(400).json({ ok: false, error: 'Пустые комментарии' });
   if (items.length > 100) return res.status(400).json({ ok: false, error: 'Больше 100 комментариев за раз' });
 
   const now = new Date();
-  const stamp = now.toISOString().replace(/[:.]/g, '-');
-  const file = { sentAt: now.toISOString(), source: 'svodka-rei', status: 'new', items };
+  const id = BATCH.test(body.batchId || '') ? body.batchId : now.toISOString().replace(/[:.]/g, '-') + '-' + Math.random().toString(36).slice(2, 10);
+  const path = '/contents/inbox/' + id + '.json';
+  const file = { sentAt: now.toISOString(), batchId: id, source: 'svodka-rei', status: 'new', items };
+  // Повтор той же партии (ответ на прошлую отправку потерялся) — тот же файл, «ок»; то же имя с другим содержимым — ошибка.
+  const same = (f) => JSON.stringify(f.items) === JSON.stringify(items);
   try {
     await ensureBranch(token);
-    const put = await gh('/contents/inbox/' + stamp + '.json', token, {
-      method: 'PUT',
-      body: JSON.stringify({
-        message: 'Комментарии со сводки: ' + items.length,
-        branch: BRANCH,
-        content: Buffer.from(JSON.stringify(file, null, 2)).toString('base64'),
-      }),
-    });
-    if (!put.ok) throw new Error('save ' + put.status);
-    return res.status(200).json({ ok: true, count: items.length, sentAt: file.sentAt });
+    let ex = await existing(path, token);
+    if (!ex) {
+      const put = await gh(path, token, {
+        method: 'PUT',
+        body: JSON.stringify({ message: 'Комментарии со сводки: ' + items.length, branch: BRANCH, content: Buffer.from(JSON.stringify(file, null, 2)).toString('base64') }),
+      });
+      if (put.ok) return res.status(200).json({ ok: true, count: items.length, sentAt: file.sentAt, batchId: id });
+      if (put.status !== 409 && put.status !== 422) throw new Error('save ' + put.status);
+      ex = await existing(path, token);
+      if (!ex) throw new Error('save ' + put.status);
+    }
+    if (!same(ex)) return res.status(409).json({ ok: false, error: 'Партия ' + id + ' уже сохранена с другим содержимым' });
+    return res.status(200).json({ ok: true, count: items.length, sentAt: ex.sentAt, batchId: id, duplicate: true });
   } catch (e) {
     return res.status(502).json({ ok: false, error: 'Не удалось сохранить: ' + e.message });
   }

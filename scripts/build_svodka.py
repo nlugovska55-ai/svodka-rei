@@ -1,8 +1,8 @@
 """Собирает data/svodka.json для дашборда «Сводка дня РЭИ» на Vercel.
 
 Вход:
-  1) папка с выгрузкой db "tasks" системы заданий (ArtifactData list ... out_dir=<dir>),
-     внутри <dir>/tasks/<id>.json;
+  1) папка с выгрузкой db системы заданий (ArtifactData list ... out_dir=<dir>):
+     <dir>/tasks/<id>.json и <dir>/comments/<id>.json (comments нужны для appliedEvents);
   2) summary.json — блоки «Нужно от вас» и «Проекты» (составляет ветка «Утро и задачи»).
 Выход: data/svodka.json = {updated, tasks: [...], summary: [...]}
 
@@ -124,6 +124,17 @@ def prognoz():
     }
 
 
+def applied_events(db_dir):
+    """id событий сайта, которые разбор уже внёс в задачи (db comments: status done + eventId).
+    Пульт снимает отметку «ждёт синхронизации» только по ним, а не по времени сборки."""
+    out = set()
+    for f in glob.glob(os.path.join(db_dir, "comments", "*.json")):
+        c = json.load(open(f, encoding="utf-8"))
+        if c.get("status") == "done" and c.get("eventId"):
+            out.add(c["eventId"])
+    return sorted(out)
+
+
 def main():
     db_dir, summary_path = sys.argv[1], sys.argv[2]
     out = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(__file__), "..", "data", "svodka.json")
@@ -167,6 +178,10 @@ def main():
             "thread": t.get("thread") or "",
             "origin": t.get("origin") or "",
             "proof": t.get("proof") or "",
+            # Деньги: одна операция только по явному id; без него одинаковые суммы — «возможный дубль»
+            "invoice": t.get("invoice") or "",
+            "payment": t.get("payment") or "",
+            "dedupe": t.get("dedupe") or "",
         })
     summary = json.load(open(summary_path, encoding="utf-8"))
     if isinstance(summary, dict):
@@ -177,6 +192,7 @@ def main():
         "summary": summary,
         "lena_clients": lena_clients(tasks),
         "prognoz": prognoz(),
+        "appliedEvents": applied_events(db_dir),
     }
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(data, fh, ensure_ascii=False, indent=1)

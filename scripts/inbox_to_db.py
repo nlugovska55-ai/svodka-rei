@@ -16,6 +16,8 @@
 Файл учёта: /mnt/project-files/daily-control/svodka-site/inbox-imported.txt, строки «имя хэш»
 (старые строки без хэша считаются подтверждёнными). Ветку inbox не трогаем.
 Ошибка git (нет origin/inbox, сбой ls-tree/show) останавливает импорт с кодом 2.
+status "done" у комментария ставить только после того, как действие внесено в задачу db:
+по eventId таких комментариев пульт снимает отметку «ждёт синхронизации» (appliedEvents в сводке).
 """
 import hashlib, json, subprocess, sys
 from datetime import datetime, timedelta, timezone
@@ -81,7 +83,8 @@ def prepare(repo, seen_path, out):
                            "data": {"text": text, "taskId": x.get("taskId"), "taskTitle": x.get("taskTitle") or x.get("client"),
                                     "client": x.get("client"), "action": x.get("action") or "",
                                     "at": at.isoformat(), "atStr": at.strftime("%d.%m, %H:%M"),
-                                    "status": "new", "source": "сайт svodka-rei", "inboxFile": name, "inboxBlob": blob}})
+                                    "status": "new", "source": "сайт svodka-rei", "inboxFile": name, "inboxBlob": blob,
+                                    "eventId": x.get("eid") or ""}})
         manifest.append({"name": name, "blob": blob, "docIds": ids})
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(writes, fh, ensure_ascii=False, indent=1)

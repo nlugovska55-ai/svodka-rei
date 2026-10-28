@@ -30,15 +30,17 @@ const check = (name, ok, fact) => { results.push({name, ok: !!ok, fact}); consol
 
 const browser = await chromium.launch();
 // «Сервер отметок»: общий для всех устройств теста, как ветка inbox
-let inbox = [], apiMode = 'ok';
+let inbox = [], apiMode = 'ok'; const batches = new Set();
 async function device(data, opts = {}) {
   const ctx = await browser.newContext({viewport: opts.viewport || {width: 1280, height: 1000}, colorScheme: opts.scheme || 'light', isMobile: !!opts.mobile, hasTouch: !!opts.mobile});
   const p = await ctx.newPage(); p.errors = []; p.on('pageerror', (e) => p.errors.push(e.message));
   await p.route('**/data/svodka.json*', (r) => typeof data === 'number' ? r.fulfill({status: data, body: 'err'}) : r.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify(data)}));
   await p.route('**/api/comments*', async (r) => {
     if (apiMode === 'fail') return r.fulfill({status: 503, contentType: 'application/json', body: JSON.stringify({ok: false, error: 'Не задан GITHUB_TOKEN в настройках Vercel'})});
-    if (r.request().method() === 'POST') { const b = JSON.parse(r.request().postData()); inbox.push(...b.items); return r.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({ok: true, count: b.items.length})}); }
-    return r.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({ok: true, items: inbox.map((x) => ({taskId: x.taskId, action: x.action, at: x.at}))})});
+    if (r.request().method() === 'POST') { const b = JSON.parse(r.request().postData()); if (!batches.has(b.batchId)) { batches.add(b.batchId); inbox.push(...b.items); } return r.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({ok: true, count: b.items.length})}); }
+    // страницы по 2 отметки, чтобы проверить, что пульт дочитывает все страницы
+    const cur = +(new URL(r.request().url()).searchParams.get('cursor') || 0), page = inbox.slice(cur, cur + 2);
+    return r.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({ok: true, items: page.map((x) => ({taskId: x.taskId, action: x.action, at: x.at, eid: x.eid})), nextCursor: cur + 2 < inbox.length ? String(cur + 2) : null})});
   });
   return {ctx, p};
 }
@@ -95,6 +97,28 @@ try {
     await A.ctx.close(); await B.ctx.close();
   }
 
+  // 2b. Codex (3): сборка позже отметки не подтверждает её; подтверждает только id события из разбора
+  {
+    inbox = []; apiMode = 'ok';
+    const A = await device(D); await go(A.p);
+    const id0 = (await ask(A.p))[0];
+    await A.p.click(`.rw[data-id="${id0}"] .chk`); await A.p.waitForTimeout(5800);
+    const ev = inbox.find((x) => x.taskId === id0);
+    const later = fresh(); later.updated = iso(new Date(Date.now() + 60e3));  // «сборка 18:00» после «done 17:59», db не менялась
+    const B = await device(later); await go(B.p);
+    const hiddenB = !(await ask(B.p)).includes(id0);
+    check('Сборка позже отметки из неизменённой db не возвращает дело', !!ev?.eid && hiddenB, `id события ${ev?.eid || 'нет'}; на втором устройстве дело скрыто: ${hiddenB}`);
+    const acked = fresh(); acked.updated = later.updated; acked.appliedEvents = [ev.eid];
+    const C = await device(acked); await go(C.p);
+    const shownC = (await ask(C.p)).includes(id0);
+    await A.p.reload(); await A.p.waitForTimeout(700);
+    await A.p.route('**/data/svodka.json*', (r) => r.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify(acked)}));
+    await A.p.reload(); await A.p.waitForTimeout(700);
+    const pendA = await A.p.evaluate((id) => !!JSON.parse(localStorage.getItem('svodka-pending') || '{}')[id], id0);
+    check('Отметка снимается только по подтверждённому id события (appliedEvents)', shownC && !pendA, `после подтверждения устройство C видит состояние db: ${shownC}; на A отметка снята: ${!pendA}`);
+    await A.ctx.close(); await B.ctx.close(); await C.ctx.close();
+  }
+
   // 3. Ошибка сервера отметок — нет ложного успеха, отметка не пропадает
   {
     inbox = []; apiMode = 'fail';
@@ -115,7 +139,7 @@ try {
   // 4. Деньги: одна сумма не считается дважды
   {
     const d = fresh(); const came = new Set(d.tasks.filter((t) => t.money === 'пришло').map((t) => t.client)); const c = d.tasks.find((t) => t.money === 'ждём' && t.amount && !came.has(t.client));
-    d.tasks.push({...c, id: 'dup-came', money: 'пришло', title: c.title + ' (пришло)'});
+    c.invoice = 'счёт-77'; d.tasks.push({...c, id: 'dup-came', money: 'пришло', title: c.title + ' (пришло)', invoice: 'счёт-77'});
     const {ctx, p} = await device(d); await go(p);
     const v = await p.$$eval('.stg', (x) => x.map((e) => [e.querySelector('.k').textContent, e.querySelector('.v').textContent]));
     const hint = await p.textContent('.strip').catch(() => '');
@@ -124,8 +148,41 @@ try {
     const {ctx: c0, p: p0} = await device({...d, tasks: base0}); await go(p0);
     const v0 = (await p0.$$eval('.stg', (x) => x.map((e) => e.querySelector('.k').textContent))).find((x) => /Ждём оплату/.test(x)); await c0.close();
     const n0 = +v0.split('· ')[1], n1 = +shown[0].split('· ')[1];
-    check('Нет двойного учёта денег («ждём» = «пришло» у того же клиента)', n1 === n0 - 1 && hint.includes(c.client), `до дубля «Ждём оплату» ${n0} дел, с дублем ${n1}; пояснение называет клиента: ${hint.includes(c.client)}`);
+    check('Нет двойного учёта денег (одна операция по явному id счёта)', n1 === n0 - 1 && hint.includes(c.client), `до дубля «Ждём оплату» ${n0} дел, с дублем ${n1}; пояснение называет клиента: ${hint.includes(c.client)}`);
     await ctx.close();
+  }
+
+  // 4b. Codex (1): без явного id суммы не вычитаются
+  {
+    const d = fresh(); const base = d.tasks.find((t) => t.money === 'ждём' && t.amount);
+    d.tasks = d.tasks.filter((t) => !['пришло', 'ждём'].includes(t.money));
+    d.tasks.push({...base, id: 'alfa', client: 'ООО Альфа', money: 'пришло', amount: 10000, invoice: ''}, {...base, id: 'beta', client: 'ООО Бета', money: 'ждём', amount: 10000, invoice: ''});
+    const {ctx, p} = await device(d); await go(p);
+    const stg = await p.$$eval('.stg', (x) => x.map((e) => e.querySelector('.k').textContent));
+    const n = +(stg.find((x) => /Ждём оплату/.test(x)) || '· 0').split('· ')[1];
+    check('ООО Альфа «пришло» 10 000 и ООО Бета «ждём» 10 000 — ожидаемых 1, не 0', n === 1, `«Ждём оплату» ${n}`);
+    await ctx.close();
+    const d2 = structuredClone(d); d2.tasks.find((t) => t.id === 'alfa').client = 'ООО Бета';
+    const B = await device(d2); await go(B.p);
+    const stg2 = await B.p.$$eval('.stg', (x) => x.map((e) => e.querySelector('.k').textContent));
+    const n2 = +(stg2.find((x) => /Ждём оплату/.test(x)) || '· 0').split('· ')[1], hint = await B.p.textContent('.strip');
+    check('Тот же клиент и сумма без id — обе суммы остаются, пометка «возможный дубль»', n2 === 1 && /Возможный дубль/.test(hint) && !/Не считаю дважды/.test(hint), `«Ждём оплату» ${n2}; пометка: ${/Возможный дубль/.test(hint)}`);
+    await B.ctx.close();
+  }
+
+  // 4c. Codex (2): дата сверки с годом и ISO; прошлое и будущее не «сегодня»
+  {
+    const z = new Date(Date.now() + 3 * 36e5), Y = z.getUTCFullYear(), dd = String(z.getUTCDate()).padStart(2, '0'), mm = String(z.getUTCMonth() + 1).padStart(2, '0');
+    const tm = new Date(Date.now() + 27 * 36e5), tdd = String(tm.getUTCDate()).padStart(2, '0'), tmm = String(tm.getUTCMonth() + 1).padStart(2, '0');
+    const cases = [[`${dd}.${mm}.${Y - 1} Утро`, false], [`${dd}.${mm}.${Y} Утро`, true], [`${Y}-${mm}-${dd}`, true], [new Date().toISOString(), true], [`${Y - 1}-${mm}-${dd}T10:00:00Z`, false], [`${tdd}.${tmm}.${tm.getUTCFullYear()} Утро`, false], [`${dd}.${mm} Утро`, true], ['вчера', false]];
+    const res = [];
+    for (const [c, want] of cases) {
+      const d = fresh(); const s0 = d.summary.find((s) => s.section === 'Нужно от вас'); const tk = d.tasks.find((t) => t.id === s0.id);
+      d.summary = d.summary.filter((s) => s.section !== 'Нужно от вас' || s.id === s0.id); delete s0.checked; tk.checked = c;
+      const {ctx, p} = await device(d); await go(p); const got = (await ask(p)).length > 0; await ctx.close();
+      res.push(`${c.slice(0, 22)}→${got ? 'сегодня' : 'нет'}${got === want ? '' : ' (ОШИБКА)'}`);
+    }
+    check('checked прошлого года, будущего и мусор — не «сегодня»; с годом и ISO — да', !res.some((x) => /ОШИБКА/.test(x)), res.join('; '));
   }
 
   // 5. Нет данных / ошибка / устаревшие данные — без ложного нуля и ложного «разобрано»
