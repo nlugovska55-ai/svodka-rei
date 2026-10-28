@@ -9,11 +9,14 @@
   3) ArtifactData batch из batch.json страницы 3FMn9JyWFXrL6ZzgAx5JAY, строго по порядку:
      сначала update в `tasks` (последнее событие по задаче), потом set в `comments`.
      Комментарий со status done и eventId в db значит: его действие уже внесено в задачу.
-  4) Только если batch применён целиком: прочитать из db `comments` id записанных документов
-     (query по doc_id из манифеста), сохранить списком в applied.json и выполнить
-     python3 -I scripts/inbox_to_db.py ack <репо> <файл-учёта> <batch.json> <applied.json>
-     ack сверяет хэш batch.json с манифестом, хэши файлов в origin/inbox и наличие всех doc_id;
-     при любом расхождении ничего не отмечает и выходит с кодом 1.
+  4) Только если batch применён целиком: прочитать из db (ArtifactData get по doc_id из манифеста)
+     записанные комментарии и задачи из taskDocs, сохранить в applied.json как
+     {"comments": [id комментариев, найденных в db], "tasks": {id задачи: документ задачи из db как есть}}
+     и выполнить python3 -I scripts/inbox_to_db.py ack <репо> <файл-учёта> <batch.json> <applied.json>
+     ack сверяет хэш batch.json с манифестом, хэши файлов в origin/inbox, наличие всех комментариев
+     и для каждой задачи из taskDocs совпадение КАЖДОГО поля patch с прочитанным из db.
+     Порядок batch не считается доказательством. Старый формат applied.json (список id) годится,
+     только если в партии нет изменений задач. При любом расхождении ничего не отмечает, код 1.
   Сбой на шаге 3 или частичный batch: просто повторить с шага 2. doc_id стабильны
   (имя файла + хэш содержимого + номер), повторная запись перезаписывает те же документы.
 Файл учёта: /mnt/project-files/daily-control/svodka-site/inbox-imported.txt, строки «имя хэш»
@@ -153,7 +156,8 @@ def prepare(repo, seen_path, out, tasks_dir=None):
     with open(out, "w", encoding="utf-8") as fh:
         json.dump(task_writes + writes, fh, ensure_ascii=False, indent=1)
     with open(out + ".manifest.json", "w", encoding="utf-8") as fh:
-        json.dump({"batchSha256": sha256(out), "files": manifest, "taskDocs": [w["doc_id"] for w in task_writes]}, fh, ensure_ascii=False, indent=1)
+        json.dump({"batchSha256": sha256(out), "files": manifest, "taskDocs": [w["doc_id"] for w in task_writes],
+                   "taskPatches": {w["doc_id"]: w["data"] for w in task_writes}}, fh, ensure_ascii=False, indent=1)
     print(f"prepare: files {len(manifest)}, tasks {len(task_writes)}, comments {len(writes)} -> {out} (учёт не изменён, нужен ack после batch)")
 
 
@@ -169,8 +173,21 @@ def ack(repo, seen_path, out, applied_path):
     in_manifest = {(f["name"], f["blob"], d) for f in m["files"] for d in f["docIds"]}
     if in_batch != in_manifest:
         errors.append("манифест не совпадает с batch.json")
+    if {w["doc_id"]: w["data"] for w in batch if w["collection"] == "tasks"} != m.get("taskPatches", {}):
+        errors.append("изменения задач в batch.json не совпадают с манифестом")
     files = inbox_files(repo)
-    applied = set(json.load(open(applied_path, encoding="utf-8")))
+    ap = json.load(open(applied_path, encoding="utf-8"))
+    applied = set(ap if isinstance(ap, list) else ap.get("comments", []))
+    readback = {} if isinstance(ap, list) else ap.get("tasks") or {}
+    # Задачи подтверждаются только чтением из db: каждое поле patch должно совпасть с документом задачи
+    for tid, patch in m.get("taskPatches", {}).items():
+        doc = readback.get(tid)
+        if not isinstance(doc, dict):
+            errors.append(f"задача {tid}: нет чтения из db (нужен applied.json с tasks)")
+            continue
+        bad = [k for k, v in patch.items() if doc.get(k) != v]
+        if bad:
+            errors.append(f"задача {tid}: в db не применено {', '.join(f'{k}={doc.get(k)!r}, ждали {patch[k]!r}' for k in bad)}")
     for f in m["files"]:
         if f["name"] not in files:
             errors.append(f"{f['name']}: нет в origin/inbox (чужой файл)")

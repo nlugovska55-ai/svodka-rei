@@ -45,9 +45,12 @@ def comments(batch):
     return [w for w in json.load(open(batch)) if w["collection"] == "comments"]
 
 
-def ack(repo, seen, batch, db):
+def ack(repo, seen, batch, db, tasks=None):
+    """applied.json как его собирает разбор: id комментариев из db и чтение задач из db (TASKS)."""
     ap = batch + ".applied.json"
-    json.dump(sorted(db), open(ap, "w"))
+    m = json.load(open(batch + ".manifest.json"))
+    src = TASKS if tasks is None else tasks
+    json.dump({"comments": sorted(db), "tasks": {t: src[t] for t in m.get("taskDocs", []) if t in src}}, open(ap, "w"))
     return run("ack", repo, seen, batch, ap)
 
 
@@ -143,9 +146,32 @@ ok("Старый комментарий с action пусто: задачу не 
 ok("«Я выполнила» закрывает задачу после применения", TASKS.get("t6", {}).get("status") == "done", f"t6: {TASKS.get('t6')}")
 ok("Отметка к задаче, которой нет в db: не применяется, остаётся разбору", "net-v-db" not in TASKS and c4["net-v-db"]["status"] == "new" and "не применено" in c4["net-v-db"]["text"], c4["net-v-db"]["text"][:60])
 ok("В batch задачи идут раньше комментариев", [w["collection"] for w in json.load(open(batch))] == sorted([w["collection"] for w in json.load(open(batch))], key=lambda c: c != "tasks"), "порядок tasks → comments")
+seen_before = open(seen).read()
+
+# Codex 20:13: ack подтверждает задачи только чтением из db, не порядком batch и не id комментариев
+cdb = {w["doc_id"]: w["data"] for w in comments(batch)}
+r = ack(repo, seen, batch, cdb, tasks={"t4": {"status": "open", "waiting": "я"}, "t3": {"status": "open"}, "t6": {"status": "open"}})
+ok("Применены только comments, задача waiting=я: ack отклонён, учёт прежний", r.returncode == 1 and "t4" in r.stderr and "waiting" in r.stderr and open(seen).read() == seen_before, r.stderr.strip().splitlines()[1][:110])
+bad = {k: dict(v) for k, v in TASKS.items()}
+bad["t6"]["status"] = "open"
+r = ack(repo, seen, batch, cdb, tasks=bad)
+ok("Неверный status в db («Я выполнила» не закрыла): ack отклонён", r.returncode == 1 and "t6" in r.stderr and open(seen).read() == seen_before, r.stderr.strip().splitlines()[-1][:110])
+part = {k: v for k, v in TASKS.items() if k != "t3"}
+r = ack(repo, seen, batch, cdb, tasks=part)
+ok("Частичное применение задач (нет чтения t3): ack отклонён", r.returncode == 1 and "t3" in r.stderr and open(seen).read() == seen_before, r.stderr.strip().splitlines()[-1][:110])
+json.dump(sorted(cdb), open(batch + ".applied.json", "w"))
+r = run("ack", repo, seen, batch, batch + ".applied.json")
+ok("Старый формат applied (только id комментариев) при изменениях задач: отклонён", r.returncode == 1 and "нет чтения из db" in r.stderr and open(seen).read() == seen_before, r.stderr.strip().splitlines()[-1][:110])
+r = ack(repo, seen, batch, db)
+ok("Полное подтверждённое чтение задач из db: ack проходит", r.returncode == 0, r.stdout.strip() or r.stderr.strip())
+
+# Старые текстовые комментарии: изменений задач нет, старый формат applied (список) по-прежнему годится
+put(repo, "fifth.json", [{"taskId": "t5", "text": "просто текст", "at": "2026-10-28T14:00:00Z"}])
+run("prepare", repo, seen, batch, tdir)
+apply(db, batch)
 json.dump(sorted(db), open(batch + ".applied.json", "w"))
 r = run("ack", repo, seen, batch, batch + ".applied.json")
-ok("ack после применения поручения проходит", r.returncode == 0, r.stdout.strip() or r.stderr.strip())
+ok("Только текстовые комментарии: ack со списком id проходит", r.returncode == 0 and json.load(open(batch + ".manifest.json"))["taskDocs"] == [], r.stdout.strip() or r.stderr.strip())
 
 sh(repo, "git", "update-ref", "-d", "refs/remotes/origin/inbox")
 r = run("prepare", repo, seen, batch)

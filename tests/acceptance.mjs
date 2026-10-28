@@ -388,6 +388,9 @@ try {
     const rh = await M.p.$eval('.rw', (e) => e.getBoundingClientRect().height).catch(() => 0);
     check('Телефон 390 px, «Бухгалтерия»: нет прокрутки вбок, строка с двумя кнопками не выше 90 px', ov <= 0 && rh > 0 && rh <= 90, `лишняя ширина ${ov} px, высота строки ${Math.round(rh)} px`);
     if (SHOTS) await M.p.screenshot({path: path.join(SHOTS, 'telefon-buhgalteriya.png'), fullPage: true});
+    await go(M.p, '#utro'); const bt = await M.p.$$eval('.rw .abs', (x) => x.map((e) => [...e.querySelectorAll('button')].map((b) => b.textContent.trim()).join(' | ')));
+    const ov2 = await M.p.evaluate(() => document.documentElement.scrollWidth - innerWidth), rh2 = await M.p.$eval('.rw', (e) => e.getBoundingClientRect().height).catch(() => 0);
+    check('Кнопки с глаголом: «Я выполнила» и «Поручить Claude», 390 px без прокрутки вбок', bt.length > 0 && bt.every((x) => x === 'Я выполнила | Поручить Claude') && ov2 <= 0 && rh2 <= 96, `кнопки «${bt[0]}», лишняя ширина ${ov2} px, высота строки ${Math.round(rh2)} px`);
     check('Ошибок JavaScript в «Бухгалтерии» нет', !M.p.errors.length && !N.p.errors.length, [...M.p.errors, ...N.p.errors].join('; ') || '0 ошибок');
     await M.ctx.close();
   }

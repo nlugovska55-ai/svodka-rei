@@ -478,7 +478,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
   const row = (t, opt = {}) => `<div class="rw" data-id="${esc(t.id)}"><div class="under"><span class="l">Сделано</span><span class="r">Отложить</span></div>
     <div class="row">${opt.reopen ? `<button class="btn ghost small" data-act="reopen">Вернуть</button>` : av(t)}
     <button class="main-txt" data-open><span class="t">${t.hot ? '<span class="hotdot" title="Горит"></span>' : ''}${esc(t.short)}</span><span class="s">${esc(opt.noClient ? (t.next || '').slice(0, 120) : t.fromSummary ? t.detail.slice(0, 140) : t.cl)}${syncTag(t) ? ' · ' : ''}${syncTag(t)}</span></button>
-    ${duePill(t)}${!opt.reopen && opt.check !== false ? `<span class="abs"><button class="ab ok" data-act="done" aria-label="Я выполнила: ${esc(t.short)}">${ico.check}Выполнила</button><button class="ab cl" data-act="claude" aria-label="Поручить Claude: ${esc(t.short)}">Claude</button></span>` : ''}<span class="am">${t.a && !t.short.replace(/\s/g, '').includes(String(Math.round(t.a))) ? rub(t.a) : ''}</span></div></div>`;
+    ${duePill(t)}${!opt.reopen && opt.check !== false ? `<span class="abs"><button class="ab ok" data-act="done" aria-label="Я выполнила: ${esc(t.short)}">${ico.check}Я выполнила</button><button class="ab cl" data-act="claude" aria-label="Поручить Claude: ${esc(t.short)}">Поручить Claude</button></span>` : ''}<span class="am">${t.a && !t.short.replace(/\s/g, '').includes(String(Math.round(t.a))) ? rub(t.a) : ''}</span></div></div>`;
 
   // ---------- вкладки ----------
   let tab = 'utro', q = '', who = 'all', sec = 'all', mf = '', openB = '', calN = 7;
