@@ -2,10 +2,13 @@
 
 Разбор комментариев (10:00, 13:00, 18:00):
   1) git fetch origin inbox
-  2) python3 -I scripts/inbox_to_db.py prepare <репо> <файл-учёта> <batch.json>
+  2) python3 -I scripts/inbox_to_db.py prepare <репо> <файл-учёта> <batch.json> [<папка tasks выгрузки db>]
      -> batch.json (записи для ArtifactData batch) и batch.json.manifest.json.
      Файл учёта НЕ меняется: подготовка не считается получением.
-  3) ArtifactData batch из batch.json в `comments` страницы 3FMn9JyWFXrL6ZzgAx5JAY.
+     С папкой tasks отметка к задаче, которой нет в db, не применяется (комментарий status new для разбора).
+  3) ArtifactData batch из batch.json страницы 3FMn9JyWFXrL6ZzgAx5JAY, строго по порядку:
+     сначала update в `tasks` (последнее событие по задаче), потом set в `comments`.
+     Комментарий со status done и eventId в db значит: его действие уже внесено в задачу.
   4) Только если batch применён целиком: прочитать из db `comments` id записанных документов
      (query по doc_id из манифеста), сохранить списком в applied.json и выполнить
      python3 -I scripts/inbox_to_db.py ack <репо> <файл-учёта> <batch.json> <applied.json>
@@ -16,13 +19,20 @@
 Файл учёта: /mnt/project-files/daily-control/svodka-site/inbox-imported.txt, строки «имя хэш»
 (старые строки без хэша считаются подтверждёнными). Ветку inbox не трогаем.
 Ошибка git (нет origin/inbox, сбой ls-tree/show) останавливает импорт с кодом 2.
-status "done" у комментария ставить только после того, как действие внесено в задачу db:
-по eventId таких комментариев пульт снимает отметку «ждёт синхронизации» (appliedEvents в сводке).
+Что делает каждое действие с задачей (только последнее событие по задаче, latest=true):
+  done    -> status done (Ольга подтвердила «Я выполнила»)
+  claude  -> status open, waiting Claude, delegated <eid>: дело НЕ закрывается, его ведёт Claude
+  reopen  -> status open, waiting пусто;  wait -> status wait;  prio -> prio;  eve -> evening
+  later   -> только на сайте до конца дня, задачу не меняет
+Раннее событие, отменённое позже, помечено «не применять» и задачу не меняет.
+Сообщение без действия (старые комментарии с action "" и «Сообщение Claude») задачу не меняет,
+остаётся status new: его читает разбор (10, 13, 18 ч) и сам ставит done после ответа.
+По eventId комментариев со status done пульт снимает отметку «ждёт синхронизации» (appliedEvents в сводке).
 """
-import hashlib, json, subprocess, sys
+import hashlib, json, os, subprocess, sys
 from datetime import datetime, timedelta, timezone
 
-ACTIONS = {"eve": "на вечер", "prio": "в приоритет", "wait": "ждём клиента", "done": "сделано", "later": "отложить до завтра", "reopen": "вернуть в работу"}
+ACTIONS = {"eve": "на вечер", "prio": "в приоритет", "wait": "ждём клиента", "done": "Ольга выполнила сама", "later": "отложить до завтра", "reopen": "вернуть в работу", "claude": "поручено Claude"}
 MSK = timezone(timedelta(hours=3))
 
 
@@ -64,9 +74,44 @@ def sha256(path):
     return hashlib.sha256(open(path, "rb").read()).hexdigest()
 
 
-def prepare(repo, seen_path, out):
+STATUS_ACTIONS = {"done", "later", "wait", "eve", "prio", "reopen", "claude"}
+PATCH = {"done": {"status": "done"}, "claude": {"status": "open", "waiting": "Claude"}, "reopen": {"status": "open", "waiting": ""},
+         "wait": {"status": "wait"}, "prio": {"prio": True}, "eve": {"evening": True}}
+
+
+def task_ids(tasks_dir):
+    """id задач из выгрузки db (имя файла без .json и поле id); без папки — None, проверки нет."""
+    if not tasks_dir:
+        return None
+    ids = set()
+    for n in os.listdir(tasks_dir):
+        if n.endswith(".json"):
+            ids.add(n[:-5])
+            try:
+                ids.add(str(json.load(open(os.path.join(tasks_dir, n), encoding="utf-8")).get("id") or n[:-5]))
+            except (ValueError, AttributeError):
+                pass
+    return ids
+
+
+def latest_events(repo, files):
+    """Последнее событие-статус по каждой задаче во всём inbox (не только в новых файлах):
+    применять к задаче надо только его, раннее «сделано», отменённое «вернуть», не закрывает дело."""
+    last = {}
+    for name in sorted(files):
+        f = json.loads(git(repo, "cat-file", "blob", files[name]))
+        for i, x in enumerate(f.get("items", [])):
+            if x.get("taskId") and x.get("action") in STATUS_ACTIONS:
+                key = (x.get("at") or f["sentAt"], name, i)
+                if x["taskId"] not in last or key > last[x["taskId"]][0]:
+                    last[x["taskId"]] = (key, x)
+    return last
+
+
+def prepare(repo, seen_path, out, tasks_dir=None):
     seen, files = read_seen(seen_path), inbox_files(repo)
-    writes, manifest = [], []
+    last, known = latest_events(repo, files), task_ids(tasks_dir)
+    task_writes, writes, manifest = [], [], []
     for name in sorted(files):
         blob = files[name]
         if seen.get(name) in ("*", blob):
@@ -77,20 +122,39 @@ def prepare(repo, seen_path, out):
             at = datetime.fromisoformat((x.get("at") or f["sentAt"]).replace("Z", "+00:00")).astimezone(MSK)
             act = ACTIONS.get(x.get("action") or "", "")
             text = (("[" + act + "] ") if act else "") + (x.get("text") or "").strip()
+            latest = True
+            if x.get("taskId") in last and x.get("action") in STATUS_ACTIONS:
+                (lat_at, lat_name, lat_i), lx = last[x["taskId"]]
+                latest = (lat_name, lat_i) == (name, i)
+                if not latest:
+                    later = datetime.fromisoformat(lat_at.replace("Z", "+00:00")).astimezone(MSK)
+                    text = f"[отменено позже: {ACTIONS.get(lx.get('action'), lx.get('action'))} {later.strftime('%d.%m %H:%M')}, не применять] " + text
             doc_id = "site-" + name[6:-5] + "-" + blob[:8] + "-" + str(i)
             ids.append(doc_id)
+            action, tid, applied, status = x.get("action") or "", x.get("taskId"), "", "new"
+            if action in STATUS_ACTIONS and (not latest or action == "later"):
+                status = "done"  # отменено позже или «отложить» (только сайт): в задачу вносить нечего
+            elif action in PATCH and tid and (known is None or tid in known):
+                patch = dict(PATCH[action], lastMove=at.strftime("%d.%m %H:%M") + " сайт: " + ACTIONS[action])
+                if action == "claude":
+                    patch["delegated"] = x.get("eid") or doc_id
+                task_writes.append({"op": "update", "collection": "tasks", "doc_id": tid, "data": patch})
+                applied, status = tid, "done"
+            elif action in PATCH and tid:
+                text = "[задачи нет в db, не применено] " + text
             writes.append({"op": "set", "collection": "comments", "doc_id": doc_id,
                            "data": {"text": text, "taskId": x.get("taskId"), "taskTitle": x.get("taskTitle") or x.get("client"),
                                     "client": x.get("client"), "action": x.get("action") or "",
                                     "at": at.isoformat(), "atStr": at.strftime("%d.%m, %H:%M"),
-                                    "status": "new", "source": "сайт svodka-rei", "inboxFile": name, "inboxBlob": blob,
-                                    "eventId": x.get("eid") or ""}})
+                                    "status": status, "appliedTo": applied, "source": "сайт svodka-rei", "inboxFile": name, "inboxBlob": blob,
+                                    "eventId": x.get("eid") or "", "latest": latest,
+                                    "supersededBy": "" if latest else (last[x["taskId"]][1].get("eid") or "")}})
         manifest.append({"name": name, "blob": blob, "docIds": ids})
     with open(out, "w", encoding="utf-8") as fh:
-        json.dump(writes, fh, ensure_ascii=False, indent=1)
+        json.dump(task_writes + writes, fh, ensure_ascii=False, indent=1)
     with open(out + ".manifest.json", "w", encoding="utf-8") as fh:
-        json.dump({"batchSha256": sha256(out), "files": manifest}, fh, ensure_ascii=False, indent=1)
-    print(f"prepare: files {len(manifest)}, comments {len(writes)} -> {out} (учёт не изменён, нужен ack после batch)")
+        json.dump({"batchSha256": sha256(out), "files": manifest, "taskDocs": [w["doc_id"] for w in task_writes]}, fh, ensure_ascii=False, indent=1)
+    print(f"prepare: files {len(manifest)}, tasks {len(task_writes)}, comments {len(writes)} -> {out} (учёт не изменён, нужен ack после batch)")
 
 
 def ack(repo, seen_path, out, applied_path):
@@ -99,7 +163,9 @@ def ack(repo, seen_path, out, applied_path):
     if sha256(out) != m["batchSha256"]:
         errors.append("batch.json изменён после prepare")
     batch = json.load(open(out, encoding="utf-8"))
-    in_batch = {(w["data"]["inboxFile"], w["data"]["inboxBlob"], w["doc_id"]) for w in batch}
+    in_batch = {(w["data"]["inboxFile"], w["data"]["inboxBlob"], w["doc_id"]) for w in batch if w["collection"] == "comments"}
+    if [w["doc_id"] for w in batch if w["collection"] == "tasks"] != m.get("taskDocs", []):
+        errors.append("задачи в batch.json не совпадают с манифестом")
     in_manifest = {(f["name"], f["blob"], d) for f in m["files"] for d in f["docIds"]}
     if in_batch != in_manifest:
         errors.append("манифест не совпадает с batch.json")
@@ -126,7 +192,7 @@ def ack(repo, seen_path, out, applied_path):
 def main():
     cmd, args = (sys.argv[1], sys.argv[2:]) if len(sys.argv) > 1 else ("", [])
     try:
-        if cmd == "prepare" and len(args) == 3:
+        if cmd == "prepare" and len(args) in (3, 4):
             prepare(*args)
             return 0
         if cmd == "ack" and len(args) == 4:

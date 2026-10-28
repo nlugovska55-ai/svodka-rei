@@ -38,6 +38,13 @@ r = await call('POST', {items: [{taskId: 't3', action: 'взломать', text:
 ok('Неизвестное действие не принимается', r.st === 400, `ответ ${r.st}`);
 r = await call('GET');
 ok('GET отдаёт отметки за 48 ч с id события', r.st === 200 && r.out.items.length === 2 && r.out.items[1].action === 'reopen' && r.out.items[0].eid === 'e1aaaaaa', `ответ ${r.st}, отметок ${r.out.items && r.out.items.length}`);
+// Codex 19:44: поручение Claude — отдельный тип, не теряется в пустое действие; старое «сообщение» без действия — по-прежнему текст
+files.clear();
+r = await call('POST', {items: [{taskId: 'd1', action: 'claude', text: 'сверить акт', at: new Date().toISOString(), eid: 'edlg0001'}, {taskId: 'd2', action: '', text: 'старое сообщение без действия', at: new Date().toISOString(), eid: 'emsg0001'}]});
+const saved = JSON.parse(Buffer.from([...files.values()][0] || '', 'base64').toString() || '{}').items || [];
+ok('«Поручить Claude» сохраняется с action=claude, сообщение без действия — как текст', r.st === 200 && saved[0]?.action === 'claude' && saved[1]?.action === '' && saved[1]?.text, `в inbox: ${saved.map((x) => x.action || '«пусто»').join(', ')}`);
+r = await call('GET');
+ok('GET отдаёт поручение с id события', r.out.items.some((x) => x.action === 'claude' && x.eid === 'edlg0001'), `действия: ${r.out.items.map((x) => x.action || '«пусто»').join(', ')}`);
 files.set('2026-01-01T10-00-00-000Z.json', Buffer.from(JSON.stringify({items: [{taskId: 'old', action: 'done'}]})).toString('base64'));
 r = await call('GET');
 ok('Старше 48 ч не отдаются', !r.out.items.some((x) => x.taskId === 'old'), `старых в ответе: ${r.out.items.filter((x) => x.taskId === 'old').length}`);

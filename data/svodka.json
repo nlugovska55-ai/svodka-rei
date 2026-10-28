@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-28T22:29:47+03:00",
+ "updated": "2026-10-28T22:57:44+03:00",
  "tasks": [
   {
    "id": "avk2110",
@@ -24,6 +24,7 @@
    "link": "",
    "short": "Согласовать акт сверки с клиентом",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -33,6 +34,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "edo",
    "amountKind": "",
    "amountNote": ""
   },
@@ -59,6 +61,7 @@
    "link": "",
    "short": "Отметить спамом 4 комментария",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -68,6 +71,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -94,6 +98,7 @@
    "link": "",
    "short": "Отправить клиенту исправленный протокол",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -103,6 +108,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -129,6 +135,7 @@
    "link": "",
    "short": "Загрузить акт в Диадок черновиком",
    "waiting": "я",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "",
@@ -138,6 +145,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "",
    "amountKind": "",
    "amountNote": ""
   },
@@ -164,6 +172,7 @@
    "link": "",
    "short": "Получить оплату по акту № 104",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "26.10 Браузер: Почта России № 80088326975345, вручено Логике молока 24.10",
    "src": "Диадок «Луг»: акт № 104 от 27.08.2026, 190 000,00; получен филиалом «Тихорецкий» (ИНН 7714626332, КПП 236043001) 29.09 12:42, «Ожидается подпись контрагента», отказов нет; письмо Вероники Ракитянской 04.06.2026 (условия оплаты)",
@@ -173,6 +182,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -199,6 +209,7 @@
    "link": "http://95.84.156.117:3839/projects/orders/2390757/",
    "short": "получить номер заявки на экспертизу в ФБУЗ",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "28.10 ветка Фрозен Бек",
    "src": "Ольга, разговор с Подоприхиным 28.10; отказы РПН МО № 57266, 57267 от 26.10",
@@ -208,6 +219,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -234,6 +246,7 @@
    "link": "",
    "short": "Сверить гаранты с банком",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "26.10 Браузер",
    "src": "письмо Лены 23.10 13:42, таблица «октябрь 2026.xlsx»",
@@ -243,6 +256,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -269,6 +283,7 @@
    "link": "",
    "short": "Открыть ФСА в Яндекс Браузере",
    "waiting": "я",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "28.10 Проекты и клиенты",
    "src": "сообщение ветки «Браузер» 28.10 11:02 МСК",
@@ -278,6 +293,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -304,6 +320,7 @@
    "link": "",
    "short": "Вставить памятку в ветку ГЕА",
    "waiting": "я",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "28.10 Проекты и клиенты",
    "src": "get_session ГЕА 28.10 05:53 UTC: needs_action «paste the pamyatka-dlya-vetki-gea.md rule line»",
@@ -313,6 +330,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -339,6 +357,7 @@
    "link": "",
    "short": "Получить фото шильда термопоилки",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -348,6 +367,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -374,6 +394,7 @@
    "link": "",
    "short": "Получить фото шильда для СС на партию",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "28.10 Проекты и клиенты",
    "src": "ФСА: Seafile\\lugovskaya\\ГЕА\\ФСА реестр ГЕА 23.10.2026.xlsx; реестр ГЕА, лист «Сверка с ФСА 23.10»",
@@ -383,6 +404,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -409,6 +431,7 @@
    "link": "",
    "short": "Уточнить план 2027: ДС 73240/22 наша",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -418,6 +441,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "",
    "amountKind": "",
    "amountNote": ""
   },
@@ -444,6 +468,7 @@
    "link": "",
    "short": "Сверить статусы KG-сертификатов в реестре КР",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -453,6 +478,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "",
    "amountKind": "",
    "amountNote": ""
   },
@@ -479,6 +505,7 @@
    "link": "",
    "short": "Получить список веток проекта ИИИ",
    "waiting": "я",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "27.10.2026",
    "src": "чат проекта",
@@ -488,6 +515,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -514,6 +542,7 @@
    "link": "",
    "short": "Предложить инспекционный контроль на 4 кв.",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -523,6 +552,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -549,6 +579,7 @@
    "link": "",
    "short": "Разобрать акт сверки ИКЦ № 31",
    "waiting": "",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -558,6 +589,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "edo",
    "amountKind": "",
    "amountNote": ""
   },
@@ -584,6 +616,7 @@
    "link": "",
    "short": "Прочитать Teams и портал Лены с 23.10",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -593,6 +626,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -619,6 +653,7 @@
    "link": "",
    "short": "Отправить Лене вопросы по 4 клиентам",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "",
@@ -628,6 +663,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -654,6 +690,7 @@
    "link": "",
    "short": "Получить от клиента 2 ДС на 24 000",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -663,6 +700,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -689,6 +727,7 @@
    "link": "",
    "short": "Провести документы Claude в 1С «Луг»",
    "waiting": "",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -698,6 +737,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -724,6 +764,7 @@
    "link": "",
    "short": "Разобрать лишний дебет СДЭК 11 400,69",
    "waiting": "",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -733,6 +774,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -759,6 +801,7 @@
    "link": "",
    "short": "Убрать двойной апрель ГЛАВУПДК",
    "waiting": "",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -768,6 +811,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -794,6 +838,7 @@
    "link": "",
    "short": "Запросить договор и счёт по заказу",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -803,6 +848,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "pay",
    "amountKind": "",
    "amountNote": ""
   },
@@ -829,6 +875,7 @@
    "link": "",
    "short": "Получить оплату 200 000 по прил. 8–11",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "28.10 Браузер: Альфа за 2 недели — не поступало",
    "src": "сканы прил. 8–11 подписаны 26.10; ответ Лены 26.10 13:49 «ждём оплату»",
@@ -838,6 +885,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "pay",
    "amountKind": "",
    "amountNote": ""
   },
@@ -864,6 +912,7 @@
    "link": "",
    "short": "Внести себестоимость на портал",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "26.10 Браузер",
    "src": "портал 2394540; Альфа п/п 246, 257; brauzer/gskb-sebestoimost-23-10.md",
@@ -873,6 +922,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -899,6 +949,7 @@
    "link": "",
    "short": "Закрыть актами авансы 5 клиентов Лены",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "1С revenue.json (карточка 62, 23.10)",
@@ -908,6 +959,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -934,6 +986,7 @@
    "link": "",
    "short": "Внести оплаты на портал",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "Альфа п/п 16429, 16445 от 26.08.2026",
@@ -943,6 +996,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "pay",
    "amountKind": "",
    "amountNote": ""
   },
@@ -969,6 +1023,7 @@
    "link": "",
    "short": "Свести старые долги 1С с банком",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "26.10 Браузер",
    "src": "1С карточка 62 (23.10); Альфа п/п 1482, 420, 560 (otvety-26-10.md)",
@@ -978,6 +1033,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "pay",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1004,6 +1060,7 @@
    "link": "",
    "short": "Получить оплату 10 000",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "28.10 Браузер: Альфа — не поступало",
    "src": "реестр клиентов Лены 26.10 (daily-control/lena-klienty)",
@@ -1013,6 +1070,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "pay",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1039,6 +1097,7 @@
    "link": "",
    "short": "Получить подписанные прил. 3–4 и оплату",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "26.10 Браузер",
    "src": "портал 2394519; Альфа п/п 994 от 16.10 (alfa_4kv.csv)",
@@ -1048,6 +1107,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "pay",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1074,6 +1134,7 @@
    "link": "",
    "short": "Получить оплату по счёту 901/13",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "28.10 Браузер: Альфа — не поступало",
    "src": "Диадок: счёт 901/13 (200 000), прил. 13–14 к 901-ЛЕ-ТРТС, 23.10; Альфа: не поступало на 26.10 09:30",
@@ -1083,6 +1144,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "pay",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1109,6 +1171,7 @@
    "link": "",
    "short": "Отправить закрывающие через СБИС",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "",
@@ -1118,6 +1181,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "edo",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1144,6 +1208,7 @@
    "link": "",
    "short": "Уточнить переоформление 9 истёкших СС/ДС",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -1153,6 +1218,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1179,6 +1245,7 @@
    "link": "",
    "short": "Ответить про сертификат на партию щёток",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "",
@@ -1188,6 +1255,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1214,6 +1282,7 @@
    "link": "",
    "short": "Выставить счёт на пролонгацию декларации",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "",
@@ -1223,6 +1292,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "pay",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1249,6 +1319,7 @@
    "link": "http://95.84.156.117:3839/projects/orders/2393876/",
    "short": "Проверить оплату за отказное решение",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "28.10 Браузер: Альфа — 12 000 по 846-2 не поступало",
    "src": "портал заказ 2393876 (12 000); 1С «Луг» сальдо 62 Квант +12 000 (выгрузка 23.10); Альфа: не поступало на 26.10 09:30",
@@ -1258,6 +1329,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "pay",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1284,6 +1356,7 @@
    "link": "http://95.84.156.117:3839/projects/orders/2394394/",
    "short": "Получить подписанное приложение и оплату",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "28.10 Браузер: Альфа — не поступало",
    "src": "портал заказ 2394394; письмо Лены 23.10 10:51; Альфа: не поступало на 26.10 09:30",
@@ -1293,6 +1366,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "pay",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1319,6 +1393,7 @@
    "link": "",
    "short": "Запустить декларирование ключей и спайдеров",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -1328,6 +1403,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "pay",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1354,6 +1430,7 @@
    "link": "",
    "short": "Получить оплату 100 000 по прил. 19",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "28.10 Браузер: Альфа — SIL2 не поступало",
    "src": "таблица гарантов Лены 23.10 (прил. 19); ответ Лены 26.10 13:49; Альфа 14.10 п/п 2928 — по 689/18, не по прил. 19",
@@ -1363,6 +1440,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "pay",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1389,6 +1467,7 @@
    "link": "http://95.84.156.117:3839/projects/orders/2394496/",
    "short": "Проверить отправку актов 123 и 124 в ЭДО",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -1398,6 +1477,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1424,6 +1504,7 @@
    "link": "",
    "short": "Аннулировать дубль акта в Диадоке",
    "waiting": "я",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "",
@@ -1433,6 +1514,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1459,6 +1541,7 @@
    "link": "",
    "short": "Получить счёт эксперта на 45 000",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "26.10 Браузер + Проекты",
    "src": "brauzer/gea-ik-14085-26-10.md (olga@: Хомутов 23.10 17:26 «RE: ИК на доильные установки, Приложение 35»; Катя 14.10 14:57; Альфа п/п 43 13.10)",
@@ -1468,6 +1551,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1494,6 +1578,7 @@
    "link": "",
    "short": "Получить замеры ФБУЗ и лицензию ИИИ",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "vkusvill-podoprikhin-21-10.md (почта 01.09–21.10); договор с Подоприхиным № 98-АП/26",
@@ -1503,6 +1588,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1529,6 +1615,7 @@
    "link": "",
    "short": "Передать заводские номера барабанов для ПИ",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -1538,6 +1625,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1564,6 +1652,7 @@
    "link": "",
    "short": "Дождаться решения клиента по КП",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -1573,6 +1662,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1599,6 +1689,7 @@
    "link": "",
    "short": "Дождаться ответа клиента по КП",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -1608,6 +1699,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1634,6 +1726,7 @@
    "link": "",
    "short": "Запросить данные по теплообменнику",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -1643,6 +1736,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1669,6 +1763,7 @@
    "link": "",
    "short": "Подготовить КП на датчик угла наклона",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -1678,6 +1773,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1704,6 +1800,7 @@
    "link": "",
    "short": "Подготовить КП на тротуарную плитку",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -1713,6 +1810,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1739,6 +1837,7 @@
    "link": "",
    "short": "Ответить по насосу и шкафам управления",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -1748,6 +1847,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1774,6 +1874,7 @@
    "link": "",
    "short": "Ответить, какие документы прислать для ДС",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "",
@@ -1783,6 +1884,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1809,6 +1911,7 @@
    "link": "",
    "short": "Отправить ИМЗ акт сверки № 85",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -1818,6 +1921,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1844,6 +1948,7 @@
    "link": "",
    "short": "Подтвердить отправку документов клиенту",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -1853,6 +1958,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1879,6 +1985,7 @@
    "link": "",
    "short": "Продолжить работу по гарантийному письму",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -1888,6 +1995,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1914,6 +2022,7 @@
    "link": "",
    "short": "Придержать аванс подрядчику до аванса клиента",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "фон",
    "checked": "28.10 Проекты и клиенты",
    "src": "письмо Подоприхина 05.10.2026 16:15 «Re: Логика молока» (olga@)",
@@ -1923,6 +2032,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "supplier",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1949,6 +2059,7 @@
    "link": "",
    "short": "Получить оригиналы решения и сканы счетов",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -1958,6 +2069,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "supplier",
    "amountKind": "",
    "amountNote": ""
   },
@@ -1984,6 +2096,7 @@
    "link": "",
    "short": "Оплатить ЗП и НДФЛ Четвергова",
    "waiting": "я",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -1993,6 +2106,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2019,6 +2133,7 @@
    "link": "",
    "short": "Не подтверждать смену e-mail WordPress",
    "waiting": "я",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -2028,6 +2143,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2054,6 +2170,7 @@
    "link": "",
    "short": "Настроить SPF/DKIM для info@",
    "waiting": "я",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -2063,6 +2180,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2089,6 +2207,7 @@
    "link": "",
    "short": "Пройти обучение по 2 УПК",
    "waiting": "я",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -2098,6 +2217,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2124,6 +2244,7 @@
    "link": "http://95.84.156.117:3839/projects/orders/2394349/",
    "short": "Дождаться решения клиента по заказу",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "фон",
    "checked": "28.10 Браузер: Альфа — не поступало",
    "src": "портал заказ 2394349 (40 000, 1369-ЛЕ ДС); письмо Лены 23.10 10:51 «Вопросы по заказам»; Альфа: не поступало на 26.10 09:30",
@@ -2133,6 +2254,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "pay",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2159,6 +2281,7 @@
    "link": "http://95.84.156.117:3839/projects/orders/2394274/",
    "short": "Сверить оплату 100 000 и заказы на портале",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -2168,6 +2291,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2194,6 +2318,7 @@
    "link": "",
    "short": "Разобрать разницу 958 со СервисКлауд",
    "waiting": "",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -2203,6 +2328,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "supplier",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2229,6 +2355,7 @@
    "link": "",
    "short": "Ответить клиенту про пучок или теплообменник",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -2238,6 +2365,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2264,6 +2392,7 @@
    "link": "",
    "short": "Отправить в ЭДО акт 129 Экосервису",
    "waiting": "я",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "",
@@ -2273,6 +2402,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "edo",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2299,6 +2429,7 @@
    "link": "",
    "short": "Отправить Чебаковой черновик про подачу СЭЗ",
    "waiting": "я",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "почта olga@ 26.10 17:47",
@@ -2308,6 +2439,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2334,6 +2466,7 @@
    "link": "",
    "short": "Сверить таблицу сроков сертификатов с ФСА",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "почта olga@ 26.10 18:09",
@@ -2343,6 +2476,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2369,6 +2503,7 @@
    "link": "",
    "short": "Внести оплату на портал",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "Альфа п/п 4866, 28.10 11:58",
@@ -2378,6 +2513,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2404,6 +2540,7 @@
    "link": "",
    "short": "Оплатить УПД № 81 (29 925)",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "Разбор почты 27.10 (Браузер): уведомление Альфы «27.10 15:47 списано 29 925 по п/п 46 (Айстандарт)»",
@@ -2413,6 +2550,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "supplier",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2439,6 +2577,7 @@
    "link": "",
    "short": "Предложить переоформление 3 СС",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -2448,6 +2587,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2474,6 +2614,7 @@
    "link": "",
    "short": "Предложить переоформление СС",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -2483,6 +2624,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2509,6 +2651,7 @@
    "link": "",
    "short": "Предложить переоформление декларации",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -2518,6 +2661,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2544,6 +2688,7 @@
    "link": "",
    "short": "Предложить переоформление 2 СС и ДС",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -2553,6 +2698,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2579,6 +2725,7 @@
    "link": "",
    "short": "Предложить переоформление ДС",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -2588,6 +2735,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2614,6 +2762,7 @@
    "link": "",
    "short": "Предложить переоформление 3 ДС",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -2623,6 +2772,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2649,6 +2799,7 @@
    "link": "",
    "short": "Предложить переоформление декларации",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -2658,6 +2809,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2684,6 +2836,7 @@
    "link": "",
    "short": "Предложить переоформление декларации",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -2693,6 +2846,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2719,6 +2873,7 @@
    "link": "",
    "short": "Получить ответ проекта «Промты» про опору",
    "waiting": "я",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "27.10.2026",
    "src": "чат проекта",
@@ -2728,6 +2883,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2754,6 +2910,7 @@
    "link": "",
    "short": "Перестроить сводку в утренний пульт",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "26.10.2026",
    "src": "чат проекта",
@@ -2763,6 +2920,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2789,6 +2947,7 @@
    "link": "",
    "short": "Уточнить отправку списка документов",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -2798,6 +2957,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2824,6 +2984,7 @@
    "link": "",
    "short": "Дать «да» на правки сайта rus-ei",
    "waiting": "я",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "28.10 Утро",
    "src": "сообщение владельца данных 28.10 22:14: доступность ПК проверена Codex",
@@ -2833,6 +2994,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2859,6 +3021,7 @@
    "link": "",
    "short": "Отправить пять актов и сверку через Диадок",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "26.10 Бухгалтерия по 1С",
    "src": "1С «Луг» карточка 62 Севермаш; otchety-claude/stanke-severmash-26-10.md",
@@ -2868,6 +3031,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "edo",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2894,6 +3058,7 @@
    "link": "",
    "short": "Разобрать 40 ₽ в сверках Сипнет",
    "waiting": "",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -2903,6 +3068,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "edo",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2929,6 +3095,7 @@
    "link": "",
    "short": "Сверить СервисКлауд на 30.09",
    "waiting": "",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -2938,6 +3105,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "edo",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2964,6 +3132,7 @@
    "link": "",
    "short": "Проверить подписи акта № 25 и сверки",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "26.10 Бухгалтерия по 1С",
    "src": "1С «Луг» карточка 62 Станке; otchety-claude/stanke-severmash-26-10.md",
@@ -2973,6 +3142,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "edo",
    "amountKind": "",
    "amountNote": ""
   },
@@ -2999,6 +3169,7 @@
    "link": "",
    "short": "Доплатить СДЭК 32,25",
    "waiting": "я",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -3008,6 +3179,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "supplier",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3034,6 +3206,7 @@
    "link": "",
    "short": "Найти остаток 35 000 по поставщику",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -3043,6 +3216,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "supplier",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3069,6 +3243,7 @@
    "link": "",
    "short": "Добиться решения по дозиметрам (ИДК)",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -3078,6 +3253,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3104,6 +3280,7 @@
    "link": "",
    "short": "Получить закрывающие ВК и ЧТО ДЕЛАТЬ",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -3113,6 +3290,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "tax",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3139,6 +3317,7 @@
    "link": "",
    "short": "Получить акты АП-РИАЛ, Подоприхина, МУЦ",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "",
@@ -3148,6 +3327,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "tax",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3174,6 +3354,7 @@
    "link": "",
    "short": "Провести отпускные Бородай 0000-000473",
    "waiting": "",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -3183,6 +3364,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "tax",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3209,6 +3391,7 @@
    "link": "",
    "short": "Дождаться итога тендера",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "фон",
    "checked": "23.10.2026 13:00, обход «Браузера»: в почте последнее — ТЗ Маташковой 13.10 (КП до 16.10); нашего КП и ответа не найдено, хотя 16.10 КП отмечено отправленным (m15) — вероятно, из ящика Лены",
    "src": "КП 15.10.2026 на ТЗ Маташковой от 13.10.2026 (в olga@ нет, вероятно ящик Лены)",
@@ -3218,6 +3401,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3244,6 +3428,7 @@
    "link": "",
    "short": "Найти письмо «оплатить исполнителю»",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "Ольга, чат 23.10 16:28",
@@ -3253,6 +3438,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "supplier",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3279,6 +3465,7 @@
    "link": "",
    "short": "Сменить пароль Hotmail",
    "waiting": "я",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "Ольга, чат 23.10 11:37–11:44",
@@ -3288,6 +3475,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3314,6 +3502,7 @@
    "link": "",
    "short": "Удалить скриншот с ключом claude.ai",
    "waiting": "я",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "ветка «Налоги ИП» 23.10 18:53",
@@ -3323,6 +3512,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3349,6 +3539,7 @@
    "link": "",
    "short": "Заказать справку ЕНП за 2023",
    "waiting": "",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "28.10 Проекты и клиенты",
    "src": "ветка «Налоги ИП» 23.10 19:06",
@@ -3358,6 +3549,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "tax",
    "amountKind": "reference",
    "amountNote": "176 103,19 — сумма возврата Виталика, сверена с погашением ЕНП 179 тыс. (покрыт, разница ≈2,9 тыс. — пени); это НЕ повторный платёж. Остаётся только справка IU_SPPRINSUMENP за 2023"
   },
@@ -3384,6 +3576,7 @@
    "link": "",
    "short": "Проверить разницу УСН 70 757",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "Ольга, чат 26.10 12:26",
@@ -3393,6 +3586,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "tax",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3419,6 +3613,7 @@
    "link": "",
    "short": "передать статус в проект ИИИ",
    "waiting": "я",
+   "delegated": "",
    "urgency": "фон",
    "checked": "28.10 Проекты и клиенты",
    "src": "Ольга, Утро 26.10 12:08",
@@ -3428,6 +3623,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3454,6 +3650,7 @@
    "link": "",
    "short": "Проверить отправку писем Кате и Оксененко",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "fakty 22.10; чат 23.10 10:52",
@@ -3463,6 +3660,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3489,6 +3687,7 @@
    "link": "",
    "short": "Разрешить помощнику писать на ПК",
    "waiting": "я",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "регламент §6, не подтверждено с 22.10",
@@ -3498,6 +3697,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3524,6 +3724,7 @@
    "link": "",
    "short": "Провести возвраты депозитов по 55.03",
    "waiting": "",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "Graphify buhgalter, чат 22.10 19:31 п.4",
@@ -3533,6 +3734,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "tax",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3559,6 +3761,7 @@
    "link": "",
    "short": "Закрыть актами 5 сделанных работ",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "Graphify buhgalter, чат 22.10 19:31 п.5",
@@ -3568,6 +3771,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3594,6 +3798,7 @@
    "link": "",
    "short": "Исправить НДС в 6 шаблонах договоров",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "Graphify buhgalter, чат 22.10 19:31",
@@ -3603,6 +3808,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "other",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3629,6 +3835,7 @@
    "link": "",
    "short": "Закрыть актами авансы ГСКБ и др.",
    "waiting": "Лена",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "сверка 43 клиентов Лены, чат 22.10 19:36",
@@ -3638,6 +3845,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3664,6 +3872,7 @@
    "link": "",
    "short": "Удалить дубли оплат Флюида в «Пон»",
    "waiting": "",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "сверка 43 клиентов Лены, чат 22.10 19:36",
@@ -3673,6 +3882,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "pay",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3699,6 +3909,7 @@
    "link": "",
    "short": "Разобрать акт ИП № 59 Ферингера",
    "waiting": "",
+   "delegated": "",
    "urgency": "фон",
    "checked": "",
    "src": "сверка 43 клиентов Лены, чат 22.10 19:36",
@@ -3708,6 +3919,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3734,6 +3946,7 @@
    "link": "",
    "short": "Проверить подписи в Диадоке",
    "waiting": "Claude",
+   "delegated": "",
    "urgency": "сегодня",
    "checked": "",
    "src": "fakty 23.10 (Диадок «Луг»)",
@@ -3743,6 +3956,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "edo",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3769,6 +3983,7 @@
    "link": "",
    "short": "Подать заявление на СЭЗ после заключения ФБУЗ",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "",
    "src": "",
@@ -3778,6 +3993,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   },
@@ -3804,6 +4020,7 @@
    "link": "",
    "short": "Выставить счёт 1295/3 после заключения",
    "waiting": "клиент",
+   "delegated": "",
    "urgency": "неделя",
    "checked": "28.10 Проекты и клиенты",
    "src": "brauzer/otvety-26-10.md п.4 (olga@ и Альфа, 26.10)",
@@ -3813,6 +4030,7 @@
    "invoice": "",
    "payment": "",
    "dedupe": "",
+   "cat": "client",
    "amountKind": "",
    "amountNote": ""
   }
@@ -4693,5 +4911,423 @@
    }
   ]
  },
- "appliedEvents": []
+ "appliedEvents": [],
+ "spisaniya": {
+  "built": "28.10.2026",
+  "note": "Ведёт ветка «Бухгалтерия»: после оплаты ставить paid: true или убирать строку. Зарплату сюда не вносим (делает Ольга сама).",
+  "rows": [
+   {
+    "date": "2026-10-28",
+    "who": "РЭИ",
+    "what": "ЕНП УСН 3 кв. (п/п 39, файл Ларисы для Альфы)",
+    "amount": 28314,
+    "state": "оплачено по словам Ольги, выписки нет",
+    "src": "brauzer/nalogi-platezhki-28-10.md",
+    "paid": true,
+    "paidSrc": "fakty.md 28.10 17:47 (Ольга: налоги РЭИ и ЕНП ИП оплатила)",
+    "kind": "plan",
+    "amountRange": null,
+    "zeroMeans": "",
+    "bankConfirmed": false,
+    "checked": "28.10.2026 22:54"
+   },
+   {
+    "date": "2026-10-28",
+    "who": "РЭИ",
+    "what": "ЕНП транспортный налог 3 кв. (п/п 38)",
+    "amount": 1241,
+    "state": "оплачено по словам Ольги, выписки нет",
+    "src": "brauzer/nalogi-platezhki-28-10.md",
+    "paid": true,
+    "paidSrc": "fakty.md 28.10 17:47 (Ольга: налоги РЭИ и ЕНП ИП оплатила)",
+    "kind": "plan",
+    "amountRange": null,
+    "zeroMeans": "",
+    "bankConfirmed": false,
+    "checked": "28.10.2026 22:54"
+   },
+   {
+    "date": "2026-10-28",
+    "who": "РЭИ",
+    "what": "ЕНП НДФЛ с ЗП (п/п 37)",
+    "amount": 4615,
+    "state": "оплачено по словам Ольги, выписки нет",
+    "src": "brauzer/nalogi-platezhki-28-10.md",
+    "paid": true,
+    "paidSrc": "fakty.md 28.10 17:47 (Ольга: налоги РЭИ и ЕНП ИП оплатила)",
+    "kind": "plan",
+    "amountRange": null,
+    "zeroMeans": "",
+    "bankConfirmed": false,
+    "checked": "28.10.2026 22:54"
+   },
+   {
+    "date": "2026-10-28",
+    "who": "ИП Пономаренко",
+    "what": "ЕНП: УСН 9 мес. 64 790 + долг ЕНС 36 305,42, пени сверху",
+    "amount": 101095.42,
+    "state": "оплачено по словам Ольги, выписки нет",
+    "src": "brauzer/nalogi-platezhki-28-10.md",
+    "paid": true,
+    "paidSrc": "fakty.md 28.10 17:47 (Ольга: налоги РЭИ и ЕНП ИП оплатила)",
+    "kind": "plan",
+    "amountRange": null,
+    "zeroMeans": "",
+    "bankConfirmed": false,
+    "checked": "28.10.2026 22:54"
+   },
+   {
+    "date": "2026-10-31",
+    "who": "РЭИ",
+    "what": "Лариса (ИП Четвергова), бухуслуги за октябрь, поступление 105 от 31.10",
+    "amount": 20000,
+    "state": "после её счёта, не долг",
+    "src": "1С «Луг», карточка 60 (Бухгалтерия 27.10)",
+    "paid": false,
+    "paidSrc": "",
+    "kind": "plan",
+    "amountRange": null,
+    "zeroMeans": "",
+    "bankConfirmed": false,
+    "checked": "28.10.2026 22:54"
+   },
+   {
+    "date": "2026-10-31",
+    "who": "РЭИ",
+    "what": "АДВАНСДОКС (Софт-трейд), доступ к ПО",
+    "amount": 10000,
+    "state": "ориентир, по новому счёту (платили 24.08, 24.09)",
+    "src": "реестр платежей, карточка 60",
+    "paid": false,
+    "paidSrc": "",
+    "kind": "reference",
+    "amountRange": null,
+    "zeroMeans": "",
+    "bankConfirmed": false,
+    "checked": "28.10.2026 22:54"
+   },
+   {
+    "date": "2026-10-31",
+    "who": "РЭИ",
+    "what": "Сипнет, телефония за октябрь",
+    "amount": 0,
+    "state": "списания нет: переплата 25 968,56 покрывает ≈ 3 мес.",
+    "src": "реестр платежей, акт сверки 5817",
+    "paid": false,
+    "paidSrc": "",
+    "kind": "reference",
+    "amountRange": null,
+    "zeroMeans": "списания нет (сумма действительно 0)",
+    "bankConfirmed": false,
+    "checked": "28.10.2026 22:54"
+   },
+   {
+    "date": "2026-11-03",
+    "who": "РЭИ",
+    "what": "СДЭК (Ольховский), остаток",
+    "amount": 32.25,
+    "state": "к оплате",
+    "src": "Бухгалтерия 27.10",
+    "paid": false,
+    "paidSrc": "",
+    "kind": "plan",
+    "amountRange": null,
+    "zeroMeans": "",
+    "bankConfirmed": false,
+    "checked": "28.10.2026 22:54"
+   },
+   {
+    "date": "2026-11-10",
+    "who": "РЭИ",
+    "what": "СДЭК, доставка документов за октябрь",
+    "amount": null,
+    "state": "ориентир 1 000–6 000, по счёту",
+    "src": "реестр платежей, карточка 60",
+    "paid": false,
+    "paidSrc": "",
+    "kind": "reference",
+    "amountRange": [
+     1000,
+     6000
+    ],
+    "zeroMeans": "",
+    "bankConfirmed": false,
+    "checked": "28.10.2026 22:54"
+   },
+   {
+    "date": "2026-11-10",
+    "who": "РЭИ",
+    "what": "Утешева О. Е., аренда 3 000 в месяц: долг по реестру на 16.10, плюс октябрь по акту",
+    "amount": 6000,
+    "state": "уточнить по актам",
+    "src": "реестр платежей, карточка 60",
+    "paid": false,
+    "paidSrc": "",
+    "kind": "plan",
+    "amountRange": null,
+    "zeroMeans": "",
+    "bankConfirmed": false,
+    "checked": "28.10.2026 22:54"
+   }
+  ]
+ },
+ "buh_svodka": {
+  "file": "buh-svodka-2026-10-28.md",
+  "title": "Бухгалтерия: сводка 28.10.2026 (15:35 МСК)",
+  "sections": [
+   {
+    "title": "Сделано (закрыто с proof)",
+    "lines": [
+     "pochta2710-chzmek4 ⇒ сделано: прил. 4 к 1241 уже в акте 123 ЗЭОТЭК (30.09.2026), дубль не делаем",
+     "lk2610-chzmek ⇒ сделано: акт 136 ЧЗМЭК 55 000 (прил. 5, 6 от 17.08, прил. 7 от 28.08.2026 к 1240-ЛЕ-ДСТРТС), не проведён, файлы (2) в Загрузках",
+     "pon2810-akty ⇒ сделано: «Пон» акты 42 Промторг 6 000 (88/1) и 43 АЗС Спецснаб 6 000 (90/1), проведены",
+     "up2610-22 ⇒ сделано: Квант 24 000 и Агора 30 000 от 03.07 уже в 1С",
+     "akty2710-format, lar2710-oplata, lk2610-staroe ⇒ сделано (утром)"
+    ]
+   },
+   {
+    "title": "В работе",
+    "lines": [
+     "m28 ⇒ сверка ИМЗ № 85 выгружена, черновик Лене в Outlook у «Браузера»; осталось: Лена/Ольга отправляют",
+     "pochta2610-6 ⇒ акт 129 Экосервис 100 000 выгружен; осталось: «Браузер» черновик в Диадоке, Ольга подписывает",
+     "up2610-17 / up2610-21 ⇒ ЧЗМЭК закрыт, ИМЗ 30 000 подтверждён; осталось: вопрос Лене «работа сделана?» по ГСКБ, Ишимбайскому, Куриляку, Геоэлектронике 29.10",
+     "lk2610-avansy2 ⇒ осталось: 6 авансов Лены по назначениям п/п → акты или вопрос, 29.10",
+     "pochta2710-iva ⇒ осталось: акт ИВА 270 000 без проведения, 29.10",
+     "bx2610-ekosfera ⇒ осталось: корректировка долга Барс 13 000, 29.10 (нужна дата п/п от «Браузера»)",
+     "pochta2610-4 / srvcloud2210 ⇒ осталось: разница 958 по карточке 60, 29.10",
+     "lar5 ⇒ осталось: таблица 288 000 Пон vs Луг, 29.10",
+     "up2610-16, up2610-18, up2610-24, up2610-25 ⇒ осталось: разбор в 1С 29.10",
+     "up2610-19 ⇒ осталось: правка копий шаблонов по §14.6, 29.10"
+    ]
+   },
+   {
+    "title": "Ждут других (не мои ходы)",
+    "lines": [
+     "ikc2210, sipnet2210, up2610-11, up2610-23 ⇒ ждут Ларису (квартальная пачка)",
+     "lar3 ⇒ конец очереди (Ольга)",
+     "sup1 ⇒ оригинал УПД Регард через «Браузер»",
+     "ГЕА акт 133 ⇒ проводить только по прямому слову Ольги"
+    ]
+   },
+   {
+    "title": "Замечено",
+    "lines": [
+     "«Пон», остатки авансов на 28.10: АЗС Спецсервис 32 000, ИИР 272 000, Открытые решения 30 000, Ферингер 10 000, Зэнко 10 000 (с прошлых лет), Флюид 12 000 (дубль)"
+    ]
+   },
+   {
+    "title": "Дополнение 15:55 МСК",
+    "lines": [
+     "lar5 ⇒ сделано: за 2026 Пон и Луг сходятся (оплаты 2 152 200, акты 2 400 400, сальдо 39 800); 288 000 на 30.06 = дата акта ИП № 24 (24.07); пункт Ларисе",
+     "pochta2710-iva ⇒ сделано: аванс 270 000 уже закрыт в 1С (акт 101 + корректировка 250 000 от 30.09.2025), Бородай ответила 27.10",
+     "bx2610-ekosfera ⇒ сделано: корректировка долга № 3 от 28.10 (Барс 13 000 → НСК Экосфера) без проведения; провести — Лариса",
+     "up2610-18 ⇒ сделано: в акте 12 «Пон» дата договора исправлена на 18.11.2025, перепроведён",
+     "up2610-16 ⇒ передано Ларисе: у возвратов депозитов 08.10 пустое субконто 55.03",
+     "pochta2610-4 ⇒ передано Ларисе: 958 сидит в сальдо на 01.01.2026 (2025 год), 2026 сходится",
+     "up2610-25 ⇒ передано Ларисе: Ферингер и другие старые авансы «Пон»",
+     "up2610-17/21 ⇒ вопрос Лене по 5 авансам: черновик в Outlook",
+     "Осталось на 29.10: up2610-24 Купер, up2610-19 шаблоны, sup1 Регард"
+    ]
+   },
+   {
+    "title": "Дополнение 16:00",
+    "lines": [
+     "up2610-24 ⇒ сделано: сверка Купер в 1С на 28.10 — долг 10 000 реальный (сверка 78 не учитывала оплату 15 000 от 25.08 и корректировку −30 000 от 01.09). Напоминание клиенту — по слову Лены/Ольги.",
+     "tax2110a ⇒ сделано: ЗП 3 кв. в 1С проведена (Лариса).",
+     "tax2110b ⇒ сделано: ЕНП июнь 33 300 + 7 215 проведены.",
+     "tax2110c ⇒ сделано: Четвергова 03.07, Ольховский проведены.",
+     "d1604 ⇒ сделано: Поступление 0000-000122 Софт-трейд 10 000 проведено.",
+     "Осталось: up2610-17/21 (вопрос Лене у «Браузера»), up2610-19 шаблоны договоров (29.10), sup1 Регард оригинал УПД, lk2610-avansy2, m28 сверка ИМЗ 85 (29.10). Ольге: 7 черновиков в Outlook — «Отправить»."
+    ]
+   },
+   {
+    "title": "Дополнение 16:10",
+    "lines": [
+     "lk2610-avansy2 ⇒ сверено в 1С по 6 клиентам: Промторг закрыт; ТеВеПром 38 000 (09.06.2025), Биорешения 85 000 (07.03.2025), ИТС МК 40 000, Квазар 22 000 + 12 000, ЗЭОТЭК 25 000 — вопрос Лене одним письмом (buh/lena-avansy-2810.md → «Браузер», черновик). Осталось: ответ Лены → акты 2026 без проведения.",
+     "sup1 ⇒ попросил «Браузер» черновик Регарду (УПД СфТ-105148 в Диадок). Осталось: Ольга «Отправить»."
+    ]
+   },
+   {
+    "title": "Дополнение 16:15",
+    "lines": [
+     "avk2110 ⇒ акт 130 (12 000, оферта 1352-ЛЕ-ГОСТ) уже в 1С, сверка 96 за 2020–26.10.2026 сальдо 0; комплект PDF (сверка + 9 актов) в buh/avk и Загрузках; «Браузер» грузит черновиком в Диадок. Осталось: Ольга подпись и отправка, их 152 не подписывать.",
+     "sup1 ⇒ сделано: скан оригинала УПД Регарда с 15.10 в Seafile.",
+     "Ответы Лены (up2610-17, up2610-21, lk2610-avansy2, m28) ⇒ waiting, контроль 29.10 утром."
+    ]
+   }
+  ]
+ },
+ "buh_plan": {
+  "built": "28.10.2026 22:54",
+  "regular": [
+   {
+    "name": "ГЛАВУПДК, аренда",
+    "org": "Луг",
+    "period": "ежемесячно",
+    "amount": 78268,
+    "amountKnown": true,
+    "note": "оплачено по январь 2027",
+    "kind": "plan",
+    "src": "otchety-claude/reestr-platezhey-chernovik.md (карточки 60 на 16.10)",
+    "dataAsOf": "16.10.2026"
+   },
+   {
+    "name": "Утешева О. Е., аренда",
+    "org": "Луг",
+    "period": "ежемесячно",
+    "amount": 3000,
+    "amountKnown": true,
+    "note": "см. строку spisaniya 10.11",
+    "kind": "plan",
+    "src": "otchety-claude/reestr-platezhey-chernovik.md (карточки 60 на 16.10)",
+    "dataAsOf": "16.10.2026"
+   },
+   {
+    "name": "Сипнет, телефония",
+    "org": "Луг",
+    "period": "ежемесячно 24–29",
+    "amount": 10408,
+    "amountKnown": true,
+    "note": "переплата 25 968,56 ≈ 3 мес., списаний нет",
+    "kind": "reference",
+    "src": "otchety-claude/reestr-platezhey-chernovik.md (карточки 60 на 16.10)",
+    "dataAsOf": "16.10.2026"
+   },
+   {
+    "name": "АДВАНСДОКС (Софт-трейд)",
+    "org": "Луг",
+    "period": "≈ ежемесячно",
+    "amount": 10000,
+    "amountKnown": true,
+    "note": "по счёту, иногда 20 000",
+    "kind": "reference",
+    "src": "otchety-claude/reestr-platezhey-chernovik.md (карточки 60 на 16.10)",
+    "dataAsOf": "16.10.2026"
+   },
+   {
+    "name": "СДЭК (Ольховский)",
+    "org": "Луг",
+    "period": "ежемесячно по факту",
+    "amount": null,
+    "amountKnown": false,
+    "note": "1 000–6 000 по счёту",
+    "kind": "reference",
+    "src": "otchety-claude/reestr-platezhey-chernovik.md (карточки 60 на 16.10)",
+    "dataAsOf": "16.10.2026"
+   },
+   {
+    "name": "Сервис Софт, 1С:Аренда",
+    "org": "Луг",
+    "period": "июнь",
+    "amount": 22617,
+    "amountKnown": true,
+    "note": "оплачено 29.06 до июня 2027",
+    "kind": "plan",
+    "src": "otchety-claude/reestr-platezhey-chernovik.md (карточки 60 на 16.10)",
+    "dataAsOf": "16.10.2026"
+   },
+   {
+    "name": "Контур.Экстерн",
+    "org": "Луг",
+    "period": "август",
+    "amount": 35818,
+    "amountKnown": true,
+    "note": "оплачено 13.08, след. август 2027",
+    "kind": "plan",
+    "src": "otchety-claude/reestr-platezhey-chernovik.md (карточки 60 на 16.10)",
+    "dataAsOf": "16.10.2026"
+   },
+   {
+    "name": "Контур.Диадок",
+    "org": "Луг",
+    "period": "июль",
+    "amount": 6300,
+    "amountKnown": true,
+    "note": "акт 08.07, оплата не найдена",
+    "kind": "plan",
+    "src": "otchety-claude/reestr-platezhey-chernovik.md (карточки 60 на 16.10)",
+    "dataAsOf": "16.10.2026"
+   },
+   {
+    "name": "Oktell (Студио Технолоджи)",
+    "org": "Луг",
+    "period": "март?",
+    "amount": 16746,
+    "amountKnown": true,
+    "note": "периодичность уточнить",
+    "kind": "reference",
+    "src": "otchety-claude/reestr-platezhey-chernovik.md (карточки 60 на 16.10)",
+    "dataAsOf": "16.10.2026"
+   },
+   {
+    "name": "VK лицензия",
+    "org": "Луг",
+    "period": "июль?",
+    "amount": 9794,
+    "amountKnown": true,
+    "note": "периодичность уточнить",
+    "kind": "reference",
+    "src": "otchety-claude/reestr-platezhey-chernovik.md (карточки 60 на 16.10)",
+    "dataAsOf": "16.10.2026"
+   },
+   {
+    "name": "Резерв УСН 6 %",
+    "org": "Пон",
+    "period": "с поступлений",
+    "amount": null,
+    "amountKnown": false,
+    "note": "6 % от поступления",
+    "kind": "plan",
+    "src": "otchety-claude/reestr-platezhey-chernovik.md (карточки 60 на 16.10)",
+    "dataAsOf": "16.10.2026"
+   },
+   {
+    "name": "Грушко Т. В., IT",
+    "org": "Пон",
+    "period": "≈ ежемесячно",
+    "amount": 25000,
+    "amountKnown": true,
+    "note": "последняя оплата 07.08",
+    "kind": "reference",
+    "src": "otchety-claude/reestr-platezhey-chernovik.md (карточки 60 на 16.10)",
+    "dataAsOf": "16.10.2026"
+   }
+  ],
+  "balance": {
+   "known": false,
+   "why": "свежих выписок/выгрузок нет (Downloads/Контроль/выгрузки пуст), остаток не выводим"
+  }
+ },
+ "buh_sources": [
+  {
+   "name": "Реестр списаний (Бухгалтерия)",
+   "ok": true,
+   "note": "от 28.10.2026"
+  },
+  {
+   "name": "Регулярные платежи (Бухгалтерия)",
+   "ok": true,
+   "note": "от 28.10.2026 22:54"
+  },
+  {
+   "name": "Дневная сводка Бухгалтерии",
+   "ok": true,
+   "note": "buh-svodka-2026-10-28.md"
+  },
+  {
+   "name": "Реестр обязательных платежей",
+   "ok": true,
+   "note": "обновлён 22.10 · daily-control/otchety-claude/reestr-platezhey-chernovik.md"
+  },
+  {
+   "name": "Пакет Ларисе на закрытие квартала",
+   "ok": true,
+   "note": "обновлён 28.10 · daily-control/otchety-claude/otchet-buhgalteru.md"
+  },
+  {
+   "name": "Выписки банков (Альфа, Точка)",
+   "ok": false,
+   "note": "в сводку не загружаются: остатков и фактических списаний по банку нет"
+  }
+ ]
 }

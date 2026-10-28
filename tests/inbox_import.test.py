@@ -29,9 +29,20 @@ def put(repo, name, items):
     sh(repo, "git", "update-ref", "refs/remotes/origin/inbox", "HEAD")
 
 
+TASKS = {}
+
+
 def apply(db, batch, limit=None):
+    """Как ArtifactData batch по порядку: update в tasks, set в comments."""
     for w in json.load(open(batch))[:limit]:
-        db[w["doc_id"]] = w["data"]
+        if w["collection"] == "tasks":
+            TASKS.setdefault(w["doc_id"], {}).update(w["data"])
+        else:
+            db[w["doc_id"]] = w["data"]
+
+
+def comments(batch):
+    return [w for w in json.load(open(batch)) if w["collection"] == "comments"]
 
 
 def ack(repo, seen, batch, db):
@@ -55,14 +66,14 @@ put(repo, "fixture.json", [{"taskId": "t1", "action": "done", "at": "2026-10-28T
 db = {}
 
 r = run("prepare", repo, seen, batch)
-ids1 = [w["doc_id"] for w in json.load(open(batch))]
+ids1 = [w["doc_id"] for w in comments(batch)]
 ok("Сценарий Codex: prepare не отмечает получение", r.returncode == 0 and len(ids1) == 2 and not seen_lines(seen),
    f"записей {len(ids1)}, строк учёта {len([x for x in seen_lines(seen) if x])}")
 r = run("prepare", repo, seen, batch)
-ids2 = [w["doc_id"] for w in json.load(open(batch))]
+ids2 = [w["doc_id"] for w in comments(batch)]
 ok("Падение до batch: повтор отдаёт те же стабильные doc_id", ids1 == ids2, f"{ids2}")
 
-apply(db, batch, limit=1)
+apply(db, batch, limit=2)
 r = ack(repo, seen, batch, db)
 ok("Частичный batch: ack отклонён, учёт не изменён", r.returncode == 1 and not any(seen_lines(seen)), r.stderr.strip().splitlines()[-1])
 r = run("prepare", repo, seen, batch)
@@ -97,7 +108,44 @@ ok("После ack повтор не дублирует", json.load(open(batch))
 
 put(repo, "second.json", [{"taskId": "t3", "action": "eve", "at": "2026-10-28T12:00:00Z"}])
 run("prepare", repo, seen, batch)
-ok("Новый файл после ack берётся, старый нет", [w["data"]["inboxFile"] for w in json.load(open(batch))] == ["inbox/second.json"], "в партии только second.json")
+ok("Новый файл после ack берётся, старый нет", [w["data"]["inboxFile"] for w in comments(batch)] == ["inbox/second.json"], "в партии только second.json")
+
+put(repo, "third.json", [{"taskId": "t3", "action": "reopen", "at": "2026-10-28T12:03:00Z", "eid": "ereopen1"}])
+open(seen, "w").close()
+run("prepare", repo, seen, batch)
+b = {(w["data"]["inboxFile"], w["data"]["taskId"]): w["data"] for w in comments(batch)}
+tw = [w for w in json.load(open(batch)) if w["collection"] == "tasks"]
+done_t3, reopen_t3 = b[("inbox/second.json", "t3")], b[("inbox/third.json", "t3")]
+ok("Ошибочное действие и «вернуть»: применяется последнее событие", not done_t3["latest"] and done_t3["supersededBy"] == "ereopen1" and "не применять" in done_t3["text"] and reopen_t3["latest"],
+   f"раннее: latest={done_t3['latest']}, текст «{done_t3['text'][:50]}»; позднее: latest={reopen_t3['latest']}")
+ok("Отменённое «сделано» задачу не закрывает: в tasks только «вернуть»", [w["data"]["status"] for w in tw if w["doc_id"] == "t3"] == ["open"] and done_t3["status"] == "done",
+   f"изменения t3: {[w['data'] for w in tw if w['doc_id'] == 't3']}")
+
+# Codex 19:44: поручение Claude — отдельный тип по всей цепочке; дело остаётся open и переходит Claude
+open(seen, "w").close()
+put(repo, "fourth.json", [{"taskId": "t4", "action": "claude", "text": "сверить акт", "at": "2026-10-28T13:00:00Z", "eid": "edlg0001"},
+                          {"taskId": "t5", "action": "", "text": "старое сообщение", "at": "2026-10-28T13:01:00Z", "eid": "emsg0001"},
+                          {"taskId": "t6", "action": "done", "at": "2026-10-28T13:02:00Z", "eid": "edone001"},
+                          {"taskId": "net-v-db", "action": "done", "at": "2026-10-28T13:03:00Z", "eid": "edone002"}])
+tdir = os.path.join(t, "tasks")
+os.makedirs(tdir)
+for tid in ("t1", "t2", "t3", "t4", "t5", "t6"):
+    json.dump({"id": tid, "status": "open"}, open(os.path.join(tdir, tid + ".json"), "w"))
+r = run("prepare", repo, seen, batch, tdir)
+TASKS.clear()
+db = {}
+apply(db, batch)
+c4 = {w["data"]["taskId"]: w["data"] for w in comments(batch) if w["data"]["inboxFile"] == "inbox/fourth.json"}
+ok("Поручить Claude: задача остаётся open, waiting Claude, не done", TASKS.get("t4", {}).get("status") == "open" and TASKS["t4"].get("waiting") == "Claude" and TASKS["t4"].get("delegated") == "edlg0001",
+   f"t4 после применения: {TASKS.get('t4')}")
+ok("Поручение подтверждено: комментарий done с eventId (пульт видит appliedEvents)", c4["t4"]["status"] == "done" and c4["t4"]["eventId"] == "edlg0001" and c4["t4"]["appliedTo"] == "t4", f"комментарий: status {c4['t4']['status']}, applied {c4['t4']['appliedTo']}")
+ok("Старый комментарий с action пусто: задачу не меняет, ждёт разбора как текст", "t5" not in TASKS and c4["t5"]["status"] == "new" and c4["t5"]["text"] == "старое сообщение", f"t5 в tasks: {'t5' in TASKS}, status {c4['t5']['status']}")
+ok("«Я выполнила» закрывает задачу после применения", TASKS.get("t6", {}).get("status") == "done", f"t6: {TASKS.get('t6')}")
+ok("Отметка к задаче, которой нет в db: не применяется, остаётся разбору", "net-v-db" not in TASKS and c4["net-v-db"]["status"] == "new" and "не применено" in c4["net-v-db"]["text"], c4["net-v-db"]["text"][:60])
+ok("В batch задачи идут раньше комментариев", [w["collection"] for w in json.load(open(batch))] == sorted([w["collection"] for w in json.load(open(batch))], key=lambda c: c != "tasks"), "порядок tasks → comments")
+json.dump(sorted(db), open(batch + ".applied.json", "w"))
+r = run("ack", repo, seen, batch, batch + ".applied.json")
+ok("ack после применения поручения проходит", r.returncode == 0, r.stdout.strip() or r.stderr.strip())
 
 sh(repo, "git", "update-ref", "-d", "refs/remotes/origin/inbox")
 r = run("prepare", repo, seen, batch)

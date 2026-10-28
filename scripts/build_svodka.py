@@ -128,6 +128,87 @@ def prognoz():
     }
 
 
+SPISANIYA_JSON = "/mnt/project-files/daily-control/svodka/spisaniya.json"
+BUH_PLAN_JSON = "/mnt/project-files/daily-control/svodka/buh-plan.json"
+KONTROL_DIR = "/mnt/project-files/daily-control/kontrol"
+BUH_PLANS = {
+    "Реестр обязательных платежей": "/mnt/project-files/daily-control/otchety-claude/reestr-platezhey-chernovik.md",
+    "Пакет Ларисе на закрытие квартала": "/mnt/project-files/daily-control/otchety-claude/otchet-buhgalteru.md",
+}
+
+
+def iso_date(v):
+    """Дата в ГГГГ-ММ-ДД из «ДД.ММ.ГГГГ» или ISO; иначе пусто (не выдумываем)."""
+    v = (v or "").strip()
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", v) or re.match(r"^(\d{1,2})\.(\d{1,2})\.(\d{4})", v)
+    if not m:
+        return ""
+    y, mo, d = (m[1], m[2], m[3]) if len(m[1]) == 4 else (m[3], m[2], m[1])
+    return f"{int(y):04d}-{int(mo):02d}-{int(d):02d}"
+
+
+def spisaniya():
+    """Предстоящие списания (ведёт «Бухгалтерия», svodka/spisaniya.json). Нет файла — None, пульт пишет «не получено»."""
+    if not os.path.exists(SPISANIYA_JSON):
+        return None
+    with open(SPISANIYA_JSON, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    rows = []
+    for r in p.get("rows", []):
+        d = iso_date(r.get("date"))
+        if not d:
+            raise ValueError(f"spisaniya.json: строка без даты {r.get('what')!r}; прежняя сводка сохранена")
+        rows.append({"date": d, "who": r.get("who") or "", "what": r.get("what") or "", "amount": r.get("amount"),
+                     "state": r.get("state") or "", "src": r.get("src") or "", "paid": bool(r.get("paid")),
+                     "paidSrc": r.get("paidSrc") or "", "kind": r.get("kind") or "plan",
+                     # amount None = сумма неизвестна (диапазон в amountRange), 0 = действительно ноль (zeroMeans)
+                     "amountRange": r.get("amountRange") or None, "zeroMeans": r.get("zeroMeans") or "",
+                     "bankConfirmed": bool(r.get("bankConfirmed")), "checked": r.get("checked") or ""})
+    rows.sort(key=lambda r: r["date"])
+    return {"built": p.get("built", ""), "note": p.get("note", ""), "rows": rows}
+
+
+def buh_plan():
+    """Регулярные платежи и остаток от «Бухгалтерии» (svodka/buh-plan.json). Её tasks не берём: дела идут из db."""
+    if not os.path.exists(BUH_PLAN_JSON):
+        return None
+    with open(BUH_PLAN_JSON, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    bal = p.get("balance") or {}
+    return {"built": p.get("built", ""), "regular": [{k: r.get(k) for k in ("name", "org", "period", "amount", "amountKnown", "note", "kind", "src", "dataAsOf")} for r in p.get("regular", [])],
+            "balance": {"known": bool(bal.get("known")), "why": bal.get("why") or ""}}
+
+
+def buh_svodka():
+    """Последняя дневная сводка «Бухгалтерии» (kontrol/buh-svodka-ДАТА.md): разделы и строки как есть."""
+    files = sorted(glob.glob(os.path.join(KONTROL_DIR, "buh-svodka-*.md")))
+    if not files:
+        return None
+    sections, cur = [], None
+    with open(files[-1], encoding="utf-8-sig") as fh:
+        for line in fh:
+            line = line.rstrip()
+            if line.startswith("## "):
+                cur = {"title": line[3:].strip(), "lines": []}
+                sections.append(cur)
+            elif line.startswith("- ") and cur is not None:
+                cur["lines"].append(line[2:].strip())
+    head = open(files[-1], encoding="utf-8-sig").readline().lstrip("# ").strip()
+    return {"file": os.path.basename(files[-1]), "title": head, "sections": sections}
+
+
+def buh_sources(sp, bs, bp=None):
+    """Что получено для раздела «Бухгалтерия», а что нет: пульт показывает это прямо, без нулей."""
+    out = [{"name": "Реестр списаний (Бухгалтерия)", "ok": sp is not None, "note": ("от " + sp["built"]) if sp else "файл svodka/spisaniya.json не найден"},
+           {"name": "Регулярные платежи (Бухгалтерия)", "ok": bp is not None, "note": ("от " + bp["built"]) if bp else "файл svodka/buh-plan.json не найден"},
+           {"name": "Дневная сводка Бухгалтерии", "ok": bs is not None, "note": bs["file"] if bs else "kontrol/buh-svodka-*.md не найдена"}]
+    for name, path in BUH_PLANS.items():
+        ok = os.path.exists(path)
+        out.append({"name": name, "ok": ok, "note": (datetime.fromtimestamp(os.path.getmtime(path), MSK).strftime("обновлён %d.%m") + " · " + os.path.relpath(path, "/mnt/project-files")) if ok else "не найден"})
+    out.append({"name": "Выписки банков (Альфа, Точка)", "ok": False, "note": "в сводку не загружаются: остатков и фактических списаний по банку нет"})
+    return out
+
+
 ACTIVE_STATUSES = {"open", "waiting", "wait", "expert"}
 KNOWN_STATUSES = ACTIVE_STATUSES | {"done", "closed", "handled"}
 
@@ -234,6 +315,7 @@ def main():
             # Для пульта «Утро»: если ветка их не записала, сайт вычислит сам
             "short": (t.get("short") or "").strip()[:70],
             "waiting": t.get("waiting") or "",  # я / клиент / Лена / Claude
+            "delegated": t.get("delegated") or "",  # eid поручения с сайта, внесённого разбором
             "urgency": t.get("urgency") or "",  # сегодня / неделя / фон
             # Сверка «Утра» (§14): без checked за сегодня, src и thread/origin пульт не показывает дело как «нужно от вас»
             "checked": t.get("checked") or "",
@@ -245,6 +327,7 @@ def main():
             "invoice": t.get("invoice") or "",
             "payment": t.get("payment") or "",
             "dedupe": t.get("dedupe") or "",
+            "cat": t.get("cat") or "",
             # reference — справочная сумма (погашено/история): пульт не считает её деньгами в пути
             "amountKind": t.get("amountKind") or "",
             "amountNote": (t.get("amountNote") or "").strip(),
@@ -263,6 +346,8 @@ def main():
         "prognoz": prognoz(),
         "appliedEvents": applied_events(db_dir),
     }
+    sp, bs, bp = spisaniya(), buh_svodka(), buh_plan()
+    data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "buh_sources": buh_sources(sp, bs, bp)})
     atomic_json(out, data)
     print(f"tasks {len(tasks)}, summary {len(summary)}, lena_clients {len(data['lena_clients'])} -> {out}")
 

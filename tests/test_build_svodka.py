@@ -124,6 +124,41 @@ class BuilderAcceptance(unittest.TestCase):
         row = self.build()["tasks"][0]
         self.assertEqual(("reference", "погашено", 176103.19), (row["amountKind"], row["amountNote"], row["amount"]))
 
+    def test_missing_buh_sources_are_named_not_zero(self):
+        self.task()
+        patch.object(builder, "SPISANIYA_JSON", str(self.root / "net.json")).start()
+        patch.object(builder, "KONTROL_DIR", str(self.root / "net")).start()
+        patch.object(builder, "BUH_PLAN_JSON", str(self.root / "net-plan.json")).start()
+        data = self.build()
+        self.assertIsNone(data["buh_plan"])
+        names = {x["name"]: x for x in data["buh_sources"]}
+        self.assertIsNone(data["spisaniya"])
+        self.assertFalse(names["Реестр списаний (Бухгалтерия)"]["ok"])
+        self.assertIn("не найден", names["Реестр списаний (Бухгалтерия)"]["note"])
+        self.assertFalse(names["Выписки банков (Альфа, Точка)"]["ok"])
+
+    def test_spisaniya_rows_keep_plan_paid_reference(self):
+        self.task()
+        sp = self.root / "sp.json"
+        sp.write_text(json.dumps({"built": "28.10.2026", "rows": [
+            {"date": "31.10.2026", "who": "РЭИ", "what": "ориентир", "amount": 10000, "kind": "reference"},
+            {"date": "2026-10-28", "who": "РЭИ", "what": "ЕНП", "amount": 28314, "paid": True, "paidSrc": "fakty"}]}), encoding="utf-8")
+        patch.object(builder, "SPISANIYA_JSON", str(sp)).start()
+        rows = self.build()["spisaniya"]["rows"]
+        self.assertEqual([("2026-10-28", "plan", True), ("2026-10-31", "reference", False)], [(r["date"], r["kind"], r["paid"]) for r in rows])
+
+    def test_spisaniya_row_without_date_preserves_snapshot(self):
+        self.task()
+        sp = self.root / "sp.json"
+        sp.write_text(json.dumps({"rows": [{"what": "без даты", "amount": 1}]}), encoding="utf-8")
+        patch.object(builder, "SPISANIYA_JSON", str(sp)).start()
+        self.rejected()
+
+    def test_delegated_task_stays_active_with_claude(self):
+        self.task(status="open", waiting="Claude", delegated="edlg0001")
+        row = self.build()["tasks"][0]
+        self.assertEqual(("Claude", "edlg0001"), (row["waiting"], row["delegated"]))
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

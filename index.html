@@ -161,6 +161,47 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
 .ai{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:14px}
 .ai textarea{border:1px solid var(--line);border-radius:10px;padding:10px;min-height:76px;background:var(--bg);resize:vertical}
 /* разбор утра */
+.ab{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 9px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-size:12.5px;color:var(--ink);white-space:nowrap;flex:none}
+.ab svg{width:12px;height:12px}
+.ab.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.ab.ok:hover{background:var(--ok-soft)}
+.ab.cl{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.abs{display:flex;gap:6px;flex:none}
+@media (max-width:480px){.abs{flex-direction:column;gap:4px}.ab{height:26px;padding:0 7px;font-size:12px}}
+.sheet{position:fixed;inset:0;z-index:40;background:rgba(10,14,20,.42);display:grid;align-items:end;justify-items:center}
+.sheet[hidden]{display:none}
+.sh-in{width:min(520px,100%);background:var(--surface);border-radius:16px 16px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:grid;gap:10px;box-shadow:var(--shadow)}
+@media (min-width:700px){.sheet{align-items:center}.sh-in{border-radius:16px}}
+.sh-in textarea{border:1px solid var(--line);border-radius:10px;padding:10px;min-height:64px;background:var(--bg)}
+.sh-b{display:flex;gap:8px;flex-wrap:wrap}
+.jr{display:grid;gap:6px}
+.jl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13.5px;padding:6px 0;border-top:1px solid var(--line)}
+.jl:first-child{border-top:0}
+.st{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--sunk);color:var(--muted)}
+.st.acc{background:var(--accent-soft,var(--sunk));color:var(--accent)}
+.st.app{background:var(--ok-soft);color:var(--ok)}
+.st.err{background:var(--warn-soft);color:var(--warn)}
+.cal{display:grid;gap:2px}
+.cd{display:grid;grid-template-columns:70px minmax(0,1fr) auto;gap:10px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line);font-size:14px}
+.cd:first-child{border-top:0}
+.cd .dt{color:var(--muted);font-variant-numeric:tabular-nums}
+.cd .wt{min-width:0;overflow-wrap:anywhere}
+.cd .wt small{display:block;color:var(--muted);font-size:12.5px}
+.kd{font-size:11.5px;padding:1px 7px;border-radius:99px;margin-right:6px;background:var(--sunk);color:var(--muted)}
+.kd.pay{background:var(--warn-soft);color:var(--warn)}
+.kd.in{background:var(--ok-soft);color:var(--ok)}
+.kd.ref{background:transparent;border:1px dashed var(--line)}
+.kd.task{background:var(--sunk);color:var(--ink)}
+.kd{white-space:nowrap}
+@media (max-width:480px){.cd{grid-template-columns:40px minmax(0,1fr) auto;gap:8px;font-size:13.5px}.cd .dt{font-size:12.5px}}
+.src-l{display:grid;gap:4px;font-size:13px}
+.src-l span.no{color:var(--warn)}
+.pf{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.pf>div{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:2px}
+.pf b{font:600 18px/1.2 var(--f-disp)}
+.pf small{color:var(--muted);font-size:12.5px}
+details.bs summary{cursor:pointer;font-weight:500;padding:6px 0}
+details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
 .focus{position:fixed;inset:0;z-index:25;background:var(--bg);display:grid;place-items:center;
   padding:calc(20px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .fcard{width:min(620px,100%);display:grid;gap:18px}
@@ -207,6 +248,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     <nav class="tabs" role="tablist" aria-label="Разделы">
       <button class="tab" role="tab" data-tab="utro"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 2v2M9 14v2M2 9h2M14 9h2M4 4l1.4 1.4M12.6 12.6L14 14M4 14l1.4-1.4M12.6 5.4L14 4"/><circle cx="9" cy="9" r="3"/></svg>Утро</button>
       <button class="tab" role="tab" data-tab="money"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4.5" width="14" height="9" rx="2"/><circle cx="9" cy="9" r="2"/></svg>Деньги</button>
+      <button class="tab" role="tab" data-tab="buh"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2.5" y="3.5" width="13" height="12" rx="2"/><path d="M2.5 7.5h13M6 2v3M12 2v3"/></svg>Бухгалтерия</button>
       <button class="tab" role="tab" data-tab="all"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 5h10M6 9h10M6 13h10"/><circle cx="2.5" cy="5" r=".6"/><circle cx="2.5" cy="9" r=".6"/><circle cx="2.5" cy="13" r=".6"/></svg>Все дела</button>
     </nav>
     <div class="fresh" id="fresh"><span class="dot" style="background:var(--faint)"></span>Загружаю данные…</div>
@@ -222,6 +264,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   <div class="dbody" id="db"></div>
 </aside>
 <div class="focus" id="focus" hidden></div>
+<div class="sheet" id="sheet" hidden></div>
 <div class="toast" id="toast" role="status" aria-live="polite"><span id="tt"></span><button id="tu" type="button">Отменить</button></div>
 
 <script>
@@ -325,7 +368,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
       const short = isTopic ? shorten(rest) : (head.length > 70 ? shorten(txt) : head);
       // §14: в «Нужно от вас» попадает только проверенное «Утром»; если это задача базы — отмечаем её саму, отметки уходят с её id
       const twin = T.find((t) => t.id === s.id) || T.find((t) => norm(t.short) === norm(short) || norm(shorten(t.title)) === norm(rest));
-      if (twin) { Object.assign(twin, {verified: verifiedRow(twin) || verifiedRow(s), who: 'я', urg: 'сегодня', fromSummary: true, hot: twin.hot || s.flag === 'срочно', short: twin.short || short}); return; }
+      if (twin) { Object.assign(twin, {verified: verifiedRow(twin) || verifiedRow(s), who: twin.waiting === 'Claude' ? 'Claude' : 'я', urg: 'сегодня', fromSummary: true, hot: twin.hot || s.flag === 'срочно', short: twin.short || short}); return; }
       seen.add(norm(short));
       T.push({id: 'sum-' + (s.id || i), verified: verifiedRow(s), checked: s.checked, src: s.src, title: txt, short, detail: isTopic ? rest : rest, next: '', cl: s.client || (isTopic ? head : 'Нужно от вас'), client: s.client || '', internal: !s.client && !isTopic,
         a: 0, dd: 0, who: 'я', hot: s.flag === 'срочно', urg: 'сегодня', section: 'Нужно от вас', fromSummary: true, link: s.link || '', mgr: 'Ольга', owner: 'Утро и задачи'});
@@ -336,12 +379,31 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   const order = (x, y) => (y.hot - x.hot) || ((x.dd ?? 99) - (y.dd ?? 99)) || (y.a - x.a);
   const mineAll = () => T.filter((t) => t.who === 'я' && isOpen(t)).sort((x, y) => (y.hot - x.hot) || (y.fromSummary ? 1 : 0) - (x.fromSummary ? 1 : 0) || order(x, y));
   const isToday = (t) => t.urg === 'сегодня' || (t.dd !== null && t.dd <= 0);
-  const mine = () => mineAll().filter((t) => t.verified);
-  const unverified = () => mineAll().filter((t) => !t.verified);
+  const delegated = (t) => pend[t.id] && pend[t.id].action === 'claude';
+  const mine = () => mineAll().filter((t) => t.verified && !delegated(t));
+  const unverified = () => mineAll().filter((t) => !t.verified && !delegated(t));
   const PORTION = 5; let portion = 0;
 
   // ---------- действия: сразу в ветку inbox, с отменой ----------
-  const LABEL = {reopen: 'Вернуть в работу', done: 'Сделано', later: 'Отложить до завтра', eve: 'На вечер', prio: 'Горит', wait: 'Ждём клиента', ai: 'Передано Claude'};
+  const LABEL = {reopen: 'Вернуть в работу', done: 'Я выполнила', claude: 'Поручено Claude', later: 'Отложить до завтра', eve: 'На вечер', prio: 'Горит', wait: 'Ждём клиента', ai: 'Сообщение Claude'};
+  // Журнал отметок: что отправлено, что принято сервером, что применено разбором (eid в appliedEvents)
+  const journal = store.get('svodka-journal', []);
+  const jsave = () => { while (journal.length > 60) journal.shift(); store.set('svodka-journal', journal); };
+  const jstate = (j) => j.eid && APPLIED.has(j.eid) ? ['app', 'применено в базе'] : j.state === 'accepted' ? ['acc', 'принято, ждёт разбора (10, 13, 18 ч)'] : j.state === 'failed' ? ['err', 'не дошло, отправлю снова'] : j.state === 'remote' ? ['acc', 'с другого устройства, ждёт разбора'] : ['', 'отправляется'];
+  // Подтверждение и поручение — нижний лист, одна понятная развилка
+  let sheetCb = null;
+  function sheet(html, onYes) { $('#sheet').innerHTML = `<div class="sh-in" role="dialog" aria-modal="true">${html}</div>`; $('#sheet').hidden = false; sheetCb = onYes; setTimeout(() => ($('#sheet textarea') || $('#cf-yes')).focus(), 30); }
+  function closeSheet() { $('#sheet').hidden = true; sheetCb = null; }
+  function confirmDone(t, after) {
+    sheet(`<b>Вы сами выполнили это дело?</b><div class="hint">«${esc(t.short)}». Дело закроется после разбора Claude (10, 13, 18 ч). Если сделать должен Claude, нажмите «Поручить Claude».</div>
+      <div class="sh-b"><button class="btn" data-sh="yes" id="cf-yes">Да, я выполнила</button><button class="btn ghost" data-sh="claude">Поручить Claude</button><button class="btn ghost" data-sh="no">Отмена</button></div>`,
+      (how) => { if (how === 'claude') return delegate(t, after); act(t, 'done'); if (after) after('done'); });
+  }
+  function delegate(t, after) {
+    sheet(`<b>Поручить Claude</b><div class="hint">«${esc(t.short)}». Дело останется в работе с пометкой «поручено Claude» и уйдёт из вашего списка.</div><textarea id="shText" placeholder="Что сделать (можно оставить пустым)"></textarea>
+      <div class="sh-b"><button class="btn" data-sh="yes" id="cf-yes">Поручить</button><button class="btn ghost" data-sh="no">Отмена</button></div>`,
+      () => { act(t, 'claude', ($('#shText').value || '').trim()); if (after) after('claude'); });
+  }
   let undo = null;
   function toast(msg, onUndo) {
     $('#tt').textContent = msg; $('#tu').hidden = !onUndo; undo = onUndo || null;
@@ -353,12 +415,35 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     const prev = pend[t.id];
     if (action === 'reopen') delete pend[t.id]; else if (action !== 'ai') pend[t.id] = {action, ts: Date.now(), eid: item.eid};
     outbox.push(item); store.set('svodka-pending', pend); store.set('svodka-outbox', outbox);
+    journal.push({qid: item.qid, eid: item.eid, taskId: t.id, short: t.short, action, at: item.at, state: 'queued'}); jsave();
     render();
     toast(LABEL[action] + (action === 'ai' ? '' : ': ' + t.short), () => {
       const i = outbox.findIndex((x) => x.qid === item.qid); if (i >= 0) outbox.splice(i, 1);
+      const ji = journal.findIndex((x) => x.qid === item.qid); if (ji >= 0) journal.splice(ji, 1); jsave();
       if (prev) pend[t.id] = prev; else delete pend[t.id];
       store.set('svodka-pending', pend); store.set('svodka-outbox', outbox); render();
     });
+  }
+  // Отмена из журнала: ещё не отправлено — просто убираем, событий нет; уже ушло — отправляем «Вернуть в работу»
+  function undoJournal(k) {
+    const j = journal.find((x) => x.qid === k || x.eid === k); if (!j) return;
+    const i = outbox.findIndex((x) => x.qid === j.qid), flying = inflight && inflight.items.some((x) => x.qid === j.qid);
+    if (i >= 0 && !flying) {
+      outbox.splice(i, 1); journal.splice(journal.indexOf(j), 1); jsave();
+      if (pend[j.taskId] && pend[j.taskId].eid === j.eid) delete pend[j.taskId];
+      store.set('svodka-pending', pend); store.set('svodka-outbox', outbox); render(); toast('Отменено, ничего не отправлено'); return;
+    }
+    const t = T.find((x) => x.id === j.taskId) || {id: j.taskId, cl: '', client: '', title: j.short || String(j.taskId), short: j.short || String(j.taskId)};
+    j.undone = true; jsave(); act(t, 'reopen');
+  }
+  const jUndoable = (j, i) => j.taskId && !j.undone && !['reopen', 'ai'].includes(j.action) && !journal.slice(i + 1).some((x) => x.taskId === j.taskId);
+  function journalHTML() {
+    const since = Date.now() - 48 * 36e5, rows = journal.map((j, i) => [j, i]).filter(([j]) => Date.parse(j.at) > since).reverse().slice(0, 8);
+    if (!rows.length) return '';
+    return `<section class="sec" id="journal"><div class="sh"><h2>Журнал отметок</h2><span class="c">отправлено → принято → применено в базе</span></div><div class="rows" style="padding:6px 14px">${rows.map(([j, i]) => {
+      const [c, txt] = jstate(j), wait = outbox.some((x) => x.qid === j.qid) && !(inflight && inflight.items.some((x) => x.qid === j.qid));
+      const st = c === 'app' && j.action === 'claude' ? 'применено: в работе у Claude' : c === 'app' && j.action === 'done' ? 'применено: дело закрыто' : txt;
+      return `<div class="jl" data-j="${esc(j.qid || j.eid)}"><span class="hint num">${FRESH.hm(new Date(j.at))}</span><b>${esc(LABEL[j.action] || 'Сообщение')}</b><span style="min-width:0;flex:1 1 140px">${esc(j.short || '')}</span><span class="st ${c}">${esc(j.undone ? 'возвращено' : st)}</span>${jUndoable(j, i) ? `<button class="link" style="margin:0" data-undo="${esc(j.qid || j.eid)}">${wait ? 'Отменить' : 'Вернуть'}</button>` : ''}</div>`; }).join('')}</div></section>`;
   }
   let sending = false;
   async function flush() {
@@ -372,9 +457,11 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
       const sent = new Set(items.map((x) => x.qid));
       for (let i = outbox.length - 1; i >= 0; i--) if (sent.has(outbox[i].qid)) outbox.splice(i, 1);
       inflight = null; store.set('svodka-inflight', null); store.set('svodka-outbox', outbox);
+      journal.forEach((j) => { if (sent.has(j.qid)) j.state = 'accepted'; }); jsave();
       toast('Отправлено в ветку inbox: ' + plural(items.length, 'отметка', 'отметки', 'отметок') + '. Claude внесёт на разборе (10, 13, 18 ч)');
       if (outbox.length) setTimeout(flush, 0);
     } catch (e) {
+      const fq2 = new Set(items.map((x) => x.qid)); journal.forEach((j) => { if (fq2.has(j.qid)) j.state = 'failed'; }); jsave();
       $('#tt').textContent = 'Не дошло: ' + e.message + '. Отметки сохранены'; $('#tu').hidden = false; $('#tu').textContent = 'Повторить';
       undo = () => { $('#tu').textContent = 'Отменить'; flush(); }; $('#toast').classList.add('on'); clearTimeout(toast.t);
     } finally { sending = false; render(); }
@@ -385,14 +472,16 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     : t.dd === null ? '' : t.dd < 0 ? `<span class="pill p-warn">просрочено ${-t.dd} дн</span>` : t.dd === 0 ? '<span class="hint">сегодня</span>'
     : t.dd === 1 ? '<span class="pill p-wait">завтра</span>' : `<span class="pill p-wait">${t.dd <= 7 ? 'через ' + t.dd + ' дн' : parseRu(t.due).toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'})}</span>`;
   const av = (t) => t.who === 'я' ? '<span class="av" title="За вами">О</span>' : t.who === 'Лена' ? '<span class="av l" title="Ведёт Лена">Л</span>' : t.who === 'клиент' || t.who === 'эксперт' ? `<span class="av k" title="Ждём: ${t.who}">⋯</span>` : '<span class="av c" title="Ведёт Claude">C</span>';
-  const syncTag = (t) => pend[t.id] ? `<span class="sync">${LABEL[pend[t.id].action].toLowerCase()} · ждёт синхронизации</span>` : '';
+  // Поручение — не «в работе», пока разбор не внёс его в db (eid в appliedEvents); после этого дело ведёт Claude (waiting = Claude)
+  const syncTag = (t) => { const p = pend[t.id]; if (!p) return t.waiting === 'Claude' && t.delegated ? '<span class="sync">в работе у Claude</span>' : '';
+    return `<span class="sync">${p.action === 'claude' ? 'поручение отправлено · ожидает разбора' : LABEL[p.action].toLowerCase() + ' · ждёт синхронизации'}</span>`; };
   const row = (t, opt = {}) => `<div class="rw" data-id="${esc(t.id)}"><div class="under"><span class="l">Сделано</span><span class="r">Отложить</span></div>
-    <div class="row">${opt.reopen ? `<button class="btn ghost small" data-act="reopen">Вернуть</button>` : opt.check !== false ? `<button class="chk" data-act="done" aria-label="Сделано">${ico.check}</button>` : av(t)}
+    <div class="row">${opt.reopen ? `<button class="btn ghost small" data-act="reopen">Вернуть</button>` : av(t)}
     <button class="main-txt" data-open><span class="t">${t.hot ? '<span class="hotdot" title="Горит"></span>' : ''}${esc(t.short)}</span><span class="s">${esc(opt.noClient ? (t.next || '').slice(0, 120) : t.fromSummary ? t.detail.slice(0, 140) : t.cl)}${syncTag(t) ? ' · ' : ''}${syncTag(t)}</span></button>
-    ${duePill(t)}<span class="am">${t.a && !t.short.replace(/\s/g, '').includes(String(Math.round(t.a))) ? rub(t.a) : ''}</span></div></div>`;
+    ${duePill(t)}${!opt.reopen && opt.check !== false ? `<span class="abs"><button class="ab ok" data-act="done" aria-label="Я выполнила: ${esc(t.short)}">${ico.check}Выполнила</button><button class="ab cl" data-act="claude" aria-label="Поручить Claude: ${esc(t.short)}">Claude</button></span>` : ''}<span class="am">${t.a && !t.short.replace(/\s/g, '').includes(String(Math.round(t.a))) ? rub(t.a) : ''}</span></div></div>`;
 
   // ---------- вкладки ----------
-  let tab = 'utro', q = '', who = 'all', sec = 'all', mf = '', openB = '';
+  let tab = 'utro', q = '', who = 'all', sec = 'all', mf = '', openB = '', calN = 7;
   const openG = new Set();
   const STAGES = [['выставить счёт', 'Выставить счёт', 'var(--faint)'], ['ждём подпись', 'Ждём подпись', 'var(--warn)'], ['ждём', 'Ждём оплату', 'var(--accent)'], ['пришло', 'Пришло', 'var(--ok)']];
   const CHECK = ['проверяется', 'Проверяем источник', 'var(--violet)'];
@@ -451,6 +540,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     <section class="sec"><div class="sh"><h2>Нужно от вас</h2><span class="c">только сверенное сегодня с источником · сборка ${fresh ? '' : FRESH.dm(upd) + ' '}${FRESH.hm(upd)}${m.length > PORTION ? ' · порция ' + (portion + 1) + ' из ' + Math.ceil(m.length / PORTION) : ''}</span>${m.length > PORTION ? `<button class="link" data-portion>${rest > 0 ? 'Следующие ' + Math.min(rest, PORTION) : 'К началу'}</button>` : ''}</div>
       ${shown.length ? `<div class="rows">${shown.map((t) => row(t)).join('')}</div>` : week.length ? `<div class="hint">Сверенных «Утром» дел на сегодня нет. ${plural(week.length, 'дело ждёт', 'дела ждут', 'дел ждут')} сверки, они в корзине «Ждут сверки» ниже и не выдаются за проверенные.</div>` : `<div class="hint">${listToday ? esc(/следующее/.test($('#fresh').textContent) ? $('#fresh').textContent.replace(/^.*следующее/, 'Следующее обновление') : 'Новых дел нет') : 'Ветка «Утро и задачи» ещё не выложила проверенный список. Показать нечего, это не значит, что дел нет.'}</div>`}</section>
     <section class="sec"><div class="sh"><h2>Деньги</h2><button class="link" data-go="money">Подробно</button></div>${stripHTML(g, 'money')}</section>
+    ${journalHTML()}
     ${autoHTML()}
     <section class="sec"><div class="sh"><h2>Остальное</h2><span class="c">свёрнуто, откройте нужное</span></div>
       <div class="buckets">${bucket('week', week.length, 'Ждут сверки', week.length ? 'ваши дела, «Утро» ещё не проверило' : 'всё проверено')}${bucket('wait', wc.length, 'Ждём клиента', oldest ? 'самое долгое ожидание ' + oldest + ' дн' : 'от нас ничего не нужно')}
@@ -488,6 +578,58 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
       ${advS ? `<div class="sub">Получено авансом без актов: <b class="num">${full(advS)}</b> (${plural(adv.length, 'запись', 'записи', 'записей')}). Нужны акты, иначе это долг перед клиентом.</div>` : ''}</section>
       ${P && P.months ? `<section class="sec"><div class="sh"><h2>Продления по ФСА</h2><span class="c">ожидаемо за 6 мес.</span></div><div class="chart"><div class="big">${full(P.next6_expected)}</div><div class="sub">из возможных ${full(P.next6_potential)}</div>${chart(P.months.slice(0, 12))}<div class="tip" id="tip"></div><div class="cap">Тёмный столбец ожидаемо, светлый если продлят все. ${esc(P.source || '')}</div></div></section>` : ''}</div>`;
   }
+  // ---------- Бухгалтерия: план ≠ факт ≠ справочно; чего нет в данных — пишем, что не получено ----------
+  const rubX = (a) => Number(a).toLocaleString('ru-RU', {maximumFractionDigits: 2}) + ' ₽';
+  const dmY = (y) => y.slice(8, 10) + '.' + y.slice(5, 7);
+  const addD = (y, n) => new Date(Date.parse(y + 'T12:00:00Z') + n * 864e5).toISOString().slice(0, 10);
+  const taskYmd = (t) => { const d = parseRu(t.due); return d ? d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()) : ''; };
+  function buhTab() {
+    const SP = D.spisaniya, rowsSP = SP ? SP.rows : [], src = D.buh_sources, tY = FRESH.todayYmd, end = addD(tY, calN), month = tY.slice(0, 7);
+    const buhT = T.filter((t) => isOpen(t) && !t.fromSummary && (t.section === 'Бухгалтерия' || t.cat === 'tax')).sort(order);
+    const inc = T.filter((t) => isOpen(t) && t.a > 0 && ['ждём', 'ждём подпись', 'выставить счёт'].includes(t.money));
+    const kindOf = (r) => r.kind === 'reference' ? ['ref', 'справочно'] : r.paid && !r.bankConfirmed ? ['in', 'погашено по словам Ольги'] : r.paid ? ['in', 'оплачено по выписке'] : ['pay', 'к оплате'];
+    // null — сумма неизвестна (есть диапазон), 0 — действительно ноль (zeroMeans), иначе сумма
+    const amt = (r) => r.amount === null || r.amount === undefined ? (r.amountRange ? r.amountRange.map((x) => Number(x).toLocaleString('ru-RU')).join('–') + ' ₽, по счёту' : 'сумма неизвестна')
+      : Number(r.amount) === 0 ? (r.zeroMeans ? 'списания нет' : 'сумма не указана') : (r.kind === 'reference' ? '≈ ' : '') + rubX(r.amount);
+    // календарь: списания из реестра «Бухгалтерии», ожидаемые поступления и сроки дел с датой; неоплаченное прошлое — сверху как просроченное
+    const ev = [];
+    rowsSP.forEach((r) => { if ((r.date >= tY && r.date <= end) || (r.date < tY && !r.paid && r.kind !== 'reference')) { const [c, l] = kindOf(r); ev.push({d: r.date, c, l: r.date < tY ? 'просрочено, ' + l : l, w: `${esc(r.who)}: ${esc(r.what)}`, s: esc(r.state || ''), a: amt(r)}); } });
+    inc.forEach((t) => { const y = taskYmd(t); if (y && y <= end) ev.push({d: y, c: 'in', l: y < tY ? 'поступление просрочено' : 'ждём поступление', w: esc(t.cl) + ': ' + esc(t.short), s: esc(t.money) + (okToday(t.checked) && t.src ? ', сверено сегодня' : ', сегодня не сверено'), a: rubX(t.a)}); });
+    // просроченные дела не раздувают календарь: одной строкой, сами дела — в рабочем плане ниже
+    const lateT = buhT.filter((t) => { const y = taskYmd(t); return y && y < tY; });
+    buhT.forEach((t) => { const y = taskYmd(t); if (y && y >= tY && y <= end) ev.push({d: y, c: 'task', l: 'срок дела', w: esc(t.short), s: esc(t.cl), a: ''}); });
+    ev.sort((a, b) => a.d.localeCompare(b.d));
+    const noDate = inc.filter((t) => !taskYmd(t));
+    const srcHTML = src ? `<div class="src-l">${src.map((x) => `<div><span class="${x.ok ? '' : 'no'}">${x.ok ? '✓' : '✕'} ${esc(x.name)}</span> <span class="hint">· ${esc(x.note)}</span></div>`).join('')}</div>`
+      : '<div class="hint" style="color:var(--warn)">Сводка собрана без раздела «Бухгалтерия»: реестр списаний и планы не получены.</div>';
+    const grp = (f) => rowsSP.filter(f);
+    const toPay = grp((r) => r.kind !== 'reference' && !r.paid), paid = grp((r) => r.kind !== 'reference' && r.paid), ref = grp((r) => r.kind === 'reference');
+    const sum = (a) => a.reduce((x, r) => x + (Number(r.amount) || 0), 0);
+    const list = (a) => a.map((r) => { const [c, l] = kindOf(r); return `<div class="cd"><span class="dt">${dmY(r.date)}</span><span class="wt"><span class="kd ${c}">${l}</span>${esc(r.who)}: ${esc(r.what)}<small>${esc(r.state || '')}${r.paidSrc ? ' · ' + esc(r.paidSrc) : ''}${r.src ? ' · источник: ' + esc(r.src) : ''}</small></span><span class="num">${amt(r)}</span></div>`; }).join('');
+    const mPlan = grp((r) => r.kind !== 'reference' && r.date.slice(0, 7) === month), mPaid = mPlan.filter((r) => r.paid);
+    const bs = D.buh_svodka, BP = D.buh_plan, bal = BP && BP.balance;
+    return `<section class="sec"><div class="sh"><h2>Что получено для раздела</h2><span class="c">план, факт и справочное не смешиваются</span></div><div class="rows" style="padding:12px 14px">${srcHTML}</div></section>
+    <section class="sec"><div class="sh"><h2>Календарь на ${calN} дней</h2><span class="c">${dmY(tY)}–${dmY(end)}</span><span style="display:flex;gap:6px;margin-left:auto">${[7, 30].map((n) => `<button class="chip" data-cal="${n}" aria-pressed="${calN === n}">${n} дней</button>`).join('')}</span></div>
+      <div class="rows" style="padding:6px 14px">${!SP ? '<div class="hint" style="color:var(--warn);padding:6px 0">Реестр списаний не получен: календарь списаний не построен.</div>' : ''}${ev.length ? ev.map((e) => `<div class="cd"><span class="dt">${dmY(e.d)}</span><span class="wt"><span class="kd ${e.c}">${e.l}</span>${e.w}${e.s ? `<small>${e.s}</small>` : ''}</span><span class="num">${e.a}</span></div>`).join('') : '<div class="hint" style="padding:6px 0">В эти дни в полученных данных платежей, поступлений и сроков нет.</div>'}
+      ${lateT.length ? `<div class="hint" style="padding:6px 0;color:var(--warn)">Просрочено ${plural(lateT.length, 'дело', 'дела', 'дел')} Бухгалтерии, они в рабочем плане ниже.</div>` : ''}
+      ${noDate.length ? `<div class="hint" style="padding:6px 0">Ещё ${plural(noDate.length, 'поступление', 'поступления', 'поступлений')} на ${rub(noDate.reduce((x, t) => x + t.a, 0))} без даты: в календарь не ставлю, они на вкладке «Деньги».</div>` : ''}</div></section>
+    <section class="sec"><div class="sh"><h2>План-факт за ${['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'][+month.slice(5) - 1]}</h2><span class="c">только по полученным данным</span></div>
+      <div class="pf"><div><small>План списаний (реестр Бухгалтерии)</small><b>${SP ? (mPlan.length ? rubX(sum(mPlan)) : 'в реестре нет') : 'не получен'}</b><small>${SP ? plural(mPlan.length, 'платёж', 'платежа', 'платежей') : 'нет svodka/spisaniya.json'}</small></div>
+      <div><small>Погашено по словам Ольги</small><b>${SP ? (mPaid.length ? rubX(sum(mPaid)) : 'отметок нет') : 'не получено'}</b><small>банком не подтверждено, это не факт</small></div>
+      <div><small>Факт по банку</small><b style="color:var(--warn)">не получен</b><small>выписки Альфы и Точки в сводку не загружаются</small></div>
+      <div><small>Остаток на счетах и прогноз</small><b style="color:var(--warn)">${bal && bal.known ? 'см. Бухгалтерию' : 'не считаю'}</b><small>${esc(bal && bal.why ? bal.why : 'без выписок банка остаток не выдумываем')}</small></div></div></section>
+    <section class="sec"><div class="sh"><h2>Предстоящие списания</h2><span class="c">${SP ? 'реестр Бухгалтерии от ' + esc(SP.built) : 'реестр не получен'}</span></div>
+      <div class="rows" style="padding:6px 14px">${SP ? `${toPay.length ? `<div class="hint" style="padding:6px 0 0">К оплате · ${rubX(sum(toPay))}</div>${list(toPay)}` : '<div class="hint" style="padding:6px 0">К оплате в реестре ничего нет.</div>'}
+      ${paid.length ? `<div class="hint" style="padding:10px 0 0">Погашено по словам Ольги, банком не подтверждено · ${rubX(sum(paid))}</div>${list(paid)}` : ''}
+      ${ref.length ? `<div class="hint" style="padding:10px 0 0">Справочно, в итоги не входит</div>${list(ref)}` : ''}${SP.note ? `<div class="hint" style="padding:8px 0">${esc(SP.note)}</div>` : ''}` : '<div class="hint" style="color:var(--warn);padding:6px 0">Файл svodka/spisaniya.json не получен. Сумм не показываю.</div>'}</div></section>
+    <section class="sec"><div class="sh"><h2>Регулярные платежи</h2><span class="c">${BP ? 'реестр Бухгалтерии, ' + plural(BP.regular.length, 'платёж', 'платежа', 'платежей') : 'не получены'}</span></div>
+      <div class="rows" style="padding:6px 14px">${BP ? BP.regular.map((r) => `<div class="cd"><span class="dt">${esc(r.period || '')}</span><span class="wt">${r.kind === 'reference' ? '<span class="kd ref">справочно</span>' : ''}${esc(r.name || '')}${r.org ? ' · ' + esc(r.org) : ''}<small>${esc(r.note || '')}${r.dataAsOf ? ' · данные на ' + esc(r.dataAsOf) : ''}</small></span><span class="num">${r.amountKnown === false || r.amount === null || r.amount === undefined ? 'сумма неизвестна' : rubX(r.amount)}</span></div>`).join('') : '<div class="hint" style="color:var(--warn);padding:6px 0">Файл svodka/buh-plan.json не получен.</div>'}</div></section>
+    <section class="sec"><div class="sh"><h2>Поступления</h2><span class="c">из дел базы, сумма без справочных</span><button class="link" data-go="money">Все деньги</button></div>
+      ${inc.length ? `<div class="rows">${inc.sort((x, y) => (taskYmd(x) || '9').localeCompare(taskYmd(y) || '9')).slice(0, 8).map((t) => row(t, {check: false})).join('')}</div>` : '<div class="hint">Ожидаемых поступлений в данных нет.</div>'}</section>
+    <section class="sec"><div class="sh"><h2>Рабочий план Бухгалтерии</h2><span class="c">${plural(buhT.length, 'открытое дело', 'открытых дела', 'открытых дел')} из базы</span></div>
+      ${buhT.length ? `<div class="rows">${buhT.slice(0, 12).map((t) => row(t)).join('')}</div>${buhT.length > 12 ? `<button class="link" style="margin:0" data-go="all" data-sec="Бухгалтерия">Все ${buhT.length}</button>` : ''}` : '<div class="hint">Открытых дел Бухгалтерии в базе нет.</div>'}
+      ${bs ? `<details class="rows" style="padding:10px 14px"><summary><b>${esc(bs.title)}</b> <span class="hint">· ${esc(bs.file)}</span></summary>${bs.sections.map((x) => `<div style="margin-top:8px"><b>${esc(x.title)}</b><ul style="margin:4px 0 0 18px;padding:0">${x.lines.map((l) => `<li style="font-size:13.5px">${esc(l)}</li>`).join('')}</ul></div>`).join('')}</details>` : '<div class="hint" style="color:var(--warn)">Дневная сводка Бухгалтерии не получена.</div>'}</section>`;
+  }
   function chart(m) {
     const W = 440, H = 190, L = 34, B = 24, max = Math.max(...m.map((x) => x.potential || 0), 1), top = Math.ceil(max / 1e5) * 1e5, bw = (W - L - 8) / m.length;
     const y = (v) => H - B - (v / top) * (H - B - 10);
@@ -503,7 +645,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     if (!D) return;
     $$('.tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
     const y = scrollY;
-    $('#view').innerHTML = `<div class="wrap" style="max-width:none">${tab === 'utro' ? utro() : tab === 'money' ? moneyTab() : all()}</div>`;
+    $('#view').innerHTML = `<div class="wrap" style="max-width:none">${tab === 'utro' ? utro() : tab === 'money' ? moneyTab() : tab === 'buh' ? buhTab() : all()}</div>`;
     scrollTo(0, y);
     const qi = $('#q'); if (qi) qi.oninput = (e) => { q = e.target.value.toLowerCase().trim(); const p = e.target.selectionStart; render(); const n = $('#q'); n.focus(); n.setSelectionRange(p, p); };
     $$('.cbar').forEach((g) => { g.onmouseenter = () => { const tp = $('#tip'), r = g.getBoundingClientRect(), cr = tp.parentElement.getBoundingClientRect(); tp.textContent = g.dataset.tip; tp.style.left = (r.left - cr.left + r.width / 2) + 'px'; tp.style.top = (r.top - cr.top + 40) + 'px'; tp.style.opacity = 1; }; g.onmouseleave = () => { $('#tip').style.opacity = 0; }; });
@@ -525,7 +667,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
       <div class="fact"><span class="k">Сверка «Утра»</span><span>${t.checked ? esc(t.checked) : 'не сверено'}${t.src ? ' · источник: ' + esc(t.src) : ' · источник не указан'}${t.thread || t.origin ? ' · ветка: ' + esc(t.thread || t.origin) : ''}${t.verified ? '' : ' — не показываем как дело от вас, пока «Утро» не сверит'}</span></div>
       <div class="fact"><span class="k">Откуда</span><span>${t.fromSummary ? 'Список «Нужно от вас» ветки «Утро и задачи»' : 'Завела ветка «' + esc(t.owner || 'Claude') + '»' + (t.added ? ', ' + esc(t.added) : '') + (t.section ? ' · ' + esc(t.section) : '')}</span></div>
       ${t.link ? `<a class="btn ghost small" href="${esc(t.link)}" target="_blank" rel="noopener">Открыть в портале</a>` : ''}
-      <div class="acts" role="group" aria-label="Отметить">${['done', 'later', 'eve', 'prio', 'wait'].map((a) => `<button data-dact="${a}" aria-pressed="${!!(p && p.action === a)}">${LABEL[a]}</button>`).join('')}</div>
+      <div class="acts" role="group" aria-label="Отметить">${['done', 'claude', 'later', 'eve', 'prio', 'wait'].map((a) => `<button data-dact="${a}" aria-pressed="${!!(p && p.action === a)}">${LABEL[a]}</button>`).join('')}</div>
       <div class="ai"><label class="hint" for="aiText">Передать Claude: что сделать или что изменилось</label><textarea id="aiText" placeholder="Например: позвонила, оплатят в пятницу"></textarea><button class="btn small" data-dact="ai">Отправить</button></div>`;
     $('#drawer').classList.add('on'); $('#drawer').setAttribute('aria-hidden', 'false'); $('#scrim').classList.add('on');
   }
@@ -545,13 +687,15 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     f.innerHTML = `<div class="fcard"><div class="fprog"><span class="num">${fi + 1} из ${fq.length}</span><span class="track"><span style="width:${fi / fq.length * 100}%"></span></span><button class="link" data-fend style="margin:0">Закончить <kbd>Esc</kbd></button></div>
       <div class="fbox"><div class="cl">${esc(t.cl)} ${duePill(t)} ${t.a ? `<span class="pill p-acc num">${full(t.a)}</span>` : ''}</div><h2>${esc(t.short)}</h2>
       <div class="d">${esc(t.fromSummary ? t.detail : t.next || t.detail || t.title)}</div>
-      <div class="fbtns"><button class="done" data-f="done">Сделано <kbd>E</kbd></button><button data-f="later">Отложить <kbd>S</kbd></button><button data-f="ai">Передать Claude <kbd>A</kbd></button></div>
+      <div class="fbtns"><button class="done" data-f="done">Я выполнила <kbd>E</kbd></button><button data-f="later">Отложить <kbd>S</kbd></button><button data-f="claude">Поручить Claude <kbd>A</kbd></button></div>
       <div id="fai" hidden><div class="ai" style="border:0;padding:0"><textarea id="faiText" placeholder="Что сделать Claude"></textarea><button class="btn small" data-f="aisend">Отправить <kbd style="background:transparent;color:inherit">Enter</kbd></button></div></div>
       <button class="link" data-f="skip" style="margin:0;justify-self:start">Пропустить →</button></div></div>`;
   }
   function focusAct(a) {
     const t = fq[fi]; if (!t) return;
     if (a === 'ai') { $('#fai').hidden = false; $('#faiText').focus(); return; }
+    if (a === 'done') return confirmDone(t, (how) => { fres[how === 'claude' ? 'ai' : 'done']++; fi++; drawFocus(); });
+    if (a === 'claude') return delegate(t, () => { fres.ai++; fi++; drawFocus(); });
     if (a === 'aisend') { const v = $('#faiText').value.trim(); if (!v) { $('#faiText').focus(); return; } act(t, 'ai', v); fres.ai++; }
     else if (a === 'skip') fres.skip++;
     else { act(t, a); fres[a]++; }
@@ -565,7 +709,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
       r.onpointerdown = (e) => { if (e.pointerType !== 'touch') return; x0 = e.clientX; y0 = e.clientY; dx = 0; };
       r.onpointermove = (e) => { if (x0 === null) return; dx = e.clientX - x0; if (Math.abs(e.clientY - y0) > 30 && Math.abs(dx) < 30) { x0 = null; r.style.transform = ''; return; } if (Math.abs(dx) > 10) r.style.transform = `translateX(${dx}px)`; };
       r.onpointerup = r.onpointercancel = () => { if (x0 === null) return; x0 = null; r.style.transform = '';
-        if (Math.abs(dx) > 90) { const t = T.find((x) => x.id === w.dataset.id); if (t) { r.classList.add('out'); setTimeout(() => act(t, dx > 0 ? 'done' : 'later'), 180); } } };
+        if (Math.abs(dx) > 90) { const t = T.find((x) => x.id === w.dataset.id); if (t) { r.classList.add('out'); setTimeout(() => { r.classList.remove('out'); dx > 0 ? confirmDone(t) : act(t, 'later'); }, 180); } } };
     });
   }
 
@@ -577,24 +721,31 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     else if (d.focus !== undefined) startFocus();
     else if (d.fend !== undefined) endFocus();
     else if (d.f) focusAct(d.f);
+    else if (d.sh) { const cb = sheetCb; if (d.sh !== 'no' && cb) cb(d.sh); if (sheetCb === cb) closeSheet(); }
+    else if (d.act === 'done' && t) confirmDone(t);
+    else if (d.act === 'claude' && t) delegate(t);
+    else if (d.undo) undoJournal(d.undo);
+    else if (d.cal) { calN = +d.cal; render(); }
     else if (d.act && t) { const rw = $('.row', w); rw.classList.add('out'); setTimeout(() => act(t, d.act), 180); }
     else if (d.open !== undefined && t) openTask(t);
-    else if (d.dact && dTask) { if (d.dact === 'ai') { const v = $('#aiText').value.trim(); if (!v) { $('#aiText').focus(); return; } act(dTask, 'ai', v); $('#aiText').value = ''; } else { act(dTask, d.dact); closeTask(); } }
+    else if (d.dact && dTask) { const t0 = dTask; if (d.dact === 'ai') { const v = $('#aiText').value.trim(); if (!v) { $('#aiText').focus(); return; } act(t0, 'ai', v); $('#aiText').value = ''; } else if (d.dact === 'done') { closeTask(); confirmDone(t0); } else if (d.dact === 'claude') { closeTask(); delegate(t0); } else { act(t0, d.dact); closeTask(); } }
     else if (d.portion !== undefined) { portion = (portion + 1) * PORTION >= mine().length ? 0 : portion + 1; render(); }
     else if (d.retry !== undefined) flush();
     else if (d.bucket) { openB = openB === d.bucket ? '' : d.bucket; render(); }
     else if (d.mf !== undefined) { mf = mf === d.mf ? '' : d.mf; if (d.go) go(d.go, true); else render(); }
-    else if (d.go) { if (d.who) { who = d.who; sec = 'all'; } go(d.go); }
+    else if (d.go) { if (d.who) { who = d.who; sec = 'all'; } if (d.sec) { sec = d.sec; who = 'all'; } go(d.go); }
     else if (d.who) { who = d.who; render(); }
     else if (d.sec) { sec = d.sec; render(); }
     else if (d.g !== undefined) { openG.has(d.g) ? openG.delete(d.g) : openG.add(d.g); render(); }
   });
   document.addEventListener('keydown', (e) => {
     const typing = /INPUT|TEXTAREA/.test(document.activeElement.tagName);
+    if (!$('#sheet').hidden && $('#focus').hidden) { if (e.key === 'Escape') closeSheet(); return; }
     if (!$('#focus').hidden) {
       if (e.key === 'Escape') return endFocus();
       if (typing) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); focusAct('aisend'); } return; }
-      const k = {e: 'done', у: 'done', s: 'later', ы: 'later', a: 'ai', ф: 'ai', ArrowRight: 'skip'}[e.key]; if (k) { e.preventDefault(); focusAct(k); } return;
+      if (!$('#sheet').hidden) { if (e.key === 'Escape') closeSheet(); return; }
+      const k = {e: 'done', у: 'done', s: 'later', ы: 'later', a: 'claude', ф: 'claude', ArrowRight: 'skip'}[e.key]; if (k) { e.preventDefault(); focusAct(k); } return;
     }
     if (e.key === 'Escape') { if (dTask) closeTask(); else if (typing) document.activeElement.blur(); return; }
     if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'л')) { e.preventDefault(); if (tab !== 'all') go('all'); $('#q').focus(); return; }
@@ -607,12 +758,12 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     else if (k === 'k' || k === 'л') { cur = Math.max(0, cur - 1); }
     else if (cur >= 0 && rs[cur]) {
       const t = T.find((x) => x.id === rs[cur].dataset.id); if (!t) return;
-      if (k === 'e' || k === 'у') act(t, 'done'); else if (k === 's' || k === 'ы') act(t, 'later'); else if (k === 'a' || k === 'ф') { openTask(t); setTimeout(() => $('#aiText').focus(), 300); } else if (k === 'enter') openTask(t); else return;
+      if (k === 'e' || k === 'у') confirmDone(t); else if (k === 's' || k === 'ы') act(t, 'later'); else if (k === 'a' || k === 'ф') { openTask(t); setTimeout(() => $('#aiText').focus(), 300); } else if (k === 'enter') openTask(t); else return;
       e.preventDefault(); return;
     } else return;
     e.preventDefault(); $$('.row.cur').forEach((r) => r.classList.remove('cur')); const r = $('.row', rs[cur]); r.classList.add('cur'); r.scrollIntoView({block: 'nearest'});
   });
-  addEventListener('hashchange', () => { const h = location.hash.slice(1); if (['utro', 'money', 'all'].includes(h) && h !== tab) go(h); });
+  addEventListener('hashchange', () => { const h = location.hash.slice(1); if (['utro', 'money', 'buh', 'all'].includes(h) && h !== tab) go(h); });
 
   // Отметки с других устройств: читаем ветку inbox за 48 ч, пока Claude их не внёс в базу
   let syncNote = '';
@@ -636,8 +787,10 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
         if (cur && cur.eid === x.eid) continue;
         if (cur && !cur.remote && cur.ts > ts) continue;  // своя более поздняя отметка важнее
         if (x.action === 'reopen') delete pend[x.taskId];
-        else if (['done', 'later', 'wait', 'eve', 'prio'].includes(x.action)) pend[x.taskId] = {action: x.action, ts, eid: x.eid || '', remote: true};
+        else if (['done', 'later', 'wait', 'eve', 'prio', 'claude'].includes(x.action)) pend[x.taskId] = {action: x.action, ts, eid: x.eid || '', remote: true};
+        if (x.eid && !journal.some((j) => j.eid === x.eid)) { const t = T.find((y) => y.id === x.taskId); journal.push({eid: x.eid, taskId: x.taskId, short: t ? t.short : x.taskId, action: x.action, at: x.at, state: 'remote'}); }
       }
+      journal.sort((a, b) => Date.parse(a.at) - Date.parse(b.at)); jsave();
       store.set('svodka-pending', pend); syncNote = '';
     } catch (e) { syncNote = 'отметки с других устройств не загрузились: ' + e.message; }
     if (syncNote) $('#fresh').insertAdjacentHTML('beforeend', `<span class="sync" title="${esc(syncNote)}" style="color:var(--warn)"> · ${esc(syncNote)}</span>`);
@@ -652,7 +805,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
       if (refresh && busy()) { setTimeout(() => load(true), 30e3); return; }
       prep(data);
       await pull();
-      if (!refresh) { const h = location.hash.slice(1); tab = ['utro', 'money', 'all'].includes(h) ? h : 'utro'; }
+      if (!refresh) { const h = location.hash.slice(1); tab = ['utro', 'money', 'buh', 'all'].includes(h) ? h : 'utro'; }
       render(); if (outbox.length || inflight) flush();
     } catch (e) {
       if (refresh && D) { $('#fresh').insertAdjacentHTML('beforeend', `<span class="sync" style="color:var(--warn)"> · обновить не удалось (${esc(e.message)}), показаны данные прошлой загрузки</span>`); return; }
@@ -660,7 +813,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     }
   }
   let loadedAt = 0;
-  const busy = () => !!undo || $('#drawer').classList.contains('on') || !$('#focus').hidden
+  const busy = () => !!undo || $('#drawer').classList.contains('on') || !$('#focus').hidden || !$('#sheet').hidden
     || (document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName))
     || [...document.querySelectorAll('textarea')].some((x) => x.value.trim());
   load();

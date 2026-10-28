@@ -46,6 +46,8 @@ async function device(data, opts = {}) {
   });
   return {ctx, p};
 }
+// «Я выполнила» — только через подтверждение смысла
+const markDone = async (p, id) => { await p.click(`.rw[data-id="${id}"] [data-act="done"]`); await p.waitForSelector('#cf-yes'); await p.click('#cf-yes'); };
 const go = async (p, hash = '#utro') => { await p.goto(URL0 + hash); await p.waitForTimeout(700); };
 const rowIds = (p) => p.$$eval('.rows:first-of-type .rw', (x) => x.map((e) => e.dataset.id));
 const ask = (p) => p.$$eval('section.sec', (ss) => { const s = ss.find((e) => /Нужно от вас/.test(e.querySelector('h2')?.textContent || '')); return s ? [...s.querySelectorAll('.rw')].map((e) => e.dataset.id) : []; });
@@ -73,7 +75,7 @@ try {
     inbox = []; apiMode = 'ok';
     const A = await device(D); await go(A.p);
     const id0 = (await ask(A.p))[0];
-    await A.p.click(`.rw[data-id="${id0}"] .chk`); await A.p.waitForTimeout(300);
+    await markDone(A.p, id0); await A.p.waitForTimeout(300);
     if (SHOTS) await A.p.screenshot({path: path.join(SHOTS, 'd-toast-otmena.png')});
     await A.p.waitForTimeout(5600);  // окно отмены 5 с, потом отправка
     const sent = inbox.filter((x) => x.taskId === id0 && x.action === 'done').length;
@@ -92,7 +94,7 @@ try {
     check('«Вернуть» с другого устройства возвращает дело', (await ask(A.p)).includes(id0), `после reopen дело в списке устройства A: ${(await ask(A.p)).includes(id0)}`);
     // отмена: в окне 5 с ничего не уходит, дело на месте
     const before = inbox.length; const id1 = (await ask(A.p))[1];
-    await A.p.click(`.rw[data-id="${id1}"] .chk`); await A.p.waitForTimeout(300); await A.p.click('#tu'); await A.p.waitForTimeout(5800);
+    await markDone(A.p, id1); await A.p.waitForTimeout(300); await A.p.click('#tu'); await A.p.waitForTimeout(5800);
     const back = (await ask(A.p)).includes(id1);
     await A.p.reload(); await A.p.waitForTimeout(700);
     check('«Отменить» не теряет дело и ничего не отправляет', back && (await ask(A.p)).includes(id1) && inbox.length === before, `дело на месте: ${back}, после перезагрузки: ${(await ask(A.p)).includes(id1)}, новых записей в inbox: ${inbox.length - before}`);
@@ -104,7 +106,7 @@ try {
     inbox = []; apiMode = 'ok';
     const A = await device(D); await go(A.p);
     const id0 = (await ask(A.p))[0];
-    await A.p.click(`.rw[data-id="${id0}"] .chk`); await A.p.waitForTimeout(5800);
+    await markDone(A.p, id0); await A.p.waitForTimeout(5800);
     const ev = inbox.find((x) => x.taskId === id0);
     const later = fresh(); later.updated = iso(new Date(Date.now() + 60e3));  // «сборка 18:00» после «done 17:59», db не менялась
     const B = await device(later); await go(B.p);
@@ -126,7 +128,7 @@ try {
     inbox = []; apiMode = 'fail';
     const {ctx, p} = await device(D); await go(p);
     const id0 = (await ask(p))[0];
-    await p.click(`.rw[data-id="${id0}"] .chk`); await p.waitForTimeout(5800);
+    await markDone(p, id0); await p.waitForTimeout(5800);
     const toast = await p.textContent('#tt');
     await p.reload(); await p.waitForTimeout(700);
     const banner = await p.textContent('.warnline').catch(() => '');
@@ -276,7 +278,7 @@ try {
     await p.fill('#aiText', ''); await p.keyboard.press('Escape'); await p.waitForTimeout(300);
     // окно «Отменить»
     const id1 = (await ask(p))[0], sentBefore = inbox.length;
-    await p.click(`.rw[data-id="${id1}"] .chk`); await p.waitForTimeout(200);
+    await markDone(p, id1); await p.waitForTimeout(200);
     await p.evaluate(() => window.__svodkaRefresh()); await p.waitForTimeout(500);
     await p.click('#tu'); await p.clock.fastForward('00:06'); await p.waitForTimeout(500);
     check('Обновление во время окна «Отменить» не мешает отмене', (await ask(p)).includes(id1) && inbox.length === sentBefore, `дело на месте: ${(await ask(p)).includes(id1)}, отправлено лишнего: ${inbox.length - sentBefore}`);
@@ -297,7 +299,7 @@ try {
     inbox = []; apiMode = 'ok';
     const A = await device(D); await go(A.p);
     const [i0, i1] = await ask(A.p);
-    await A.p.click(`.rw[data-id="${i0}"] .chk`); await A.p.waitForTimeout(5800);
+    await markDone(A.p, i0); await A.p.waitForTimeout(5800);
     const nb = fresh(); nb.updated = iso(new Date(Date.now() + 60e3));
     await A.p.unroute('**/data/svodka.json*'); await A.p.route('**/data/svodka.json*', (r) => r.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify(nb)}));
     await go(A.p, '#utro'); await A.p.reload(); await A.p.waitForTimeout(800);
@@ -307,6 +309,87 @@ try {
     const ca = await A.p.$$eval('.rw', (x) => x.length), cb = await B.p.$$eval('.rw', (x) => x.length);
     check('После новой сборки A и чистый B показывают одинаково', JSON.stringify(a) === JSON.stringify(b) && ca === cb && !a.includes(i0) && a.includes(i1), `«Нужно от вас»: A ${a.length}, B ${b.length}; «Все дела»: A ${ca}, B ${cb}`);
     await A.ctx.close(); await B.ctx.close();
+  }
+
+  // 10. Codex 19:44 / Ольга: «Поручить Claude» — отдельный тип; дело не закрывается, видно ожидание, после применения ведёт Claude
+  {
+    inbox = []; apiMode = 'ok';
+    const A = await device(D); await go(A.p);
+    const id0 = (await ask(A.p))[0];
+    await A.p.click(`.rw[data-id="${id0}"] [data-act="claude"]`); await A.p.waitForSelector('#shText');
+    if (SHOTS) await A.p.screenshot({path: path.join(SHOTS, 'd-poruchit-claude.png')});
+    await A.p.fill('#shText', 'сверить акт'); await A.p.click('#cf-yes'); await A.p.waitForTimeout(5800);
+    const ev = inbox.find((x) => x.taskId === id0);
+    await go(A.p, '#all'); await A.p.fill('#q', ''); const tag = await A.p.$eval(`.rw[data-id="${id0}"]`, (e) => e.textContent).catch(() => 'нет строки');
+    await go(A.p, '#utro'); const jr = await A.p.textContent('#journal').catch(() => '');
+    check('Поручить Claude: в inbox action=claude, дело не закрыто и видно «ожидает разбора»', ev?.action === 'claude' && !!ev.eid && /ожидает разбора/.test(tag) && !(await ask(A.p)).includes(id0),
+      `действие «${ev?.action}», строка: «${tag.replace(/\s+/g, ' ').trim().slice(0, 90)}»`);
+    check('Журнал: поручение «принято, ждёт разбора»', /Поручено Claude/.test(jr) && /принято, ждёт разбора/.test(jr), `«${jr.replace(/\s+/g, ' ').trim().slice(0, 120)}»`);
+    const ap = fresh(); const tk = ap.tasks.find((t) => t.id === id0); Object.assign(tk, {status: 'open', waiting: 'Claude', delegated: ev.eid}); ap.appliedEvents = [ev.eid];
+    await A.p.unroute('**/data/svodka.json*'); await A.p.route('**/data/svodka.json*', (r) => r.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify(ap)}));
+    await A.p.reload(); await A.p.waitForTimeout(800);
+    const jr2 = await A.p.textContent('#journal').catch(() => '');
+    await go(A.p, '#all'); await A.p.click('[data-who="Claude"]'); await A.p.waitForTimeout(200);
+    const row2 = await A.p.$eval(`.rw[data-id="${id0}"]`, (e) => e.textContent).catch(() => 'нет строки');
+    check('После применения в db: дело открыто, ведёт Claude, журнал «применено»', /в работе у Claude/.test(row2) && /применено: в работе у Claude/.test(jr2) && !(await ask(A.p)).includes(id0),
+      `в фильтре «Claude»: «${row2.replace(/\s+/g, ' ').trim().slice(0, 80)}»; журнал: ${/применено/.test(jr2)}`);
+    await A.ctx.close();
+  }
+  {
+    inbox = []; apiMode = 'ok';
+    const A = await device(D); await go(A.p);
+    const id0 = (await ask(A.p))[0];
+    await A.p.click(`.rw[data-id="${id0}"] [data-act="done"]`); await A.p.waitForSelector('#cf-yes');
+    const q1 = await A.p.textContent('.sh-in');
+    if (SHOTS) await A.p.screenshot({path: path.join(SHOTS, 'd-podtverzhdenie.png')});
+    await A.p.click('[data-sh="no"]'); await A.p.waitForTimeout(5800);
+    const jl = await A.p.$$eval('#journal .jl', (x) => x.length).catch(() => 0);
+    check('«Я выполнила» спрашивает подтверждение; «Отмена» — ни одного события', /Вы сами выполнили/.test(q1) && /Поручить Claude/.test(q1) && inbox.length === 0 && (await ask(A.p)).includes(id0) && jl === 0,
+      `вопрос: «${q1.trim().slice(0, 40)}…», событий в inbox ${inbox.length}, записей в журнале ${jl}`);
+    await markDone(A.p, id0); await A.p.waitForTimeout(300);
+    await A.p.click('#journal [data-undo]'); await A.p.waitForTimeout(5800);
+    check('Отмена из журнала до отправки: событий нет, дело на месте', inbox.length === 0 && (await ask(A.p)).includes(id0), `событий ${inbox.length}`);
+    await markDone(A.p, id0); await A.p.waitForTimeout(5800);
+    const sent = inbox.length; await A.p.click('#journal [data-undo]'); await A.p.waitForTimeout(5800);
+    const kinds = inbox.map((x) => x.action).join(', ');
+    check('«Вернуть» из журнала после отправки: одно событие reopen, дело снова в списке', sent === 1 && inbox.length === 2 && inbox[1].action === 'reopen' && (await ask(A.p)).includes(id0), `в inbox: ${kinds}`);
+    await A.ctx.close();
+  }
+
+  // 11. Раздел «Бухгалтерия»: план ≠ факт ≠ справочно, чего нет — названо, нули не выдумываются
+  {
+    const z = new Date(Date.now() + 3 * 36e5), ymd = (n) => new Date(z.getTime() + n * 864e5).toISOString().slice(0, 10);
+    const d = fresh();
+    d.spisaniya = {built: 'тест', note: '', rows: [
+      {date: ymd(0), who: 'РЭИ', what: 'ЕНП УСН', amount: 28314, state: 'оплачено по словам Ольги, выписки нет', src: 'тест', paid: true, paidSrc: 'fakty', kind: 'plan'},
+      {date: ymd(3), who: 'РЭИ', what: 'Бухуслуги', amount: 20000, state: 'после счёта', src: 'тест', paid: false, paidSrc: '', kind: 'plan'},
+      {date: ymd(3), who: 'РЭИ', what: 'Ориентир ПО', amount: 10000, state: 'ориентир', src: 'тест', paid: false, paidSrc: '', kind: 'reference'},
+      {date: ymd(14), who: 'РЭИ', what: 'Аренда', amount: 6000, state: 'уточнить', src: 'тест', paid: false, paidSrc: '', kind: 'plan'},
+      {date: ymd(2), who: 'РЭИ', what: 'Доставка', amount: null, amountRange: [1000, 6000], state: 'ориентир', src: 'тест', paid: false, kind: 'reference'},
+      {date: ymd(2), who: 'РЭИ', what: 'Телефония', amount: 0, zeroMeans: 'списания нет', state: 'переплата', src: 'тест', paid: false, kind: 'reference'}]};
+    d.buh_plan = {built: 'тест', balance: {known: false, why: 'выгрузок нет, остаток не выводим'}, regular: [{name: 'Аренда офиса', org: 'Луг', period: 'ежемесячно', amount: 78268, amountKnown: true, note: 'оплачено по январь', kind: 'plan', dataAsOf: '16.10.2026'}]};
+    d.buh_sources = [{name: 'Реестр списаний (Бухгалтерия)', ok: true, note: 'от тест'}, {name: 'Выписки банков (Альфа, Точка)', ok: false, note: 'в сводку не загружаются: остатков и фактических списаний по банку нет'}];
+    d.buh_svodka = {file: 'buh-svodka-test.md', title: 'Бухгалтерия: сводка', sections: [{title: 'В работе', lines: ['строка плана']}]};
+    const {ctx, p} = await device(d); await go(p, '#buh');
+    const v7 = await p.innerText('#view');
+    await p.click('[data-cal="30"]'); await p.waitForTimeout(200); const v30 = await p.innerText('#view');
+    check('Бухгалтерия: источники названы, выписок банка нет — «не получен», остаток не считается', /✕ Выписки банков/.test(v7) && /Факт по банку\s*не получен/.test(v7) && /не считаю/.test(v7), 'строки «✕ Выписки банков», «Факт по банку не получен», «Остаток… не считаю»');
+    check('Списания: «к оплате», «оплачено, выписки нет» и «справочно» раздельно; справочное не в итоге', /К оплате · 26\s000\s₽/.test(v7) && /погашено по словам Ольги/.test(v7) && /Справочно, в итоги не входит/.test(v7), (v7.match(/К оплате · [^\n]*/) || ['нет'])[0]);
+    check('Неизвестная сумма — диапазон, настоящий ноль — «списания нет», не «0 ₽»; остаток с причиной', /1\s000–6\s000 ₽, по счёту/.test(v7) && /списания нет/.test(v7) && !/\b0 ₽/.test(v7) && /выгрузок нет, остаток не выводим/.test(v7) && /Аренда офиса/.test(v7), 'диапазон, «списания нет», регулярные платежи и причина без остатка');
+    check('Календарь 7/30 дней: аренда через 14 дней только в 30', !/Аренда/.test(v7.split('План-факт')[0]) && /Аренда/.test(v30.split('План-факт')[0]), 'аренда в 7 дн: нет, в 30 дн: да');
+    if (SHOTS) await p.screenshot({path: path.join(SHOTS, 'pk-buhgalteriya.png'), fullPage: true});
+    await ctx.close();
+    const n = fresh(); delete n.spisaniya; delete n.buh_sources; delete n.buh_svodka;
+    const N = await device(n); await go(N.p, '#buh'); const vn = await N.p.innerText('#view');
+    check('Без реестра списаний: «не получен», нулей нет', /Реестр списаний не получен/.test(vn) && /не получен/.test(vn) && !/\b0 ₽/.test(vn), `«${(vn.match(/Реестр списаний не получен[^\n]*/) || ['нет'])[0]}»`);
+    await N.ctx.close();
+    const M = await device(d, {viewport: {width: 390, height: 844}, mobile: true}); await go(M.p, '#buh');
+    const ov = await M.p.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    const rh = await M.p.$eval('.rw', (e) => e.getBoundingClientRect().height).catch(() => 0);
+    check('Телефон 390 px, «Бухгалтерия»: нет прокрутки вбок, строка с двумя кнопками не выше 90 px', ov <= 0 && rh > 0 && rh <= 90, `лишняя ширина ${ov} px, высота строки ${Math.round(rh)} px`);
+    if (SHOTS) await M.p.screenshot({path: path.join(SHOTS, 'telefon-buhgalteriya.png'), fullPage: true});
+    check('Ошибок JavaScript в «Бухгалтерии» нет', !M.p.errors.length && !N.p.errors.length, [...M.p.errors, ...N.p.errors].join('; ') || '0 ошибок');
+    await M.ctx.close();
   }
 
   // 7. Скриншоты ПК и телефона на обезличенных данных + ошибки JS
