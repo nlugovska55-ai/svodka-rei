@@ -90,6 +90,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
 .pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:2px 9px;border-radius:99px;white-space:nowrap}
 .p-hot{background:var(--hot-soft);color:var(--hot)} .p-warn{background:var(--warn-soft);color:var(--warn)} .p-ok{background:var(--ok-soft);color:var(--ok)} .p-wait{background:var(--wait-soft);color:var(--wait)} .p-acc{background:var(--accent-soft);color:var(--accent)}
 .sync{font-size:11.5px;color:var(--accent)}
+.warnline{font-size:13.5px;color:var(--warn);background:var(--warn-soft);border-radius:10px;padding:8px 12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .empty{border:1px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted);display:grid;gap:6px;justify-items:center}
 .empty b{color:var(--ink);font:600 17px var(--f-disp)}
 /* денежная полоса */
@@ -260,11 +261,27 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     if (long && !/[.»)!?]$/.test(s)) s += '…';
     return cap(s) || cap(client);
   };
-  let D = null, T = [];
+  let D = null, T = [], FRESH = {};
+  // Сверено «Утром» сегодня (§14): checked с сегодняшней датой + источник src + ветка или происхождение (thread/origin)
+  const okToday = (c) => !!c && String(c).startsWith(FRESH.todayRu);
+  const verifiedRow = (x) => okToday(x.checked) && !!x.src && !!(x.thread || x.origin);
   const pend = store.get('svodka-pending', {});  // отмеченное на сайте, пока не пришло в базу
   const outbox = store.get('svodka-outbox', []);
   function prep(d) {
     D = d; const upd = new Date(d.updated);
+    // свежесть: всё по Москве, по расписанию выкладок «Утра» (будни 9:30, 13:00, 17:00 МСК)
+    const M = (x) => { const z = new Date(x.getTime() + 3 * 36e5); return {y: z.getUTCFullYear(), mo: z.getUTCMonth(), d: z.getUTCDate(), h: z.getUTCHours(), mi: z.getUTCMinutes(), dow: z.getUTCDay()}; };
+    const at = (y, mo, d, h, mi) => new Date(Date.UTC(y, mo, d, h - 3, mi));
+    const hm = (x) => { const m = M(x); return String(m.h).padStart(2, '0') + ':' + String(m.mi).padStart(2, '0'); };
+    const dm = (x) => { const m = M(x); return String(m.d).padStart(2, '0') + '.' + String(m.mo + 1).padStart(2, '0'); };
+    const SL = [[9, 30], [13, 0], [17, 0]], nm = M(now); let lastS = null, nextS = null;
+    for (let k = -7; k <= 7; k++) { const base = at(nm.y, nm.mo, nm.d + k, 12, 0), b = M(base); if (b.dow === 0 || b.dow === 6) continue;
+      for (const [h, mi] of SL) { const t = at(b.y, b.mo, b.d, h, mi); if (t <= now) lastS = t; else if (!nextS) nextS = t; } }
+    const late = lastS && upd < new Date(lastS.getTime() - 15 * 6e4);
+    FRESH = {upd, lastS, nextS, late, todayRu: dm(now), sameDay: dm(upd) === dm(now), hm, dm};
+    $('#fresh').innerHTML = `<span class="dot" style="background:${late ? 'var(--warn)' : 'var(--ok)'}"></span>`
+      + (late ? `<b style="color:var(--warn);font-weight:500">Устарело:</b> данные ${FRESH.sameDay ? '' : dm(upd) + ' '}${hm(upd)} МСК, выкладка ${hm(lastS)} не пришла` : `Сборка ${FRESH.sameDay ? '' : dm(upd) + ' '}${hm(upd)} МСК`)
+      + (nextS ? ` · следующая ${dm(nextS) === dm(now) ? '' : dm(nextS) + ' '}${hm(nextS)}` : '');
     for (const [id, p] of Object.entries(pend)) if (Date.now() - p.ts > 2 * MS) delete pend[id];
     T = (d.tasks || []).map((t) => {
       const dd = days(t.due), a = Number(t.amount) || 0, nx = t.next || '';
@@ -282,27 +299,25 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
       // «ГЕА: вставить памятку…» — слева тема, действие после двоеточия: заголовок = действие, тема = клиент
       const isTopic = rest && head.split(/\s+/).length <= 3 && !/^(включить|загрузить|проверить|ответить|отправить|нажать|подписать|оплатить|вставить|продлевать)/i.test(head);
       const short = isTopic ? shorten(rest) : (head.length > 70 ? shorten(txt) : head);
-      if (seen.has(norm(short)) || seen.has(norm(rest))) return;  // то же дело уже есть в базе задач
+      // §14: в «Нужно от вас» попадает только проверенное «Утром»; если это задача базы — отмечаем её саму, отметки уходят с её id
+      const twin = T.find((t) => t.id === s.id) || T.find((t) => norm(t.short) === norm(short) || norm(shorten(t.title)) === norm(rest));
+      if (twin) { Object.assign(twin, {verified: verifiedRow(twin) || verifiedRow(s), who: 'я', urg: 'сегодня', fromSummary: true, hot: twin.hot || s.flag === 'срочно', short: twin.short || short}); return; }
       seen.add(norm(short));
-      T.push({id: 'sum-' + (s.id || i), title: txt, short, detail: isTopic ? rest : rest, next: '', cl: s.client || (isTopic ? head : 'Нужно от вас'), client: s.client || '', internal: !s.client && !isTopic,
+      T.push({id: 'sum-' + (s.id || i), verified: verifiedRow(s), checked: s.checked, src: s.src, title: txt, short, detail: isTopic ? rest : rest, next: '', cl: s.client || (isTopic ? head : 'Нужно от вас'), client: s.client || '', internal: !s.client && !isTopic,
         a: 0, dd: 0, who: 'я', hot: s.flag === 'срочно', urg: 'сегодня', section: 'Нужно от вас', fromSummary: true, link: s.link || '', mgr: 'Ольга', owner: 'Утро и задачи'});
     });
-    // свежесть
-    const hm = (x) => String(x.getHours()).padStart(2, '0') + ':' + String(x.getMinutes()).padStart(2, '0');
-    const slots = [[9, 30], [13, 0], [17, 0]]; let nextS = null;
-    for (let k = 0; k < 7 && !nextS; k++) { const day = new Date(today.getTime() + k * MS); if (day.getDay() % 6 === 0) continue; for (const [h, m] of slots) { const s = new Date(day); s.setHours(h, m); if (s > now) { nextS = s; break; } } }
-    const old = (now - upd) / 36e5;
-    const same = upd.toDateString() === now.toDateString();
-    $('#fresh').innerHTML = `<span class="dot" style="background:${old > 5 ? 'var(--warn)' : 'var(--ok)'}"></span>Обновлено ${same ? '' : upd.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'}) + ' '}${hm(upd)}${nextS ? ' · следующее ' + (nextS.toDateString() === now.toDateString() ? '' : nextS.toLocaleDateString('ru-RU', {weekday: 'short'}) + ' ') + hm(nextS) : ''}`;
   }
-  const isOpen = (t) => !(pend[t.id] && ['done', 'later', 'wait'].includes(pend[t.id].action));
+  // «Отложить» прячет дело только до конца дня, «сделано» и «ждём клиента» — пока Claude не внесёт отметку в базу
+  const isOpen = (t) => { const p = pend[t.id]; if (!p) return true; if (p.action === 'later') return p.ts < today.getTime(); return !['done', 'wait'].includes(p.action); };
   const order = (x, y) => (y.hot - x.hot) || ((x.dd ?? 99) - (y.dd ?? 99)) || (y.a - x.a);
   const mineAll = () => T.filter((t) => t.who === 'я' && isOpen(t)).sort((x, y) => (y.hot - x.hot) || (y.fromSummary ? 1 : 0) - (x.fromSummary ? 1 : 0) || order(x, y));
   const isToday = (t) => t.urg === 'сегодня' || (t.dd !== null && t.dd <= 0);
-  const mine = () => mineAll().filter(isToday);
+  const mine = () => mineAll().filter((t) => t.verified);
+  const unverified = () => mineAll().filter((t) => !t.verified);
+  const PORTION = 5; let portion = 0;
 
   // ---------- действия: сразу в ветку inbox, с отменой ----------
-  const LABEL = {done: 'Сделано', later: 'Отложить до завтра', eve: 'На вечер', prio: 'Горит', wait: 'Ждём клиента', ai: 'Передано Claude'};
+  const LABEL = {reopen: 'Вернуть в работу', done: 'Сделано', later: 'Отложить до завтра', eve: 'На вечер', prio: 'Горит', wait: 'Ждём клиента', ai: 'Передано Claude'};
   let undo = null;
   function toast(msg, onUndo) {
     $('#tt').textContent = msg; $('#tu').hidden = !onUndo; undo = onUndo || null;
@@ -310,9 +325,9 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   }
   $('#tu').onclick = () => { if (undo) undo(); undo = null; $('#toast').classList.remove('on'); };
   function act(t, action, text = '') {
-    const item = {client: t.cl, taskId: t.fromSummary ? null : t.id, taskTitle: t.title.slice(0, 300), text, action: action === 'ai' ? '' : action, actionLabel: LABEL[action], at: new Date().toISOString(), qid: Math.random().toString(36).slice(2)};
+    const item = {client: t.cl, taskId: String(t.id).startsWith('sum-') ? null : t.id, taskTitle: t.title.slice(0, 300), text, action: action === 'ai' ? '' : action, actionLabel: LABEL[action], at: new Date().toISOString(), qid: Math.random().toString(36).slice(2)};
     const prev = pend[t.id];
-    if (action !== 'ai') pend[t.id] = {action, ts: Date.now()};
+    if (action === 'reopen') delete pend[t.id]; else if (action !== 'ai') pend[t.id] = {action, ts: Date.now()};
     outbox.push(item); store.set('svodka-pending', pend); store.set('svodka-outbox', outbox);
     render();
     toast(LABEL[action] + (action === 'ai' ? '' : ': ' + t.short), () => {
@@ -344,7 +359,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   const av = (t) => t.who === 'я' ? '<span class="av" title="За вами">О</span>' : t.who === 'Лена' ? '<span class="av l" title="Ведёт Лена">Л</span>' : t.who === 'клиент' || t.who === 'эксперт' ? `<span class="av k" title="Ждём: ${t.who}">⋯</span>` : '<span class="av c" title="Ведёт Claude">C</span>';
   const syncTag = (t) => pend[t.id] ? `<span class="sync">${LABEL[pend[t.id].action].toLowerCase()} · ждёт синхронизации</span>` : '';
   const row = (t, opt = {}) => `<div class="rw" data-id="${esc(t.id)}"><div class="under"><span class="l">Сделано</span><span class="r">Отложить</span></div>
-    <div class="row">${opt.check !== false ? `<button class="chk" data-act="done" aria-label="Сделано">${ico.check}</button>` : av(t)}
+    <div class="row">${opt.reopen ? `<button class="btn ghost small" data-act="reopen">Вернуть</button>` : opt.check !== false ? `<button class="chk" data-act="done" aria-label="Сделано">${ico.check}</button>` : av(t)}
     <button class="main-txt" data-open><span class="t">${t.hot ? '<span class="hotdot" title="Горит"></span>' : ''}${esc(t.short)}</span><span class="s">${esc(opt.noClient ? (t.next || '').slice(0, 120) : t.fromSummary ? t.detail.slice(0, 140) : t.cl)}${syncTag(t) ? ' · ' : ''}${syncTag(t)}</span></button>
     ${duePill(t)}<span class="am">${t.a && !t.short.replace(/\s/g, '').includes(String(Math.round(t.a))) ? rub(t.a) : ''}</span></div></div>`;
 
@@ -353,17 +368,37 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   const openG = new Set();
   const STAGES = [['выставить счёт', 'Выставить счёт', 'var(--faint)'], ['ждём подпись', 'Ждём подпись', 'var(--warn)'], ['ждём', 'Ждём оплату', 'var(--accent)'], ['пришло', 'Пришло', 'var(--ok)']];
   const CHECK = ['проверяется', 'Проверяем источник', 'var(--violet)'];
+  const ckey = (t) => (String(t.client || '').toLowerCase().match(/[a-zа-яё0-9]{3,}/) || [''])[0] + '|' + Math.round(t.a);
+  let dupes = [];
   function money() {
-    const o = T.filter(isOpen);
-    return [...STAGES, CHECK].map(([k, l, c]) => { const a = o.filter((t) => t.money === k); return {k, l, c, n: a.length, s: a.reduce((x, t) => x + t.a, 0), late: a.filter((t) => t.dd !== null && t.dd < 0).reduce((x, t) => x + t.a, 0)}; });
+    const o = T.filter(isOpen), came = new Set(o.filter((t) => t.money === 'пришло' && t.a).map(ckey));
+    // одна и та же сумма одного клиента в «пришло» и на другом этапе — это одни деньги: считаем только в «пришло»
+    dupes = o.filter((t) => t.a && t.money && t.money !== 'пришло' && came.has(ckey(t)));
+    const dup = new Set(dupes.map((t) => t.id));
+    return [...STAGES, CHECK].map(([k, l, c]) => { const a = o.filter((t) => t.money === k && !dup.has(t.id)), v = a.filter((t) => okToday(t.checked) && t.src);
+      return {k, l, c, n: a.length, s: a.reduce((x, t) => x + t.a, 0), sv: v.reduce((x, t) => x + t.a, 0), nv: v.length, late: a.filter((t) => t.dd !== null && t.dd < 0).reduce((x, t) => x + t.a, 0)}; });
   }
   const stripHTML = (all, clickTo) => { const g = all.filter((x) => x.k !== CHECK[0]), chk = all.find((x) => x.k === CHECK[0]), tot = g.reduce((x, y) => x + y.s, 0) || 1;
     return `<div class="strip"><div class="pipe">${g.filter((x) => x.s).map((x) => `<span style="flex:${x.s / tot};background:${x.c}" title="${x.l}: ${full(x.s)}"></span>`).join('')}</div>
-    <div class="stages">${g.map((x) => `<button class="stg" data-mf="${x.k}" data-go="${clickTo}" aria-pressed="${tab === 'money' && mf === x.k}"><span class="k"><span class="dot" style="background:${x.c}"></span>${x.l} · ${x.n}</span><span class="v">${rub(x.s) || '—'}</span>${x.late ? `<span class="x">из них ${rub(x.late)} просрочено</span>` : ''}</button>`).join('')}</div>
+    <div class="stages">${g.map((x) => `<button class="stg" data-mf="${x.k}" data-go="${clickTo}" aria-pressed="${tab === 'money' && mf === x.k}"><span class="k"><span class="dot" style="background:${x.c}"></span>${x.l} · ${x.n}</span><span class="v">${rub(x.s) || '—'}</span>${x.s ? `<span class="x" style="color:var(--muted)">${x.sv ? 'сверено сегодня ' + rub(x.sv) : 'сегодня не сверено'}${x.sv && x.sv < x.s ? ', без сверки ' + rub(x.s - x.sv) : ''}</span>` : ''}${x.late ? `<span class="x">из них ${rub(x.late)} просрочено</span>` : ''}</button>`).join('')}</div>
+    ${dupes.length ? `<div class="hint">Не считаю дважды: ${dupes.map((t) => esc(t.cl) + ' ' + rub(t.a) + ' (' + esc(t.money) + ' = пришло)').join(', ')}</div>` : ''}
     ${chk && chk.s ? `<button class="link" style="margin:0;justify-self:start;color:var(--muted)" data-mf="${CHECK[0]}" data-go="${clickTo}">Ещё ${rub(chk.s)} на проверке источника · ${plural(chk.n, 'дело', 'дела', 'дел')}</button>` : ''}</div>`; };
 
+  // «Автоматика»: статусы потоков, проверенные «Утром» (summary, section «Автоматика»). Нет строк — раздела нет, без «0 сбоев».
+  function autoHTML() {
+    const rows = (D.summary || []).filter((x) => x.section === 'Автоматика' && x.text).sort((a, b) => (b.flag === 'срочно') - (a.flag === 'срочно'));
+    if (!rows.length) return `<section class="sec"><div class="sh"><h2>Автоматика</h2></div><div class="hint">Автоматика: нет данных проверки</div></section>`;
+    const when = (c) => { const d = /^\d{4}-\d{2}-\d{2}T/.test(c || '') ? new Date(c) : null; if (d && !isNaN(d)) return FRESH.dm(d) + ' ' + FRESH.hm(d); return c ? esc(c) : 'время проверки не указано'; };
+    const col = (f) => f === 'ok' ? 'var(--ok)' : f === 'срочно' ? 'var(--hot)' : 'var(--warn)';
+    return `<section class="sec"><div class="sh"><h2>Автоматика</h2><span class="c">статусы потоков от «Утра»</span></div><div class="rows" style="padding:12px 14px"><div class="projects">${rows.map((x) => `<div class="pj"><span class="dot" style="background:${col(x.flag)}"></span><span><b>${esc(x.text)}</b> · проверено ${when(x.checked)}</span></div>`).join('')}</div></div></section>`;
+  }
   function utro() {
-    const m = mine(), shown = m.slice(0, 7), o = T.filter(isOpen), week = mineAll().filter((t) => !isToday(t));
+    const m = mine(), o = T.filter(isOpen), week = unverified();
+    if (portion * PORTION >= m.length) portion = 0;
+    const shown = m.slice(portion * PORTION, portion * PORTION + PORTION), rest = m.length - (portion + 1) * PORTION;
+    const upd = FRESH.upd, fresh = FRESH.sameDay;
+    // «Утро разобрано» только если список «Утра» за сегодня есть и пуст; без списка или со старыми данными — так и пишем
+    const listToday = fresh && (D.summary || []).length > 0;
     const g = money(), wait = g.find((x) => x.k === 'ждём'), late = g.reduce((x, y) => x + y.late, 0);
     const wc = o.filter((t) => t.who === 'клиент' || t.who === 'эксперт');
     const oldest = wc.reduce((mx, t) => { const s = parseRu(t.waitSince); return s ? Math.max(mx, Math.round((today - s) / MS)) : mx; }, 0);
@@ -372,14 +407,20 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     const dn = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
     const bucket = (k, n, title, sub) => `<button class="bk" data-bucket="${k}" aria-expanded="${openB === k}"><span class="n">${n}</span><span class="k">${title}</span><span class="s">${sub}</span></button>`;
     const bl = openB === 'wait' ? wc.sort(order) : openB === 'team' ? (teamHot.length ? teamHot : team).sort(order) : openB === 'week' ? week : [];
+    const moneyTot = g.reduce((x, y) => x + y.s, 0);
+    const moneyLine = !moneyTot ? 'Сумм в пути в данных нет.' : !wait.s ? 'Оплат в ожидании в данных нет.' : wait.sv ? `Ждём оплату ${rub(wait.sv)}, сверено сегодня${wait.sv < wait.s ? `; ещё ${rub(wait.s - wait.sv)} без сегодняшней сверки` : ''}.` : `Ждём оплату ${rub(wait.s)}, сегодня не сверено.`;
+    const status = !fresh ? `<div class="warnline">Данные от ${FRESH.dm(upd)} ${FRESH.hm(upd)} МСК: сегодня сводку ещё не выкладывали, цифры могут быть устаревшими.</div>` : FRESH.late ? `<div class="warnline">Данные собраны в ${FRESH.hm(upd)} МСК, выкладка ${FRESH.hm(FRESH.lastS)} не пришла. Всё ниже — на ${FRESH.hm(upd)}.</div>` : '';
+    const unsent = outbox.length && !sending ? `<div class="warnline">${plural(outbox.length, 'отметка не отправлена', 'отметки не отправлены', 'отметок не отправлено')}, они сохранены в этом браузере. <button class="link" style="margin:0" data-retry>Отправить снова</button></div>` : '';
     return `<section class="lead"><div class="day">${cap(dn)}</div>
-      <h1>${m.length ? `Сегодня за вами <em>${plural(m.length, 'дело', 'дела', 'дел')}</em>` : 'Утро разобрано'}. Ждём оплату ${rub(wait.s) || '0 ₽'}${late ? `, из них ${rub(late)} просрочено` : ''}.${wc.length ? ` ${plural(wc.length, 'дело ждёт', 'дела ждут', 'дел ждут')} клиента.` : ''}</h1>
+      ${status}${unsent}
+      <h1>${m.length ? `Сегодня от вас <em>${plural(m.length, 'дело', 'дела', 'дел')}</em>` : week.length ? `${plural(week.length, 'дело от вас ждёт', 'дела от вас ждут', 'дел от вас ждут')} сверки «Утра»` : listToday ? 'Утро разобрано' : 'Список дел на сегодня ещё не собран'}. ${moneyLine}${wc.length ? ` ${plural(wc.length, 'дело ждёт', 'дела ждут', 'дел ждут')} клиента.` : ''}</h1>
       <div class="cta">${m.length ? `<button class="btn" data-focus>Разобрать утро <kbd style="background:transparent;color:inherit;border-color:currentColor;opacity:.7">R</kbd></button>` : ''}${m.length ? '<span class="hint desk">По одному делу на экране: сделано, отложить или передать Claude</span>' : ''}</div></section>
-    <section class="sec"><div class="sh"><h2>За вами</h2><span class="c">сегодня и просроченное</span>${m.length > 7 ? '<button class="link" data-focus>Ещё ' + (m.length - 7) + ' в разборе</button>' : ''}</div>
-      ${shown.length ? `<div class="rows">${shown.map((t) => row(t)).join('')}</div>` : `<div class="hint">${esc(/следующее/.test($('#fresh').textContent) ? $('#fresh').textContent.replace(/^.*следующее/, 'Следующее обновление') : 'Новых дел за вами нет')}</div>`}</section>
+    <section class="sec"><div class="sh"><h2>Нужно от вас</h2><span class="c">только сверенное сегодня с источником · сборка ${fresh ? '' : FRESH.dm(upd) + ' '}${FRESH.hm(upd)}${m.length > PORTION ? ' · порция ' + (portion + 1) + ' из ' + Math.ceil(m.length / PORTION) : ''}</span>${m.length > PORTION ? `<button class="link" data-portion>${rest > 0 ? 'Следующие ' + Math.min(rest, PORTION) : 'К началу'}</button>` : ''}</div>
+      ${shown.length ? `<div class="rows">${shown.map((t) => row(t)).join('')}</div>` : week.length ? `<div class="hint">Сверенных «Утром» дел на сегодня нет. ${plural(week.length, 'дело ждёт', 'дела ждут', 'дел ждут')} сверки, они в корзине «Ждут сверки» ниже и не выдаются за проверенные.</div>` : `<div class="hint">${listToday ? esc(/следующее/.test($('#fresh').textContent) ? $('#fresh').textContent.replace(/^.*следующее/, 'Следующее обновление') : 'Новых дел нет') : 'Ветка «Утро и задачи» ещё не выложила проверенный список. Показать нечего, это не значит, что дел нет.'}</div>`}</section>
     <section class="sec"><div class="sh"><h2>Деньги</h2><button class="link" data-go="money">Подробно</button></div>${stripHTML(g, 'money')}</section>
+    ${autoHTML()}
     <section class="sec"><div class="sh"><h2>Остальное</h2><span class="c">свёрнуто, откройте нужное</span></div>
-      <div class="buckets">${bucket('week', week.length, 'На неделе', week.length ? 'за вами, не сегодня' : 'пусто')}${bucket('wait', wc.length, 'Ждём клиента', oldest ? 'самое долгое ожидание ' + oldest + ' дн' : 'от нас ничего не нужно')}
+      <div class="buckets">${bucket('week', week.length, 'Ждут сверки', week.length ? 'ваши дела, «Утро» ещё не проверило' : 'всё проверено')}${bucket('wait', wc.length, 'Ждём клиента', oldest ? 'самое долгое ожидание ' + oldest + ' дн' : 'от нас ничего не нужно')}
       ${bucket('team', teamHot.length, 'Горит у команды', 'Лена и Claude ведут ' + plural(team.length, 'дело', 'дела', 'дел'))}
       ${bucket('proj', proj.length, 'Проекты', proj.filter((p) => p.flag === 'warn' || p.flag === 'срочно').length + ' ждут вашего шага')}</div>
       ${openB === 'proj' ? `<div class="rows" style="padding:12px 14px"><div class="projects">${proj.map((p) => `<div class="pj"><span class="dot" style="background:${p.flag === 'ok' ? 'var(--ok)' : 'var(--warn)'}"></span><span><b>${esc(p.text.split(':')[0])}</b>${esc(p.text.slice(p.text.split(':')[0].length))}</span></div>`).join('')}</div></div>` : ''}
@@ -388,19 +429,19 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   }
 
   function all() {
-    let o = T.filter(isOpen);
-    if (who === 'team') o = o.filter((t) => t.who === 'Лена' || t.who === 'Claude'); else if (who === 'клиент') o = o.filter((t) => t.who === 'клиент' || t.who === 'эксперт'); else if (who === 'eve') o = o.filter((t) => t.evening); else if (who !== 'all') o = o.filter((t) => t.who === who);
+    let o = who === 'marked' ? T.filter((t) => pend[t.id]) : T.filter(isOpen);
+    if (who === 'marked') {} else if (who === 'team') o = o.filter((t) => t.who === 'Лена' || t.who === 'Claude'); else if (who === 'клиент') o = o.filter((t) => t.who === 'клиент' || t.who === 'эксперт'); else if (who === 'eve') o = o.filter((t) => t.evening); else if (who !== 'all') o = o.filter((t) => t.who === who);
     if (sec !== 'all') o = o.filter((t) => t.section === sec);
     if (q) o = o.filter((t) => (t.cl + ' ' + t.title + ' ' + (t.next || '')).toLowerCase().includes(q));
     const by = new Map(); o.sort(order).forEach((t) => { if (!by.has(t.cl)) by.set(t.cl, []); by.get(t.cl).push(t); });
     const groups = [...by.entries()];
-    const chips = [['all', 'Все'], ['я', 'За мной'], ['клиент', 'Ждём клиента'], ['Лена', 'Лена'], ['Claude', 'Claude'], ['eve', 'На вечер']];
+    const chips = [['all', 'Все'], ['я', 'За мной'], ['клиент', 'Ждём клиента'], ['Лена', 'Лена'], ['Claude', 'Claude'], ['eve', 'На вечер'], ['marked', 'Отмечено мной · ' + Object.keys(pend).length]];
     const secs = ['all', 'Мои клиенты', 'Клиенты Лены', 'Бухгалтерия', 'Диадок', 'Прочее'];
     return `<section class="sec"><div class="tools"><label class="search">${ico.search}<input id="q" placeholder="Клиент, счёт, тема" value="${esc(q)}" aria-label="Поиск" autocomplete="off"><kbd>/</kbd></label>
       ${chips.map(([k, l]) => `<button class="chip" data-who="${k}" aria-pressed="${who === k}">${l}</button>`).join('')}</div>
       <div class="tools">${secs.map((s) => `<button class="chip" data-sec="${s}" aria-pressed="${sec === s}">${s === 'all' ? 'Все разделы' : s}</button>`).join('')}</div>
       <div class="sh"><h2>${plural(o.length, 'дело', 'дела', 'дел')}</h2><span class="c">${plural(groups.length, 'клиент', 'клиента', 'клиентов')} и направлений</span></div>
-      ${groups.length ? `<div class="rows grp">${groups.map(([c, ts]) => { const op = q || who !== 'all' || sec !== 'all' || groups.length <= 3 || openG.has(c) || ts.some((t) => t.hot); return `<button class="gh" data-g="${esc(c)}" aria-expanded="${op}"><span class="car">${op ? '▾' : '▸'}</span>${esc(c)}<span class="c">${plural(ts.length, 'дело', 'дела', 'дел')}${!op ? ' · ' + esc(ts[0].short) : ''}</span><span class="am">${rub(ts.reduce((x, t) => x + t.a, 0))}</span></button>${op ? ts.map((t) => row(t, {noClient: true})).join('') : ''}`; }).join('')}</div>` : '<div class="empty"><b>Ничего не нашлось</b><span>Поменяйте фильтр или слово для поиска.</span></div>'}</section>`;
+      ${groups.length ? `<div class="rows grp">${groups.map(([c, ts]) => { const op = q || who !== 'all' || sec !== 'all' || groups.length <= 3 || openG.has(c) || ts.some((t) => t.hot); return `<button class="gh" data-g="${esc(c)}" aria-expanded="${op}"><span class="car">${op ? '▾' : '▸'}</span>${esc(c)}<span class="c">${plural(ts.length, 'дело', 'дела', 'дел')}${!op ? ' · ' + esc(ts[0].short) : ''}</span><span class="am">${rub(ts.reduce((x, t) => x + t.a, 0))}</span></button>${op ? ts.map((t) => row(t, {noClient: true, reopen: who === 'marked'})).join('') : ''}`; }).join('')}</div>` : '<div class="empty"><b>Ничего не нашлось</b><span>Поменяйте фильтр или слово для поиска.</span></div>'}</section>`;
   }
 
   function moneyTab() {
@@ -448,6 +489,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
       ${t.detail ? `<div class="fact"><span class="k">Подробности</span><span>${esc(t.detail)}</span></div>` : ''}
       ${t.next ? `<div class="fact"><span class="k">Следующий шаг</span><span>${esc(t.next)}</span></div>` : ''}
       ${t.lastMove ? `<div class="fact"><span class="k">Последнее движение</span><span>${esc(t.lastMove)}</span></div>` : ''}
+      <div class="fact"><span class="k">Сверка «Утра»</span><span>${t.checked ? esc(t.checked) : 'не сверено'}${t.src ? ' · источник: ' + esc(t.src) : ' · источник не указан'}${t.thread || t.origin ? ' · ветка: ' + esc(t.thread || t.origin) : ''}${t.verified ? '' : ' — не показываем как дело от вас, пока «Утро» не сверит'}</span></div>
       <div class="fact"><span class="k">Откуда</span><span>${t.fromSummary ? 'Список «Нужно от вас» ветки «Утро и задачи»' : 'Завела ветка «' + esc(t.owner || 'Claude') + '»' + (t.added ? ', ' + esc(t.added) : '') + (t.section ? ' · ' + esc(t.section) : '')}</span></div>
       ${t.link ? `<a class="btn ghost small" href="${esc(t.link)}" target="_blank" rel="noopener">Открыть в портале</a>` : ''}
       <div class="acts" role="group" aria-label="Отметить">${['done', 'later', 'eve', 'prio', 'wait'].map((a) => `<button data-dact="${a}" aria-pressed="${!!(p && p.action === a)}">${LABEL[a]}</button>`).join('')}</div>
@@ -505,6 +547,8 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
     else if (d.act && t) { const rw = $('.row', w); rw.classList.add('out'); setTimeout(() => act(t, d.act), 180); }
     else if (d.open !== undefined && t) openTask(t);
     else if (d.dact && dTask) { if (d.dact === 'ai') { const v = $('#aiText').value.trim(); if (!v) { $('#aiText').focus(); return; } act(dTask, 'ai', v); $('#aiText').value = ''; } else { act(dTask, d.dact); closeTask(); } }
+    else if (d.portion !== undefined) { portion = (portion + 1) * PORTION >= mine().length ? 0 : portion + 1; render(); }
+    else if (d.retry !== undefined) flush();
     else if (d.bucket) { openB = openB === d.bucket ? '' : d.bucket; render(); }
     else if (d.mf !== undefined) { mf = mf === d.mf ? '' : d.mf; if (d.go) go(d.go, true); else render(); }
     else if (d.go) { if (d.who) { who = d.who; sec = 'all'; } go(d.go); }
@@ -537,11 +581,28 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   });
   addEventListener('hashchange', () => { const h = location.hash.slice(1); if (['utro', 'money', 'all'].includes(h) && h !== tab) go(h); });
 
+  // Отметки с других устройств: читаем ветку inbox за 48 ч, пока Claude их не внёс в базу
+  let syncNote = '';
+  async function pull() {
+    try {
+      const res = await fetch('/api/comments', {cache: 'no-store'});
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok || !j.ok) throw new Error(j.error || ('ответ ' + res.status));
+      const since = Date.parse(D.updated);
+      for (const x of (j.items || []).filter((x) => x.taskId && Date.parse(x.at) > since).sort((a, b) => Date.parse(a.at) - Date.parse(b.at))) {
+        if (x.action === 'reopen') delete pend[x.taskId];
+        else if (['done', 'later', 'wait', 'eve', 'prio'].includes(x.action)) pend[x.taskId] = {action: x.action, ts: Date.parse(x.at), remote: true};
+      }
+      store.set('svodka-pending', pend); syncNote = '';
+    } catch (e) { syncNote = 'отметки с других устройств не загрузились: ' + e.message; }
+    if (syncNote) $('#fresh').insertAdjacentHTML('beforeend', `<span class="sync" title="${esc(syncNote)}" style="color:var(--warn)"> · ${esc(syncNote)}</span>`);
+  }
   async function load() {
     try {
       const res = await fetch('/data/svodka.json?t=' + Date.now(), {cache: 'no-store'});
       if (!res.ok) throw new Error('ответ ' + res.status);
       prep(await res.json());
+      await pull();
       const h = location.hash.slice(1); tab = ['utro', 'money', 'all'].includes(h) ? h : 'utro';
       render(); if (outbox.length) flush();
     } catch (e) {

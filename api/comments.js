@@ -23,9 +23,32 @@ async function ensureBranch(token) {
   if (!made.ok && made.status !== 422) throw new Error('branch ' + made.status);
 }
 
+// GET отдаёт отметки за последние 48 часов, чтобы они были видны на другом устройстве до разбора.
+async function recent(token) {
+  const list = await gh('/contents/inbox?ref=' + BRANCH, token);
+  if (list.status === 404) return [];
+  if (!list.ok) throw new Error('list ' + list.status);
+  const since = Date.now() - 48 * 3600e3;
+  const names = (await list.json()).map((f) => f.name).filter((n) => n.endsWith('.json'))
+    .filter((n) => { const iso = n.slice(0, -5).replace(/^(\d{4}-\d{2}-\d{2}T\d{2})-(\d{2})-(\d{2})-(\d{3})Z$/, '$1:$2:$3.$4Z'); const t = Date.parse(iso); return !isNaN(t) && t >= since; })
+    .sort().slice(-40);
+  const out = [];
+  for (const n of names) {
+    const f = await gh('/contents/inbox/' + n + '?ref=' + BRANCH, token);
+    if (!f.ok) throw new Error('file ' + f.status);
+    const j = JSON.parse(Buffer.from((await f.json()).content, 'base64').toString('utf8'));
+    for (const x of j.items || []) out.push({ taskId: x.taskId, action: x.action, at: x.at || j.sentAt, text: x.text ? 1 : 0 });
+  }
+  return out;
+}
+
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'Только POST' });
   const token = process.env.GITHUB_TOKEN;
+  if (req.method === 'GET') {
+    if (!token) return res.status(503).json({ ok: false, error: 'Не задан GITHUB_TOKEN в настройках Vercel' });
+    try { return res.status(200).json({ ok: true, items: await recent(token) }); } catch (e) { return res.status(502).json({ ok: false, error: 'Не удалось прочитать отметки: ' + e.message }); }
+  }
+  if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'Только GET и POST' });
   if (!token) return res.status(503).json({ ok: false, error: 'Не задан GITHUB_TOKEN в настройках Vercel' });
 
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
@@ -35,7 +58,7 @@ export default async function handler(req, res) {
       taskId: x.taskId ? String(x.taskId).slice(0, 100) : null,
       taskTitle: x.taskTitle ? String(x.taskTitle).slice(0, 300) : null,
       text: String(x.text || '').trim().slice(0, 4000),
-      action: ['eve', 'prio', 'wait', 'done', 'later'].includes(x.action) ? x.action : '',
+      action: ['eve', 'prio', 'wait', 'done', 'later', 'reopen'].includes(x.action) ? x.action : '',
       actionLabel: String(x.actionLabel || '').slice(0, 40),
       at: String(x.at || '').slice(0, 40),
     }))

@@ -161,6 +161,12 @@ def main():
             "short": (t.get("short") or "").strip()[:70],
             "waiting": t.get("waiting") or "",  # я / клиент / Лена / Claude
             "urgency": t.get("urgency") or "",  # сегодня / неделя / фон
+            # Сверка «Утра» (§14): без checked за сегодня, src и thread/origin пульт не показывает дело как «нужно от вас»
+            "checked": t.get("checked") or "",
+            "src": t.get("src") or "",
+            "thread": t.get("thread") or "",
+            "origin": t.get("origin") or "",
+            "proof": t.get("proof") or "",
         })
     summary = json.load(open(summary_path, encoding="utf-8"))
     if isinstance(summary, dict):
