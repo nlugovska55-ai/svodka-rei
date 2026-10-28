@@ -1,0 +1,28 @@
+# Сообщения Claude → Ольге в Telegram. Ветка Claude кладёт файл outbox/<время>.json в ветку outbox,
+# этот workflow отправляет его ботом. Секреты репозитория: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID.
+name: tg-outbox
+on:
+  push:
+    branches: [outbox]
+    paths: ['outbox/**']
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Отправить новые сообщения
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            files=$(git ls-tree --name-only HEAD outbox/ | grep '\.json$' || true)
+          else
+            files=$(git diff --name-only --diff-filter=A "$BEFORE" HEAD -- outbox/ | grep '\.json$' || true)
+          fi
+          [ -z "$files" ] && { echo "нет новых файлов"; exit 0; }
+          node scripts/tg_outbox.mjs $files

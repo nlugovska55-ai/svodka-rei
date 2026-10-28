@@ -1,4 +1,4 @@
-"""Комментарии с сайта (ветка inbox) -> записи для db `comments` страницы задач.
+"""Комментарии с сайта и сообщения из Telegram (ветка inbox) -> записи для db `comments` страницы задач.
 
 Запуск на разборе комментариев (10:00, 13:00, 18:00):
   git fetch origin inbox
@@ -26,16 +26,17 @@ def main():
     for name in sorted(n for n in names if n.endswith(".json") and n not in seen):
         f = json.loads(subprocess.run(["git", "-C", repo, "show", "origin/inbox:" + name],
                                       capture_output=True, text=True, check=True).stdout)
+        src = f.get("source", "")
         for i, x in enumerate(f.get("items", [])):
             at = datetime.fromisoformat((x.get("at") or f["sentAt"]).replace("Z", "+00:00")).astimezone(MSK)
             act = ACTIONS.get(x.get("action") or "", "")
             text = (("[" + act + "] ") if act else "") + (x.get("text") or "").strip()
             writes.append({"op": "set", "collection": "comments",
                            "doc_id": "site-" + name[6:-5] + "-" + str(i),
-                           "data": {"text": text, "taskId": x.get("taskId"), "taskTitle": x.get("taskTitle") or x.get("client"),
+                           "data": {"text": text, "taskId": x.get("taskId"), "taskTitle": x.get("taskTitle") or x.get("client") or ("Telegram" if src == "telegram" else ""),
                                     "client": x.get("client"), "action": x.get("action") or "",
                                     "at": at.isoformat(), "atStr": at.strftime("%d.%m, %H:%M"),
-                                    "status": "new", "source": "сайт svodka-rei"}})
+                                    "status": "new", "source": "Telegram" if src == "telegram" else "сайт svodka-rei"}})
         new.append(name)
     json.dump(writes, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     with open(seen_path, "a", encoding="utf-8") as fh:
