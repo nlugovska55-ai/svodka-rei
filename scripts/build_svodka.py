@@ -9,11 +9,15 @@
 Запуск: python3 scripts/build_svodka.py <db_dir> <summary.json> [data/svodka.json]
 """
 import csv
+import argparse
 import glob
 import json
+import math
 import re
 import os
 import sys
+import tempfile
+from decimal import Decimal, InvalidOperation
 from datetime import datetime, timedelta, timezone
 
 MSK = timezone(timedelta(hours=3))
@@ -124,25 +128,84 @@ def prognoz():
     }
 
 
+ACTIVE_STATUSES = {"open", "waiting", "wait", "expert"}
+KNOWN_STATUSES = ACTIVE_STATUSES | {"done", "closed", "handled"}
+
+
+def read_export(db_dir, allow_at_limit=False):
+    paths = sorted(glob.glob(os.path.join(db_dir, "tasks", "*.json")))
+    if not paths:
+        raise ValueError("Выгрузка tasks отсутствует или пуста; прежняя сводка сохранена")
+    if len(paths) >= 1000 and not allow_at_limit:
+        raise ValueError("Достигнут лимит 1000: выгрузите все страницы и подтвердите полноту --allow-at-limit")
+    rows, ids = [], set()
+    for path in paths:
+        with open(path, encoding="utf-8-sig") as fh:
+            t = json.load(fh)
+        if not isinstance(t, dict):
+            raise ValueError(f"{os.path.basename(path)}: задача должна быть объектом")
+        t.setdefault("id", os.path.splitext(os.path.basename(path))[0])
+        if not isinstance(t["id"], str) or not t["id"].strip() or t["id"] in ids:
+            raise ValueError(f"{os.path.basename(path)}: отсутствующий или повторный id")
+        ids.add(t["id"])
+        if t.get("status") not in KNOWN_STATUSES:
+            raise ValueError(f"{t['id']}: неизвестный status {t.get('status')!r}; задача не исключена молча")
+        if t["status"] in ACTIVE_STATUSES:
+            if not isinstance(t.get("title"), str) or not t["title"].strip():
+                raise ValueError(f"{t['id']}: у открытой задачи нет заголовка")
+            amount = t.get("amount")
+            if amount is not None and str(amount).strip():
+                try:
+                    if isinstance(amount, bool):
+                        raise ValueError("boolean amount")
+                    normalized = re.sub(r"\s+", "", str(amount)).replace(",", ".")
+                    parsed = Decimal(normalized)
+                    if not parsed.is_finite() or not math.isfinite(float(parsed)):
+                        raise ValueError("nonfinite amount")
+                    t["amount"] = float(parsed)
+                except (InvalidOperation, ValueError, OverflowError):
+                    raise ValueError(f"{t['id']}: неверная сумма, прежняя сводка сохранена") from None
+        rows.append(t)
+    return rows
+
+
+def atomic_json(path, data):
+    parent = os.path.dirname(os.path.abspath(path))
+    fd, temporary = tempfile.mkstemp(prefix=".svodka-", suffix=".tmp", dir=parent)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            json.dump(data, fh, ensure_ascii=False, indent=1, allow_nan=False)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
 def applied_events(db_dir):
     """id событий сайта, которые разбор уже внёс в задачи (db comments: status done + eventId).
     Пульт снимает отметку «ждёт синхронизации» только по ним, а не по времени сборки."""
     out = set()
     for f in glob.glob(os.path.join(db_dir, "comments", "*.json")):
-        c = json.load(open(f, encoding="utf-8"))
+        with open(f, encoding="utf-8-sig") as fh:
+            c = json.load(fh)
         if c.get("status") == "done" and c.get("eventId"):
             out.add(c["eventId"])
     return sorted(out)
 
 
 def main():
-    db_dir, summary_path = sys.argv[1], sys.argv[2]
-    out = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(__file__), "..", "data", "svodka.json")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("db_dir")
+    parser.add_argument("summary_path")
+    parser.add_argument("out", nargs="?", default=os.path.join(os.path.dirname(__file__), "..", "data", "svodka.json"))
+    parser.add_argument("--allow-at-limit", action="store_true", help="Все страницы tasks выгружены и полнота проверена")
+    args = parser.parse_args()
+    db_dir, summary_path, out = args.db_dir, args.summary_path, args.out
     tasks = []
-    for f in sorted(glob.glob(os.path.join(db_dir, "tasks", "*.json"))):
-        t = json.load(open(f, encoding="utf-8"))
-        t.setdefault("id", os.path.splitext(os.path.basename(f))[0])
-        if t.get("status") not in ("open", "wait", "expert"):
+    for t in read_export(db_dir, args.allow_at_limit):
+        if t["status"] not in ACTIVE_STATUSES:
             continue
         m = money_of(t)
         if m == "ждём" and not t.get("src"):
@@ -183,9 +246,12 @@ def main():
             "payment": t.get("payment") or "",
             "dedupe": t.get("dedupe") or "",
         })
-    summary = json.load(open(summary_path, encoding="utf-8"))
+    with open(summary_path, encoding="utf-8-sig") as fh:
+        summary = json.load(fh)
     if isinstance(summary, dict):
-        summary = summary.get("summary") or summary.get("rows") or []
+        summary = summary.get("summary", summary.get("rows"))
+    if not isinstance(summary, list) or not all(isinstance(row, dict) for row in summary):
+        raise ValueError("summary должен быть списком объектов; прежняя сводка сохранена")
     data = {
         "updated": datetime.now(MSK).strftime("%Y-%m-%dT%H:%M:%S+03:00"),
         "tasks": tasks,
@@ -194,8 +260,7 @@ def main():
         "prognoz": prognoz(),
         "appliedEvents": applied_events(db_dir),
     }
-    with open(out, "w", encoding="utf-8") as fh:
-        json.dump(data, fh, ensure_ascii=False, indent=1)
+    atomic_json(out, data)
     print(f"tasks {len(tasks)}, summary {len(summary)}, lena_clients {len(data['lena_clients'])} -> {out}")
 
 
