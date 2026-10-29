@@ -361,7 +361,8 @@ try {
     const z = new Date(Date.now() + 3 * 36e5), ymd = (n) => new Date(z.getTime() + n * 864e5).toISOString().slice(0, 10);
     const d = fresh();
     d.spisaniya = {built: 'тест', note: '', rows: [
-      {date: ymd(0), who: 'РЭИ', what: 'ЕНП УСН', amount: 28314, state: 'оплачено по словам Ольги, выписки нет', src: 'тест', paid: true, paidSrc: 'fakty', kind: 'plan'},
+      {date: ymd(0), who: 'РЭИ', what: 'ЕНП УСН', amount: 28314, state: 'поступило на ЕНС, подтверждено ФНС', src: 'ФНС Операции ЕНП', paid: true, paidSrc: 'fakty', kind: 'plan', confirmedBy: 'ФНС', paidOn: ymd(-3), plan: ymd(0)},
+      {date: ymd(0), who: 'ИП', what: 'ЕНП ИП', amount: 101095.42, state: 'не подтверждено', src: 'тест', paid: true, paidSrc: 'fakty', kind: 'plan', confirmedBy: '', bankCheck: 'в Точке платежа нет'},
       {date: ymd(3), who: 'РЭИ', what: 'Бухуслуги', amount: 20000, state: 'после счёта', src: 'тест', paid: false, paidSrc: '', kind: 'plan'},
       {date: ymd(3), who: 'РЭИ', what: 'Ориентир ПО', amount: 10000, state: 'ориентир', src: 'тест', paid: false, paidSrc: '', kind: 'reference'},
       {date: ymd(14), who: 'РЭИ', what: 'Аренда', amount: 6000, state: 'уточнить', src: 'тест', paid: false, paidSrc: '', kind: 'plan'},
@@ -374,11 +375,15 @@ try {
     const v7 = await p.innerText('#view');
     await p.click('[data-cal="30"]'); await p.waitForTimeout(200); const v30 = await p.innerText('#view');
     check('Бухгалтерия: источники названы, выписок банка нет — «не получен», остаток не считается', /✕ Выписки банков/.test(v7) && /Факт по банку\s*не получен/.test(v7) && /не считаю/.test(v7), 'строки «✕ Выписки банков», «Факт по банку не получен», «Остаток… не считаю»');
-    check('Списания: «к оплате», «оплачено, выписки нет» и «справочно» раздельно; справочное не в итоге', /К оплате · 26\s000\s₽/.test(v7) && /погашено по словам Ольги/.test(v7) && /Справочно, в итоги не входит/.test(v7), (v7.match(/К оплате · [^\n]*/) || ['нет'])[0]);
-    check('Неизвестная сумма — диапазон, настоящий ноль — «списания нет», не «0 ₽»; остаток с причиной', /1\s000–6\s000 ₽, по счёту/.test(v7) && /списания нет/.test(v7) && !/\b0 ₽/.test(v7) && /выгрузок нет, остаток не выводим/.test(v7) && /Аренда офиса/.test(v7), 'диапазон, «списания нет», регулярные платежи и причина без остатка');
+    check('Списания: к оплате / подтверждено ФНС (с датой поступления и планом) / со слов Ольги / справочно — раздельно', /К оплате · 26\s000\s₽/.test(v7) && /Оплачено, подтверждено ФНС · 28\s314/.test(v7) && /поступило \d\d\.\d\d, план был/.test(v7) && /Со слов Ольги, банком и ФНС не подтверждено · 101\s095,42/.test(v7) && /в Точке платежа нет/.test(v7) && /Справочно, в итоги не входит/.test(v7), (v7.match(/К оплате · [^\n]*/) || ['нет'])[0]);
+    check('Неизвестная сумма — диапазон, настоящий ноль — «списания нет», не «0 ₽»; остаток с причиной', /1\s000–6\s000 ₽, по счёту/.test(v7) && /списания нет/.test(v7) && !/\b0 ₽/.test(v7) && /Аренда офиса/.test(v7), 'диапазон, «списания нет», регулярные платежи и причина без остатка');
     check('Календарь 7/30 дней: аренда через 14 дней только в 30', !/Аренда/.test(v7.split('План-факт')[0]) && /Аренда/.test(v30.split('План-факт')[0]), 'аренда в 7 дн: нет, в 30 дн: да');
     if (SHOTS) await p.screenshot({path: path.join(SHOTS, 'pk-buhgalteriya.png'), fullPage: true});
     await ctx.close();
+    const sn = structuredClone(d); sn.buh_plan.balance = {known: true, note: 'только два счёта', accounts: [{account: 'Альфа РЭИ *7370', date: '29.10.2026', amount: 443420.32, src: 'выписка Альфы'}]};
+    const SN = await device(sn); await go(SN.p, '#buh'); const vs = await SN.p.innerText('#view'); await SN.ctx.close();
+    check('Остаток показан как снимок на дату, прогноза нет', /Остаток Альфа РЭИ \*7370\s*443\s420,32\s₽\s*снимок на 29\.10\.2026, не текущий остаток/.test(vs) && /Прогноз остатка\s*не считаю/.test(vs), (vs.match(/Остаток Альфа[^\n]*\n[^\n]*\n[^\n]*/) || ['нет'])[0].replace(/\n/g, ' | '));
+    check('Без снимка остатка — «не считаю» с причиной', /выгрузок нет, остаток не выводим/.test(v7), 'причина показана');
     const n = fresh(); delete n.spisaniya; delete n.buh_sources; delete n.buh_svodka;
     const N = await device(n); await go(N.p, '#buh'); const vn = await N.p.innerText('#view');
     check('Без реестра списаний: «не получен», нулей нет', /Реестр списаний не получен/.test(vn) && /не получен/.test(vn) && !/\b0 ₽/.test(vn), `«${(vn.match(/Реестр списаний не получен[^\n]*/) || ['нет'])[0]}»`);

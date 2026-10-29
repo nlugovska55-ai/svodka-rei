@@ -147,6 +147,16 @@ class BuilderAcceptance(unittest.TestCase):
         rows = self.build()["spisaniya"]["rows"]
         self.assertEqual([("2026-10-28", "plan", True), ("2026-10-31", "reference", False)], [(r["date"], r["kind"], r["paid"]) for r in rows])
 
+    def test_ens_confirmation_is_separate_from_olga_words(self):
+        self.task()
+        sp = self.root / "sp.json"
+        sp.write_text(json.dumps({"built": "29.10.2026", "rows": [
+            {"date": "2026-10-28", "what": "ЕНП", "amount": 28314, "paid": True, "ensConfirmed": True, "ensDate": "26.10.2026", "ensBasis": "п/п 39", "planDate": "2026-10-28"},
+            {"date": "2026-10-28", "what": "ЕНП ИП", "amount": 101095.42, "paid": True, "state": "не подтверждено ФНС"}]}), encoding="utf-8")
+        patch.object(builder, "SPISANIYA_JSON", str(sp)).start()
+        rows = self.build()["spisaniya"]["rows"]
+        self.assertEqual([("ФНС", "2026-10-26", "2026-10-28", "п/п 39"), ("", "", "", "")], [(r["confirmedBy"], r["paidOn"], r["plan"], r["basis"]) for r in rows])
+
     def test_spisaniya_row_without_date_preserves_snapshot(self):
         self.task()
         sp = self.root / "sp.json"

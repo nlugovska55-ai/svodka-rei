@@ -163,9 +163,14 @@ def spisaniya():
                      "paidSrc": r.get("paidSrc") or "", "kind": r.get("kind") or "plan",
                      # amount None = сумма неизвестна (диапазон в amountRange), 0 = действительно ноль (zeroMeans)
                      "amountRange": r.get("amountRange") or None, "zeroMeans": r.get("zeroMeans") or "",
-                     "bankConfirmed": bool(r.get("bankConfirmed")), "checked": r.get("checked") or ""})
+                     "bankConfirmed": bool(r.get("bankConfirmed")), "checked": r.get("checked") or "",
+                     # кем подтверждена оплата: явное поле confirmedBy или «подтверждено ФНС» в state (не «не подтверждено»)
+                     # кем подтверждена оплата: ensConfirmed (выписка ФНС «Операции ЕНП») или явное confirmedBy; слова Ольги — не подтверждение
+                     "confirmedBy": r.get("confirmedBy") or ("ФНС" if r.get("paid") and r.get("ensConfirmed") else ""),
+                     "paidOn": iso_date(r.get("ensDate") or r.get("paidOn")), "plan": iso_date(r.get("planDate") or r.get("plan")),
+                     "basis": r.get("ensBasis") or "", "bankNote": r.get("bankNote") or "", "bankCheck": r.get("bankCheck") or ""})
     rows.sort(key=lambda r: r["date"])
-    return {"built": p.get("built", ""), "note": p.get("note", ""), "rows": rows}
+    return {"built": p.get("built", ""), "note": p.get("note", ""), "confirmedNote": p.get("confirmed_note", ""), "rows": rows}
 
 
 def buh_plan():
@@ -176,7 +181,10 @@ def buh_plan():
         p = json.load(fh)
     bal = p.get("balance") or {}
     return {"built": p.get("built", ""), "regular": [{k: r.get(k) for k in ("name", "org", "period", "amount", "amountKnown", "note", "kind", "src", "dataAsOf")} for r in p.get("regular", [])],
-            "balance": {"known": bool(bal.get("known")), "why": bal.get("why") or ""}}
+            # остатки — снимки на дату из выписок/осмотра, не текущий остаток; прогноза по ним не строим
+            "balance": {"known": bool(bal.get("known")), "why": bal.get("why") or "", "note": bal.get("note") or "",
+                        "accounts": [{"account": a.get("account") or a.get("bank") or "", "date": a.get("date") or a.get("asof") or "", "amount": a.get("amount"), "src": a.get("src") or ""}
+                                     for a in bal.get("accounts", []) if a.get("amount") is not None]}}
 
 
 def buh_svodka():
