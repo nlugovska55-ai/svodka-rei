@@ -179,11 +179,11 @@ try {
   // 4d. Справочная (погашенная) сумма: amountKind=reference не попадает в метки и итоги
   {
     const d = fresh(); const s0 = d.summary.find((x) => x.section === 'Нужно от вас'); const tk = d.tasks.find((t) => t.id === s0.id);
-    const base = await device(structuredClone(d)); await go(base.p); const h0 = await base.p.textContent('h1'); await base.ctx.close();
+    const base = await device(structuredClone(d)); await go(base.p); const h0 = await base.p.textContent('.lead'); await base.ctx.close();
     Object.assign(tk, {amount: 176103.19, amountKind: 'reference', amountNote: 'погашено, справочно', money: '', pay: 0});
     const {ctx, p} = await device(d); await go(p);
     const rowAm = await p.$eval(`.rw[data-id="${tk.id}"] .am`, (e) => e.textContent.trim()).catch(() => '?');
-    const h1 = await p.textContent('h1');
+    const h1 = await p.textContent('.lead');
     await p.click(`.rw[data-id="${tk.id}"] [data-open]`); await p.waitForTimeout(400); const dr = await p.textContent('#db');
     check('Справочная сумма (amountKind=reference) не в метке строки и не в итогах', rowAm === '' && h1 === h0 && /справочно 176/.test(dr), `метка строки «${rowAm}», заголовок не изменился: ${h1 === h0}, в карточке «справочно»: ${/справочно 176/.test(dr)}`);
     await ctx.close();
@@ -213,12 +213,12 @@ try {
     await E.ctx.close();
     const d = fresh(); d.tasks.forEach((t) => { t.money = ''; }); d.summary = [];
     const N = await device(d); await go(N.p);
-    const h = await N.p.textContent('h1');
+    const h = await N.p.textContent('.lead');
     check('Нет сумм и нет списка «Утра» — так и написано', /Сумм в пути в данных нет/.test(h) && /ещё не собран|ждут сверки/.test(h) && !/0 ₽|разобрано/.test(h), `заголовок: «${h.trim()}»`);
     await N.ctx.close();
     const o = fresh(); o.updated = '2026-01-05T09:30:00+03:00';
     const S = await device(o); await go(S.p);
-    const w = await S.p.textContent('.warnline').catch(() => ''); const h2 = await S.p.textContent('h1');
+    const w = await S.p.textContent('.warnline').catch(() => ''); const h2 = await S.p.textContent('.lead');
     check('Старые данные — предупреждение со временем актуальности', /сегодня сводку ещё не выкладывали/.test(w) && !/разобрано/.test(h2), `плашка: «${w.trim()}»`);
     await S.ctx.close();
   }
@@ -232,11 +232,16 @@ try {
     const autoTxt = await p.innerText('#view');
     check('«Автоматика» без строк — «нет данных проверки», без «всё работает»', /Автоматика: нет данных проверки/.test(autoTxt) && !/всё работает|0 сбоев/i.test(autoTxt), /нет данных проверки/.test(autoTxt) ? 'серая строка «Автоматика: нет данных проверки»' : 'строки нет');
     await ctx.close();
-    const d = fresh(); d.summary.push({id: 'a1', section: 'Автоматика', flag: 'ok', text: 'Пинатель отработал', checked: '2026-10-28T13:40:00Z'}, {id: 'a2', section: 'Автоматика', flag: 'срочно', text: 'Утро: выкладка 17:00 не прошла', checked: '2026-10-28T14:05:00Z'});
+    const d = fresh(); const zt = new Date(Date.now() + 3 * 36e5).toISOString().slice(0, 10), zy = new Date(Date.now() - 21 * 36e5).toISOString().slice(0, 10);
+    d.summary.push({id: 'a1', section: 'Автоматика', flag: 'ok', text: 'Пинатель отработал', checked: zt + 'T05:40:00Z'}, {id: 'a2', section: 'Автоматика', flag: 'срочно', text: 'Утро: выкладка 17:00 не прошла', checked: zt + 'T06:05:00Z'}, {id: 'a3', section: 'Автоматика', flag: 'ok', text: 'Бухгалтерия вчера прошла', checked: zy + 'T17:26:00Z'});
     const A = await device(d); await go(A.p);
     const at = await A.p.textContent('body');
     const order = at.indexOf('выкладка 17:00 не прошла') < at.indexOf('Пинатель отработал');
-    check('«Автоматика»: время проверки UTC → МСК, «срочно» наверху', /Пинатель отработал · проверено 28\.10 16:40/.test(at) && order, `16:40 МСК из 13:40 UTC: ${/проверено 28\.10 16:40/.test(at)}, «срочно» первым: ${order}`);
+    const dmT = zt.slice(8, 10) + '\\.' + zt.slice(5, 7);
+    check('«Автоматика»: время проверки UTC → МСК, «срочно» наверху', new RegExp('Пинатель отработал · проверено ' + dmT + ' 08:40').test(at) && order, `08:40 МСК из 05:40 UTC: ${new RegExp('проверено ' + dmT + ' 08:40').test(at)}, «срочно» первым: ${order}`);
+    const old = await A.p.$$eval('.projects .pj', (x) => x.filter((e) => /Бухгалтерия вчера/.test(e.textContent)).map((e) => [e.textContent, e.querySelector('.dot').getAttribute('style')]));
+    const autoSec = await A.p.$$eval('section.sec', (ss) => (ss.find((e) => /Автоматика/.test(e.querySelector('h2')?.textContent || '')) || {}).textContent || '');
+    check('«Автоматика»: вчерашний статус без зелёного, подписан «статус от», есть «не проверено»', old.length === 1 && /статус от/.test(old[0][0]) && !/--ok/.test(old[0][1]) && /не проверено/.test(autoSec), old.length ? `«${old[0][0].trim()}», точка ${old[0][1]}` : 'строки нет');
     await A.ctx.close();
   }
 
@@ -244,14 +249,14 @@ try {
   {
     const d = fresh(); d.tasks.forEach((t) => { delete t.checked; });
     const {ctx, p} = await device(d); await go(p);
-    const a = await ask(p), h = await p.textContent('h1'), b = await p.textContent('.buckets');
+    const a = await ask(p), h = await p.textContent('.lead'), b = await p.textContent('.buckets');
     check('Несверенные «готово Ольге» не выдаются за проверенные', a.length === 0 && /Ждут сверки/.test(b) && !/Утро разобрано/.test(h), `в «Нужно от вас» ${a.length}, заголовок «${h.trim().slice(0, 60)}»`);
     const st = await p.textContent('.stages');
     check('Деньги без сегодняшней сверки помечены', /сегодня не сверено/.test(st) && /сегодня не сверено/.test(h), `заголовок: «${h.trim().slice(0, 120)}»`);
     await ctx.close();
     const d2 = fresh(); const came2 = new Set(d2.tasks.filter((t) => t.money === 'пришло').map((t) => t.client)); const w = d2.tasks.find((t) => t.money === 'ждём' && t.amount && !came2.has(t.client)); verify(w);
     const B = await device(d2); await go(B.p);
-    const h2 = await B.p.textContent('h1');
+    const h2 = await B.p.textContent('.lead');
     check('Сверенная сумма показана отдельно от несверенной', /сверено сегодня/.test(h2) && /без сегодняшней сверки/.test(h2), `«${h2.trim().slice(0, 140)}»`);
     await B.ctx.close();
     const d3 = fresh(); d3.updated = iso(new Date(Date.now() - 26 * 36e5));
@@ -401,8 +406,8 @@ try {
     const rh = await M.p.$eval('.rw', (e) => e.getBoundingClientRect().height).catch(() => 0);
     check('Телефон 390 px, «Бухгалтерия»: нет прокрутки вбок, строка с двумя кнопками не выше 90 px', ov <= 0 && rh > 0 && rh <= 90, `лишняя ширина ${ov} px, высота строки ${Math.round(rh)} px`);
     if (SHOTS) await M.p.screenshot({path: path.join(SHOTS, 'telefon-buhgalteriya.png'), fullPage: true});
-    await go(M.p, '#utro'); const bt = await M.p.$$eval('.rw .abs', (x) => x.map((e) => [...e.querySelectorAll('button')].map((b) => b.textContent.trim()).join(' | ')));
-    const ov2 = await M.p.evaluate(() => document.documentElement.scrollWidth - innerWidth), rh2 = await M.p.$eval('.rw', (e) => e.getBoundingClientRect().height).catch(() => 0);
+    await go(M.p, '#utro'); const bt = await M.p.$$eval('.rw .abs, .rw.pc .pa', (x) => x.map((e) => [...e.querySelectorAll('button')].map((b) => b.textContent.trim()).join(' | ')));
+    const ov2 = await M.p.evaluate(() => document.documentElement.scrollWidth - innerWidth), rh2 = await M.p.$eval('.rw:not(.pc)', (e) => e.getBoundingClientRect().height).catch(() => 0);
     check('Кнопки с глаголом: «Я выполнила» и «Поручить Claude», 390 px без прокрутки вбок', bt.length > 0 && bt.every((x) => x === 'Я выполнила | Поручить Claude') && ov2 <= 0 && rh2 <= 96, `кнопки «${bt[0]}», лишняя ширина ${ov2} px, высота строки ${Math.round(rh2)} px`);
     check('Ошибок JavaScript в «Бухгалтерии» нет', !M.p.errors.length && !N.p.errors.length, [...M.p.errors, ...N.p.errors].join('; ') || '0 ошибок');
     await M.ctx.close();
