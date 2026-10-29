@@ -168,6 +168,10 @@ def upsert_lena_payment(st, r, src, fname):
         count = "вопрос"
         note = (f"в одной строке и ожидаемая {D:_.0f}, и пришедшая {E:_.0f}: частичная оплата или другой ввод — не подтверждено, "
                 f"остаток не уменьшен").replace("_", " ")
+    if p is not None and p.get("manual"):
+        if p["amount"] != E or p["count"] != count:
+            log(st, f"{pid}: в Excel {E:.0f} ({count}), в таблице поправлено на {p['amount']:.0f} ({p['count']}) — оставлено значение таблицы")
+        return
     if p is None:
         st["payments"].append({"id": pid, "rowId": r["id"], "date": None, "amount": E, "kind": "Лена", "count": count,
                                "account": "", "basis": "", "source": note, "note": ""})
@@ -205,8 +209,14 @@ def sync(paths, mtime, bank_path, today):
                     log(st, f"{r['id']}: та же строка в {fname} ({how}) — не дублируем")
                 new_stage = "Гарант" if src["D"] else "Пришло по Лене"
                 if r["month"] == month and (r["amount"] != amount or r["stage"] != new_stage):
-                    log(st, f"{r['id']}: у Лены изменилось {r['stage']} {r['amount']} → {new_stage} {amount}")
-                    r.update(amount=amount, stage=new_stage)
+                    # поле, поправленное в Google-таблице (manual), Excel не перезаписывает: правка человека важнее старого файла
+                    man, new = r.get("manual") or {}, {"amount": amount, "stage": new_stage}
+                    upd = {k: v for k, v in new.items() if k not in man and r[k] != v}
+                    for k in (k for k in new if k in man and new[k] != r[k]):
+                        log(st, f"{r['id']}: в Excel {k} = {new[k]!r}, в таблице поправлено на {r[k]!r} — оставлено значение таблицы")
+                    if upd:
+                        log(st, f"{r['id']}: у Лены изменилось {r['stage']} {r['amount']} → {upd.get('stage', r['stage'])} {upd.get('amount', r['amount'])}")
+                        r.update(upd)
                 r.update(source=f"{fname}, стр. {src['row']}", checked=today.isoformat(), gone="")
             used.add(r["id"])
             upsert_lena_payment(st, r, src, fname)
@@ -630,6 +640,13 @@ def main():
             journal_line(status, "сбой: " + status["lastError"])
             print("записан сбой, прежний реестр сохранён:", status["lastError"])
             return
+        if (load_state().get("source") or {}).get("mode") == "google":
+            # после перехода ввод только в Google-таблице; Excel Лены — архив, импорт затёр бы правки менеджера
+            status.update(ok=False, lastError="источник ввода — Google-таблица, импорт Excel отключён (архив)")
+            save(stp, status)
+            journal_line(status, "отказ: " + status["lastError"])
+            print("ОТКАЗ:", status["lastError"], file=sys.stderr)
+            sys.exit(3)
         try:
             st, changed = sync(a.files, a.mtime, a.bank, today)
         except Exception as e:  # прежние реестр и снимок не трогаем
