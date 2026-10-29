@@ -315,9 +315,12 @@ def comment_replies(db_dir, days=3):
     for f in glob.glob(os.path.join(db_dir, "comments", "*.json")):
         with open(f, encoding="utf-8-sig") as fh:
             c = json.load(fh)
-        if c.get("status") == "done" and c.get("reply") and c.get("at"):
+        if c.get("status") in ("done", "routed") and c.get("reply") and c.get("at"):
             out.append({"at": c["at"], "atStr": c.get("atStr", ""), "eventId": c.get("eventId", ""),
-                        "title": c.get("taskTitle", ""), "text": c.get("text", ""), "reply": c["reply"]})
+                        "title": c.get("taskTitle", ""), "text": c.get("text", ""), "reply": c["reply"],
+                        "status": c["status"], "routedTo": c.get("routedTo", ""), "routedAt": c.get("routedAt", ""),
+                        "result": c.get("result", ""), "resultAt": c.get("resultAt", ""), "resultBy": c.get("resultBy", ""),
+                        "taskId": c.get("taskId") or ""})
     cutoff = (datetime.now(MSK) - timedelta(days=days)).isoformat()
     return sorted([r for r in out if r["at"] >= cutoff], key=lambda r: r["at"], reverse=True)[:12]
 
