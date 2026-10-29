@@ -1,0 +1,185 @@
+"""Реестр гарантов и оплат Лены: файлы Лены → реестр с постоянными ID. Запуск: python3 tests/test_reestr_garanty.py"""
+import json
+import os
+from datetime import date
+from pathlib import Path
+import subprocess
+import sys
+import tempfile
+import unittest
+
+import openpyxl
+
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPT = ROOT / "scripts/reestr_garanty.py"
+HEAD = ["наименование клиента ", "услуга ", "номер договора ", "ожидапемая сумма ", "сумма пришедщая ", "себестоимсость "]
+
+
+def lena_file(path, rows, total=None):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.append(HEAD)
+    for r in rows:
+        ws.append(list(r))
+    if total:
+        ws.append([])
+        ws.append([None, None, "итого "] + list(total))
+    wb.save(path)
+    return str(path)
+
+
+class Reestr(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.dir = Path(self.tmp.name)
+        self.state = self.dir / "state"
+        self.env = dict(os.environ, GARANTY_DIR=str(self.state))
+
+    def run_sync(self, *files, today="2026-10-29", bank=None, ok=True):
+        cmd = [sys.executable, "-I", str(SCRIPT), "sync", *files, "--today", today]
+        if bank:
+            cmd += ["--bank", bank]
+        p = subprocess.run(cmd, env=self.env, capture_output=True, text=True)
+        self.assertEqual(p.returncode == 0, ok, p.stderr + p.stdout)
+        return p
+
+    def st(self):
+        return json.loads((self.state / "reestr.json").read_text(encoding="utf-8"))
+
+    def snap(self):
+        return json.loads((self.state / "snapshot.json").read_text(encoding="utf-8"))
+
+    def test_rerun_is_idempotent_and_ids_stable(self):
+        f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо эрмаш", "сс тр тс 012", "1379 ЛЕ ТРТС прил 2", 600000, None),
+                                                      ("ооо укс групп", "сс гостр", "1051 ЛЕ ГОСТ ПРИЛ 8", None, 50000)])
+        self.run_sync(f)
+        first = self.st()
+        p = self.run_sync(f)
+        self.assertIn("изменения: нет", p.stdout)
+        second = self.st()
+        self.assertEqual(first["rows"], second["rows"])
+        self.assertEqual(first["payments"], second["payments"])
+        self.assertEqual([r["id"] for r in second["rows"]], ["G-0001", "G-0002"])
+
+    def test_months_dec_to_jan(self):
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import reestr_garanty as g
+        self.assertEqual(g.months_to_show(date(2026, 12, 31)), ["2026-12-01", "2027-01-01"])
+        self.assertEqual(g.months_to_show(date(2026, 10, 29)), ["2026-10-01", "2026-11-01"])
+        self.assertEqual(g.month_of("май 2026  .xlsx"), "2026-05-01")
+        self.assertEqual(g.month_of("март 2026.xlsx"), "2026-03-01")
+        self.assertEqual(g.month_of("августа 2026.xlsx"), "2026-08-01")
+        f = lena_file(self.dir / "декабрь 2026.xlsx", [("ооо квант", "дс", "1365 ле дс", 12000, None)])
+        self.run_sync(f, today="2026-12-20")
+        self.assertEqual(self.snap()["months"], {"current": "2026-12-01", "next": "2027-01-01"})
+        self.assertIn("2027-01-01", self.st()["months"])
+
+    def test_source_failure_keeps_previous(self):
+        f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо эрмаш", "сс", "1379 прил 2", 600000, None)])
+        self.run_sync(f)
+        before = (self.state / "snapshot.json").read_text(encoding="utf-8")
+        bad = self.dir / "ноябрь 2026.xlsx"
+        wb = openpyxl.Workbook()
+        wb.active.append(["что-то другое"])
+        wb.save(bad)
+        self.run_sync(str(bad), ok=False)
+        self.assertEqual((self.state / "snapshot.json").read_text(encoding="utf-8"), before)
+        status = json.loads((self.state / "import-status.json").read_text(encoding="utf-8"))
+        self.assertFalse(status["ok"])
+        self.assertTrue(status["lastOk"])
+        self.assertIn("шапка", status["lastError"])
+
+    def test_both_columns_is_question_not_partial(self):
+        f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо электростнадртприбор", "сс сил 2", "689 ле сенйс прил 19", 100000, 12000)])
+        self.run_sync(f)
+        st = self.st()
+        self.assertEqual(st["payments"][0]["count"], "вопрос")
+        row = self.snap()["rows"][0]
+        self.assertEqual(row["remainReg"], 100000)
+        self.assertIn("вопрос", row["flags"])
+        self.assertIn("частичная оплата или другой ввод", row["note"])
+
+    def test_partial_payment_and_move_to_paid_keep_id(self):
+        f = self.dir / "октябрь 2026.xlsx"
+        lena_file(f, [("ооо эрмаш", "сс тр тс 012", "1379 ЛЕ ТРТС прил 2", 600000, None)])
+        self.run_sync(str(f))
+        lena_file(f, [("ооо эрмаш", "сс тр тс 012", "1379 ЛЕ ТРТС прил 2", None, 600000)])
+        self.run_sync(str(f))
+        st = self.st()
+        self.assertEqual(len(st["rows"]), 1)
+        self.assertEqual(st["rows"][0]["id"], "G-0001")
+        self.assertEqual(self.snap()["rows"][0]["remainReg"], 0)
+        # банк подтвердил 250 000 из 600 000: остаток по банку не меньше Лены, строка та же
+        bank = self.dir / "svodka.json"
+        bank.write_text(json.dumps({"bank": {"days": [{"account": "Альфа", "date": "2026-10-30", "inItems": [{"who": "ООО ЭРМАШ", "amount": 250000, "basis": "п/п 1"}]}]}}, ensure_ascii=False), encoding="utf-8")
+        self.run_sync(str(f), bank=str(bank))
+        st = self.st()
+        b = [p for p in st["payments"] if p["kind"] == "банк"]
+        self.assertEqual(b, [])  # 250 000 не равно ни строке, ни сумме строк — не притягиваем
+        bank.write_text(json.dumps({"bank": {"days": [{"account": "Альфа", "date": "2026-10-30", "inItems": [{"who": "ООО ЭРМАШ", "amount": 600000, "basis": "п/п 1"}]}]}}, ensure_ascii=False), encoding="utf-8")
+        self.run_sync(str(f), bank=str(bank))
+        self.run_sync(str(f), bank=str(bank))
+        b = [p for p in self.st()["payments"] if p["kind"] == "банк"]
+        self.assertEqual(len(b), 1)
+        self.assertEqual(self.snap()["rows"][0]["flags"], ["нет менеджера"])
+
+    def test_carry_over_without_duplicate(self):
+        oct_ = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо в2 лаб", "сс промбезопасность", "901 ЛЕ ДС ПРИЛ 14", 165000, None)])
+        nov = lena_file(self.dir / "ноябрь 2026.xlsx", [("ооо в 2 лаб", "сс промбезопасность", "901 ле дс прил 14", 165000, None),
+                                                       ("ооо квант", "дс тр тс", "1365 ле дс", 12000, None)])
+        self.run_sync(oct_, nov, today="2026-11-03")
+        st = self.st()
+        self.assertEqual(len(st["rows"]), 2)
+        self.assertEqual(st["rows"][0]["seen"], ["2026-10-01", "2026-11-01"])
+        self.assertEqual(st["rows"][0]["month"], "2026-10-01")
+        self.assertTrue(any("не дублируем" in j["msg"] for j in st["journal"]))
+
+    def test_manual_total_mismatch_logged_rows_not_replaced(self):
+        f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо квант", "дс", "1365 ле дс", 12000, None),
+                                                      ("ооо чзмэк", "дс", "1240 ле дс прил 7", None, 15000)], total=(1240000, 1200600))
+        self.run_sync(f)
+        mig = self.st()["migration"][0]
+        self.assertEqual((mig["sumD"], mig["sumE"]), (12000, 15000))
+        self.assertTrue(any("D" in x and "разница" in x for x in mig["issues"]))
+        self.assertEqual(sum(r["amount"] for r in self.snap()["rows"]), 27000)
+
+    def test_row_gone_is_kept_with_flag(self):
+        f = self.dir / "октябрь 2026.xlsx"
+        lena_file(f, [("ооо квант", "дс", "1365 ле дс", 12000, None), ("ооо купер", "ик", "824 ле гост прил 48", 180000, None)])
+        self.run_sync(str(f))
+        lena_file(f, [("ооо квант", "дс", "1365 ле дс", 12000, None)])
+        self.run_sync(str(f))
+        rows = self.snap()["rows"]
+        self.assertEqual(len(rows), 2)
+        self.assertIn("пропала из файла Лены", rows[1]["flags"])
+
+    def test_salary_kept_apart_rate_not_invented(self):
+        f = lena_file(self.dir / "июль 2026.xlsx", [("ооо квант", "дс", "1365 ле дс", None, 578500)], total=(None, "578500= 57800 +3900 (13*300)=61700"))
+        self.run_sync(f)
+        self.assertNotIn("57800", (self.state / "snapshot.json").read_text(encoding="utf-8"))
+        out = self.dir / "z.xlsx"
+        subprocess.run([sys.executable, "-I", str(SCRIPT), "salary", "--out", str(out)], env=self.env, check=True, capture_output=True)
+        ws = openpyxl.load_workbook(out).active
+        self.assertIn("ставка не согласована", ws["H2"].value)
+        self.assertEqual(ws["I2"].value, "578500= 57800 +3900 (13*300)=61700")
+        self.assertIsNone(ws["D2"].value)
+
+    def test_workbook_has_views_and_no_salary(self):
+        f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо квант", "дс", "1365 ле дс", 12000, None)], total=(None, "12000=1200"))
+        self.run_sync(f)
+        out = self.dir / "r.xlsx"
+        subprocess.run([sys.executable, "-I", str(SCRIPT), "xlsx", "--out", str(out), "--today", "2026-10-29"], env=self.env, check=True, capture_output=True)
+        wb = openpyxl.load_workbook(out)
+        self.assertEqual(wb.sheetnames, ["Как пользоваться", "Реестр", "Платежи", "Банк", "Текущий месяц", "Следующий месяц", "Месяцы", "Контроль", "Миграция", "Журнал"])
+        self.assertIn("MONTH(TODAY())+1", wb["Следующий месяц"]["B1"].value)
+        self.assertIn("FILTER", wb["Текущий месяц"]["A4"].value)
+        self.assertIn("ARRAYFORMULA", wb["Реестр"]["N2"].value)
+        self.assertIn("Банк!", wb["Реестр"]["K2"].value)  # банк считается только из защищённой вкладки
+        self.assertNotIn("банк", [c.value for c in wb["Платежи"]["E"]])
+        text = " ".join(str(c.value) for ws in wb for row in ws.iter_rows() for c in row if c.value)
+        self.assertNotIn("12000=1200", text)
+
+
+if __name__ == "__main__":
+    unittest.main()

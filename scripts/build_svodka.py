@@ -259,8 +259,12 @@ def garanty(tasks, bank):
     keys_of = [name_keys(r.get("client") or "") for r in src]
     got = [[] for _ in src]
     # 1) платёж той же суммы у того же клиента; 2) одна п/п на несколько строк клиента (сумма строк = платёж). Каждая п/п — один раз.
+    reestr = snap.get("format") == "reestr"  # реестр (scripts/reestr_garanty.py) уже сопоставил банк и платежи сам
+    if reestr:
+        got = [list(r.get("bankReg") or []) for r in src]
+        used = set(range(len(items)))
     for k, r in enumerate(src):
-        if r.get("stage") == "paid" or r.get("amount") is None:
+        if reestr or r.get("stage") == "paid" or r.get("amount") is None:
             continue
         for i, x in enumerate(items):
             if i not in used and keys_of[k] and matches(keys_of[k], x.get("who") or "") and abs(float(x.get("amount") or 0) - r["amount"]) < 1:
@@ -291,11 +295,13 @@ def garanty(tasks, bank):
         t0 = linked[0] if linked else None
         rows.append({**{f: r.get(f) for f in ("key", "row", "client", "service", "doc", "amount", "amountRaw", "stage", "date", "dateRaw", "datePaid", "status", "received", "receivedRaw", "who", "note")},
                      "bank": got[k], "bankSum": bank_sum if got[k] else None,
-                     "remain": (amt - bank_sum) if (amt is not None and got[k]) else None,
+                     "remain": r.get("remainReg") if reestr else ((amt - bank_sum) if (amt is not None and got[k]) else None),
+                     "id": r.get("id", ""), "month": r.get("month", ""), "flags": r.get("flags", []), "src": r.get("source", ""), "checked": r.get("checked", ""),
                      "taskIds": [t["id"] for t in linked], "linkBy": how if linked else "",
                      "next": (t0["next"] if t0 else "") or r.get("note") or "",
                      "owner": (t0["waiting"] or t0["mgr"]) if t0 else (r.get("who") or "Лена")})
     return {"connected": True, "live": bool((snap.get("source") or {}).get("live")), "status": st, "importedAt": snap.get("importedAt", ""), "source": snap.get("source", {}),
+            "format": snap.get("format", ""), "months": snap.get("months", {}),
             "bankCovered": sorted({(d["account"], d["date"]) for d in (bank or {}).get("days", [])}), "rows": rows}
 
 
