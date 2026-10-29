@@ -355,7 +355,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
   const pend = store.get('svodka-pending', {});  // отмеченное на сайте, пока не пришло в базу
   const outbox = store.get('svodka-outbox', []);
   let inflight = store.get('svodka-inflight', null);  // партия в отправке: повтор уходит с тем же batchId, сервер не создаёт второй файл
-  let APPLIED = new Set();
+  let APPLIED = new Set(), REPLIES = [];
   const rid = () => Math.random().toString(36).slice(2, 10).padEnd(8, '0');
   function prep(d) {
     D = d; const upd = new Date(d.updated);
@@ -375,7 +375,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
       + (nextS ? ` · следующая ${dm(nextS) === dm(now) ? '' : dm(nextS) + ' '}${hm(nextS)}` : '');
     // Отметка снимается, только когда её событие подтверждено разбором (appliedEvents из db comments со статусом done).
     // Время сборки не подтверждение: сборка из неизменённой db не «съедает» свежие отметки.
-    APPLIED = new Set(d.appliedEvents || []);
+    APPLIED = new Set(d.appliedEvents || []); REPLIES = d.replies || [];
     for (const [id, p] of Object.entries(pend)) if (p.eid ? APPLIED.has(p.eid) : Date.now() - p.ts > 2 * MS) delete pend[id];
     store.set('svodka-pending', pend);
     T = (d.tasks || []).map((t) => {
@@ -468,8 +468,10 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
   const jUndoable = (j, i) => j.taskId && !j.undone && !['reopen', 'ai'].includes(j.action) && !journal.slice(i + 1).some((x) => x.taskId === j.taskId);
   function journalHTML() {
     const since = Date.now() - 48 * 36e5, rows = journal.map((j, i) => [j, i]).filter(([j]) => Date.parse(j.at) > since).reverse().slice(0, 8);
-    if (!rows.length) return '';
-    return `<section class="sec" id="journal"><div class="sh"><h2>Журнал отметок</h2><span class="c">отправлено → принято → применено в базе</span></div><div class="rows" style="padding:6px 14px">${rows.map(([j, i]) => {
+    const rp = REPLIES.map((r) => `<div class="jl"><span class="hint num">${esc((r.atStr || '').slice(-5))}</span><span style="min-width:0;flex:1 1 200px"><b>${esc((r.text || r.title).replace(/^\[[^\]]*\]\s*/, '').slice(0, 90))}</b><br>${esc(r.reply)}</span></div>`).join('');
+    const repl = rp ? `<section class="sec" id="replies"><div class="sh"><h2>Ответы Claude на ваши отметки</h2><span class="c">что сделано и кем</span></div><div class="rows" style="padding:6px 14px">${rp}</div></section>` : '';
+    if (!rows.length) return repl;
+    return repl + `<section class="sec" id="journal"><div class="sh"><h2>Журнал отметок</h2><span class="c">отправлено → принято → применено в базе</span></div><div class="rows" style="padding:6px 14px">${rows.map(([j, i]) => {
       const [c, txt] = jstate(j), wait = outbox.some((x) => x.qid === j.qid) && !(inflight && inflight.items.some((x) => x.qid === j.qid));
       const st = c === 'app' && j.action === 'claude' ? 'применено: в работе у Claude' : c === 'app' && j.action === 'done' ? 'применено: дело закрыто' : txt;
       return `<div class="jl" data-j="${esc(j.qid || j.eid)}"><span class="hint num">${FRESH.hm(new Date(j.at))}</span><b>${esc(LABEL[j.action] || 'Сообщение')}</b><span style="min-width:0;flex:1 1 140px">${esc(j.short || '')}</span><span class="st ${c}">${esc(j.undone ? 'возвращено' : st)}</span>${jUndoable(j, i) ? `<button class="link" style="margin:0" data-undo="${esc(j.qid || j.eid)}">${wait ? 'Отменить' : 'Вернуть'}</button>` : ''}</div>`; }).join('')}</div></section>`;

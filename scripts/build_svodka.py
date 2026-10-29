@@ -309,6 +309,19 @@ def applied_events(db_dir):
     return sorted(out)
 
 
+def comment_replies(db_dir, days=3):
+    """Ответы Claude на отметки Ольги (db comments: status done + reply) — пульт показывает их в журнале."""
+    out = []
+    for f in glob.glob(os.path.join(db_dir, "comments", "*.json")):
+        with open(f, encoding="utf-8-sig") as fh:
+            c = json.load(fh)
+        if c.get("status") == "done" and c.get("reply") and c.get("at"):
+            out.append({"at": c["at"], "atStr": c.get("atStr", ""), "eventId": c.get("eventId", ""),
+                        "title": c.get("taskTitle", ""), "text": c.get("text", ""), "reply": c["reply"]})
+    cutoff = (datetime.now(MSK) - timedelta(days=days)).isoformat()
+    return sorted([r for r in out if r["at"] >= cutoff], key=lambda r: r["at"], reverse=True)[:12]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("db_dir")
@@ -378,6 +391,7 @@ def main():
         "lena_clients": lena_clients(tasks),
         "prognoz": prognoz(),
         "appliedEvents": applied_events(db_dir),
+        "replies": comment_replies(db_dir),
     }
     sp, bs, bp, bank = spisaniya(), buh_svodka(), buh_plan(), bank_oboroty()
     data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "bank": bank, "buh_sources": buh_sources(sp, bs, bp, bank)})
