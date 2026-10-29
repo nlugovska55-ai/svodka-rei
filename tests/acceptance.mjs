@@ -448,6 +448,24 @@ try {
     await Q.ctx.close();
   }
 
+  // 6d. Аудит 29.10: «сделано» без содержательного итога не выдаётся за результат; полнота сверки по всем делам видна
+  {
+    const R = structuredClone(D), at = new Date(Date.now() - 36e5).toISOString();
+    R.replies = [
+      {at, atStr: '28.10, 13:02', eventId: 'e-c1', title: 'Письма Лазаревой', text: '[сделано] ', reply: 'Закрыл задачу по письмам Лазаревой.', status: 'done', routedTo: '', result: '', resultCheck: 'требует проверки'},
+      {at, atStr: '28.10, 13:03', eventId: 'e-c2', title: 'Дело Г', text: '[сделано] ', reply: '', status: 'done', result: 'сделано'},
+      {at, atStr: '29.10, 14:04', eventId: 'e-c3', title: 'ИКЦ', text: 'Отложить до 2027', reply: 'ИКЦ перенесён', status: 'done', result: 'Срок ikc2210 перенесён на 2027, акт сверки № 31 не подписываем (fakty.md, 29.10)', resultBy: 'Регламент', resultAt: at}
+    ];
+    R.tasks.forEach((t, i) => { t.checked = i === 0 ? new Date().toISOString() : ''; });
+    const Q = await device(R); await go(Q.p);
+    const st = await Q.p.$$eval('#replies .jl', (x) => x.map((e) => e.dataset.stage + '|' + e.textContent.replace(/\s+/g, ' ')));
+    check('Отметка «сделано» без итога: «Итог не подтверждён», не зелёный итог; содержательный итог показан как итог',
+      st.some((t) => /^chk\|.*Письма Лазаревой|^chk\|.*Итог не подтверждён \(требует проверки\)/.test(t)) && st.some((t) => /^chk\|/.test(t) && /Итог не подтверждён/.test(t) && !/требует/.test(t)) && st.some((t) => /^res\|.*ikc2210 перенесён/.test(t)), st.join(' // '));
+    const cv = await Q.p.innerText('.cover');
+    check('Полнота сверки: сколько дел сверено сегодня и сколько без даты сверки', ((m) => !!m && +m[2] - 1 === +m[3])(cv.replace(/\s+/g, ' ').match(/сверено сегодня (1) из (\d+), без даты сверки (\d+)/)), cv.replace(/\s+/g, ' ').slice(0, 200));
+    await Q.ctx.close();
+  }
+
   // 7. Скриншоты ПК и телефона на обезличенных данных + ошибки JS
   if (SHOTS) {
     const P = await device(D); await go(P.p); await P.p.screenshot({path: path.join(SHOTS, 'pk-utro.png'), fullPage: true});

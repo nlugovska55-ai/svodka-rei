@@ -484,11 +484,15 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
   function journalHTML() {
     const since = Date.now() - 48 * 36e5, rows = journal.map((j, i) => [j, i]).filter(([j]) => Date.parse(j.at) > since).reverse().slice(0, 8);
     const hmo = (v) => { const d = v ? new Date(v) : null; return d && !isNaN(d) ? FRESH.hm(d) : ''; };
-    const stage = (r) => r.result ? ['res', `Итог (${r.resultBy || 'ветка'}${hmo(r.resultAt) ? ', ' + hmo(r.resultAt) : ''}): ${r.result}`]
-      : r.status === 'routed' ? ['rt', `у ${r.routedTo || 'ветки'}${hmo(r.routedAt) ? ' с ' + hmo(r.routedAt) : ''}: ${r.reply}`] : ['', r.reply];
+    // §16: «сделано» без содержательного итога не выдаём за результат. resultCheck ставит проверка цикла (kontrol/cikl_pulta.py).
+    const weak = (x) => !String(x || '').trim() || /^(сделано|закрыто|передано|закрыл[аи]?( задачу)?|готово)[.!]?$/i.test(String(x).trim());
+    const stage = (r) => r.action === 'reopen' && !r.result ? ['reo', r.appliedTo ? 'Вернули в работу: дело снова открыто' : 'Вернуть в работу: ещё не применено']
+      : r.status === 'done' && (r.resultCheck || weak(r.result)) ? ['chk', `Итог не подтверждён${r.resultCheck ? ' (' + r.resultCheck + ')' : ''}${r.reply ? ': ответ был «' + r.reply + '»' : ''}. Проверяет ${r.routedTo || r.resultBy || 'ветка-владелец'}`]
+      : r.result ? ['res', `Итог (${r.resultBy || 'ветка'}${hmo(r.resultAt) ? ', ' + hmo(r.resultAt) : ''}): ${r.result}`]
+      : r.status === 'routed' ? ['rt', `в работе у ${r.routedTo || 'ветки'}${hmo(r.routedAt) ? ' с ' + hmo(r.routedAt) : ''}: ${r.reply}`] : ['', r.reply];
     const pendRows = journal.filter((j) => j.eid && !APPLIED.has(j.eid) && ['accepted', 'remote'].includes(j.state) && Date.parse(j.at) > Date.now() - 48 * 36e5)
       .map((j) => `<div class="jl" data-stage="wait"><span class="hint num">${hmo(j.at)}</span><span style="min-width:0;flex:1 1 200px"><b>${esc(j.short || '')}</b><br>принято сайтом, ждёт разбора</span></div>`).join('');
-    const rp = pendRows + REPLIES.map((r) => { const [k, t] = stage(r); return `<div class="jl" data-stage="${k || 'done'}"><span class="hint num">${esc((r.atStr || '').slice(-5))}</span><span style="min-width:0;flex:1 1 200px"><b>${esc((r.text || r.title).replace(/^\[[^\]]*\]\s*/, '').slice(0, 90))}</b><br>${esc(t)}</span></div>`; }).join('');
+    const rp = pendRows + REPLIES.map((r) => { const [k, t] = stage(r); return `<div class="jl" data-stage="${k || 'done'}"><span class="hint num">${esc((r.atStr || '').slice(-5))}</span><span style="min-width:0;flex:1 1 200px"><b>${esc((r.text || r.title).replace(/^\[[^\]]*\]\s*/, '').slice(0, 90) || r.title || 'отметка без текста')}</b><br>${k === 'chk' ? `<span style="color:var(--warn)">${esc(t)}</span>` : esc(t)}</span></div>`; }).join('');
     const repl = rp ? `<section class="sec" id="replies"><div class="sh"><h2>Ответы Claude на ваши отметки</h2><span class="c">что сделано и кем</span></div><div class="rows" style="padding:6px 14px">${rp}</div></section>` : '';
     if (!rows.length) return repl;
     return repl + `<section class="sec" id="journal"><div class="sh"><h2>Журнал отметок</h2><span class="c">отправлено → принято → применено в базе</span></div><div class="rows" style="padding:6px 14px">${rows.map(([j, i]) => {
@@ -698,7 +702,10 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
     const status = !fresh ? `<div class="warnline">Данные от ${FRESH.dm(upd)} ${FRESH.hm(upd)} МСК: сегодня сводку ещё не выкладывали, цифры могут быть устаревшими.</div>` : FRESH.late ? `<div class="warnline">Данные собраны в ${FRESH.hm(upd)} МСК, выкладка ${FRESH.hm(FRESH.lastS)} не пришла. Всё ниже — на ${FRESH.hm(upd)}.</div>` : '';
     const unsent = (outbox.length || inflight) && !sending ? `<div class="warnline">${plural(outbox.length, 'отметка не отправлена', 'отметки не отправлены', 'отметок не отправлено')}, они сохранены в этом браузере. <button class="link" style="margin:0" data-retry>Отправить снова</button></div>` : '';
     const top = shown.slice(0, portion ? 0 : 3), more = shown.slice(top.length);
-    const cover = `<div class="cover"><span>${m.length ? `Проверено «Утром» сегодня: <b>${plural(m.length, 'дело', 'дела', 'дел')}</b>. Это не полный список.` : 'Сегодня «Утро» ещё не сверило ни одного вашего дела.'}${week.length ? ` Ещё <b>${week.length}</b> ${plural(week.length, 'ваше дело пока не сверено', 'ваших дела пока не сверены', 'ваших дел пока не сверено').replace(/^\d+ /, '')}.` : ''}</span>${week.length ? `<button class="link" data-bucket="week">Показать несверенные</button>` : ''}</div>`;
+    // Полнота сверки по всем открытым делам, не только по делам Ольги: сколько сверено сегодня и у скольких даты сверки нет вовсе
+    const own = T.filter((t) => !t.fromSummary), allN = own.length, allToday = own.filter((t) => okToday(t.checked)).length, allNone = own.filter((t) => !String(t.checked || '').trim()).length;
+    const coverAll = allN ? ` Во всех открытых делах: сверено сегодня <b>${allToday}</b> из <b>${allN}</b>${allNone ? `, без даты сверки <b>${allNone}</b>` : ''}.` : '';
+    const cover = `<div class="cover"><span>${m.length ? `Проверено «Утром» сегодня: <b>${plural(m.length, 'дело', 'дела', 'дел')}</b>. Это не полный список.` : 'Сегодня «Утро» ещё не сверило ни одного вашего дела.'}${week.length ? ` Ещё <b>${week.length}</b> ${plural(week.length, 'ваше дело пока не сверено', 'ваших дела пока не сверены', 'ваших дел пока не сверено').replace(/^\d+ /, '')}.` : ''}${coverAll}</span>${week.length ? `<button class="link" data-bucket="week">Показать несверенные</button>` : ''}</div>`;
     return `<section class="lead"><div class="day">${cap(dn)}</div>
       ${status}${unsent}
       <h1>${m.length ? `Сегодня от вас <em>${plural(m.length, 'дело', 'дела', 'дел')}</em>` : week.length ? `${plural(week.length, 'дело от вас ждёт', 'дела от вас ждут', 'дел от вас ждут')} сверки «Утра»` : listToday ? 'Утро разобрано' : 'Список дел на сегодня ещё не собран'}</h1>

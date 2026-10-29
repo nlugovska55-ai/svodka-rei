@@ -4,11 +4,16 @@
     python3 -I scripts/reestr_garanty.py sync <файл.xlsx>... [--mtime ISO] [--bank data/svodka.json] [--today ГГГГ-ММ-ДД]
     python3 -I scripts/reestr_garanty.py xlsx --out реестр.xlsx [--today ...]      # книга для Google Диска (формулы, без зарплаты)
     python3 -I scripts/reestr_garanty.py salary --out зарплата.xlsx                 # отдельная закрытая книга: база и записи Лены
+    python3 -I scripts/reestr_garanty.py fail "ПК недоступен" [--scheduled]        # запуск не состоялся: записать сбой, реестр не трогать
+
+--scheduled ставит в import-status.json scheduled=true: пульт пишет «по расписанию», а не «вручную».
+Каждый sync и fail дописывает строку в zhurnal-zapuskov.md (время, итог, изменения, sha файла) — это журнал для проверки.
 
 Где лежит состояние: $GARANTY_DIR (по умолчанию /mnt/project-files/daily-control/garanty-leny):
   reestr.json        строки (ID G-0001…), платежи (P-…), протокол миграции, журнал запусков;
   snapshot.json      строки для пульта (build_svodka.py читает его как раньше), без зарплаты;
-  import-status.json последний запуск, последний успешный, ошибка, дата файла Лены.
+  import-status.json последний запуск, последний успешный, ошибка, дата файла Лены;
+  zhurnal-zapuskov.md по строке на каждый запуск (и успешный, и сбой).
 
 Правила:
 - Файлы Лены не меняются. Ошибка чтения не трогает прежний реестр и снимок (только status ok=false).
@@ -590,35 +595,61 @@ def build_salary(st, out):
     wb.save(out)
 
 
+def journal_line(status, what):
+    """Строка журнала запусков: проверяющий видит каждый запуск, а не только последний."""
+    path = os.path.join(DIR, "zhurnal-zapuskov.md")
+    new = not os.path.exists(path)
+    with open(path, "a", encoding="utf-8") as fh:
+        if new:
+            fh.write("# Журнал запусков реестра гарантов Лены\n\n| Время МСК | Как | Итог | Файл Лены (sha, дата) |\n|---|---|---|---|\n")
+        how = "по расписанию" if status.get("scheduled") else "вручную"
+        fh.write(f"| {status['lastAttempt'][:16].replace('T', ' ')} | {how} | {what} | {status.get('sha', '')} {status.get('sourceMtime', '')[:16]} |\n")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("cmd", choices=["sync", "xlsx", "salary", "sheet-json"])
+    ap.add_argument("cmd", choices=["sync", "fail", "xlsx", "salary", "sheet-json"])
     ap.add_argument("files", nargs="*")
     ap.add_argument("--mtime", default="")
     ap.add_argument("--bank", default="")
     ap.add_argument("--out", default="")
     ap.add_argument("--today", default="")
     ap.add_argument("--since", default="", help="xlsx: строки с этого месяца ГГГГ-ММ (плюс открытые старые)")
+    ap.add_argument("--scheduled", action="store_true", help="запуск по расписанию (пишется в import-status)")
     a = ap.parse_args()
     today = date.fromisoformat(a.today) if a.today else datetime.now(MSK).date()
     os.makedirs(DIR, exist_ok=True)
     stp = os.path.join(DIR, "import-status.json")
-    if a.cmd == "sync":
+    if a.cmd in ("sync", "fail"):
         status = json.load(open(stp, encoding="utf-8")) if os.path.exists(stp) else {}
         status["lastAttempt"] = now()
+        status["scheduled"] = a.scheduled
+        if a.cmd == "fail":  # запуск не состоялся (ПК выключен, файла нет): реестр и снимок не трогаем
+            status.update(ok=False, lastError=" ".join(a.files) or "причина не указана")
+            save(stp, status)
+            journal_line(status, "сбой: " + status["lastError"])
+            print("записан сбой, прежний реестр сохранён:", status["lastError"])
+            return
         try:
             st, changed = sync(a.files, a.mtime, a.bank, today)
         except Exception as e:  # прежние реестр и снимок не трогаем
             status.update(ok=False, lastError=f"{type(e).__name__}: {e}")
             save(stp, status)
+            journal_line(status, "сбой: " + status["lastError"])
             print("ОШИБКА, прежний реестр сохранён:", status["lastError"], file=sys.stderr)
             sys.exit(1)
         save(os.path.join(DIR, "reestr.json"), st)
         snap = snapshot(st, today)
         save(os.path.join(DIR, "snapshot.json"), snap)
+        digest = hashlib.sha256()
+        for f in a.files:
+            with open(f, "rb") as fh:
+                digest.update(fh.read())
         status.update(ok=True, lastOk=status["lastAttempt"], lastError="", rows=len(snap["rows"]), live=True, format="reestr",
+                      sha=digest.hexdigest()[:12], files=[os.path.basename(f) for f in a.files],
                       sourceMtime=st.get("sourceMtime", ""), changed=changed)
         save(stp, status)
+        journal_line(status, f"ок, строк в пульт {len(snap['rows'])}, изменения: {'да' if changed else 'нет'}")
         print(f"реестр: {len(st['rows'])} строк, платежей {len(st['payments'])}, в пульт {len(snap['rows'])}, изменения: {'да' if changed else 'нет'}")
     elif a.cmd == "sheet-json":
         # книга xlsx → {вкладка: строки} для записи в Google-таблицу коннектором Таблиц (update_values, USER_ENTERED)

@@ -90,6 +90,26 @@ class Reestr(unittest.TestCase):
         self.assertTrue(status["lastOk"])
         self.assertIn("шапка", status["lastError"])
 
+    def test_scheduled_fail_and_rerun_are_journaled(self):
+        # расписание: успешный запуск, повтор без изменений, затем ПК недоступен — реестр не тронут, всё в журнале
+        f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо эрмаш", "сс", "1379 прил 2", 600000, None)])
+        for _ in range(2):
+            p = subprocess.run([sys.executable, "-I", str(SCRIPT), "sync", f, "--today", "2026-10-29", "--scheduled"], env=self.env, capture_output=True, text=True)
+            self.assertEqual(p.returncode, 0, p.stderr)
+        before = (self.state / "snapshot.json").read_text(encoding="utf-8")
+        p = subprocess.run([sys.executable, "-I", str(SCRIPT), "fail", "ПК недоступен", "--scheduled"], env=self.env, capture_output=True, text=True)
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertEqual((self.state / "snapshot.json").read_text(encoding="utf-8"), before)
+        status = json.loads((self.state / "import-status.json").read_text(encoding="utf-8"))
+        self.assertEqual((status["ok"], status["scheduled"], status["lastError"]), (False, True, "ПК недоступен"))
+        self.assertTrue(status["lastOk"])
+        log = (self.state / "zhurnal-zapuskov.md").read_text(encoding="utf-8").splitlines()[4:]
+        self.assertEqual(len(log), 3)
+        self.assertIn("изменения: да", log[0])
+        self.assertIn("изменения: нет", log[1])
+        self.assertIn("сбой: ПК недоступен", log[2])
+        self.assertTrue(all("по расписанию" in l for l in log))
+
     def test_both_columns_is_question_not_partial(self):
         f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо электростнадртприбор", "сс сил 2", "689 ле сенйс прил 19", 100000, 12000)])
         self.run_sync(f)

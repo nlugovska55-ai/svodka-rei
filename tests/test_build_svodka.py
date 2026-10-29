@@ -34,6 +34,7 @@ class BuilderAcceptance(unittest.TestCase):
         patch.object(builder, "LENA_CSV", str(self.root / "missing.csv")).start()
         patch.object(builder, "PROGNOZ_JSON", str(self.root / "missing.json")).start()
         patch.object(builder, "GARANTY_DIR", str(self.root / "no-garanty")).start()
+        patch.object(builder, "AUTO_STATUS", str(self.root / "no-auto.json")).start()
 
     def task(self, ident="one", **fields):
         row = {"id": ident, "title": "Synthetic task", "status": "open", **fields}
@@ -188,6 +189,47 @@ class BuilderAcceptance(unittest.TestCase):
         self.task(status="open", waiting="Claude", delegated="edlg0001")
         row = self.build()["tasks"][0]
         self.assertEqual(("Claude", "edlg0001"), (row["waiting"], row["delegated"]))
+
+
+    def test_automation_comes_from_status_file_and_registry(self):
+        auto = self.root / "auto.json"
+        auto.write_text(json.dumps([{"id": "auto-utro", "flag": "ok", "text": "Сводка выложена", "checked": "2026-10-29T19:20:18+03:00"}]), encoding="utf-8")
+        gd = self.root / "gar"
+        gd.mkdir()
+        (gd / "import-status.json").write_text(json.dumps({"ok": False, "lastAttempt": "2026-10-29T09:15:00+03:00", "lastOk": "2026-10-28T15:08:46+03:00", "lastError": "ПК недоступен"}), encoding="utf-8")
+        self.summary.write_text(json.dumps([{"section": "Автоматика", "text": "старая ручная копия", "checked": "2026-10-28"}, {"section": "Нужно от вас", "text": "x"}]), encoding="utf-8")
+        self.task()
+        with patch.object(builder, "AUTO_STATUS", str(auto)), patch.object(builder, "GARANTY_DIR", str(gd)):
+            self.build()
+        rows = [r for r in json.loads(self.out.read_text(encoding="utf-8"))["summary"] if r["section"] == "Автоматика"]
+        self.assertEqual([r["id"] for r in rows], ["auto-utro", "auto-garanty"])
+        g = rows[1]
+        self.assertEqual(g["flag"], "срочно")
+        self.assertIn("28.10 15:08", g["text"])
+        self.assertIn("ПК недоступен", g["text"])
+        self.assertIn("вручную", g["text"])
+        self.assertEqual(g["checked"], "2026-10-29T09:15:00+03:00")
+
+    def test_done_comment_without_result_is_shown_with_check_flag(self):
+        cdir = self.root / "comments"
+        cdir.mkdir(exist_ok=True)
+        (cdir / "c1.json").write_text(json.dumps({"status": "done", "at": "2099-01-01T10:00:00+03:00", "text": "[сделано] ", "reply": "Закрыл задачу по письмам Лазаревой.", "resultCheck": "требует проверки"}), encoding="utf-8")
+        (cdir / "c2.json").write_text(json.dumps({"status": "done", "at": "2099-01-01T11:00:00+03:00", "text": "[сделано] "}), encoding="utf-8")
+        self.task()
+        self.build()
+        rep = json.loads(self.out.read_text(encoding="utf-8"))["replies"]
+        self.assertEqual(len(rep), 2)
+        self.assertEqual({r["resultCheck"] for r in rep}, {"требует проверки", ""})
+
+
+    def test_superseded_mark_hidden_reopen_shown(self):
+        cdir = self.root / "comments"
+        cdir.mkdir(exist_ok=True)
+        (cdir / "a.json").write_text(json.dumps({"status": "done", "action": "done", "at": "2099-01-01T10:00:00+03:00", "text": "[отменено позже]", "supersededBy": "e2"}), encoding="utf-8")
+        (cdir / "b.json").write_text(json.dumps({"status": "done", "action": "reopen", "appliedTo": "x", "eventId": "e2", "at": "2099-01-01T10:03:00+03:00", "text": "[вернуть в работу] "}), encoding="utf-8")
+        self.task()
+        rep = self.build()["replies"]
+        self.assertEqual([(r["eventId"], r["action"], r["appliedTo"]) for r in rep], [("e2", "reopen", "x")])
 
 
 if __name__ == "__main__":

@@ -378,14 +378,53 @@ def comment_replies(db_dir, days=3):
     for f in glob.glob(os.path.join(db_dir, "comments", "*.json")):
         with open(f, encoding="utf-8-sig") as fh:
             c = json.load(fh)
-        if c.get("status") in ("done", "routed") and c.get("reply") and c.get("at"):
+        # done без reply тоже показываем: пульт пометит его «итог не подтверждён», а не спрячет
+        if c.get("supersededBy"):
+            continue  # отметку отменила следующая (например, «вернуть в работу»): показываем только последнюю
+        if c.get("status") in ("done", "routed") and (c.get("reply") or c.get("status") == "done") and c.get("at"):
             out.append({"at": c["at"], "atStr": c.get("atStr", ""), "eventId": c.get("eventId", ""),
-                        "title": c.get("taskTitle", ""), "text": c.get("text", ""), "reply": c["reply"],
+                        "title": c.get("taskTitle", ""), "text": c.get("text", ""), "reply": c.get("reply") or "",
+                        "resultCheck": c.get("resultCheck") or "", "proof": c.get("proof") or "",
+                        "action": c.get("action") or "", "appliedTo": c.get("appliedTo") or "",
                         "status": c["status"], "routedTo": c.get("routedTo", ""), "routedAt": c.get("routedAt", ""),
                         "result": c.get("result", ""), "resultAt": c.get("resultAt", ""), "resultBy": c.get("resultBy", ""),
                         "taskId": c.get("taskId") or ""})
     cutoff = (datetime.now(MSK) - timedelta(days=days)).isoformat()
-    return sorted([r for r in out if r["at"] >= cutoff], key=lambda r: r["at"], reverse=True)[:12]
+    rows = sorted([r for r in out if r["at"] >= cutoff], key=lambda r: r["at"], reverse=True)
+    # 12 последних, но отметку с итогом «требует проверки» не выталкиваем за край, пока её не проверят
+    return [r for i, r in enumerate(rows) if i < 12 or r["resultCheck"]]
+
+
+AUTO_STATUS = os.environ.get("AUTO_STATUS", "/mnt/project-files/daily-control/kontrol/avtomatika-status.json")
+
+
+def automation(summary, gar):
+    """Статусы автоматики на пульт берутся прямо из kontrol/avtomatika-status.json (пишет «Регламент» по файлам и коммитам),
+    а не из ручной копии в summary. Нет файла или он битый — остаются строки summary как были.
+    Реестр гарантов Лены добавляется отдельной строкой по import-status.json: время последней попытки = время проверки."""
+    rows = None
+    if os.path.exists(AUTO_STATUS):
+        try:
+            with open(AUTO_STATUS, encoding="utf-8-sig") as fh:
+                got = json.load(fh)
+            if isinstance(got, list) and all(isinstance(r, dict) and r.get("text") for r in got):
+                rows = [dict(r, section="Автоматика", src=r.get("src") or "kontrol/avtomatika-status.json") for r in got]
+        except (ValueError, OSError):
+            rows = None
+    if rows is None:
+        rows = [r for r in summary if r.get("section") == "Автоматика"]
+    st = (gar or {}).get("status") or {}
+    if st:
+        ok_at = str(st.get("lastOk") or "")
+        text = ("Реестр гарантов Лены: импорт " + ok_at[8:10] + "." + ok_at[5:7] + " " + ok_at[11:16] if ok_at else "Реестр гарантов Лены: успешного импорта нет")
+        text += ", запуск по расписанию «Гаранты Лены»" if st.get("scheduled") else ", запуск вручную"
+        if not st.get("ok"):
+            text += "; последняя попытка — сбой: " + str(st.get("lastError") or "причина не записана")
+        rows = [r for r in rows if r.get("id") != "auto-garanty"] + [{
+            "id": "auto-garanty", "section": "Автоматика", "client": "", "flag": "ok" if st.get("ok") else "срочно",
+            "text": text, "checked": st.get("lastAttempt") or "", "src": "garanty-leny/import-status.json",
+            "link": "garanty-leny/vnedrenie-2026-10-29.md"}]
+    return [r for r in summary if r.get("section") != "Автоматика"] + rows
 
 
 def main():
@@ -462,6 +501,7 @@ def main():
     sp, bs, bp, bank = spisaniya(), buh_svodka(), buh_plan(), bank_oboroty()
     data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "bank": bank, "buh_sources": buh_sources(sp, bs, bp, bank)})
     data["garanty"] = garanty(tasks, bank)
+    data["summary"] = automation(summary, data["garanty"])
     atomic_json(out, data)
     print(f"tasks {len(tasks)}, summary {len(summary)}, lena_clients {len(data['lena_clients'])} -> {out}")
 
