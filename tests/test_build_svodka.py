@@ -35,6 +35,8 @@ class BuilderAcceptance(unittest.TestCase):
         patch.object(builder, "PROGNOZ_JSON", str(self.root / "missing.json")).start()
         patch.object(builder, "GARANTY_DIR", str(self.root / "no-garanty")).start()
         patch.object(builder, "AUTO_STATUS", str(self.root / "no-auto.json")).start()
+        patch.object(builder, "BASELINE_JSON", str(self.root / "baseline.json")).start()
+        patch.object(builder, "TREB_JSON", str(self.root / "no-treb.json")).start()
 
     def task(self, ident="one", **fields):
         row = {"id": ident, "title": "Synthetic task", "status": "open", **fields}
@@ -241,6 +243,34 @@ class BuilderAcceptance(unittest.TestCase):
         self.assertEqual(t["a"]["link"], "http://95.84.156.117:3839/projects/orders/2394166/")
         self.assertEqual((t["b"]["orders"], t["b"]["link"]), ([], "https://example.org/x"))
         self.assertEqual(t["c"]["orders"], [])
+
+    def test_ponomarenko_only_incoming_not_from_rei(self):
+        bk = self.root / "bank.json"
+        bk.write_text(json.dumps({"built": "t", "days": [
+            {"account": "Точка ИП *3698", "date": "2026-10-28", "open": 10, "in": 96300 + 12000, "out": 14316.13, "close": 10 + 108300 - 14316.13,
+             "inItems": [{"who": "РЭИ", "amount": 96300}, {"who": "АЗС Спецснаб", "amount": 12000}], "outItems": [{"who": "Дракон Чай", "amount": 14316.13}]},
+            {"account": "Точка ИП *3698", "date": "2026-10-29", "open": 1, "in": 5, "out": 0, "close": 6, "inItems": [{"who": "ООО РусЭкоИнновации", "amount": 5}], "outItems": []},
+            {"account": "Альфа РЭИ *7370", "date": "2026-10-28", "open": 100, "in": 0, "out": 96300, "close": 100 - 96300,
+             "inItems": [], "outItems": [{"who": "Пономаренко", "amount": 96300, "basis": "п/п 258"}]}]}, ensure_ascii=False), encoding="utf-8")
+        patch.object(builder, "BANK_JSON", str(bk)).start()
+        days = builder.bank_oboroty()["days"]
+        pon = [d for d in days if "ИП" in d["account"]]
+        self.assertEqual(len(pon), 1, "день только с поступлением от РЭИ не показывается")
+        self.assertEqual((pon[0]["in"], pon[0]["out"], pon[0]["close"], pon[0]["outItems"]), (12000, None, None, []))
+        self.assertEqual([x["who"] for x in pon[0]["inItems"]], ["АЗС Спецснаб"])
+        alfa = next(d for d in days if "Альфа" in d["account"])
+        self.assertEqual((alfa["out"], [x["who"] for x in alfa["outItems"]]), (96300, ["прочие перечисления"]))
+        self.assertNotIn("Пономаренко", json.dumps(days, ensure_ascii=False))
+
+    def test_forecast_accuracy_starts_collecting_without_backdating(self):
+        gar = {"connected": True, "rows": [{"id": "G-1", "date": "2026-10-30", "remain": 1000.0, "amount": 1000.0, "stageReg": "Гарант", "bank": []}]}
+        from datetime import date
+        first = builder.forecast_accuracy(gar, date(2026, 10, 29))  # четверг: неделя сохранена не с начала
+        self.assertEqual((first["weeks"], first["firstPartial"]), ([], True))
+        gar["rows"].append({"id": "G-2", "date": "2026-11-04", "remain": 500.0, "amount": 500.0, "stageReg": "Обсуждаем", "bank": [{"date": "2026-11-05", "amount": 500.0}]})
+        builder.forecast_accuracy(gar, date(2026, 11, 2))  # понедельник: прогноз недели сохранён вовремя
+        acc = builder.forecast_accuracy(gar, date(2026, 11, 9))
+        self.assertEqual([(w["week"], w["kind"], w["promised"], w["cameBank"]) for w in acc["weeks"]], [("2026-11-02", "прогноз", 500.0, 500.0)])
 
 
 if __name__ == "__main__":

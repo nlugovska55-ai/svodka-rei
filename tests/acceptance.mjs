@@ -50,7 +50,7 @@ async function device(data, opts = {}) {
 const markDone = async (p, id) => { await p.click(`.rw[data-id="${id}"] [data-act="done"]`); await p.waitForSelector('#cf-yes'); await p.click('#cf-yes'); };
 const go = async (p, hash = '#utro') => { await p.goto(URL0 + hash); await p.waitForTimeout(700); };
 const rowIds = (p) => p.$$eval('.rows:first-of-type .rw', (x) => x.map((e) => e.dataset.id));
-const ask = (p) => p.$$eval('section.sec', (ss) => { const s = ss.find((e) => /Нужно от вас/.test(e.querySelector('h2')?.textContent || '')); return s ? [...s.querySelectorAll('.rw')].map((e) => e.dataset.id) : []; });
+const ask = (p) => p.$$eval('section.sec', (ss) => { const s = ss.find((e) => /Требует вашего решения/.test(e.querySelector('h2')?.textContent || '')); return s ? [...s.querySelectorAll('.rw')].map((e) => e.dataset.id) : []; });
 
 try {
   const D = fresh();
@@ -144,12 +144,12 @@ try {
   {
     const d = fresh(); const came = new Set(d.tasks.filter((t) => t.money === 'пришло').map((t) => t.client)); const c = d.tasks.find((t) => t.money === 'ждём' && t.amount && !came.has(t.client));
     c.invoice = 'счёт-77'; d.tasks.push({...c, id: 'dup-came', money: 'пришло', title: c.title + ' (пришло)', invoice: 'счёт-77'});
-    const {ctx, p} = await device(d); await go(p);
+    const {ctx, p} = await device(d); await go(p, "#money");
     const v = await p.$$eval('.stg', (x) => x.map((e) => [e.querySelector('.k').textContent, e.querySelector('.v').textContent]));
     const hint = await p.textContent('.strip').catch(() => '');
         const shown = v.find((x) => /Ждём оплату/.test(x[0]));
     const base0 = d.tasks.filter((t) => t.id !== 'dup-came');
-    const {ctx: c0, p: p0} = await device({...d, tasks: base0}); await go(p0);
+    const {ctx: c0, p: p0} = await device({...d, tasks: base0}); await go(p0, "#money");
     const v0 = (await p0.$$eval('.stg', (x) => x.map((e) => e.querySelector('.k').textContent))).find((x) => /Ждём оплату/.test(x)); await c0.close();
     const n0 = +v0.split('· ')[1], n1 = +shown[0].split('· ')[1];
     const cameTxt = await p.$$eval('.stg', (x) => x.map((e) => e.textContent).find((t) => /Пришло/.test(t)) || '');
@@ -163,13 +163,13 @@ try {
     const d = fresh(); const base = d.tasks.find((t) => t.money === 'ждём' && t.amount);
     d.tasks = d.tasks.filter((t) => !['пришло', 'ждём'].includes(t.money));
     d.tasks.push({...base, id: 'alfa', client: 'ООО Альфа', money: 'пришло', amount: 10000, invoice: ''}, {...base, id: 'beta', client: 'ООО Бета', money: 'ждём', amount: 10000, invoice: ''});
-    const {ctx, p} = await device(d); await go(p);
+    const {ctx, p} = await device(d); await go(p, "#money");
     const stg = await p.$$eval('.stg', (x) => x.map((e) => e.querySelector('.k').textContent));
     const n = +(stg.find((x) => /Ждём оплату/.test(x)) || '· 0').split('· ')[1];
     check('ООО Альфа «пришло» 10 000 и ООО Бета «ждём» 10 000 — ожидаемых 1, не 0', n === 1, `«Ждём оплату» ${n}`);
     await ctx.close();
     const d2 = structuredClone(d); d2.tasks.find((t) => t.id === 'alfa').client = 'ООО Бета';
-    const B = await device(d2); await go(B.p);
+    const B = await device(d2); await go(B.p, "#money");
     const stg2 = await B.p.$$eval('.stg', (x) => x.map((e) => e.querySelector('.k').textContent));
     const n2 = +(stg2.find((x) => /Ждём оплату/.test(x)) || '· 0').split('· ')[1], hint = await B.p.textContent('.strip');
     check('Тот же клиент и сумма без id — обе суммы остаются, пометка «возможный дубль»', n2 === 1 && /Возможный дубль/.test(hint) && !/Не считаю дважды/.test(hint), `«Ждём оплату» ${n2}; пометка: ${/Возможный дубль/.test(hint)}`);
@@ -214,7 +214,7 @@ try {
     const d = fresh(); d.tasks.forEach((t) => { t.money = ''; }); d.summary = [];
     const N = await device(d); await go(N.p);
     const h = await N.p.textContent('.lead');
-    check('Нет сумм и нет списка «Утра» — так и написано', /Сумм в пути в данных нет/.test(h) && /ещё не собран|ждут сверки/.test(h) && !/0 ₽|разобрано/.test(h), `заголовок: «${h.trim()}»`);
+    check('Нет таблицы Лены и нет списка «Утра» — так и написано, без нулей', /Таблица Лены не подключена: прогноза поступлений нет/.test(h) && /ещё не собран|ждут? проверки/.test(h) && !/0 ₽|разобрано/.test(h), `заголовок: «${h.trim()}»`);
     await N.ctx.close();
     const o = fresh(); o.updated = '2026-01-05T09:30:00+03:00';
     const S = await device(o); await go(S.p);
@@ -249,15 +249,15 @@ try {
   {
     const d = fresh(); d.tasks.forEach((t) => { delete t.checked; });
     const {ctx, p} = await device(d); await go(p);
-    const a = await ask(p), h = await p.textContent('.lead'), b = await p.textContent('.buckets');
-    check('Несверенные «готово Ольге» не выдаются за проверенные', a.length === 0 && /Ждут сверки/.test(b) && !/Утро разобрано/.test(h), `в «Нужно от вас» ${a.length}, заголовок «${h.trim().slice(0, 60)}»`);
-    const st = await p.textContent('.stages');
-    check('Деньги без сегодняшней сверки помечены', /сегодня не сверено/.test(st) && /сегодня не сверено/.test(h), `заголовок: «${h.trim().slice(0, 120)}»`);
+    const a = await ask(p), h = await p.textContent('.lead'), b = await p.textContent('#unchecked').catch(() => '');
+    check('Несверенные «готово Ольге» не выдаются за проверенные', a.length === 0 && /Не проверено сегодня/.test(b) && !/Утро разобрано|не требуется/.test(h), `в «Требует вашего решения» ${a.length}, заголовок «${h.trim().slice(0, 60)}»`);
+    await go(p, '#money'); const st = await p.textContent('.stages');
+    check('Деньги без сегодняшней сверки помечены', /сегодня не сверено/.test(st), `этапы: «${st.trim().slice(0, 120)}»`);
     await ctx.close();
     const d2 = fresh(); const came2 = new Set(d2.tasks.filter((t) => t.money === 'пришло').map((t) => t.client)); const w = d2.tasks.find((t) => t.money === 'ждём' && t.amount && !came2.has(t.client)); verify(w);
-    const B = await device(d2); await go(B.p);
-    const h2 = await B.p.textContent('.lead');
-    check('Сверенная сумма показана отдельно от несверенной', /сверено сегодня/.test(h2) && /без сегодняшней сверки/.test(h2), `«${h2.trim().slice(0, 140)}»`);
+    const B = await device(d2); await go(B.p, '#money');
+    const h2 = await B.p.textContent('.stages');
+    check('Сверенная сумма показана отдельно от несверенной', /сверено сегодня/.test(h2) && /без сверки/.test(h2), `«${h2.trim().slice(0, 140)}»`);
     await B.ctx.close();
     const d3 = fresh(); d3.updated = iso(new Date(Date.now() - 26 * 36e5));
     const S = await device(d3); await go(S.p);
@@ -328,14 +328,14 @@ try {
     await A.p.fill('#shText', 'сверить акт'); await A.p.click('#cf-yes'); await A.p.waitForTimeout(5800);
     const ev = inbox.find((x) => x.taskId === id0);
     await go(A.p, '#all'); await A.p.fill('#q', ''); const tag = await A.p.$eval(`.rw[data-id="${id0}"]`, (e) => e.textContent).catch(() => 'нет строки');
-    await go(A.p, '#utro'); const jr = await A.p.textContent('#journal').catch(() => '');
+    await go(A.p, '#utro'); const jr = await A.p.textContent('#replies').catch(() => '');
     check('Поручить Claude: в inbox action=claude, дело не закрыто и видно «ожидает разбора»', ev?.action === 'claude' && !!ev.eid && /ожидает разбора/.test(tag) && !(await ask(A.p)).includes(id0),
       `действие «${ev?.action}», строка: «${tag.replace(/\s+/g, ' ').trim().slice(0, 90)}»`);
     check('Журнал: поручение «принято, ждёт разбора»', /Поручено Claude/.test(jr) && /принято, ждёт разбора/.test(jr), `«${jr.replace(/\s+/g, ' ').trim().slice(0, 120)}»`);
     const ap = fresh(); const tk = ap.tasks.find((t) => t.id === id0); Object.assign(tk, {status: 'open', waiting: 'Claude', delegated: ev.eid}); ap.appliedEvents = [ev.eid];
     await A.p.unroute('**/data/svodka.json*'); await A.p.route('**/data/svodka.json*', (r) => r.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify(ap)}));
     await A.p.reload(); await A.p.waitForTimeout(800);
-    const jr2 = await A.p.textContent('#journal').catch(() => '');
+    const jr2 = await A.p.textContent('#replies').catch(() => '');
     await go(A.p, '#all'); await A.p.click('[data-who="Claude"]'); await A.p.waitForTimeout(200);
     const row2 = await A.p.$eval(`.rw[data-id="${id0}"]`, (e) => e.textContent).catch(() => 'нет строки');
     check('После применения в db: дело открыто, ведёт Claude, журнал «применено»', /в работе у Claude/.test(row2) && /применено: в работе у Claude/.test(jr2) && !(await ask(A.p)).includes(id0),
@@ -350,14 +350,14 @@ try {
     const q1 = await A.p.textContent('.sh-in');
     if (SHOTS) await A.p.screenshot({path: path.join(SHOTS, 'd-podtverzhdenie.png')});
     await A.p.click('[data-sh="no"]'); await A.p.waitForTimeout(5800);
-    const jl = await A.p.$$eval('#journal .jl', (x) => x.length).catch(() => 0);
+    const jl = await A.p.$$eval('#replies .jl', (x) => x.length).catch(() => 0);
     check('«Я выполнила» спрашивает подтверждение; «Отмена» — ни одного события', /Вы сами выполнили/.test(q1) && /Поручить Claude/.test(q1) && inbox.length === 0 && (await ask(A.p)).includes(id0) && jl === 0,
       `вопрос: «${q1.trim().slice(0, 40)}…», событий в inbox ${inbox.length}, записей в журнале ${jl}`);
     await markDone(A.p, id0); await A.p.waitForTimeout(300);
-    await A.p.click('#journal [data-undo]'); await A.p.waitForTimeout(5800);
+    await A.p.click('#replies [data-undo]'); await A.p.waitForTimeout(5800);
     check('Отмена из журнала до отправки: событий нет, дело на месте', inbox.length === 0 && (await ask(A.p)).includes(id0), `событий ${inbox.length}`);
     await markDone(A.p, id0); await A.p.waitForTimeout(5800);
-    const sent = inbox.length; await A.p.click('#journal [data-undo]'); await A.p.waitForTimeout(5800);
+    const sent = inbox.length; await A.p.click('#replies [data-undo]'); await A.p.waitForTimeout(5800);
     const kinds = inbox.map((x) => x.action).join(', ');
     check('«Вернуть» из журнала после отправки: одно событие reopen, дело снова в списке', sent === 1 && inbox.length === 2 && inbox[1].action === 'reopen' && (await ask(A.p)).includes(id0), `в inbox: ${kinds}`);
     await A.ctx.close();
@@ -380,10 +380,11 @@ try {
     d.buh_svodka = {file: 'buh-svodka-test.md', title: 'Бухгалтерия: сводка', sections: [{title: 'В работе', lines: ['строка плана']}]};
     const {ctx, p} = await device(d); await go(p, '#buh');
     const v7 = await p.innerText('#view');
-    await p.click('[data-cal="30"]'); await p.waitForTimeout(200); const v30 = await p.innerText('#view');
+    const v7all = await p.textContent('#view');  // свёрнутые блоки (регулярные платежи) — в разметке, по раскрытию
+    await p.click('[data-cal="30"]'); await p.waitForTimeout(200); if (await p.$('[data-more="cal"]')) { await p.click('[data-more="cal"]'); await p.waitForTimeout(200); } const v30 = await p.innerText('#view');
     check('Бухгалтерия: без выписок — «Факт по банку не получен», остаток не считается', /✕ Выписки банков/.test(v7) && /Факт по банку\s*не получен/.test(v7) && /не считаю/.test(v7), 'строки «✕ Выписки банков», «Факт по банку не получен», «Остаток… не считаю»');
     check('Списания: к оплате / подтверждено ФНС (с датой поступления и планом) / со слов Ольги / справочно — раздельно', /К оплате · 26\s000\s₽/.test(v7) && /Оплачено, подтверждено ФНС · 28\s314/.test(v7) && /поступило \d\d\.\d\d, план был/.test(v7) && /Со слов Ольги, банком и ФНС не подтверждено · 101\s095,42/.test(v7) && /в Точке платежа нет/.test(v7) && /Справочно, в итоги не входит/.test(v7), (v7.match(/К оплате · [^\n]*/) || ['нет'])[0]);
-    check('Неизвестная сумма — диапазон, настоящий ноль — «списания нет», не «0 ₽»; остаток с причиной', /1\s000–6\s000 ₽, по счёту/.test(v7) && /списания нет/.test(v7) && !/\b0 ₽/.test(v7) && /Аренда офиса/.test(v7), 'диапазон, «списания нет», регулярные платежи и причина без остатка');
+    check('Неизвестная сумма — диапазон, настоящий ноль — «списания нет», не «0 ₽»; остаток с причиной', /1\s000–6\s000 ₽, по счёту/.test(v7) && /списания нет/.test(v7) && !/\b0 ₽/.test(v7) && /Регулярные платежи/.test(v7) && /Аренда офиса/.test(v7all), 'диапазон, «списания нет», регулярные платежи и причина без остатка');
     check('Календарь 7/30 дней: аренда через 14 дней только в 30', !/Аренда/.test(v7.split('План-факт')[0]) && /Аренда/.test(v30.split('План-факт')[0]), 'аренда в 7 дн: нет, в 30 дн: да');
     if (SHOTS) await p.screenshot({path: path.join(SHOTS, 'pk-buhgalteriya.png'), fullPage: true});
     await ctx.close();
@@ -395,7 +396,7 @@ try {
     bk.buh_sources = [{name: 'Выписки банков', ok: true, partial: true, note: 'только Альфа РЭИ *7370 за 28.10. Прочие счета и дни не охвачены'}];
     const ttk = bk.tasks.find((t) => t.money === 'ждём подпись' && t.amount) || bk.tasks.find((t) => t.amount); Object.assign(ttk, {money: 'ждём подпись', due: ymd(1).split('-').reverse().join('.'), status: 'open'});
     const BKp = await device(bk); await go(BKp.p, '#buh'); const vb = await BKp.p.innerText('#view'); await BKp.ctx.close();
-    check('Банк: обороты только по охваченному счёту и дню, без «полного факта»', /Факт по банку · Альфа РЭИ \*7370\s*\+260\s000\s₽\s*списано 137\s001,16\s₽ · только за \d\d\.\d\d, не полный факт месяца/.test(vb) && /Банк: обороты по прочитанным выпискам/.test(vb) && /конец 443\s420,32/.test(vb) && !/Факт по банку\s*не получен/.test(vb), (vb.match(/Факт по банку · [^\n]*\n[^\n]*\n[^\n]*/) || ['нет'])[0].replace(/\n/g, ' | '));
+    check('Банк: обороты только по охваченному счёту и дню, без «полного факта»', /Факт по банку · Альфа РЭИ \*7370\s*\+260\s000\s₽\s*списано 137\s001,16\s₽ · только за \d\d\.\d\d, не полный факт месяца/.test(vb) && /Банк: обороты по прочитанным выпискам/.test(vb) && /443\s420,32/.test(vb) && !/Факт по банку\s*не получен/.test(vb), (vb.match(/Факт по банку · [^\n]*\n[^\n]*\n[^\n]*/) || ['нет'])[0].replace(/\n/g, ' | '));
     check('Срок по подписи/счёту — «срок контроля», не «ждём поступление»', /срок: контроль подписи/.test(vb) && /срок контроля задачи, не дата оплаты/.test(vb) && !/ждём поступление/.test(vb), 'метка «срок: контроль подписи»');
     const n = fresh(); delete n.spisaniya; delete n.buh_sources; delete n.buh_svodka;
     const N = await device(n); await go(N.p, '#buh'); const vn = await N.p.innerText('#view');

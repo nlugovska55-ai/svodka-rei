@@ -314,6 +314,11 @@ def flags(st, r, today):
     return out
 
 
+# Рабочая таблица менеджера (Google) и начало истории: Лена ведёт реестр с сентября 2026, эти месяцы не выпадают из снимка
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1SfK4y5Iy1hvzLPVxjHZQ3xMhQo7qLf1goQK0DKIY0wE/edit"
+HISTORY_FROM = "2026-09-01"
+
+
 def snapshot(st, today):
     """Строки для пульта в формате import_garanty (build_svodka.garanty читает как раньше) + ID, месяц, остаток, флаги. Без зарплаты."""
     rows = []
@@ -327,12 +332,15 @@ def snapshot(st, today):
                      "who": r["manager"], "note": r["question"], "remainReg": remain(st, r), "flags": flags(st, r, today),
                      "bankReg": [{"date": p["date"], "amount": p["amount"], "basis": p["basis"] + (", " + p["source"].split(", ", 1)[1] if ", одна" in p["source"] else ""),
                                   "account": p["account"]} for p in st["payments"] if p["rowId"] == r["id"] and p["kind"] == "банк"],
-                     "source": r["source"], "checked": r["checked"]})
+                     "source": r["source"], "checked": r["checked"],
+                     # этап из таблицы Лены: «Гарант» — гарант поступления, «Обсуждаем» — прогноз; только из него пульт строит прогноз денег
+                     "stageReg": r["stage"]})
     cur, nxt = months_to_show(today)
     return {"importedAt": now(), "format": "reestr", "months": {"current": cur, "next": nxt},
-            "source": {"url": "", "tab": "Реестр", "live": True, "title": "Реестр гарантов и оплат Лены",
-                       "file": "Seafile\\boroday\\зарплатуленька", "mtime": st.get("sourceMtime", "")},
-            "header": [], "rows": [x for x in rows if x["month"] >= add_month(cur, -1) or x["remainReg"] > 0]}
+            "source": {"url": SHEET_URL, "tab": "Реестр", "live": True, "title": "Реестр гарантов и оплат Лены",
+                       "file": "Seafile\\boroday\\зарплатуленька", "mtime": st.get("sourceMtime", ""),
+                       "mode": (st.get("source") or {}).get("mode", "excel"), "since": (st.get("source") or {}).get("since", "")},
+            "header": [], "rows": [x for x in rows if x["month"] >= min(HISTORY_FROM, add_month(cur, -1)) or x["remainReg"] > 0]}
 
 
 # ---------- книга для Google Диска ----------

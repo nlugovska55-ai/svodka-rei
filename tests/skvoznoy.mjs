@@ -56,9 +56,9 @@ try {
   const auto = (await p.innerText('section.sec:has(h2:text("Автоматика"))').catch(() => '')).replace(/\s+/g, ' ');
   check('Автоматика: статусы из файла с временем проверки, реестр гарантов отдельной строкой', /Реестр гарантов Лены/.test(auto) && /проверено|статус от/.test(auto), auto.slice(0, 260));
 
-  // 1. Поручение: настоящая кнопка «Поручить Claude» на первом деле с этой кнопкой
-  await go('#all');
-  const id = await p.$eval('.rw [data-act="claude"]', (b) => b.closest('.rw').dataset.id);
+  // 1. Поручение: настоящая кнопка «Поручить Claude» на первом деле базы с этой кнопкой (кнопки есть только у дел, где решение за Ольгой)
+  await go('#utro');
+  const id = await p.$eval('.rw:not([data-id^="sum-"]) [data-act="claude"]', (b) => b.closest('.rw').dataset.id);  // дело базы, не строка списка «Утра»
   const short = await p.$eval(`.rw[data-id="${id}"] .t`, (e) => e.textContent.trim());
   await p.click(`.rw[data-id="${id}"] [data-act="claude"]`); await p.waitForSelector('#shText');
   await p.fill('#shText', 'Сквозная проверка аудита 29.10: не исполнять'); await p.click('#cf-yes'); await p.waitForTimeout(5800);

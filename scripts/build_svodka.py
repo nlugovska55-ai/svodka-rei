@@ -156,6 +156,8 @@ def spisaniya():
         p = json.load(fh)
     rows = []
     for r in p.get("rows", []):
+        if PON.search(str(r.get("who") or "")):
+            continue  # налоги и платежи ИП Пономаренко на пульт не выводим
         d = iso_date(r.get("date"))
         if not d:
             raise ValueError(f"spisaniya.json: строка без даты {r.get('what')!r}; прежняя сводка сохранена")
@@ -185,7 +187,24 @@ def buh_plan():
             # остатки — снимки на дату из выписок/осмотра, не текущий остаток; прогноза по ним не строим
             "balance": {"known": bool(bal.get("known")), "why": bal.get("why") or "", "note": bal.get("note") or "",
                         "accounts": [{"account": a.get("account") or a.get("bank") or "", "date": a.get("date") or a.get("asof") or "", "amount": a.get("amount"), "src": a.get("src") or ""}
-                                     for a in bal.get("accounts", []) if a.get("amount") is not None]}}
+                                     for a in bal.get("accounts", []) if a.get("amount") is not None and not PON.search(str(a.get("account") or a.get("bank") or ""))],
+                        # полнота: остаток можно продолжать вперёд, только если «Бухгалтерия» явно подтвердила, что видны все счета и потоки
+                        "complete": bool(bal.get("complete"))}}
+
+
+# ИП Пономаренко (правило Ольги через Jonas 29.10): на пульт только поступления на его счёт не от РЭИ.
+# Списания, остаток, налоги и переводы от РЭИ этого ИП не публикуются (отрезаются при сборке, а не прячутся на странице).
+PON = re.compile(r"пономаренко|точка\s+ип", re.I)
+FROM_REI = re.compile(r"рэи|русэко|рус\s*эко", re.I)
+
+
+def pon_day(d):
+    """День выписки счёта ИП Пономаренко → только поступления не от РЭИ; None, если таких нет."""
+    items = [x for x in d.get("inItems") or [] if not FROM_REI.search(str(x.get("who") or ""))]
+    if not items:
+        return None
+    return {**d, "open": None, "close": None, "out": None, "outItems": [], "in": round(sum(float(x.get("amount") or 0) for x in items), 2),
+            "inItems": items, "partial": "только поступления не от РЭИ", "pon": True}
 
 
 def bank_oboroty():
@@ -204,6 +223,11 @@ def bank_oboroty():
             raise ValueError(f"bank-oboroty.json: {d.get('account')} {date}: вход + приход − расход не равно концу; прежняя сводка сохранена")
         days.append({"account": d.get("account") or "", "date": date, **nums, "partial": d.get("partial") or "",
                      "inItems": d.get("inItems") or [], "outItems": d.get("outItems") or [], "src": d.get("src") or ""})
+    days = [x for x in (pon_day(d) if PON.search(d["account"]) else d for d in days) if x]
+    for d in days:  # переводы РЭИ → ИП Пономаренко: сумма остаётся в «ушло» (иначе не сойдётся остаток), получатель не называется
+        hide = [x for x in d["outItems"] if PON.search(str(x.get("who") or ""))]
+        if hide:
+            d["outItems"] = [x for x in d["outItems"] if x not in hide] + [{"who": "прочие перечисления", "amount": round(sum(float(x.get("amount") or 0) for x in hide), 2), "basis": ""}]
     days.sort(key=lambda x: (x["date"], x["account"]))
     return {"built": p.get("built", ""), "note": p.get("note", ""), "days": days}
 
@@ -296,13 +320,83 @@ def garanty(tasks, bank):
         rows.append({**{f: r.get(f) for f in ("key", "row", "client", "service", "doc", "amount", "amountRaw", "stage", "date", "dateRaw", "datePaid", "status", "received", "receivedRaw", "who", "note")},
                      "bank": got[k], "bankSum": bank_sum if got[k] else None,
                      "remain": r.get("remainReg") if reestr else ((amt - bank_sum) if (amt is not None and got[k]) else None),
-                     "id": r.get("id", ""), "month": r.get("month", ""), "flags": r.get("flags", []), "src": r.get("source", ""), "checked": r.get("checked", ""),
+                     "id": r.get("id", ""), "month": r.get("month", ""), "stageReg": r.get("stageReg", ""), "flags": r.get("flags", []), "src": r.get("source", ""), "checked": r.get("checked", ""),
                      "taskIds": [t["id"] for t in linked], "linkBy": how if linked else "",
                      "next": (t0["next"] if t0 else "") or r.get("note") or "",
                      "owner": (t0["waiting"] or t0["mgr"]) if t0 else (r.get("who") or "Лена")})
-    return {"connected": True, "live": bool((snap.get("source") or {}).get("live")), "status": st, "importedAt": snap.get("importedAt", ""), "source": snap.get("source", {}),
+    acc = os.path.join(GARANTY_DIR, "access.json")  # доступ Лены к таблице: пишем только после решения Ольги
+    access = json.load(open(acc, encoding="utf-8-sig")) if os.path.exists(acc) else {}
+    return {"connected": True, "live": bool((snap.get("source") or {}).get("live")), "status": st, "access": access, "importedAt": snap.get("importedAt", ""), "source": snap.get("source", {}),
             "format": snap.get("format", ""), "months": snap.get("months", {}),
             "bankCovered": sorted({(d["account"], d["date"]) for d in (bank or {}).get("days", [])}), "rows": rows}
+
+
+BASELINE_JSON = os.environ.get("PROGNOZ_BASELINE", "/mnt/project-files/daily-control/svodka/prognoz-baseline.json")
+
+
+def week_start(d):
+    return d - timedelta(days=d.weekday())
+
+
+def forecast_accuracy(gar, today=None):
+    """Точность прогноза поступлений по таблице Лены (гарант и прогноз раздельно): только по прогнозу, сохранённому в начале недели (понедельник), и оплатам из банка,
+    сопоставленным с теми же ID. Прогноз недели сохраняется первой сборкой этой недели; сохранённый позже понедельника
+    помечается partial и в оценку не идёт. Истории нет — «начинаем сбор», задним числом ничего не считаем."""
+    today = today or datetime.now(MSK).date()
+    wk = week_start(today)
+    try:
+        with open(BASELINE_JSON, encoding="utf-8-sig") as fh:
+            base = json.load(fh)
+    except (OSError, ValueError):
+        base = {"weeks": {}}
+    rows = (gar or {}).get("rows") or []
+    key = wk.isoformat()
+    if gar and gar.get("connected") and key not in base["weeks"]:
+        end = (wk + timedelta(days=6)).isoformat()
+        promised = [{"id": r["id"], "amount": r["remain"] if r.get("remain") is not None else r.get("amount"), "date": r["date"],
+                     "kind": "прогноз" if r.get("stageReg") == "Обсуждаем" else "гарант"}
+                    for r in rows if r.get("id") and r.get("date") and key <= r["date"] <= end and (r.get("remain") or 0) > 0 and r.get("stageReg") != "Отказ"]
+        base["weeks"][key] = {"savedAt": datetime.now(MSK).isoformat(timespec="minutes"), "partial": today != wk, "rows": promised}
+        atomic_json(BASELINE_JSON, base)
+    by_id = {r.get("id"): r for r in rows}
+    out = []
+    for k, w in sorted(base["weeks"].items()):
+        if k >= key or w.get("partial"):
+            continue
+        end = (date_from(k) + timedelta(days=6)).isoformat()
+        for kind in ("гарант", "прогноз"):
+            part = [x for x in w["rows"] if x.get("kind", "гарант") == kind]
+            if not part:
+                continue
+            promised = sum(float(x["amount"] or 0) for x in part)
+            came = sum(float(b["amount"] or 0) for x in part for b in (by_id.get(x["id"]) or {}).get("bank", []) if k <= b["date"] <= end)
+            out.append({"week": k, "kind": kind, "promised": promised, "cameBank": came, "n": len(part)})
+    first = min(base["weeks"]) if base["weeks"] else ""
+    return {"weeks": out, "first": first, "firstPartial": bool(first and base["weeks"][first].get("partial")),
+            "savedAt": base["weeks"].get(first, {}).get("savedAt", "")}
+
+
+def date_from(y):
+    return datetime.strptime(y, "%Y-%m-%d").date()
+
+
+TREB_JSON = os.environ.get("TREBOVANIYA", "/mnt/project-files/daily-control/svodka/trebovaniya.json")
+
+
+def trebovaniya(tasks, closed_ids):
+    """Требования Ольги → существующее дело db → проверка. Своего списка задач нет: дело только по taskId из базы."""
+    if not os.path.exists(TREB_JSON):
+        return None
+    with open(TREB_JSON, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    open_ids = {t["id"]: t for t in tasks}
+    out = []
+    for r in p.get("rows", []):
+        tid = r.get("taskId") or ""
+        link = "open" if tid in open_ids else "closed" if tid in closed_ids else "missing" if tid else "none"
+        out.append({"id": r["id"], "text": r.get("text", ""), "source": r.get("source", ""), "taskId": tid, "task": link,
+                    "check": r.get("check") or {}, "gap": r.get("gap", ""), "owner": r.get("owner", "")})
+    return {"built": p.get("built", ""), "rows": out}
 
 
 ACTIVE_STATUSES = {"open", "waiting", "wait", "expert"}
@@ -445,10 +539,13 @@ def main():
     parser.add_argument("--allow-at-limit", action="store_true", help="Все страницы tasks выгружены и полнота проверена")
     args = parser.parse_args()
     db_dir, summary_path, out = args.db_dir, args.summary_path, args.out
-    tasks = []
+    tasks, closed_ids = [], set()
     for t in read_export(db_dir, args.allow_at_limit):
         if t["status"] not in ACTIVE_STATUSES:
+            closed_ids.add(t["id"])
             continue
+        if PON.search(str(t.get("who") or "")):
+            continue  # дела самого ИП Пономаренко (налоги, справки) на пульт не идут; поступления ему от клиентов — в банке
         m = money_of(t)
         if m == "ждём" and not t.get("src"):
             m = "проверяется"  # правило 26.10: «ждём» только с источником (src)
@@ -514,6 +611,8 @@ def main():
     data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "bank": bank, "buh_sources": buh_sources(sp, bs, bp, bank)})
     data["garanty"] = garanty(tasks, bank)
     data["summary"] = automation(summary, data["garanty"])
+    data["accuracy"] = forecast_accuracy(data["garanty"])
+    data["trebovaniya"] = trebovaniya(tasks, closed_ids)
     atomic_json(out, data)
     print(f"tasks {len(tasks)}, summary {len(summary)}, lena_clients {len(data['lena_clients'])} -> {out}")
 
