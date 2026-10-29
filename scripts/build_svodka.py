@@ -361,13 +361,14 @@ def atomic_json(path, data):
 
 
 def applied_events(db_dir):
-    """id событий сайта, которые разбор уже внёс в задачи (db comments: status done + eventId).
+    """id событий сайта, которые разбор уже внёс в задачи (db comments: done, или routed для поручений, + eventId).
     Пульт снимает отметку «ждёт синхронизации» только по ним, а не по времени сборки."""
     out = set()
     for f in glob.glob(os.path.join(db_dir, "comments", "*.json")):
         with open(f, encoding="utf-8-sig") as fh:
             c = json.load(fh)
-        if c.get("status") == "done" and c.get("eventId"):
+        # routed тоже принято: отметка в базе и у ветки (§16 п.2), «ждёт разбора» снимаем. Отметку «сделано» — только после done
+        if c.get("eventId") and (c.get("status") == "done" or (c.get("status") == "routed" and c.get("action") != "done")):
             out.add(c["eventId"])
     return sorted(out)
 
@@ -393,6 +394,15 @@ def comment_replies(db_dir, days=3):
     rows = sorted([r for r in out if r["at"] >= cutoff], key=lambda r: r["at"], reverse=True)
     # 12 последних, но отметку с итогом «требует проверки» не выталкиваем за край, пока её не проверят
     return [r for i, r in enumerate(rows) if i < 12 or r["resultCheck"]]
+
+
+PORTAL_ORDER = "http://95.84.156.117:3839/projects/orders/{}/"
+
+
+def portal_orders(t):
+    """Номера заказов портала (7 цифр, 239xxxx) из названия, подробностей и шага — по порядку, без повторов, не больше 12."""
+    text = " ".join(str(t.get(k) or "") for k in ("title", "detail", "next", "link", "url"))
+    return list(dict.fromkeys(re.findall(r"(?<!\d)239\d{4}(?!\d)", text)))[:12]
 
 
 AUTO_STATUS = os.environ.get("AUTO_STATUS", "/mnt/project-files/daily-control/kontrol/avtomatika-status.json")
@@ -462,7 +472,9 @@ def main():
             "waitSince": t.get("waitSince") or "",
             "prio": 1 if t.get("prio") else 0,
             "evening": 1 if (t.get("evening") or t.get("when") == "вечер") else 0,
-            "link": t.get("url") or t.get("link") or "",
+            "link": t.get("url") or t.get("link") or portal_orders(t)[:1] and PORTAL_ORDER.format(portal_orders(t)[0]) or "",
+            # Правило Ольги 29.10: у любого пункта про портал — ссылки на заказы; номера заказов берём из текста задачи
+            "orders": portal_orders(t),
             # Для пульта «Утро»: если ветка их не записала, сайт вычислит сам
             "short": (t.get("short") or "").strip()[:70],
             "waiting": t.get("waiting") or "",  # я / клиент / Лена / Claude

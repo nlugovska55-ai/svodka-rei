@@ -117,9 +117,9 @@ class BuilderAcceptance(unittest.TestCase):
         self.task()
         comments = self.root / "comments"
         comments.mkdir()
-        for ident, status in (("applied", "done"), ("pending", "new")):
-            (comments / (ident + ".json")).write_text(json.dumps({"eventId": ident, "status": status}), encoding="utf-8")
-        self.assertEqual(["applied"], self.build()["appliedEvents"])
+        for ident, status, action in (("applied", "done", "done"), ("pending", "new", "claude"), ("routed", "routed", "claude"), ("routed-done", "routed", "done")):
+            (comments / (ident + ".json")).write_text(json.dumps({"eventId": ident, "status": status, "action": action}), encoding="utf-8")
+        self.assertEqual(["applied", "routed"], self.build()["appliedEvents"])
 
     def test_reference_amount_kind_is_passed(self):
         self.task(amount="176103.19", amountKind="reference", amountNote="погашено")
@@ -230,6 +230,17 @@ class BuilderAcceptance(unittest.TestCase):
         self.task()
         rep = self.build()["replies"]
         self.assertEqual([(r["eventId"], r["action"], r["appliedTo"]) for r in rep], [("e2", "reopen", "x")])
+
+
+    def test_portal_orders_become_links(self):
+        self.task("a", title="ЧЗМЭК: внести оплаты в заказы 2394166 и 2394163", next="сверить 2394166")
+        self.task("b", title="Портал: заказ не указан", link="https://example.org/x")
+        self.task("c", title="Телефон 82390757123 не заказ")
+        t = {x["id"]: x for x in self.build()["tasks"]}
+        self.assertEqual(t["a"]["orders"], ["2394166", "2394163"])
+        self.assertEqual(t["a"]["link"], "http://95.84.156.117:3839/projects/orders/2394166/")
+        self.assertEqual((t["b"]["orders"], t["b"]["link"]), ([], "https://example.org/x"))
+        self.assertEqual(t["c"]["orders"], [])
 
 
 if __name__ == "__main__":
