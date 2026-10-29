@@ -600,9 +600,13 @@ def build_xlsx(st, out, today, since=""):
     wb.save(out)
 
 
-SALARY_COLS = ["Месяц", "Пришло по реестру (Лена), ₽", "Подтвердил банк, ₽", "База в записи Лены, ₽", "% в записи Лены, ₽", "Шт.",
-               "Доплата в записи, ₽", "Удержания в записи, ₽", "Итог в записи Лены, ₽", "Проверка записи",
-               "К выплате по согласованной ставке, ₽", "Запись Лены как есть", "Где запись"]
+SALARY_COLS = ["Месяц", "К выплате, ₽", "База по месяцу обязательства, ₽", "База по дате оплаты, ₽ (только оплаты с датой)",
+               "Банк по дате п/п, ₽", "Месяц закрыт (дата)", "Зафиксировано при закрытии, ₽",
+               "База в записи Лены, ₽", "% в записи Лены, ₽", "Шт.", "Доплата в записи, ₽", "Удержания в записи, ₽",
+               "Итог в записи Лены, ₽", "Проверка записи", "Запись Лены как есть", "Где запись"]
+SAL_HEAD = 10      # строка шапки таблицы месяцев
+SAL_RATES = (5, 7)  # строки периодов ставок
+PRINCIPLES = ["не согласован", "месяц обязательства", "дата оплаты"]
 
 
 def head_formula(title, f):
@@ -611,35 +615,102 @@ def head_formula(title, f):
     return f'=ARRAYFORMULA(IF(ROW(A1:A)=1,"{title}",{inner}))'
 
 
+def salary_row(i, m, n):
+    """Строка месяца. К выплате (B) — только при выбранном принципе базы и ставке периода; закрытый месяц — зафиксированная сумма."""
+    r0, r1 = SAL_RATES
+    rs, rp, ru = (f"$A${r0}:$A${r1}", f"$B${r0}:$B${r1}", f"$C${r0}:$C${r1}")
+    return [date.fromisoformat(m),
+            f'=IF(F{i}<>"",G{i},LET(s,MAXIFS({rs},{rs},"<="&A{i}),p,IF(s=0,"",INDEX({rp},MATCH(s,{rs},0))),u,IF(s=0,"",INDEX({ru},MATCH(s,{rs},0))),'
+            f'b,IF($B$2="месяц обязательства",C{i},IF($B$2="дата оплаты",D{i},"")),'
+            f'IF(b="","не рассчитано: принцип базы не согласован",'
+            # «по дате оплаты» без дат у части оплат — не считаем: даты не придумываем
+            f'IF(AND($B$2="дата оплаты",COUNTIFS(Платежи!B:B,"<>",Платежи!C:C,"",Платежи!F:F,"да")>0),"не рассчитано: у части оплат нет даты",'
+            f'IF(OR(p="",u=""),"не рассчитано: нет ставки на этот месяц",'
+            f'IF(ISNUMBER(b),b*p/100+N(J{i})*u-N(L{i}),"нет базы"))))))',
+            f'=IFERROR(INDEX(Месяцы!D:D,MATCH(A{i},Месяцы!A:A,0)),"нет в «Месяцах»")',
+            f'=SUMIFS(Платежи!D:D,Платежи!C:C,">="&A{i},Платежи!C:C,"<"&EDATE(A{i},1),Платежи!F:F,"да")',
+            f'=SUMIFS(Банк!D:D,Банк!C:C,">="&A{i},Банк!C:C,"<"&EDATE(A{i},1))',
+            None, None,
+            *[n.get(k) for k in ("base", "pct", "pcs", "extra", "hold", "total")],
+            f'=IF(M{i}="","записи нет",IF(I{i}="","% в записи не выписан",IF(I{i}+K{i}-L{i}=M{i},"арифметика сходится","не сходится на "&TEXT(I{i}+K{i}-L{i}-M{i},"#,##0"))))'
+            f'&IF(AND(H{i}<>"",ISNUMBER(C{i})),IF(H{i}<>C{i}," · база у Лены ≠ реестру на "&TEXT(H{i}-C{i},"#,##0"),""),"")',
+            n.get("text"), (n.get("file", "") + " " + n.get("cell", "")).strip() or None]
+
+
 def salary_sheet(wb, st, today):
     """Лист «Зарплата» в той же книге (решение Ольги 29.10: один файл, один расчётный источник).
-    B и C — формулы из «Месяцев» (они считаются из «Реестра» и «Банка»), D–I и L — запись Лены как есть (salaryNotes),
-    ставки B2:B3 пустые: «не рассчитано», не ноль. Чужой зарплаты здесь нет."""
+    Сверху: принцип базы и периоды ставок (вводит только Ольга; пусто — «не рассчитано», не ноль). Ниже текущий период
+    (с HISTORY_FROM), под ним архив записей Лены. «К выплате» — второй столбец, без горизонтальной прокрутки.
+    Базы две и подписаны: по месяцу обязательства («Реестр» B) и по дате оплаты («Платежи» C) — даты не придумываем.
+    Новая ставка — новая строка периода с месяца начала; закрытый месяц показывает зафиксированную сумму."""
+    from openpyxl.styles import Font, PatternFill, Alignment
+    from openpyxl.worksheet.datavalidation import DataValidation
+    from openpyxl.formatting.rule import FormulaRule
     ws = wb.create_sheet("Зарплата")
     ws.append(["Зарплата Лены — расчёт по месяцам (только данные Лены)"])
-    ws.append(["Ставка, % от пришедшего", None, "← вводит только Ольга после согласования. Пусто = «не рассчитано», не ноль"])
-    ws.append(["За единицу (шт.), ₽", None, "← вводит только Ольга после согласования. Пусто = «не рассчитано», не ноль"])
-    ws.append(["База (B) и банк (C) — формулами из «Месяцев». D–I и L — запись Лены как есть. Лист защищён от правки, но НЕ скрыт."])
+    ws.append(["Принцип базы", "не согласован", "← выбирает Ольга: «месяц обязательства» (оплата сентябрьского долга в октябре меняет сентябрь) "
+               "или «дата оплаты» (только оплаты с датой). Пока «не согласован» — к выплате не считается."])
+    ws.append(['="Оплат по Лене без даты: "&TEXT(SUMIFS(Платежи!D:D,Платежи!C:C,"",Платежи!F:F,"да"),"#,##0")&" ₽ — по дате оплаты их не разложить, даты не придумываем. Пока дат нет, база «по дате оплаты» неполная."'])
+    ws.append(["Периоды ставок: с месяца", "% от базы", "₽ за шт.", "Кто и когда согласовал"])
+    for _ in range(SAL_RATES[1] - SAL_RATES[0] + 1):
+        ws.append([])
+    ws.append(["Новая ставка — новой строкой с месяца начала: прошлые периоды не меняются. Закрытый месяц (F) показывает зафиксированную сумму (G). "
+               "Ставки, принцип и закрытие вводит только Ольга. Лист защищён, но НЕ скрыт: его видит каждый, кому открыт файл."])
     ws.append([])
     ws.append(SALARY_COLS)
     notes = {n["month"]: n for n in st.get("salaryNotes", [])}
     first = min([r["month"] for r in st["rows"]] + list(notes) or [today.replace(day=1).isoformat()])
     end = add_month(today.replace(day=1).isoformat(), 2)
-    m, i = first, 7
+    cur_from = max(min(HISTORY_FROM, end), first)
+    i = SAL_HEAD + 1
+    ws.append([f"Текущий период (с {month_label(cur_from)})"])
+    sec = [i]
+    i += 1
+    m = cur_from
     while m <= end:
-        n = notes.get(m, {})
-        ws.append([f"=DATE({m[:4]},{int(m[5:7])},1)" if i == 7 else f"=EDATE(A{i - 1},1)",
-                   f'=IFERROR(INDEX(Месяцы!D:D,MATCH(A{i},Месяцы!A:A,0)),"нет в «Месяцах»")',
-                   f'=IFERROR(INDEX(Месяцы!E:E,MATCH(A{i},Месяцы!A:A,0)),"нет в «Месяцах»")',
-                   *[n.get(k) for k in ("base", "pct", "pcs", "extra", "hold", "total")],
-                   f'=IF(I{i}="","записи нет",IF(E{i}="","% в записи не выписан",IF(E{i}+G{i}-H{i}=I{i},"арифметика сходится","не сходится на "&TEXT(E{i}+G{i}-H{i}-I{i},"# ##0"))))'
-                   f'&IF(AND(D{i}<>"",ISNUMBER(B{i})),IF(D{i}<>B{i}," · база у Лены ≠ реестру на "&TEXT(D{i}-B{i},"# ##0"),""),"")',
-                   f'=IF(OR($B$2="",$B$3=""),"не рассчитано: ставка не согласована",IF(ISNUMBER(B{i}),B{i}*$B$2/100+N(F{i})*$B$3-N(H{i}),"нет базы"))',
-                   n.get("text"), (n.get("file", "") + " " + n.get("cell", "")).strip() or None])
+        ws.append(salary_row(i, m, notes.get(m, {})))
         m, i = add_month(m, 1), i + 1
+    cur_rows = (sec[0] + 1, i - 1)
+    ws.append(["Итого текущий период", None, f"=SUM(C{cur_rows[0]}:C{cur_rows[1]})", f"=SUM(D{cur_rows[0]}:D{cur_rows[1]})", f"=SUM(E{cur_rows[0]}:E{cur_rows[1]})"])
+    i += 1
     ws.append([])
-    ws.append(["Итого", f"=SUM(B7:B{i - 1})", f"=SUM(C7:C{i - 1})", None, None, None, None, None, f"=SUM(I7:I{i - 1})"])
+    i += 1
+    if first < cur_from:
+        ws.append([f"Архив: записи Лены {month_label(first)} – {month_label(add_month(cur_from, -1))} (как в её файлах, не пересчитываются)"])
+        sec.append(i)
+        i += 1
+        m = first
+        while m < cur_from:
+            ws.append(salary_row(i, m, notes.get(m, {})))
+            m, i = add_month(m, 1), i + 1
+    # вид: заголовок не обрезается, «К выплате» рядом с месяцем, текущий месяц выделен
+    ws.merge_cells("A1:G1")
+    ws["A1"].font = Font(bold=True, size=15)
+    for r in (2, 3, 8):
+        ws.merge_cells(f"C{r}:P{r}" if r == 2 else f"A{r}:P{r}")
+        ws[f"{'C' if r == 2 else 'A'}{r}"].alignment = Alignment(wrap_text=True, vertical="top")
+    dv = DataValidation(type="list", formula1='"' + ",".join(PRINCIPLES) + '"', allow_blank=False)
+    ws.add_data_validation(dv)
+    dv.add("B2")
+    for c in ("A2", "A4", "B4", "C4", "D4", f"A{SAL_HEAD}") + tuple(f"{chr(65 + k)}{SAL_HEAD}" for k in range(len(SALARY_COLS))):
+        ws[c].font = Font(bold=True)
+    for r in sec:
+        ws[f"A{r}"].font = Font(bold=True, size=13)
+        ws.merge_cells(f"A{r}:J{r}")
+    cf = FormulaRule(formula=[f"$A{cur_rows[0]}=DATE(YEAR(TODAY()),MONTH(TODAY()),1)"], fill=PatternFill("solid", fgColor="FAEBC0"), font=Font(bold=True))
+    ws.conditional_formatting.add(f"A{cur_rows[0]}:P{cur_rows[1]}", cf)  # текущий месяц выделен
+    widths = [12, 30, 16, 18, 14, 12, 14, 13, 11, 6, 11, 11, 12, 34, 40, 22]
+    for k, w in enumerate(widths):
+        ws.column_dimensions[chr(65 + k)].width = w
+    for row in ws.iter_rows(min_row=SAL_HEAD + 1, max_row=i):
+        row[0].number_format = "MMM YYYY"
+        for c in row[1:13]:
+            c.number_format = "#,##0"
     return ws
+
+
+def month_label(m):
+    return f"{['янв.', 'февр.', 'мар.', 'апр.', 'мая', 'июн.', 'июл.', 'авг.', 'сент.', 'окт.', 'нояб.', 'дек.'][int(m[5:7]) - 1]} {m[:4]}"
 
 
 def journal_line(status, what):

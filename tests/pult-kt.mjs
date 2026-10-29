@@ -62,7 +62,13 @@ try {
   check('Автоматика: «не проверено» не считается успешной проверкой', !/10 из 10\s*$/m.test(au) && /не проверено/.test(au.split('\n')[0] + au.split('\n')[1]), au.split('\n').slice(0, 2).join(' | '));
   // 4c. Единый файл Лены: карточка говорит про один файл и задачу сверки с подпунктами; цифр зарплаты на пульте нет
   await go(p, '#utro'); const lc = await p.innerText('#garanty'), whole = await p.innerText('body');
-  check('Карточка Лены: единый файл, задача сверки «закрыто 1 из 8», зарплатных цифр нет', /единый/.test(lc) && /подпунктов закрыто 1 из 8/.test(lc) && !/22\s600|31\s380|72\s825/.test(whole), (lc.match(/Сверка[^\n]*/) || ['нет строки «Сверка»'])[0]);
+  check('Карточка Лены: единый файл, задача сверки «закрыто N из M», зарплатных цифр нет', /единый/.test(lc) && /подпунктов закрыто \d+ из \d+/.test(lc) && !/22\s600|31\s380|72\s825/.test(whole), (lc.match(/Сверка[^\n]*/) || ['нет строки «Сверка»'])[0]);
+  // 4d. Неполный контроль не выдаётся за «ничего срочного»: число непроверенных и действие, которое уходит Claude
+  await go(p, '#utro');
+  const gp = await p.evaluate(() => ({gap: document.querySelector('#decide .gap')?.innerText || '', calm: /Ничего срочного/.test(document.body.innerText), h1: document.querySelector('h1').innerText}));
+  const sent0 = posts; if (gp.gap) { await p.click('[data-gapclaude]'); await p.waitForTimeout(5500); }
+  check('Непроверенные дела: блок «срочность не подтверждена» с числом, кнопка поручает Claude сверку, «ничего срочного» нет',
+    /не подтверждена: сегодня не сверено с источником \d+ из \d+/.test(gp.gap) && /Контроль неполный/.test(gp.h1) && !gp.calm && posts > sent0, `${gp.h1} | ${gp.gap.slice(0, 120)} | отправок ${posts - sent0}`);
   // 5. Правка Лены в таблице → сверка → пульт
   DATA = path.join(CASES, 'ok.json'); await go(p, '#utro');
   const card = await p.innerText('#garanty');

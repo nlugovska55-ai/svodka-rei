@@ -93,6 +93,9 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
 .warnline{font-size:13.5px;color:var(--warn);background:var(--warn-soft);border-radius:10px;padding:8px 12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .empty{border:1px dashed var(--line2);border-radius:10px;padding:22px;text-align:center;color:var(--muted);display:grid;gap:6px;justify-items:center}
 .empty b{color:var(--ink);font:700 17px var(--f-disp)}
+.gap{border:1px solid var(--warn);border-left:6px solid var(--warn);background:var(--warn-soft);border-radius:10px;padding:16px 18px;display:grid;gap:8px;text-align:left}
+.gap b{color:var(--ink);font:700 17px var(--f-disp)}
+.gap .gap-acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 /* денежная полоса */
 .strip{display:grid;gap:8px}
 .pipe{display:flex;height:12px;border-radius:99px;overflow:hidden;gap:2px;background:var(--sunk)}
@@ -847,8 +850,11 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     // Полнота сверки по всем открытым делам: сколько проверено по источнику сегодня и у скольких даты проверки нет вовсе
     const own = T.filter((t) => !t.fromSummary), allN = own.length, allToday = own.filter((t) => okToday(t.checked)).length, allNone = own.filter((t) => !String(t.checked || '').trim()).length;
     const cover = allN ? `<div class="cover"><span>Во всех открытых делах: сверено сегодня <b>${allToday}</b> из <b>${allN}</b>${allNone ? `, без даты сверки <b>${allNone}</b>` : ''}. Решения ниже — только по сверенным с источником.</span></div>` : '';
-    const h1 = m.length ? `Требуют вашего решения: <em>${plural(m.length, 'дело', 'дела', 'дел')}</em>` : week.length ? 'Проверенных решений на сегодня пока нет' : listToday ? 'Решений от вас сегодня не требуется' : 'Список дел на сегодня ещё не собран';
-    const empty = week.length ? `<div class="empty"><b>Ничего срочного по проверенным данным</b><span>${plural(week.length, 'ваше дело ждёт', 'ваших дела ждут', 'ваших дел ждут')} проверки по источнику — они ниже, в «Не проверено сегодня».${nx ? ' Следующая сборка ' + nx + '.' : ''}</span></div>`
+    const gapN = allN - allToday;
+    const h1 = m.length ? `Требуют вашего решения: <em>${plural(m.length, 'дело', 'дела', 'дел')}</em>` : gapN ? `Контроль неполный: проверено <em style="color:var(--warn)">${allToday} из ${allN}</em>` : listToday ? 'Решений от вас сегодня не требуется' : 'Список дел на сегодня ещё не собран';
+    // 29.10 (Jonas): при непроверенных делах не успокаиваем «ничего срочного» — показываем дыру в контроле и действие
+    const gapIds = own.filter((t) => !okToday(t.checked)).map((t) => t.id);
+    const empty = gapN ? `<div class="gap" role="alert"><b>Срочность ${plural(gapN, 'дела', 'дел', 'дел')} не подтверждена: сегодня не сверено с источником ${gapN} из ${allN}${allNone ? `, у ${allNone} нет даты сверки вовсе` : ''}.</b><span>Сказать «ничего срочного» нельзя: среди непроверенных могут быть просрочки и деньги.${week.length ? ` Ваших среди них — ${week.length}.` : ''}${nx ? ' Следующая сборка ' + nx + '.' : ''}</span><span class="gap-acts"><button class="btn" data-gapclaude>Поручить Claude сверить ${gapN} сейчас</button>${week.length ? `<button class="link" data-go="utro" data-anchor="unchecked">Показать мои непроверенные (${week.length})</button>` : ''}</span></div>`
       : `<div class="empty"><b>${listToday ? 'Решений не требуется' : 'Проверенного списка ещё нет'}</b><span>${listToday ? 'Ниже — что изменилось, ближайшие деньги и чем занята команда.' : 'Ветка «Утро и задачи» ещё не выложила проверенный список. Показать нечего, это не значит, что дел нет.'}</span></div>`;
     return `<section class="lead"><div class="day">${cap(dn)}</div>
       ${status}${unsent}
@@ -1127,6 +1133,9 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const b = e.target.closest('button, [data-open]'); if (!b) return; const d = b.dataset;
     const w = b.closest('.rw'), t = w && T.find((x) => x.id === w.dataset.id);
     if (d.tab) go(d.tab);
+    else if (d.gapclaude !== undefined) { const ids = T.filter((x) => !x.fromSummary && !okToday(x.checked)).map((x) => x.id);
+      act({id: 'sum-gap', cl: 'Пульт', title: 'Сверить с источником дела без сегодняшней сверки', short: 'Сверить ' + ids.length + ' непроверенных дел'}, 'ai',
+        'Сверить с источником сегодня и поставить checked/src (или «не найдено в источнике»): ' + ids.join(', ')); }
     else if (d.focus !== undefined) startFocus();
     else if (d.fend !== undefined) endFocus();
     else if (d.f) focusAct(d.f);

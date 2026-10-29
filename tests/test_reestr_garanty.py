@@ -1,7 +1,7 @@
 """Реестр гарантов и оплат Лены: файлы Лены → реестр с постоянными ID. Запуск: python3 tests/test_reestr_garanty.py"""
 import json
 import os
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 import subprocess
 import sys
@@ -185,10 +185,22 @@ class Reestr(unittest.TestCase):
         out = self.dir / "r.xlsx"
         subprocess.run([sys.executable, "-I", str(SCRIPT), "xlsx", "--out", str(out), "--today", "2026-07-15"], env=self.env, check=True, capture_output=True)
         ws = openpyxl.load_workbook(out)["Зарплата"]
-        self.assertIsNone(ws["B2"].value)  # ставка пустая, не ноль
-        self.assertIn("Месяцы!D:D", ws["B7"].value)  # база — из единого реестра, не копия
-        self.assertIn("не рассчитано", ws["K7"].value)
-        self.assertEqual(ws["L7"].value, "578500= 57800 +3900 (13*300)=61700")
+        self.assertEqual(ws["B2"].value, "не согласован")  # принцип базы не выбран — к выплате не считается
+        self.assertTrue(all(ws[f"{c}{r}"].value is None for c in "ABC" for r in (5, 6, 7)))  # периоды ставок пустые, не ноль
+        self.assertEqual(ws["A10"].value, "Месяц")
+        self.assertEqual(ws["B10"].value, "К выплате, ₽")  # ключевая колонка рядом с месяцем
+        self.assertIsNone(ws.freeze_panes)  # без закрепления: заголовок и пояснения объединены, не обрезаются
+        self.assertIn("A1:G1", [str(x) for x in ws.merged_cells.ranges])
+        cur = [r for r in range(12, ws.max_row + 1) if ws[f"A{r}"].value == datetime(2026, 7, 1)]
+        self.assertEqual(len(cur), 1)
+        r = cur[0]
+        self.assertIn("Месяцы!D:D", ws[f"C{r}"].value)  # база по месяцу обязательства — из единого реестра
+        self.assertIn("Платежи!C:C", ws[f"D{r}"].value)  # база по дате оплаты — отдельно, только оплаты с датой
+        self.assertIn("принцип базы не согласован", ws[f"B{r}"].value)
+        self.assertIn("MAXIFS", ws[f"B{r}"].value)  # ставка берётся из периода, а не одна на всё прошлое
+        self.assertIn("у части оплат нет даты", ws[f"B{r}"].value)
+        self.assertTrue(ws[f"B{r}"].value.startswith('=IF(F'))  # закрытый месяц — зафиксированная сумма
+        self.assertEqual(ws[f"O{r}"].value, "578500= 57800 +3900 (13*300)=61700")
 
     def test_workbook_has_views_and_salary_only_on_its_sheet(self):
         f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо квант", "дс", "1365 ле дс", 12000, None), ("ооо чзмэк", "дс", "1240 ле дс прил 7", None, 15000)],
@@ -212,7 +224,7 @@ class Reestr(unittest.TestCase):
         # запись Лены о зарплате — только на листе «Зарплата», не в реестре и не в служебных вкладках
         text = " ".join(str(c.value) for ws in wb if ws.title != "Зарплата" for row in ws.iter_rows() for c in row if c.value)
         self.assertNotIn("12000=1200", text)
-        self.assertIn("12000=1200", [c.value for c in wb["Зарплата"]["L"]])
+        self.assertIn("12000=1200", [c.value for c in wb["Зарплата"]["O"]])
 
 
 if __name__ == "__main__":
