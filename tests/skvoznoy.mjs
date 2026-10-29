@@ -82,7 +82,7 @@ try {
   check('4. «сделано» без содержания: «Итог не подтверждён»', /^chk\|.*Итог не подтверждён/.test(await stageOf('Сквозная проверка')), await stageOf('Сквозная проверка'));
 
   // 5. Результат: ветка пишет result/resultAt/resultBy (§16 п.3)
-  fs.writeFileSync(cf, JSON.stringify({...doc, status: 'done', result: 'Сверено с 1С: расхождений нет, файл buh/sverki-test.md', resultAt: new Date().toISOString(), resultBy: 'Бухгалтерия'})); build(); await go();
+  fs.writeFileSync(cf, JSON.stringify({...doc, status: 'done', result: 'Сверено с 1С и Диадоком: документ отправлен и подписан, оплата внесена в портал, расхождений нет, файл buh/sverki-test.md', resultAt: new Date().toISOString(), resultBy: 'Бухгалтерия'})); build(); await go();
   check('5. Результат на пульте: «Итог (Бухгалтерия, ЧЧ:ММ): …»', /^res\|.*Итог \(Бухгалтерия, \d\d:\d\d\): Сверено с 1С/.test(await stageOf('Сквозная проверка')), await stageOf('Сквозная проверка'));
   check('Ошибок JavaScript нет', !errors.length, errors.join('; ') || '0');
 } finally {

@@ -52,6 +52,14 @@ try {
   if (btn) { await btn.click(); await p.waitForSelector('#sheet:not([hidden])'); await p.click('[data-sh="no"]'); await p.waitForTimeout(5800); }
   const after = await p.evaluate(() => localStorage.getItem('svodka-pending') + '|' + localStorage.getItem('svodka-outbox'));
   check('«Отмена» в диалоге: ни отправки, ни отметки, дело на месте', btn && posts === 0 && before === after && !!(await p.$(`.rw[data-id="${id}"]`)), `отправок ${posts}, хранилище ${before === after ? 'не изменилось' : 'изменилось'}`);
+  // 4b. Находки Codex по 130ce26 на настоящих данных
+  await go(p, '#money'); const bank = await p.innerText('#bank'), wks = await p.innerText('#weeks'), nd = await p.$('#nodate') ? await p.innerText('#nodate') : '';
+  check('Банк: день по уведомлениям подписан источником и временем, не «по выписке»', /по уведомлениям до 16:47, не выписка/.test(bank) && /на 29\.10 16:47, по уведомлениям/.test(bank) && !/сборка 29\.10\.2026 13:00/.test(bank), (bank.match(/Источник по дням[^\n]*/) || [''])[0]);
+  check('Недели: пусто = «нет записей со сроком», списание 32,25 с копейками и названием', /нет записей со сроком/.test(wks) && !/\n\s*нет\s*\n/.test(wks) && /32,25/.test(wks), (wks.match(/[^\n]*32,25[^\n]*/) || ['нет 32,25'])[0]);
+  check('Гаранты без срока: отдельный блок, действие «уточнить даты» и список без дат', /Действие: уточнить даты 8 обещаний/.test(nd) && /800\s000/.test(nd) && (nd.match(/G-\d{4}/g) || []).length === 8, 'строк с ID: ' + (nd.match(/G-\d{4}/g) || []).length + ' | ' + nd.split('\n').slice(0, 2).join(' | '));
+  await go(p, '#utro'); const chg = await p.innerText('#changes'), au = await p.evaluate(() => [...document.querySelectorAll('.sec')].find((x) => /Автоматика/.test(x.querySelector('h2')?.textContent || ''))?.innerText || '');
+  check('«Что изменилось»: отправка актов не закрыта оплатой', !/Отправить по ЭДО[^\n]*оплачены/.test(chg) && (/Отправить по ЭДО[^\n]*отправлены/.test(chg) || !/Отправить по ЭДО/.test(chg)), (chg.match(/[^\n]*Отправить по ЭДО[^\n]*/) || ['строки нет'])[0]);
+  check('Автоматика: «не проверено» не считается успешной проверкой', !/10 из 10\s*$/m.test(au) && /не проверено/.test(au.split('\n')[0] + au.split('\n')[1]), au.split('\n').slice(0, 2).join(' | '));
   // 5. Правка Лены в таблице → сверка → пульт
   DATA = path.join(CASES, 'ok.json'); await go(p, '#utro');
   const card = await p.innerText('#garanty');

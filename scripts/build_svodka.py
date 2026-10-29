@@ -467,6 +467,24 @@ def applied_events(db_dir):
     return sorted(out)
 
 
+# Итог должен отвечать на поручение: «отправить акт» не закрывается фразой об оплате (находка Codex 29.10)
+FIT = [(re.compile(r"портал|внести", re.I), re.compile(r"внес|портал|заказ", re.I), "внесение в портал"),
+       (re.compile(r"отправ|по\s+эдо|диадок", re.I), re.compile(r"отправл|документооборот|доставлен|диадок|эдо", re.I), "отправку"),
+       (re.compile(r"подпис", re.I), re.compile(r"подпис", re.I), "подпись"),
+       (re.compile(r"оплат|заплат", re.I), re.compile(r"оплач|оплат|п/п|поступ|списан", re.I), "оплату"),
+       (re.compile(r"письм|ответить|написать", re.I), re.compile(r"черновик|письм|ответ|отправ", re.I), "письмо")]
+
+
+def result_fit(title, result):
+    """'' — не о чем судить; 'ok' — итог про то же действие; иначе — что ожидалось в итоге."""
+    if not (title or "").strip() or not (result or "").strip():
+        return ""
+    for need, got, what in FIT:
+        if need.search(title):
+            return "ok" if got.search(result) else what
+    return ""
+
+
 def comment_replies(db_dir, days=3):
     """Ответы Claude на отметки Ольги (db comments: status done + reply) — пульт показывает их в журнале."""
     out = []
@@ -484,6 +502,17 @@ def comment_replies(db_dir, days=3):
                         "status": c["status"], "routedTo": c.get("routedTo", ""), "routedAt": c.get("routedAt", ""),
                         "result": c.get("result", ""), "resultAt": c.get("resultAt", ""), "resultBy": c.get("resultBy", ""),
                         "taskId": c.get("taskId") or ""})
+            tid = c.get("taskId") or c.get("appliedTo") or ""
+            tf = os.path.join(db_dir, "tasks", tid + ".json") if tid else ""
+            t = {}
+            if tf and os.path.exists(tf):
+                with open(tf, encoding="utf-8-sig") as fh:
+                    t = json.load(fh)
+            # доказательство из карточки дела (proof) — второй кандидат на итог, если итог ответа не про это действие
+            out[-1]["taskProof"] = t.get("proof") or ""
+            out[-1]["taskStatus"] = t.get("status") or ""
+            out[-1]["fit"] = result_fit(out[-1]["title"], out[-1]["result"])
+            out[-1]["proofFit"] = result_fit(out[-1]["title"], out[-1]["taskProof"])
     cutoff = (datetime.now(MSK) - timedelta(days=days)).isoformat()
     rows = sorted([r for r in out if r["at"] >= cutoff], key=lambda r: r["at"], reverse=True)
     # 12 последних, но отметку с итогом «требует проверки» не выталкиваем за край, пока её не проверят

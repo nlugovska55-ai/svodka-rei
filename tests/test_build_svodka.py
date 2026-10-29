@@ -262,6 +262,16 @@ class BuilderAcceptance(unittest.TestCase):
         self.assertEqual((alfa["out"], [x["who"] for x in alfa["outItems"]]), (96300, ["прочие перечисления"]))
         self.assertNotIn("Пономаренко", json.dumps(days, ensure_ascii=False))
 
+    def test_result_must_answer_the_assigned_action(self):
+        f = builder.result_fit
+        # находка Codex 29.10: «отправить акты» не закрывается фразой об оплате
+        self.assertEqual(f("Отправить по ЭДО акты ЗЭОТЭК и ЧЗМТ", "ЧЗМЭК 55 000 оплачены полностью: п/п 16445"), "отправку")
+        self.assertEqual(f("Отправить по ЭДО акты ЗЭОТЭК и ЧЗМТ", "акты 123 и 124 отправлены 22.10, документооборот завершён"), "ok")
+        self.assertEqual(f("Портал: внести оплату Айстандарту", "Пока не внесено: доступ"), "ok")
+        self.assertEqual(f("ИКЦ: акт сверки не подписывать", "не подписываем"), "ok")
+        self.assertEqual(f("Разобрать вопросы", "что угодно"), "")
+        self.assertEqual(f("Отправить акт", ""), "")
+
     def test_forecast_accuracy_starts_collecting_without_backdating(self):
         gar = {"connected": True, "rows": [{"id": "G-1", "date": "2026-10-30", "remain": 1000.0, "amount": 1000.0, "stageReg": "Гарант", "bank": []}]}
         from datetime import date
