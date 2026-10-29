@@ -497,7 +497,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
     maybe = other.filter((t) => !dupes.includes(t) && cameKey.has(ckey(t)));
     const dup = new Set(dupes.map((t) => t.id));
     return [...STAGES, CHECK].map(([k, l, c]) => { const a = o.filter((t) => t.money === k && !dup.has(t.id)), v = a.filter((t) => okToday(t.checked) && t.src);
-      return {k, l, c, n: a.length, s: a.reduce((x, t) => x + t.a, 0), sv: v.reduce((x, t) => x + t.a, 0), nv: v.length, late: a.filter((t) => t.dd !== null && t.dd < 0).reduce((x, t) => x + t.a, 0)}; });
+      return {k, l, c, n: a.length, s: a.reduce((x, t) => x + t.a, 0), sv: v.reduce((x, t) => x + t.a, 0), nv: v.length, late: k === 'пришло' ? 0 : a.filter((t) => t.dd !== null && t.dd < 0).reduce((x, t) => x + t.a, 0)}; });  // пришедшие деньги не «просрочены»: их срок — срок дела, не оплаты
   }
   const stripHTML = (all, clickTo) => { const g = all.filter((x) => x.k !== CHECK[0]), chk = all.find((x) => x.k === CHECK[0]), tot = g.reduce((x, y) => x + y.s, 0) || 1;
     return `<div class="strip"><div class="pipe">${g.filter((x) => x.s).map((x) => `<span style="flex:${x.s / tot};background:${x.c}" title="${x.l}: ${full(x.s)}"></span>`).join('')}</div>

@@ -152,6 +152,8 @@ try {
     const {ctx: c0, p: p0} = await device({...d, tasks: base0}); await go(p0);
     const v0 = (await p0.$$eval('.stg', (x) => x.map((e) => e.querySelector('.k').textContent))).find((x) => /Ждём оплату/.test(x)); await c0.close();
     const n0 = +v0.split('· ')[1], n1 = +shown[0].split('· ')[1];
+    const cameTxt = await p.$$eval('.stg', (x) => x.map((e) => e.textContent).find((t) => /Пришло/.test(t)) || '');
+    check('Этап «Пришло» без «просрочено»', !/просрочено/.test(cameTxt), `«${cameTxt.trim().slice(0, 80)}»`);
     check('Нет двойного учёта денег (одна операция по явному id счёта)', n1 === n0 - 1 && hint.includes(c.client), `до дубля «Ждём оплату» ${n0} дел, с дублем ${n1}; пояснение называет клиента: ${hint.includes(c.client)}`);
     await ctx.close();
   }
