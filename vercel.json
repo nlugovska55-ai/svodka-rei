@@ -16,7 +16,14 @@
   ],
   "git": {
     "deploymentEnabled": {
-      "inbox": false
+      "inbox": false,
+      "outbox": false
+    }
+  },
+  "functions": {
+    "api/tg.js": {
+      "includeFiles": "data/svodka.json",
+      "maxDuration": 60
     }
   }
 }

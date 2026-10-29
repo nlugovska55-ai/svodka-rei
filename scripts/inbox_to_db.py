@@ -1,4 +1,4 @@
-"""Комментарии с сайта (ветка inbox) -> записи для db `comments` страницы задач. Двухфазно.
+"""Комментарии с сайта и сообщения ботов Telegram (ветка inbox) -> записи для db `comments` страницы задач. Двухфазно.
 
 Разбор комментариев (10:00, 13:00, 18:00):
   1) git fetch origin inbox
@@ -36,6 +36,8 @@ import hashlib, json, os, subprocess, sys
 from datetime import datetime, timedelta, timezone
 
 ACTIONS = {"eve": "на вечер", "prio": "в приоритет", "wait": "ждём клиента", "done": "Ольга выполнила сама", "later": "отложить до завтра", "reopen": "вернуть в работу", "claude": "поручено Claude"}
+# Источник файла inbox -> подпись в db; сообщения ботов идут без действия (status new) и читаются на разборе
+SOURCES = {"svodka-rei": "сайт svodka-rei", "telegram": "Telegram: бот Claude", "telegram-gpt": "Telegram: бот GPT"}
 MSK = timezone(timedelta(hours=3))
 
 
@@ -120,6 +122,7 @@ def prepare(repo, seen_path, out, tasks_dir=None):
         if seen.get(name) in ("*", blob):
             continue
         f = json.loads(git(repo, "cat-file", "blob", blob))
+        src = SOURCES.get(f.get("source", ""), "сайт svodka-rei")
         ids = []
         for i, x in enumerate(f.get("items", [])):
             at = datetime.fromisoformat((x.get("at") or f["sentAt"]).replace("Z", "+00:00")).astimezone(MSK)
@@ -146,10 +149,10 @@ def prepare(repo, seen_path, out, tasks_dir=None):
             elif action in PATCH and tid:
                 text = "[задачи нет в db, не применено] " + text
             writes.append({"op": "set", "collection": "comments", "doc_id": doc_id,
-                           "data": {"text": text, "taskId": x.get("taskId"), "taskTitle": x.get("taskTitle") or x.get("client"),
+                           "data": {"text": text, "taskId": x.get("taskId"), "taskTitle": x.get("taskTitle") or x.get("client") or ("" if src.startswith("сайт") else src),
                                     "client": x.get("client"), "action": x.get("action") or "",
                                     "at": at.isoformat(), "atStr": at.strftime("%d.%m, %H:%M"),
-                                    "status": status, "appliedTo": applied, "source": "сайт svodka-rei", "inboxFile": name, "inboxBlob": blob,
+                                    "status": status, "appliedTo": applied, "source": src, "inboxFile": name, "inboxBlob": blob,
                                     "eventId": x.get("eid") or "", "latest": latest,
                                     "supersededBy": "" if latest else (last[x["taskId"]][1].get("eid") or "")}})
         manifest.append({"name": name, "blob": blob, "docIds": ids})
