@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-10-29T11:11:22.749Z",
+  "batchId": "2026-10-29T11-11-20-937Z-wuwhy8mr",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Мореплас",
+      "taskId": "lk2610-moreplas",
+      "taskTitle": "Мореплас: прил. 3 и 4 по 12 000 — ждём подписанные приложения, потом оплату",
+      "text": "проверь, поступили",
+      "action": "",
+      "actionLabel": "Сообщение Claude",
+      "at": "2026-10-29T11:11:15.934Z",
+      "eid": "emvtg0fryafk4dj28"
+    }
+  ]
+}
