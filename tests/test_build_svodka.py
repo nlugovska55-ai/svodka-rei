@@ -129,6 +129,7 @@ class BuilderAcceptance(unittest.TestCase):
         patch.object(builder, "SPISANIYA_JSON", str(self.root / "net.json")).start()
         patch.object(builder, "KONTROL_DIR", str(self.root / "net")).start()
         patch.object(builder, "BUH_PLAN_JSON", str(self.root / "net-plan.json")).start()
+        patch.object(builder, "BANK_JSON", str(self.root / "net-bank.json")).start()
         data = self.build()
         self.assertIsNone(data["buh_plan"])
         names = {x["name"]: x for x in data["buh_sources"]}
@@ -156,6 +157,24 @@ class BuilderAcceptance(unittest.TestCase):
         patch.object(builder, "SPISANIYA_JSON", str(sp)).start()
         rows = self.build()["spisaniya"]["rows"]
         self.assertEqual([("ФНС", "2026-10-26", "2026-10-28", "п/п 39"), ("", "", "", "")], [(r["confirmedBy"], r["paidOn"], r["plan"], r["basis"]) for r in rows])
+
+    def test_bank_turnover_only_covered_days_and_balanced(self):
+        self.task()
+        bk = self.root / "bank.json"
+        bk.write_text(json.dumps({"days": [{"account": "Альфа", "date": "2026-10-28", "open": 320421.48, "in": 260000, "out": 137001.16, "close": 443420.32}]}), encoding="utf-8")
+        patch.object(builder, "BANK_JSON", str(bk)).start()
+        data = self.build()
+        src = {x["name"]: x for x in data["buh_sources"]}["Выписки банков"]
+        self.assertEqual((True, True), (src["ok"], src["partial"]))
+        self.assertIn("Прочие счета и дни не охвачены", src["note"])
+        self.assertEqual(443420.32, data["bank"]["days"][0]["close"])
+
+    def test_bank_turnover_that_does_not_add_up_preserves_snapshot(self):
+        self.task()
+        bk = self.root / "bank.json"
+        bk.write_text(json.dumps({"days": [{"account": "Альфа", "date": "2026-10-28", "open": 1, "in": 2, "out": 0, "close": 5}]}), encoding="utf-8")
+        patch.object(builder, "BANK_JSON", str(bk)).start()
+        self.rejected()
 
     def test_spisaniya_row_without_date_preserves_snapshot(self):
         self.task()

@@ -130,6 +130,7 @@ def prognoz():
 
 SPISANIYA_JSON = "/mnt/project-files/daily-control/svodka/spisaniya.json"
 BUH_PLAN_JSON = "/mnt/project-files/daily-control/svodka/buh-plan.json"
+BANK_JSON = "/mnt/project-files/daily-control/svodka/bank-oboroty.json"
 KONTROL_DIR = "/mnt/project-files/daily-control/kontrol"
 BUH_PLANS = {
     "Реестр обязательных платежей": "/mnt/project-files/daily-control/otchety-claude/reestr-platezhey-chernovik.md",
@@ -187,6 +188,26 @@ def buh_plan():
                                      for a in bal.get("accounts", []) if a.get("amount") is not None]}}
 
 
+def bank_oboroty():
+    """Обороты по прочитанным выпискам: только охваченные счета и дни. Вход + приход − расход ≠ конец — сборка останавливается."""
+    if not os.path.exists(BANK_JSON):
+        return None
+    with open(BANK_JSON, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    days = []
+    for d in p.get("days", []):
+        date = iso_date(d.get("date"))
+        nums = {k: d.get(k) for k in ("open", "in", "out", "close")}
+        if not date or any(v is not None and not isinstance(v, (int, float)) for v in nums.values()) or nums["close"] is None:
+            raise ValueError(f"bank-oboroty.json: неполная строка {d.get('account')!r} {d.get('date')!r}; прежняя сводка сохранена")
+        if nums["open"] is not None and abs(nums["open"] + (nums["in"] or 0) - (nums["out"] or 0) - nums["close"]) > 0.005:
+            raise ValueError(f"bank-oboroty.json: {d.get('account')} {date}: вход + приход − расход не равно концу; прежняя сводка сохранена")
+        days.append({"account": d.get("account") or "", "date": date, **nums, "partial": d.get("partial") or "",
+                     "inItems": d.get("inItems") or [], "outItems": d.get("outItems") or [], "src": d.get("src") or ""})
+    days.sort(key=lambda x: (x["date"], x["account"]))
+    return {"built": p.get("built", ""), "note": p.get("note", ""), "days": days}
+
+
 def buh_svodka():
     """Последняя дневная сводка «Бухгалтерии» (kontrol/buh-svodka-ДАТА.md): разделы и строки как есть."""
     files = sorted(glob.glob(os.path.join(KONTROL_DIR, "buh-svodka-*.md")))
@@ -205,7 +226,7 @@ def buh_svodka():
     return {"file": os.path.basename(files[-1]), "title": head, "sections": sections}
 
 
-def buh_sources(sp, bs, bp=None):
+def buh_sources(sp, bs, bp=None, bank=None):
     """Что получено для раздела «Бухгалтерия», а что нет: пульт показывает это прямо, без нулей."""
     out = [{"name": "Реестр списаний (Бухгалтерия)", "ok": sp is not None, "note": ("от " + sp["built"]) if sp else "файл svodka/spisaniya.json не найден"},
            {"name": "Регулярные платежи (Бухгалтерия)", "ok": bp is not None, "note": ("от " + bp["built"]) if bp else "файл svodka/buh-plan.json не найден"},
@@ -213,7 +234,11 @@ def buh_sources(sp, bs, bp=None):
     for name, path in BUH_PLANS.items():
         ok = os.path.exists(path)
         out.append({"name": name, "ok": ok, "note": (datetime.fromtimestamp(os.path.getmtime(path), MSK).strftime("обновлён %d.%m") + " · " + os.path.relpath(path, "/mnt/project-files")) if ok else "не найден"})
-    out.append({"name": "Выписки банков (Альфа, Точка)", "ok": False, "note": "в сводку не загружаются: остатков и фактических списаний по банку нет"})
+    if bank and bank["days"]:
+        cov = sorted({(d["account"], d["date"][8:10] + "." + d["date"][5:7] + (" " + d["partial"] if d["partial"] else "")) for d in bank["days"]})
+        out.append({"name": "Выписки банков", "ok": True, "partial": True, "note": "только " + "; ".join(f"{a} за {dt}" for a, dt in cov) + ". Прочие счета и дни не охвачены"})
+    else:
+        out.append({"name": "Выписки банков (Альфа, Точка)", "ok": False, "note": "не получены: фактических оборотов по банку нет"})
     return out
 
 
@@ -354,8 +379,8 @@ def main():
         "prognoz": prognoz(),
         "appliedEvents": applied_events(db_dir),
     }
-    sp, bs, bp = spisaniya(), buh_svodka(), buh_plan()
-    data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "buh_sources": buh_sources(sp, bs, bp)})
+    sp, bs, bp, bank = spisaniya(), buh_svodka(), buh_plan(), bank_oboroty()
+    data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "bank": bank, "buh_sources": buh_sources(sp, bs, bp, bank)})
     atomic_json(out, data)
     print(f"tasks {len(tasks)}, summary {len(summary)}, lena_clients {len(data['lena_clients'])} -> {out}")
 
