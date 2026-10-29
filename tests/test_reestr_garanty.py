@@ -166,14 +166,19 @@ class Reestr(unittest.TestCase):
         self.assertIsNone(ws["D2"].value)
 
     def test_workbook_has_views_and_no_salary(self):
-        f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо квант", "дс", "1365 ле дс", 12000, None)], total=(None, "12000=1200"))
+        f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо квант", "дс", "1365 ле дс", 12000, None), ("ооо чзмэк", "дс", "1240 ле дс прил 7", None, 15000)],
+                      total=(None, "12000=1200"))
         self.run_sync(f)
         out = self.dir / "r.xlsx"
         subprocess.run([sys.executable, "-I", str(SCRIPT), "xlsx", "--out", str(out), "--today", "2026-10-29"], env=self.env, check=True, capture_output=True)
         wb = openpyxl.load_workbook(out)
-        self.assertEqual(wb.sheetnames, ["Как пользоваться", "Реестр", "Платежи", "Банк", "Текущий месяц", "Следующий месяц", "Месяцы", "Контроль", "Миграция", "Журнал"])
+        self.assertEqual(wb.sheetnames, ["Этот месяц", "Следующий месяц", "Реестр", "Платежи", "Как пользоваться", "Банк", "Месяцы", "Контроль", "Миграция", "Журнал"])
         self.assertIn("MONTH(TODAY())+1", wb["Следующий месяц"]["B1"].value)
-        self.assertIn("FILTER", wb["Текущий месяц"]["A4"].value)
+        self.assertIn("FILTER", wb["Этот месяц"]["A7"].value)
+        self.assertEqual([ws.title for ws in wb if ws.sheet_state == "visible"], ["Этот месяц", "Следующий месяц", "Реестр", "Платежи", "Как пользоваться"])
+        self.assertIn("🔴 Просрочено", wb["Реестр"]["M2"].value)
+        self.assertIn("LEFT(Платежи!B2:B,6)", wb["Реестр"]["J2"].value)
+        self.assertTrue(str(wb["Платежи"]["B2"].value).startswith("G-0002 · ооо чзмэк · 1240 ле дс прил 7 · 15000"))  # в «Платежах» выбирают «ID · клиент · договор · сумма»
         self.assertIn("ARRAYFORMULA", wb["Реестр"]["N2"].value)
         self.assertIn("Банк!", wb["Реестр"]["K2"].value)  # банк считается только из защищённой вкладки
         self.assertNotIn("банк", [c.value for c in wb["Платежи"]["E"]])

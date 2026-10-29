@@ -323,8 +323,8 @@ def snapshot(st, today):
 # ---------- книга для Google Диска ----------
 REG_COLS = ["ID", "Месяц", "Менеджер", "Клиент", "Услуга", "Договор, прил.", "Сумма, ₽", "Этап", "Срок оплаты",
             "Оплачено по Лене", "Подтверждено банком", "Остаток", "Статус", "Флаги", "Источник", "Проверено",
-            "Ответственный", "Следующее действие", "Вопрос", "Ключ дубля", "Ключ миграции"]
-PAY_COLS = ["ID платежа", "ID строки", "Дата", "Сумма, ₽", "Чей факт", "Учитывать", "Счёт", "П/п", "Источник", "Примечание"]
+            "Ответственный", "Что сделать", "Вопрос", "Ключ дубля", "Ключ миграции", "Для выбора в «Платежах»"]
+PAY_COLS = ["ID платежа", "За что (выбрать из списка)", "Дата оплаты", "Сумма, ₽", "Чей факт", "Учитывать", "Счёт", "П/п", "Источник", "Примечание"]
 
 
 def ru_formula(f):
@@ -340,12 +340,14 @@ def ru_formula(f):
 
 
 def next_action(st, r, today):
+    """Что сделать менеджеру. Сверку с банком делает Claude, менеджеру её не пишем."""
     if r["question"]:
-        return "Уточнить у Лены, что значит пришедшая сумма в этой строке"
-    rem = remain(st, r)
-    if rem <= 0:
-        return "" if paid(st, r["id"], "банк") else "Сверить с выпиской банка"
-    return "Узнать у Лены срок оплаты" if not r["due"] else "Проверить поступление к сроку"
+        return "Ответить на вопрос в колонке «Вопрос»"
+    if remain(st, r) <= 0:
+        return ""
+    if not r["due"]:
+        return "Поставить срок оплаты"
+    return "Напомнить клиенту: срок прошёл" if r["due"] < today.isoformat() else "Проверить оплату к сроку"
 
 
 def build_xlsx(st, out, today, since=""):
@@ -400,18 +402,23 @@ def build_xlsx(st, out, today, since=""):
                    f"{r['month'][:7]}|{r['ck']}|{r['dk']}|{r['amount'] or 0:.0f}" if r["dk"] != "|" else None])
     big = 'IF(J2:J>K2:K,J2:J,K2:K)'
     has = '(L2:L<>"")*(L2:L>0)'
-    rg["J2"] = '=ARRAYFORMULA(IF(A2:A="","",SUMIF(Платежи!B2:B&"|"&Платежи!E2:E&"|"&Платежи!F2:F,A2:A&"|Лена|да",Платежи!D2:D)))'
+    rg["J2"] = '=ARRAYFORMULA(IF(A2:A="","",SUMIF(LEFT(Платежи!B2:B,6)&"|"&Платежи!F2:F,A2:A&"|да",Платежи!D2:D)))'
     rg["K2"] = '=ARRAYFORMULA(IF(A2:A="","",SUMIF(Банк!B2:B,A2:A,Банк!D2:D)))'
     rg["L2"] = f'=ARRAYFORMULA(IF((A2:A="")+(G2:G=""),"",IF(G2:G-{big}>0,G2:G-{big},0)))'
-    rg["M2"] = (f'=ARRAYFORMULA(IF(A2:A="","",IF(H2:H="Отказ","отказ",IF(G2:G="","нет суммы",IF(L2:L=0,IF(K2:K>=G2:G,"оплачено, банк подтвердил",'
-                f'"оплачено по Лене, банк не сверен"),IF({big}>0,"частично оплачено",IF((I2:I<>"")*(I2:I<TODAY()),"просрочено","ждём оплату")))))))')
+    q = '(S2:S<>"")+(COUNTIF(LEFT(Платежи!B2:B,6)&"|"&Платежи!F2:F,A2:A&"|вопрос")>0)'
+    rg["M2"] = (f'=ARRAYFORMULA(IF(A2:A="","",IF(H2:H="Отказ","⛔ Отказ",IF(G2:G="","❓ Нет суммы",IF({q},"❓ Вопрос",IF(L2:L=0,'
+                f'IF(K2:K>=G2:G,"🟢 Оплачено, банк ✓","🟡 Пришло, банк не сверен"),IF({big}>0,"🟠 Частично",'
+                f'IF((I2:I<>"")*(I2:I<TODAY()),"🔴 Просрочено","⚪ Ждём оплату"))))))))')
     rg["N2"] = (f'=ARRAYFORMULA(IF(A2:A="",IF(D2:D="","","новая строка: ID присвоит Claude при сверке; "),IF(C2:C="","нет менеджера; ","")&IF(G2:G="","нет суммы; ","")&IF({has}*(I2:I=""),"нет срока; ","")'
                 f'&IF(F2:F="","нет договора; ","")&IF({has}*(I2:I<>"")*(I2:I<TODAY()),"просрочено; ","")'
                 f'&IF((J2:J>0)*(K2:K>0)*(J2:J<>K2:K),"Лена ≠ банк; ","")'
                 f'&IF((J2:J>0)*(K2:K=0)*(B2:B>=EDATE(DATE(YEAR(TODAY()),MONTH(TODAY()),1),-1)),"банк не подтвердил; ","")'
                 f'&IF((T2:T<>"")*(COUNTIF(T2:T,T2:T)>1),"возможный дубль; ","")&IF({has}*(P2:P<TODAY()-7),"давно не проверяли; ","")'
-                f'&IF(S2:S<>"","вопрос; ","")&IF(COUNTIF(Платежи!B2:B&"|"&Платежи!F2:F,A2:A&"|вопрос")>0,"платёж под вопросом; ","")))')
+                f'&IF(S2:S<>"","вопрос; ","")&IF(COUNTIF(LEFT(Платежи!B2:B,6)&"|"&Платежи!F2:F,A2:A&"|вопрос")>0,"платёж под вопросом; ","")))')
     rg["T2"] = ('=ARRAYFORMULA(IF((A2:A="")+(F2:F=""),"",IF(U2:U<>"",U2:U,TEXT(B2:B,"yyyy-mm")&"|"&LOWER(TRIM(D2:D))&"|"&LOWER(TRIM(F2:F))&"|"&G2:G)))')
+    rg["V2"] = '=ARRAYFORMULA(IF(A2:A="","",A2:A&" · "&D2:D&" · "&F2:F&" · "&G2:G))'
+    for col in "KNOPQTUV":  # техническое: видно Ольге и Claude по «Показать», менеджеру не мешает
+        rg.column_dimensions[col].hidden = True
     for row in rg.iter_rows(min_row=2, max_row=N):
         row[1].number_format, row[8].number_format, row[15].number_format, row[6].number_format = "MMM YYYY", "DD.MM.YYYY", "DD.MM.YYYY", "#,##0"
     for col in "JKL":
@@ -425,16 +432,19 @@ def build_xlsx(st, out, today, since=""):
 
     pg = wb.create_sheet("Платежи")
     header(pg, PAY_COLS, [26, 10, 11, 12, 9, 10, 18, 12, 50, 40])
+    label = {r["id"]: f'{r["id"]} · {r["client"]} · {r["doc"]} · {r["amount"] or 0:.0f}' for r in st["rows"]}
     for p in (p for p in st["payments"] if p["kind"] == "Лена"):
-        pg.append([p["id"], p["rowId"], date.fromisoformat(p["date"]) if p["date"] else None, p["amount"], p["kind"], p["count"],
+        pg.append([p["id"], label.get(p["rowId"], p["rowId"]), date.fromisoformat(p["date"]) if p["date"] else None, p["amount"], p["kind"], p["count"],
                    p["account"] or None, p["basis"] or None, p["source"], p["note"] or None])
     for row in pg.iter_rows(min_row=2):
         row[2].number_format, row[3].number_format = "DD.MM.YYYY", "#,##0"
-    for col, vals in (("E", "Лена"), ("F", "да,нет,вопрос")):
+    for col in "AEGHI":  # служебное; Лена заполняет «За что», дату, сумму, «Учитывать»
+        pg.column_dimensions[col].hidden = True
+    for col, vals in (("F", "да,нет,вопрос"),):
         v = DataValidation(type="list", formula1=f'"{vals}"', allow_blank=False)
         pg.add_data_validation(v)
         v.add(f"{col}2:{col}{LAST}")
-    v = DataValidation(type="list", formula1=f"=Реестр!$A$2:$A${LAST}", allow_blank=False)
+    v = DataValidation(type="list", formula1=f"=Реестр!$V$2:$V${LAST}", allow_blank=False)
     pg.add_data_validation(v)
     v.add(f"B2:B{LAST}")
 
@@ -447,25 +457,31 @@ def build_xlsx(st, out, today, since=""):
     for row in bk.iter_rows(min_row=2):
         row[2].number_format, row[3].number_format = "DD.MM.YYYY", "#,##0"
 
-    for title, k, carry in (("Текущий месяц", 0, True), ("Следующий месяц", 1, False)):
-        ws = wb.create_sheet(title)
-        ws["A1"], ws["B1"] = "Месяц", f"=DATE(YEAR(TODAY()),MONTH(TODAY())+{k},1)"
+    # Листы менеджера: одна таблица месяца, итоги сверху, сначала то, что требует действий.
+    VIEW = ["Статус", "Клиент", "Договор, прил.", "Услуга", "Сумма, ₽", "Срок оплаты", "Оплачено, ₽", "Остаток, ₽", "Что сделать", "№"]
+    for title, k, carry in (("Этот месяц", 0, True), ("Следующий месяц", 1, False)):
+        ws = wb.create_sheet(title, index=k)
+        ws["A1"], ws["B1"] = "Оплаты клиентов", f"=DATE(YEAR(TODAY()),MONTH(TODAY())+{k},1)"
         ws["B1"].number_format = "MMMM YYYY"
-        ws["D1"] = "Ждём, ₽"
-        ws["E1"] = (f'=SUMIFS(Реестр!L:L,Реестр!B:B,B1)' + (f'+SUMIFS(Реестр!L:L,Реестр!B:B,"<"&B1,Реестр!H:H,"<>Отказ")' if carry else ""))
-        ws["F1"], ws["G1"] = "Пришло по Лене, ₽", "=SUMIFS(Реестр!J:J,Реестр!B:B,B1)"
-        ws["H1"], ws["I1"] = "Подтв. банком, ₽", "=SUMIFS(Реестр!K:K,Реестр!B:B,B1)"
-        for c in ("E1", "G1", "I1"):
-            ws[c].number_format = "#,##0"
-        ws.append([])
-        ws.append(["ID", "Месяц", "Менеджер", "Клиент", "Услуга", "Договор, прил.", "Сумма, ₽", "Этап", "Срок оплаты", "Оплачено по Лене",
-                   "Подтверждено банком", "Остаток", "Статус", "Флаги", "Источник", "Проверено", "Ответственный", "Следующее действие", "Вопрос"])
-        for c in ws[3]:
+        ws["A1"].font = ws["B1"].font = Font(bold=True, size=16)
+        cards = [("Ждём, ₽", "=SUM(H7:H)"), ("Просрочено, ₽", '=SUMIF(A7:A,"*Просроч*",H7:H)'),
+                 ("Пришло по Лене, ₽", "=SUMIFS(Реестр!J:J,Реестр!B:B,B1)"), ("Подтвердил банк, ₽", "=SUMIFS(Реестр!K:K,Реестр!B:B,B1)"),
+                 ("Вопросов", '=COUNTIF(A7:A,"*Вопрос*")+COUNTIF(A7:A,"*Нет суммы*")')]
+        for n, (lab, f) in enumerate(cards, start=1):
+            c = openpyxl.utils.get_column_letter(n)
+            ws[f"{c}3"], ws[f"{c}4"] = lab, f
+            ws[f"{c}4"].font, ws[f"{c}4"].number_format = Font(bold=True, size=14), "#,##0"
+        ws["A5"] = ("Этот месяц и неоплаченное из прошлых. " if carry else "") + "Лист собирается сам: менять — во вкладке «Реестр», оплаты — в «Платежи»."
+        for n, h in enumerate(VIEW, start=1):
+            c = ws.cell(6, n, h)
             c.font, c.fill = bold, head_fill
-        cond = "(Реестр!B2:B=B1)" + ("+(Реестр!B2:B<B1)*(Реестр!L2:L>0)*(Реестр!H2:H<>\"Отказ\")" if carry else "")
-        ws["A4"] = f'=IFERROR(FILTER(Реестр!A2:S,{cond}),"строк нет")'
-        ws.freeze_panes = "A4"
-        for i, w in enumerate([8, 10, 11, 30, 22, 24, 11, 14, 11, 12, 12, 11, 24, 40, 30, 11, 12, 34, 40], start=1):
+        cond = "(Реестр!B2:B=B1)" + ('+(Реестр!B2:B<B1)*(Реестр!L2:L>0)*(Реестр!H2:H<>"Отказ")' if carry else "")
+        prio = ('IF(REGEXMATCH(s,"Просроч"),1,IF(REGEXMATCH(s,"Вопрос|Нет суммы"),2,IF(REGEXMATCH(s,"Частич"),3,'
+                'IF(REGEXMATCH(s,"Ждём"),4,IF(REGEXMATCH(s,"не сверен"),5,IF(REGEXMATCH(s,"Оплачено"),6,7))))))')
+        ws["A7"] = (f'=IFERROR(ARRAYFORMULA(LET(f,FILTER(Реестр!A2:S,{cond}),s,CHOOSECOLS(f,13),'
+                    f'SORT(CHOOSECOLS(f,13,4,6,5,7,9,10,12,18,1),{prio},TRUE,CHOOSECOLS(f,4),TRUE))),"строк нет")')
+        ws.freeze_panes = "A7"
+        for i, w in enumerate([24, 30, 24, 20, 12, 12, 12, 12, 34, 8], start=1):
             ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w
 
     ms = wb.create_sheet("Месяцы")
@@ -540,6 +556,12 @@ def build_xlsx(st, out, today, since=""):
     for j in st["journal"][-60:]:
         jr.append([j["at"], j["msg"]])
     jr.column_dimensions["A"].width, jr.column_dimensions["B"].width = 26, 110
+    # Менеджеру видны пять вкладок; служебные скрыты (Ольга открывает: правый клик по ярлыку → «Показать»).
+    wb.move_sheet("Как пользоваться", offset=len(wb.sheetnames) - 1 - wb.sheetnames.index("Как пользоваться"))
+    wb.move_sheet("Как пользоваться", offset=wb.sheetnames.index("Платежи") - wb.sheetnames.index("Как пользоваться") + 1)
+    for t in ("Банк", "Месяцы", "Контроль", "Миграция", "Журнал"):
+        wb[t].sheet_state = "hidden"
+    wb.active = 0
     wb.save(out)
 
 
