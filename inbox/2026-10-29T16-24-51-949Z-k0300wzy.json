@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-10-29T16:24:54.499Z",
+  "batchId": "2026-10-29T16-24-51-949Z-k0300wzy",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Бухгалтерия",
+      "taskId": "up2610-11",
+      "taskTitle": "УСН РЭИ 9 мес.: проверить в 1С разницу 70 757 (99 071 против 28 314), итог Ольге и Ларисе",
+      "text": "",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-10-29T16:24:46.943Z",
+      "eid": "emvtr7mfzbe7t7ml1"
+    }
+  ]
+}
