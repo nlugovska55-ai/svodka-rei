@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-10-29T16:24:56.368Z",
+  "batchId": "2026-10-29T16-24-53-822Z-u133z8l2",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Айстандарт",
+      "taskId": "portal2910-aistandart360",
+      "taskTitle": "Портал: внести оплату Айстандарту 56 490 (п/п 48) в 10 заказов — раскладка сходится",
+      "text": "",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-10-29T16:24:52.275Z",
+      "eid": "emvtr7qk36ywdet6b"
+    }
+  ]
+}
