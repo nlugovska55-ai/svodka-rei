@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-10-29T16:24:38.213Z",
+  "batchId": "2026-10-29T16-24-35-642Z-u6tk3niy",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Айстандарт",
+      "taskId": "kl2910-aistandart48",
+      "taskTitle": "Айстандарт п/п 48 (счёт № 360, 56 490): какая позиция к какому заказу портала",
+      "text": "разнеси",
+      "action": "",
+      "actionLabel": "Сообщение Claude",
+      "at": "2026-10-29T16:24:30.630Z",
+      "eid": "emvtr79uui50xtt18"
+    }
+  ]
+}
