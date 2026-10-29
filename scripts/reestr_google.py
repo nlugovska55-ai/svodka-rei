@@ -48,7 +48,12 @@ def amount(v):
     if isinstance(v, (int, float)):
         return float(v)
     s = re.sub(r"[\s  ₽]", "", str(v))
-    return R.num(s) if s else None
+    if not s:
+        return None
+    n = R.num(s)
+    if n is None:  # «12к», «#VALUE!»: сумму не стираем, а сообщаем (прогон 29.10)
+        raise ValueError(f"сумма «{text(v)}» не число")
+    return n
 
 
 def serial(v):
@@ -109,7 +114,7 @@ def read(row, fields, n, problems):
         try:
             out[f] = NORM[f](cell(row, i))
         except ValueError as e:
-            problems.append(f"стр. {n}, {f}: {e} — поле не изменено")
+            problems.append(f"стр. {n}{(" " + text(cell(row, 0))) if text(cell(row, 0)) else ""}, {f}: {e} — поле не изменено")
             out[f] = KEEP
     return out
 
@@ -333,7 +338,12 @@ def plan(st, sheet, today, since="2026-09"):
             key = next((k for k, ids in st["pendingIds"].items() if p["id"] in ids), None)
             if key and pfree.get(key):
                 n = pfree[key].pop(0)
-                pblock.setdefault(n, [None] * 10)[0] = p["id"]
+                line = pblock.setdefault(n, [None] * 10)
+                line[0] = p["id"]
+                cur = pay[n - 1]
+                for i, v in ((4, p["kind"]), (8, p["source"])):  # «Чей факт» и «Источник» защищены — менеджер их не заполнит
+                    if not text(cell(cur, i)):
+                        line[i] = v
                 continue
             n, pnext = pnext, pnext + 1
             pblock[n] = [p["id"], label(rows[p["rowId"]]), p["date"] or "", p["amount"], p["kind"], p["count"], p["account"], p["basis"], p["source"], p["note"]]
@@ -394,7 +404,14 @@ def main():
     if a.cmd == "pull":
         res = pull(st, sheet, today)
         R.save(path, st)
-        R.save(os.path.join(R.DIR, "snapshot.json"), R.snapshot(st, today))
+        snap = R.snapshot(st, today)
+        R.save(os.path.join(R.DIR, "snapshot.json"), snap)
+        # пульт показывает свежесть по import-status: успешное чтение таблицы — тоже успешный обмен (прогон 29.10)
+        stp = os.path.join(R.DIR, "import-status.json")
+        status = json.load(open(stp, encoding="utf-8")) if os.path.exists(stp) else {}
+        status.update(lastAttempt=R.now(), ok=True, lastOk=R.now(), lastError="", via="Google-таблица",
+                      sheetProblems=len(res["problems"]), rows=len(snap["rows"]))
+        R.save(stp, status)
         print(f"таблица → реестр: правок {len(res['edits'])}, новых {len(res['new'])}, проблем {len(res['problems'])}")
         for x in res["edits"] + res["problems"]:
             print(" -", x)

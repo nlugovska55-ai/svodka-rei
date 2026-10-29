@@ -606,6 +606,8 @@ def main():
             "waiting": t.get("waiting") or "",  # я / клиент / Лена / Claude
             "delegated": t.get("delegated") or "",  # eid поручения с сайта, внесённого разбором
             "urgency": t.get("urgency") or "",  # сегодня / неделя / фон
+            # подпункты сверки (n, text, criterion, src, done, result): пульт показывает, сколько закрыто и что дальше
+            "steps": [{k: x.get(k) for k in ("n", "text", "criterion", "src", "done", "result")} for x in (t.get("steps") or []) if isinstance(x, dict)],
             # Сверка «Утра» (§14): без checked за сегодня, src и thread/origin пульт не показывает дело как «нужно от вас»
             "checked": t.get("checked") or "",
             "src": t.get("src") or "",

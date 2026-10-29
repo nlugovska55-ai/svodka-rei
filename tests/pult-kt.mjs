@@ -60,6 +60,9 @@ try {
   await go(p, '#utro'); const chg = await p.innerText('#changes'), au = await p.evaluate(() => [...document.querySelectorAll('.sec')].find((x) => /Автоматика/.test(x.querySelector('h2')?.textContent || ''))?.innerText || '');
   check('«Что изменилось»: отправка актов не закрыта оплатой', !/Отправить по ЭДО[^\n]*оплачены/.test(chg) && (/Отправить по ЭДО[^\n]*отправлены/.test(chg) || !/Отправить по ЭДО/.test(chg)), (chg.match(/[^\n]*Отправить по ЭДО[^\n]*/) || ['строки нет'])[0]);
   check('Автоматика: «не проверено» не считается успешной проверкой', !/10 из 10\s*$/m.test(au) && /не проверено/.test(au.split('\n')[0] + au.split('\n')[1]), au.split('\n').slice(0, 2).join(' | '));
+  // 4c. Единый файл Лены: карточка говорит про один файл и задачу сверки с подпунктами; цифр зарплаты на пульте нет
+  await go(p, '#utro'); const lc = await p.innerText('#garanty'), whole = await p.innerText('body');
+  check('Карточка Лены: единый файл, задача сверки «закрыто 1 из 8», зарплатных цифр нет', /единый/.test(lc) && /подпунктов закрыто 1 из 8/.test(lc) && !/22\s600|31\s380|72\s825/.test(whole), (lc.match(/Сверка[^\n]*/) || ['нет строки «Сверка»'])[0]);
   // 5. Правка Лены в таблице → сверка → пульт
   DATA = path.join(CASES, 'ok.json'); await go(p, '#utro');
   const card = await p.innerText('#garanty');

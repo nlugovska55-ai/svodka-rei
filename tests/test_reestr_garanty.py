@@ -174,36 +174,45 @@ class Reestr(unittest.TestCase):
         self.assertEqual(len(rows), 2)
         self.assertIn("пропала из файла Лены", rows[1]["flags"])
 
-    def test_salary_kept_apart_rate_not_invented(self):
+    def test_salary_one_file_formulas_rates_not_invented(self):
         f = lena_file(self.dir / "июль 2026.xlsx", [("ооо квант", "дс", "1365 ле дс", None, 578500)], total=(None, "578500= 57800 +3900 (13*300)=61700"))
         self.run_sync(f)
         self.assertNotIn("57800", (self.state / "snapshot.json").read_text(encoding="utf-8"))
-        out = self.dir / "z.xlsx"
-        subprocess.run([sys.executable, "-I", str(SCRIPT), "salary", "--out", str(out)], env=self.env, check=True, capture_output=True)
-        ws = openpyxl.load_workbook(out).active
-        self.assertIn("ставка не согласована", ws["H2"].value)
-        self.assertEqual(ws["I2"].value, "578500= 57800 +3900 (13*300)=61700")
-        self.assertIsNone(ws["D2"].value)
+        # второй книги нет: команда salary отказывает, зарплата — лист «Зарплата» той же книги
+        r = subprocess.run([sys.executable, "-I", str(SCRIPT), "salary", "--out", str(self.dir / "z.xlsx")], env=self.env, capture_output=True, text=True)
+        self.assertNotEqual(r.returncode, 0)
+        self.assertFalse((self.dir / "z.xlsx").exists())
+        out = self.dir / "r.xlsx"
+        subprocess.run([sys.executable, "-I", str(SCRIPT), "xlsx", "--out", str(out), "--today", "2026-07-15"], env=self.env, check=True, capture_output=True)
+        ws = openpyxl.load_workbook(out)["Зарплата"]
+        self.assertIsNone(ws["B2"].value)  # ставка пустая, не ноль
+        self.assertIn("Месяцы!D:D", ws["B7"].value)  # база — из единого реестра, не копия
+        self.assertIn("не рассчитано", ws["K7"].value)
+        self.assertEqual(ws["L7"].value, "578500= 57800 +3900 (13*300)=61700")
 
-    def test_workbook_has_views_and_no_salary(self):
+    def test_workbook_has_views_and_salary_only_on_its_sheet(self):
         f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо квант", "дс", "1365 ле дс", 12000, None), ("ооо чзмэк", "дс", "1240 ле дс прил 7", None, 15000)],
                       total=(None, "12000=1200"))
         self.run_sync(f)
         out = self.dir / "r.xlsx"
         subprocess.run([sys.executable, "-I", str(SCRIPT), "xlsx", "--out", str(out), "--today", "2026-10-29"], env=self.env, check=True, capture_output=True)
         wb = openpyxl.load_workbook(out)
-        self.assertEqual(wb.sheetnames, ["Этот месяц", "Следующий месяц", "Реестр", "Платежи", "Как пользоваться", "Банк", "Месяцы", "Контроль", "Миграция", "Журнал"])
+        self.assertEqual(wb.sheetnames, ["Этот месяц", "Следующий месяц", "Реестр", "Платежи", "Зарплата", "Как пользоваться", "Банк", "Месяцы", "Контроль", "Миграция", "Журнал"])
         self.assertIn("MONTH(TODAY())+1", wb["Следующий месяц"]["B1"].value)
         self.assertIn("FILTER", wb["Этот месяц"]["A7"].value)
-        self.assertEqual([ws.title for ws in wb if ws.sheet_state == "visible"], ["Этот месяц", "Следующий месяц", "Реестр", "Платежи", "Как пользоваться"])
-        self.assertIn("🔴 Просрочено", wb["Реестр"]["M2"].value)
-        self.assertIn("LEFT(Платежи!B2:B,6)", wb["Реестр"]["J2"].value)
+        self.assertEqual([ws.title for ws in wb if ws.sheet_state == "visible"], ["Этот месяц", "Следующий месяц", "Реестр", "Платежи", "Зарплата", "Как пользоваться"])
+        self.assertIn("🔴 Просрочено", wb["Реестр"]["M1"].value)
+        self.assertIn("LEFT(Платежи!B2:B,6)", wb["Реестр"]["J1"].value)
         self.assertTrue(str(wb["Платежи"]["B2"].value).startswith("G-0002 · ооо чзмэк · 1240 ле дс прил 7 · 15000"))  # в «Платежах» выбирают «ID · клиент · договор · сумма»
-        self.assertIn("ARRAYFORMULA", wb["Реестр"]["N2"].value)
-        self.assertIn("Банк!", wb["Реестр"]["K2"].value)  # банк считается только из защищённой вкладки
+        self.assertIn("ARRAYFORMULA", wb["Реестр"]["N1"].value)
+        self.assertIn("Банк!", wb["Реестр"]["K1"].value)  # банк считается только из защищённой вкладки
+        self.assertIsNone(wb["Реестр"]["J2"].value)  # формула в шапке: сортировка строк её не уносит
+        self.assertTrue(any("G2:G" in str(v.sqref) and v.type == "decimal" for v in wb["Реестр"].data_validations.dataValidation))
         self.assertNotIn("банк", [c.value for c in wb["Платежи"]["E"]])
-        text = " ".join(str(c.value) for ws in wb for row in ws.iter_rows() for c in row if c.value)
+        # запись Лены о зарплате — только на листе «Зарплата», не в реестре и не в служебных вкладках
+        text = " ".join(str(c.value) for ws in wb if ws.title != "Зарплата" for row in ws.iter_rows() for c in row if c.value)
         self.assertNotIn("12000=1200", text)
+        self.assertIn("12000=1200", [c.value for c in wb["Зарплата"]["L"]])
 
 
 if __name__ == "__main__":

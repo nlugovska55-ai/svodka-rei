@@ -749,6 +749,13 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   }
   const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
   // Рабочая таблица менеджера: ввод — только в ней (одна Google-таблица), пульт показывает обмен, режим, историю и доступ.
+  // Задача сверки единого файла Лены (db sverka-leny-*): подпункты закрыты/открыты и следующий шаг. Нет задачи — так и пишем.
+  function sverkaTxt() {
+    const t = T.find((x) => /^sverka-leny/.test(x.id));
+    if (!t) return '<span class="unk">задачи сверки в базе нет</span>';
+    const S = t.steps || [], ok = S.filter((x) => x.done).length, nx = S.find((x) => !x.done);
+    return `<button class="link" style="margin:0;font-size:inherit;text-align:left" data-wk="${esc(t.id)}">${esc(t.short)}</button> · подпунктов закрыто ${ok} из ${S.length}${nx ? '; дальше п.' + esc(String(nx.n)) + ': ' + esc(nx.text.length > 90 ? nx.text.slice(0, 90) + '…' : nx.text) : ''}${t.due ? ' · срок контроля ' + esc(t.due) : ''}`;
+  }
   function lenaCard(full) {
     const G = D.garanty;
     if (!G || !G.connected) return `<section class="sec" id="garanty"><div class="lena"><div class="lh"><h3>Рабочая таблица Лены</h3><span class="c hint">источник не подключён</span></div><div class="autoh">Реестр гарантов не подключён${G && G.status && G.status.lastError ? ': ' + esc(G.status.lastError) : ''}. Цифр нет — это не нули. Старый перечень «октябрь 2026» от 23.10 не показываю как актуальный.</div></div></section>`;
@@ -766,6 +773,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <dt>История</dt><dd>${hist}</dd>
       <dt>Ждём по гарантам</dt><dd><b class="num">${num(sum(O, (r) => r.id ? r.remain : r.amount))}</b> · ${plural(O.length, 'строка', 'строки', 'строк')}${late ? `, просрочено <b>${late}</b>` : ''}${noDate ? `, без срока ${noDate} (это не 0)` : ''}</dd>
       <dt>Подтверждено банком</dt><dd class="plus">${num(sum(G.rows, (r) => r.bankSum))}</dd>
+      <dt>Файл</dt><dd>единый: гаранты, оплаты и зарплата Лены в одной таблице; зарплата — отдельный лист, защищён от правки, но не скрыт, на пульт не выводится. Старый файл зарплаты — архив.</dd>
+      <dt>Сверка</dt><dd>${sverkaTxt()}</dd>
       <dt>Доступ Лены</dt><dd>${acc.status === 'granted' ? 'выдан: ' + esc(acc.note || '') : esc(acc.note || 'не выдан: ждём её почту, доступ будет адресный, только к полям ввода')}</dd></dl>
       ${full ? '' : `<div class="rows glines">${top.slice(0, 3).map((r) => garLine(G, r)).join('')}</div>`}</div></section>`;
   }
@@ -1061,6 +1070,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       ${t.detail ? `<div class="fact"><span class="k">Подробности</span><span>${esc(t.detail)}</span></div>` : ''}
       ${t.next ? `<div class="fact"><span class="k">Следующий шаг</span><span>${esc(t.next)}</span></div>` : ''}
       ${t.lastMove ? `<div class="fact"><span class="k">Последнее движение</span><span>${esc(t.lastMove)}</span></div>` : ''}
+      ${(t.steps || []).length ? `<div class="fact"><span class="k">Подпункты сверки</span><span><ol style="margin:0;padding-left:18px">${t.steps.map((x) => `<li>${x.done ? '✓ ' : ''}${esc(x.text || '')}${x.criterion ? `<br><small class="na">критерий: ${esc(x.criterion)}${x.src ? ' · источник: ' + esc(x.src) : ''}</small>` : ''}${x.result ? `<br><small>итог: ${esc(x.result)}</small>` : ''}</li>`).join('')}</ol></span></div>` : ''}
       <div class="fact"><span class="k">Проверка по источнику</span><span>${t.checked ? esc(t.checked) : 'не сверено'}${t.src ? ' · источник: ' + esc(t.src) : ' · источник не указан'}${t.thread || t.origin ? ' · ветка: ' + esc(t.thread || t.origin) : ''}${t.verified ? '' : ' — сегодня не сверено, в «Требует вашего решения» не попадает'}</span></div>
       <div class="fact"><span class="k">Откуда</span><span>${t.fromSummary ? 'Список «Нужно от вас» ветки «Утро и задачи»' : 'Завела ветка «' + esc(t.owner || 'Claude') + '»' + (t.added ? ', ' + esc(t.added) : '') + (t.section ? ' · ' + esc(t.section) : '')}</span></div>
       ${(t.orders || []).length > 1 ? `<div class="fact"><span class="k">Заказы на портале</span><span>${t.orders.map((o) => `<a href="http://95.84.156.117:3839/projects/orders/${esc(o)}/" target="_blank" rel="noopener">${esc(o)}</a>`).join(' · ')}</span></div>` : ''}

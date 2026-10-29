@@ -3,7 +3,7 @@
 
     python3 -I scripts/reestr_garanty.py sync <файл.xlsx>... [--mtime ISO] [--bank data/svodka.json] [--today ГГГГ-ММ-ДД]
     python3 -I scripts/reestr_garanty.py xlsx --out реестр.xlsx [--today ...]      # книга для Google Диска (формулы, без зарплаты)
-    python3 -I scripts/reestr_garanty.py salary --out зарплата.xlsx                 # отдельная закрытая книга: база и записи Лены
+    (salary — отключено с 29.10: зарплата — лист «Зарплата» единой Google-таблицы, второй книги нет)
     python3 -I scripts/reestr_garanty.py fail "ПК недоступен" [--scheduled]        # запуск не состоялся: записать сбой, реестр не трогать
 
 --scheduled ставит в import-status.json scheduled=true: пульт пишет «по расписанию», а не «вручную».
@@ -22,7 +22,8 @@
 - Строка, повторённая Леной в файле следующего месяца, не дублируется: находится открытая строка того же клиента/договора/услуги.
 - Строка, где у Лены заполнены и «ожидаемая», и «пришедшая», не считается оплаченной: платёж «вопрос», остаток не уменьшается.
 - Ручные «итого» Лены не подменяют строки: расхождение пишется в протокол миграции.
-- Свободные записи Лены о зарплате идут только в отдельную книгу и не попадают в пульт; ставки из них не выводятся.
+- Зарплата Лены — лист «Зарплата» той же книги (с 29.10 единый файл): база и банк формулами из «Месяцев», запись Лены как есть,
+  ставки пустые = «не рассчитано». В пульт не попадает; ставки из записей не выводятся.
 """
 import argparse
 import hashlib
@@ -145,7 +146,7 @@ def paid(st, rid, kind):
 
 
 def remain(st, r):
-    if r.get("amount") is None:
+    if r.get("amount") is None or r.get("stage") == "Отказ":  # отказ — не ждём (прогон 29.10: отказ попадал в «Ждём»)
         return 0
     return max(0.0, r["amount"] - max(paid(st, r["id"], "Лена"), paid(st, r["id"], "банк")))
 
@@ -241,8 +242,10 @@ def sync(paths, mtime, bank_path, today):
                     lead = re.match(r"\s*(\d[\d ]*\d)", v)
                     if col == "E" and lead and abs(float(lead.group(1).replace(" ", "")) - s) >= 1:
                         mig["issues"].append(f"{col}{total['row']}: запись Лены начинается с {float(lead.group(1).replace(' ', '')):_.0f}, сумма строк {s:_.0f}".replace("_", " "))
+                    # разбор записи (base, pct, …) сохраняем, пока её текст тот же; изменилась запись — разбор сбрасывается
+                    was = next((n for n in st.get("salaryNotes", []) if n["file"] == fname and n.get("text") == v.strip()), {})
                     st["salaryNotes"] = [n for n in st.get("salaryNotes", []) if n["file"] != fname] + [
-                        {"file": fname, "month": month, "cell": f"{col}{total['row']}", "text": v.strip(), "sumE": E}]
+                        {**was, "file": fname, "month": month, "cell": f"{col}{total['row']}", "text": v.strip(), "sumE": E}]
         for x in recs:
             if x["D"] is None and x["rawD"] not in (None, "") or x["E"] is None and x["rawE"] not in (None, ""):
                 mig["issues"].append(f"стр. {x['row']}: сумма не число ({x['rawD'] or x['rawE']!r}) — не учтена")
@@ -327,7 +330,7 @@ def snapshot(st, today):
         stage = "paid" if lena >= (r["amount"] or 0) and lena else "guarantee"
         rows.append({"id": r["id"], "key": r["id"], "row": int(re.search(r"стр\. (\d+)", r["source"]).group(1)), "month": r["month"],
                      "client": r["client"], "service": r["service"], "doc": r["doc"], "amount": r["amount"], "amountRaw": "",
-                     "stage": stage, "status": {"paid": "деньги пришли, по таблице", "guarantee": "клиент подтвердил (гарант)"}[stage],
+                     "stage": stage, "status": "отказ клиента" if r["stage"] == "Отказ" else {"paid": "деньги пришли, по таблице", "guarantee": "клиент подтвердил (гарант)"}[stage],
                      "date": r["due"], "dateRaw": "", "datePaid": None, "received": lena or None, "receivedRaw": "",
                      "who": r["manager"], "note": r["question"], "remainReg": remain(st, r), "flags": flags(st, r, today),
                      "bankReg": [{"date": p["date"], "amount": p["amount"], "basis": p["basis"] + (", " + p["source"].split(", ", 1)[1] if ", одна" in p["source"] else ""),
@@ -337,7 +340,7 @@ def snapshot(st, today):
                      "stageReg": r["stage"]})
     cur, nxt = months_to_show(today)
     return {"importedAt": now(), "format": "reestr", "months": {"current": cur, "next": nxt},
-            "source": {"url": SHEET_URL, "tab": "Реестр", "live": True, "title": "Реестр гарантов и оплат Лены",
+            "source": {"url": SHEET_URL, "tab": "Реестр", "live": True, "title": "Лена: гаранты, оплаты и зарплата — единый реестр",
                        "file": "Seafile\\boroday\\зарплатуленька", "mtime": st.get("sourceMtime", ""),
                        "mode": (st.get("source") or {}).get("mode", "excel"), "since": (st.get("source") or {}).get("since", "")},
             "header": [], "rows": [x for x in rows if x["month"] >= min(HISTORY_FROM, add_month(cur, -1)) or x["remainReg"] > 0]}
@@ -408,7 +411,7 @@ def build_xlsx(st, out, today, since=""):
         ["Незакрытый остаток прошлых месяцев виден в текущем месяце той же строкой (тот же ID), без копии."],
         ["Контроль — флаги: просрочено, нет срока/менеджера/договора, Лена ≠ банк, возможный дубль, давно не проверяли, вопрос."],
         ["Миграция — что взято из файлов Лены и где её ручные итоги не сходятся со строками. Журнал — история запусков."],
-        ["Зарплаты здесь нет: она в отдельном закрытом файле."],
+        ["Зарплата — лист «Зарплата» в этом же файле: база и банк формулами из «Месяцев», ставки вводит только Ольга (пусто = «не рассчитано»). Лист защищён от правки, но не скрыт."],
         [f"Собрано {now()} из файлов Seafile\\boroday\\зарплатуленька (дата файла Лены {st.get('sourceMtime') or 'неизвестна'})."],
     ]:
         ws.append(line)
@@ -427,7 +430,7 @@ def build_xlsx(st, out, today, since=""):
     has = '(L2:L<>"")*(L2:L>0)'
     rg["J2"] = '=ARRAYFORMULA(IF(A2:A="","",SUMIF(LEFT(Платежи!B2:B,6)&"|"&Платежи!F2:F,A2:A&"|да",Платежи!D2:D)))'
     rg["K2"] = '=ARRAYFORMULA(IF(A2:A="","",SUMIF(Банк!B2:B,A2:A,Банк!D2:D)))'
-    rg["L2"] = f'=ARRAYFORMULA(IF((A2:A="")+(G2:G=""),"",IF(G2:G-{big}>0,G2:G-{big},0)))'
+    rg["L2"] = f'=ARRAYFORMULA(IF((A2:A="")+(G2:G=""),"",IF(H2:H="Отказ",0,IF(G2:G-{big}>0,G2:G-{big},0))))'
     q = '(S2:S<>"")+(COUNTIF(LEFT(Платежи!B2:B,6)&"|"&Платежи!F2:F,A2:A&"|вопрос")>0)'
     rg["M2"] = (f'=ARRAYFORMULA(IF(A2:A="","",IF(H2:H="Отказ","⛔ Отказ",IF(G2:G="","❓ Нет суммы",IF({q},"❓ Вопрос",IF(L2:L=0,'
                 f'IF(K2:K>=G2:G,"🟢 Оплачено, банк ✓","🟡 Пришло, банк не сверен"),IF({big}>0,"🟠 Частично",'
@@ -440,6 +443,8 @@ def build_xlsx(st, out, today, since=""):
                 f'&IF(S2:S<>"","вопрос; ","")&IF(COUNTIF(LEFT(Платежи!B2:B,6)&"|"&Платежи!F2:F,A2:A&"|вопрос")>0,"платёж под вопросом; ","")))')
     rg["T2"] = ('=ARRAYFORMULA(IF((A2:A="")+(F2:F=""),"",IF(U2:U<>"",U2:U,TEXT(B2:B,"yyyy-mm")&"|"&LOWER(TRIM(D2:D))&"|"&LOWER(TRIM(F2:F))&"|"&G2:G)))')
     rg["V2"] = '=ARRAYFORMULA(IF(A2:A="","",A2:A&" · "&D2:D&" · "&F2:F&" · "&G2:G))'
+    for col in "JKLMNTV":  # формула живёт в шапке: сортировка строк 2+ её не уносит (прогон 29.10: сортировка «Реестра» стёрла J–N у 17 строк)
+        rg[f"{col}1"], rg[f"{col}2"] = head_formula(rg[f"{col}1"].value, rg[f"{col}2"].value), None
     for col in "KNOPQTUV":  # техническое: видно Ольге и Claude по «Показать», менеджеру не мешает
         rg.column_dimensions[col].hidden = True
     for row in rg.iter_rows(min_row=2, max_row=N):
@@ -449,6 +454,11 @@ def build_xlsx(st, out, today, since=""):
     dv = DataValidation(type="list", formula1='"' + ",".join(STAGES) + '"', allow_blank=True)
     rg.add_data_validation(dv)
     dv.add(f"H2:H{LAST}")
+    for rng, kind, hint in ((f"G2:G{LAST}", "decimal", "Сумма числом, без «к» и «руб»: 12000"), (f"I2:I{LAST}", "date", "Дата: 15.11.2026")):
+        v = DataValidation(type=kind, operator="greaterThanOrEqual", formula1="0", allow_blank=True, showErrorMessage=True,
+                           promptTitle="Ввод", prompt=hint, error=hint)  # прогон 29.10: «12к» ломал остаток и статус
+        rg.add_data_validation(v)
+        v.add(rng)
     rg.conditional_formatting.add(f"A2:T{LAST}", FormulaRule(formula=['ISNUMBER(SEARCH("просрочено",$N2))'], fill=PatternFill("solid", fgColor="F8D7D3")))
     rg.conditional_formatting.add(f"A2:T{LAST}", FormulaRule(formula=['ISNUMBER(SEARCH("вопрос",$N2))'], fill=PatternFill("solid", fgColor="FFF1C9")))
     rg.auto_filter.ref = f"A1:T{N}"
@@ -582,35 +592,54 @@ def build_xlsx(st, out, today, since=""):
     # Менеджеру видны пять вкладок; служебные скрыты (Ольга открывает: правый клик по ярлыку → «Показать»).
     wb.move_sheet("Как пользоваться", offset=len(wb.sheetnames) - 1 - wb.sheetnames.index("Как пользоваться"))
     wb.move_sheet("Как пользоваться", offset=wb.sheetnames.index("Платежи") - wb.sheetnames.index("Как пользоваться") + 1)
+    salary_sheet(wb, st, today)  # после «Платежей», перед «Как пользоваться» — как в Google-таблице
+    wb.move_sheet("Зарплата", offset=wb.sheetnames.index("Как пользоваться") - wb.sheetnames.index("Зарплата"))
     for t in ("Банк", "Месяцы", "Контроль", "Миграция", "Журнал"):
         wb[t].sheet_state = "hidden"
     wb.active = 0
     wb.save(out)
 
 
-def build_salary(st, out):
-    """Отдельная закрытая книга: база месяца по строкам Лены и её свободные записи как есть. Ставок нет — не согласованы."""
-    import openpyxl
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = "Зарплата Лены"
-    ws.append(["Месяц", "Пришло по таблице Лены, ₽", "Подтверждено банком, ₽", "Ставка, %", "Доплата за штуку, ₽", "Штук", "Удержания, ₽",
-               "К выплате, ₽", "Запись Лены в файле (как есть, не правило)", "Ячейка"])
-    notes = {n["month"]: n for n in st.get("salaryNotes", [])}
-    for m in sorted({r["month"] for r in st["rows"]}):
-        ids = [r["id"] for r in st["rows"] if r["month"] == m]
-        lena = sum(paid(st, i, "Лена") for i in ids)
-        bank = sum(paid(st, i, "банк") for i in ids)
-        n = notes.get(m, {})
-        i = ws.max_row + 1
-        ws.append([date.fromisoformat(m), lena, bank, None, None, None, None,
-                   f'=IF(OR(D{i}="",E{i}=""),"ставка не согласована",B{i}*D{i}/100+E{i}*F{i}-G{i})', n.get("text"), (n.get("file", "") + " " + n.get("cell", "")).strip() or None])
-        ws[f"A{i}"].number_format = "MMM YYYY"
-    for col, w in zip("ABCDEFGHIJ", [10, 16, 16, 9, 12, 7, 12, 20, 60, 26]):
-        ws.column_dimensions[col].width = w
+SALARY_COLS = ["Месяц", "Пришло по реестру (Лена), ₽", "Подтвердил банк, ₽", "База в записи Лены, ₽", "% в записи Лены, ₽", "Шт.",
+               "Доплата в записи, ₽", "Удержания в записи, ₽", "Итог в записи Лены, ₽", "Проверка записи",
+               "К выплате по согласованной ставке, ₽", "Запись Лены как есть", "Где запись"]
+
+
+def head_formula(title, f):
+    """ARRAYFORMULA из строки 2 → в шапку: строка 1 — заголовок, ниже — те же формулы. Ссылки других листов (Платежи!B2:B) не трогаем."""
+    inner = re.sub(r"(?<![!\w])([A-Z])2:\1(?![\w])", r"\g<1>1:\1", f[len("=ARRAYFORMULA("):-1])
+    return f'=ARRAYFORMULA(IF(ROW(A1:A)=1,"{title}",{inner}))'
+
+
+def salary_sheet(wb, st, today):
+    """Лист «Зарплата» в той же книге (решение Ольги 29.10: один файл, один расчётный источник).
+    B и C — формулы из «Месяцев» (они считаются из «Реестра» и «Банка»), D–I и L — запись Лены как есть (salaryNotes),
+    ставки B2:B3 пустые: «не рассчитано», не ноль. Чужой зарплаты здесь нет."""
+    ws = wb.create_sheet("Зарплата")
+    ws.append(["Зарплата Лены — расчёт по месяцам (только данные Лены)"])
+    ws.append(["Ставка, % от пришедшего", None, "← вводит только Ольга после согласования. Пусто = «не рассчитано», не ноль"])
+    ws.append(["За единицу (шт.), ₽", None, "← вводит только Ольга после согласования. Пусто = «не рассчитано», не ноль"])
+    ws.append(["База (B) и банк (C) — формулами из «Месяцев». D–I и L — запись Лены как есть. Лист защищён от правки, но НЕ скрыт."])
     ws.append([])
-    ws.append(["Ставку и доплату заполняет только Ольга после согласования. Из записей Лены правило не выводится."])
-    wb.save(out)
+    ws.append(SALARY_COLS)
+    notes = {n["month"]: n for n in st.get("salaryNotes", [])}
+    first = min([r["month"] for r in st["rows"]] + list(notes) or [today.replace(day=1).isoformat()])
+    end = add_month(today.replace(day=1).isoformat(), 2)
+    m, i = first, 7
+    while m <= end:
+        n = notes.get(m, {})
+        ws.append([f"=DATE({m[:4]},{int(m[5:7])},1)" if i == 7 else f"=EDATE(A{i - 1},1)",
+                   f'=IFERROR(INDEX(Месяцы!D:D,MATCH(A{i},Месяцы!A:A,0)),"нет в «Месяцах»")',
+                   f'=IFERROR(INDEX(Месяцы!E:E,MATCH(A{i},Месяцы!A:A,0)),"нет в «Месяцах»")',
+                   *[n.get(k) for k in ("base", "pct", "pcs", "extra", "hold", "total")],
+                   f'=IF(I{i}="","записи нет",IF(E{i}="","% в записи не выписан",IF(E{i}+G{i}-H{i}=I{i},"арифметика сходится","не сходится на "&TEXT(E{i}+G{i}-H{i}-I{i},"# ##0"))))'
+                   f'&IF(AND(D{i}<>"",ISNUMBER(B{i})),IF(D{i}<>B{i}," · база у Лены ≠ реестру на "&TEXT(D{i}-B{i},"# ##0"),""),"")',
+                   f'=IF(OR($B$2="",$B$3=""),"не рассчитано: ставка не согласована",IF(ISNUMBER(B{i}),B{i}*$B$2/100+N(F{i})*$B$3-N(H{i}),"нет базы"))',
+                   n.get("text"), (n.get("file", "") + " " + n.get("cell", "")).strip() or None])
+        m, i = add_month(m, 1), i + 1
+    ws.append([])
+    ws.append(["Итого", f"=SUM(B7:B{i - 1})", f"=SUM(C7:C{i - 1})", None, None, None, None, None, f"=SUM(I7:I{i - 1})"])
+    return ws
 
 
 def journal_line(status, what):
@@ -688,7 +717,9 @@ def main():
         st = load_state()
         if not st["rows"]:
             sys.exit("реестр пуст: сначала sync")
-        (build_xlsx(st, a.out, today, a.since) if a.cmd == "xlsx" else build_salary(st, a.out))
+        if a.cmd == "salary":  # 29.10: второй книги зарплаты нет — один расчётный источник
+            sys.exit("отключено: зарплата — лист «Зарплата» единой Google-таблицы (xlsx собирает его вместе с реестром)")
+        build_xlsx(st, a.out, today, a.since)
         print("записано", a.out)
 
 

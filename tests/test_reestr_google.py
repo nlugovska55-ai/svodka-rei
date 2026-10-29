@@ -132,6 +132,17 @@ class Google(unittest.TestCase):
         self.assertEqual(next(r for r in self.st()["rows"] if r["id"] == "G-0004")["due"], "2026-11-20")
         self.assertIsNone(next(r for r in self.st()["rows"] if r["id"] == "G-0003")["due"])
 
+    def test_wrong_amount_input_keeps_amount_and_reports(self):
+        n = next(i for i, r in enumerate(self.sheet["Реестр"]) if r[0] == "G-0001")
+        self.sheet["Реестр"][n][6] = "12к"  # прогон 29.10: ошибка ввода стирала сумму
+        out = self.pull()
+        self.assertIn("проблем 1", out)
+        self.assertEqual(next(r for r in self.st()["rows"] if r["id"] == "G-0001")["amount"], 600000.0)
+        self.assertTrue(any("не число" in j["msg"] for j in self.st()["journal"]))
+        self.sheet["Реестр"][n][6] = "12 000"  # исправили — правка принята
+        self.pull()
+        self.assertEqual(next(r for r in self.st()["rows"] if r["id"] == "G-0001")["amount"], 12000.0)
+
     def test_manual_edit_survives_excel_reimport_and_is_logged(self):
         n = next(i for i, r in enumerate(self.sheet["Реестр"]) if r[0] == "G-0001")
         self.sheet["Реестр"][n][6] = "550 000"  # менеджер исправил сумму
