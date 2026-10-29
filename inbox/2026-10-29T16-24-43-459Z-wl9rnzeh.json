@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-10-29T16:24:46.039Z",
+  "batchId": "2026-10-29T16-24-43-459Z-wl9rnzeh",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "ЗЭОТЭК / ЧЗМТ",
+      "taskId": "m09",
+      "taskTitle": "Отправить по ЭДО акты ЗЭОТЭК (прил. 4, 5, 6) и ЧЗМТ (прил. 1)",
+      "text": "",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-10-29T16:24:38.453Z",
+      "eid": "emvtr7fw5kv5k06vx"
+    }
+  ]
+}
