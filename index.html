@@ -468,7 +468,12 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
   const jUndoable = (j, i) => j.taskId && !j.undone && !['reopen', 'ai'].includes(j.action) && !journal.slice(i + 1).some((x) => x.taskId === j.taskId);
   function journalHTML() {
     const since = Date.now() - 48 * 36e5, rows = journal.map((j, i) => [j, i]).filter(([j]) => Date.parse(j.at) > since).reverse().slice(0, 8);
-    const rp = REPLIES.map((r) => `<div class="jl"><span class="hint num">${esc((r.atStr || '').slice(-5))}</span><span style="min-width:0;flex:1 1 200px"><b>${esc((r.text || r.title).replace(/^\[[^\]]*\]\s*/, '').slice(0, 90))}</b><br>${esc(r.reply)}</span></div>`).join('');
+    const hmo = (v) => { const d = v ? new Date(v) : null; return d && !isNaN(d) ? FRESH.hm(d) : ''; };
+    const stage = (r) => r.result ? ['res', `Итог (${r.resultBy || 'ветка'}${hmo(r.resultAt) ? ', ' + hmo(r.resultAt) : ''}): ${r.result}`]
+      : r.status === 'routed' ? ['rt', `у ${r.routedTo || 'ветки'}${hmo(r.routedAt) ? ' с ' + hmo(r.routedAt) : ''}: ${r.reply}`] : ['', r.reply];
+    const pendRows = journal.filter((j) => j.eid && !APPLIED.has(j.eid) && ['accepted', 'remote'].includes(j.state) && Date.parse(j.at) > Date.now() - 48 * 36e5)
+      .map((j) => `<div class="jl" data-stage="wait"><span class="hint num">${hmo(j.at)}</span><span style="min-width:0;flex:1 1 200px"><b>${esc(j.short || '')}</b><br>принято сайтом, ждёт разбора</span></div>`).join('');
+    const rp = pendRows + REPLIES.map((r) => { const [k, t] = stage(r); return `<div class="jl" data-stage="${k || 'done'}"><span class="hint num">${esc((r.atStr || '').slice(-5))}</span><span style="min-width:0;flex:1 1 200px"><b>${esc((r.text || r.title).replace(/^\[[^\]]*\]\s*/, '').slice(0, 90))}</b><br>${esc(t)}</span></div>`; }).join('');
     const repl = rp ? `<section class="sec" id="replies"><div class="sh"><h2>Ответы Claude на ваши отметки</h2><span class="c">что сделано и кем</span></div><div class="rows" style="padding:6px 14px">${rp}</div></section>` : '';
     if (!rows.length) return repl;
     return repl + `<section class="sec" id="journal"><div class="sh"><h2>Журнал отметок</h2><span class="c">отправлено → принято → применено в базе</span></div><div class="rows" style="padding:6px 14px">${rows.map(([j, i]) => {

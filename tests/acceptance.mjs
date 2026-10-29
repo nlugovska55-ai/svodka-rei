@@ -413,6 +413,22 @@ try {
     await M.ctx.close();
   }
 
+  // 6b. §16: «Ответы Claude» показывают три стадии: принято сайтом → у ветки с ЧЧ:ММ → итог ветки
+  {
+    const R = structuredClone(D), at = new Date(Date.now() - 36e5).toISOString();
+    R.replies = [
+      {at, atStr: '29.10, 14:10', eventId: 'e-r1', title: 'Дело А', text: 'Проверь А', reply: 'Принято в работу', status: 'routed', routedTo: 'Бухгалтерия', routedAt: '2026-10-29T15:35:00+03:00', result: '', resultAt: '', resultBy: ''},
+      {at, atStr: '29.10, 14:07', eventId: 'e-r2', title: 'Дело Б', text: 'Проверь Б', reply: 'Итог 14:20 (Бухгалтерия): сверено', status: 'done', routedTo: 'Бухгалтерия', routedAt: '', result: 'сверено, сальдо 0', resultAt: '2026-10-29T14:20:00+03:00', resultBy: 'Бухгалтерия'}
+    ];
+    const Q = await device(R);
+    await Q.p.addInitScript((a) => { localStorage.setItem('svodka-journal', JSON.stringify([a])); }, {qid: 'q-w', eid: 'e-wait', taskId: 'x', short: 'Дело В', action: 'claude', at: new Date().toISOString(), state: 'accepted'});
+    await go(Q.p);
+    const st = await Q.p.$$eval('#replies .jl', (x) => x.map((e) => e.dataset.stage + '|' + e.textContent.replace(/\s+/g, ' ')));
+    check('Ответы Claude: три стадии (ждёт разбора, у ветки с временем, итог ветки)',
+      st.some((t) => /^wait\|.*Дело В.*ждёт разбора/.test(t)) && st.some((t) => /^rt\|.*у Бухгалтерия с \d\d:\d\d/.test(t)) && st.some((t) => /^res\|.*Итог \(Бухгалтерия, \d\d:\d\d\): сверено, сальдо 0/.test(t)), st.join(' // '));
+    await Q.ctx.close();
+  }
+
   // 7. Скриншоты ПК и телефона на обезличенных данных + ошибки JS
   if (SHOTS) {
     const P = await device(D); await go(P.p); await P.p.screenshot({path: path.join(SHOTS, 'pk-utro.png'), fullPage: true});
