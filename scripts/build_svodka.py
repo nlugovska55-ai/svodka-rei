@@ -1,19 +1,23 @@
 """Собирает data/svodka.json для дашборда «Сводка дня РЭИ» на Vercel.
 
 Вход:
-  1) папка с выгрузкой db "tasks" системы заданий (ArtifactData list ... out_dir=<dir>),
-     внутри <dir>/tasks/<id>.json;
+  1) папка с выгрузкой db системы заданий (ArtifactData list ... out_dir=<dir>):
+     <dir>/tasks/<id>.json и <dir>/comments/<id>.json (comments нужны для appliedEvents);
   2) summary.json — блоки «Нужно от вас» и «Проекты» (составляет ветка «Утро и задачи»).
 Выход: data/svodka.json = {updated, tasks: [...], summary: [...]}
 
 Запуск: python3 scripts/build_svodka.py <db_dir> <summary.json> [data/svodka.json]
 """
 import csv
+import argparse
 import glob
 import json
+import math
 import re
 import os
 import sys
+import tempfile
+from decimal import Decimal, InvalidOperation
 from datetime import datetime, timedelta, timezone
 
 MSK = timezone(timedelta(hours=3))
@@ -124,14 +128,198 @@ def prognoz():
     }
 
 
+SPISANIYA_JSON = "/mnt/project-files/daily-control/svodka/spisaniya.json"
+BUH_PLAN_JSON = "/mnt/project-files/daily-control/svodka/buh-plan.json"
+BANK_JSON = "/mnt/project-files/daily-control/svodka/bank-oboroty.json"
+KONTROL_DIR = "/mnt/project-files/daily-control/kontrol"
+BUH_PLANS = {
+    "Реестр обязательных платежей": "/mnt/project-files/daily-control/otchety-claude/reestr-platezhey-chernovik.md",
+    "Пакет Ларисе на закрытие квартала": "/mnt/project-files/daily-control/otchety-claude/otchet-buhgalteru.md",
+}
+
+
+def iso_date(v):
+    """Дата в ГГГГ-ММ-ДД из «ДД.ММ.ГГГГ» или ISO; иначе пусто (не выдумываем)."""
+    v = (v or "").strip()
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", v) or re.match(r"^(\d{1,2})\.(\d{1,2})\.(\d{4})", v)
+    if not m:
+        return ""
+    y, mo, d = (m[1], m[2], m[3]) if len(m[1]) == 4 else (m[3], m[2], m[1])
+    return f"{int(y):04d}-{int(mo):02d}-{int(d):02d}"
+
+
+def spisaniya():
+    """Предстоящие списания (ведёт «Бухгалтерия», svodka/spisaniya.json). Нет файла — None, пульт пишет «не получено»."""
+    if not os.path.exists(SPISANIYA_JSON):
+        return None
+    with open(SPISANIYA_JSON, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    rows = []
+    for r in p.get("rows", []):
+        d = iso_date(r.get("date"))
+        if not d:
+            raise ValueError(f"spisaniya.json: строка без даты {r.get('what')!r}; прежняя сводка сохранена")
+        rows.append({"date": d, "who": r.get("who") or "", "what": r.get("what") or "", "amount": r.get("amount"),
+                     "state": r.get("state") or "", "src": r.get("src") or "", "paid": bool(r.get("paid")),
+                     "paidSrc": r.get("paidSrc") or "", "kind": r.get("kind") or "plan",
+                     # amount None = сумма неизвестна (диапазон в amountRange), 0 = действительно ноль (zeroMeans)
+                     "amountRange": r.get("amountRange") or None, "zeroMeans": r.get("zeroMeans") or "",
+                     "bankConfirmed": bool(r.get("bankConfirmed")), "checked": r.get("checked") or "",
+                     # кем подтверждена оплата: явное поле confirmedBy или «подтверждено ФНС» в state (не «не подтверждено»)
+                     # кем подтверждена оплата: ensConfirmed (выписка ФНС «Операции ЕНП») или явное confirmedBy; слова Ольги — не подтверждение
+                     "confirmedBy": r.get("confirmedBy") or ("ФНС" if r.get("paid") and r.get("ensConfirmed") else ""),
+                     "paidOn": iso_date(r.get("ensDate") or r.get("paidOn")), "plan": iso_date(r.get("planDate") or r.get("plan")),
+                     "basis": r.get("ensBasis") or "", "bankNote": r.get("bankNote") or "", "bankCheck": r.get("bankCheck") or ""})
+    rows.sort(key=lambda r: r["date"])
+    return {"built": p.get("built", ""), "note": p.get("note", ""), "confirmedNote": p.get("confirmed_note", ""), "rows": rows}
+
+
+def buh_plan():
+    """Регулярные платежи и остаток от «Бухгалтерии» (svodka/buh-plan.json). Её tasks не берём: дела идут из db."""
+    if not os.path.exists(BUH_PLAN_JSON):
+        return None
+    with open(BUH_PLAN_JSON, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    bal = p.get("balance") or {}
+    return {"built": p.get("built", ""), "regular": [{k: r.get(k) for k in ("name", "org", "period", "amount", "amountKnown", "note", "kind", "src", "dataAsOf")} for r in p.get("regular", [])],
+            # остатки — снимки на дату из выписок/осмотра, не текущий остаток; прогноза по ним не строим
+            "balance": {"known": bool(bal.get("known")), "why": bal.get("why") or "", "note": bal.get("note") or "",
+                        "accounts": [{"account": a.get("account") or a.get("bank") or "", "date": a.get("date") or a.get("asof") or "", "amount": a.get("amount"), "src": a.get("src") or ""}
+                                     for a in bal.get("accounts", []) if a.get("amount") is not None]}}
+
+
+def bank_oboroty():
+    """Обороты по прочитанным выпискам: только охваченные счета и дни. Вход + приход − расход ≠ конец — сборка останавливается."""
+    if not os.path.exists(BANK_JSON):
+        return None
+    with open(BANK_JSON, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    days = []
+    for d in p.get("days", []):
+        date = iso_date(d.get("date"))
+        nums = {k: d.get(k) for k in ("open", "in", "out", "close")}
+        if not date or any(v is not None and not isinstance(v, (int, float)) for v in nums.values()) or nums["close"] is None:
+            raise ValueError(f"bank-oboroty.json: неполная строка {d.get('account')!r} {d.get('date')!r}; прежняя сводка сохранена")
+        if nums["open"] is not None and abs(nums["open"] + (nums["in"] or 0) - (nums["out"] or 0) - nums["close"]) > 0.005:
+            raise ValueError(f"bank-oboroty.json: {d.get('account')} {date}: вход + приход − расход не равно концу; прежняя сводка сохранена")
+        days.append({"account": d.get("account") or "", "date": date, **nums, "partial": d.get("partial") or "",
+                     "inItems": d.get("inItems") or [], "outItems": d.get("outItems") or [], "src": d.get("src") or ""})
+    days.sort(key=lambda x: (x["date"], x["account"]))
+    return {"built": p.get("built", ""), "note": p.get("note", ""), "days": days}
+
+
+def buh_svodka():
+    """Последняя дневная сводка «Бухгалтерии» (kontrol/buh-svodka-ДАТА.md): разделы и строки как есть."""
+    files = sorted(glob.glob(os.path.join(KONTROL_DIR, "buh-svodka-*.md")))
+    if not files:
+        return None
+    sections, cur = [], None
+    with open(files[-1], encoding="utf-8-sig") as fh:
+        for line in fh:
+            line = line.rstrip()
+            if line.startswith("## "):
+                cur = {"title": line[3:].strip(), "lines": []}
+                sections.append(cur)
+            elif line.startswith("- ") and cur is not None:
+                cur["lines"].append(line[2:].strip())
+    head = open(files[-1], encoding="utf-8-sig").readline().lstrip("# ").strip()
+    return {"file": os.path.basename(files[-1]), "title": head, "sections": sections}
+
+
+def buh_sources(sp, bs, bp=None, bank=None):
+    """Что получено для раздела «Бухгалтерия», а что нет: пульт показывает это прямо, без нулей."""
+    out = [{"name": "Реестр списаний (Бухгалтерия)", "ok": sp is not None, "note": ("от " + sp["built"]) if sp else "файл svodka/spisaniya.json не найден"},
+           {"name": "Регулярные платежи (Бухгалтерия)", "ok": bp is not None, "note": ("от " + bp["built"]) if bp else "файл svodka/buh-plan.json не найден"},
+           {"name": "Дневная сводка Бухгалтерии", "ok": bs is not None, "note": bs["file"] if bs else "kontrol/buh-svodka-*.md не найдена"}]
+    for name, path in BUH_PLANS.items():
+        ok = os.path.exists(path)
+        out.append({"name": name, "ok": ok, "note": (datetime.fromtimestamp(os.path.getmtime(path), MSK).strftime("обновлён %d.%m") + " · " + os.path.relpath(path, "/mnt/project-files")) if ok else "не найден"})
+    if bank and bank["days"]:
+        cov = sorted({(d["account"], d["date"][8:10] + "." + d["date"][5:7] + (" " + d["partial"] if d["partial"] else "")) for d in bank["days"]})
+        out.append({"name": "Выписки банков", "ok": True, "partial": True, "note": "только " + "; ".join(f"{a} за {dt}" for a, dt in cov) + ". Прочие счета и дни не охвачены"})
+    else:
+        out.append({"name": "Выписки банков (Альфа, Точка)", "ok": False, "note": "не получены: фактических оборотов по банку нет"})
+    return out
+
+
+ACTIVE_STATUSES = {"open", "waiting", "wait", "expert"}
+KNOWN_STATUSES = ACTIVE_STATUSES | {"done", "closed", "handled"}
+
+
+def read_export(db_dir, allow_at_limit=False):
+    paths = sorted(glob.glob(os.path.join(db_dir, "tasks", "*.json")))
+    if not paths:
+        raise ValueError("Выгрузка tasks отсутствует или пуста; прежняя сводка сохранена")
+    if len(paths) >= 1000 and not allow_at_limit:
+        raise ValueError("Достигнут лимит 1000: выгрузите все страницы и подтвердите полноту --allow-at-limit")
+    rows, ids = [], set()
+    for path in paths:
+        with open(path, encoding="utf-8-sig") as fh:
+            t = json.load(fh)
+        if not isinstance(t, dict):
+            raise ValueError(f"{os.path.basename(path)}: задача должна быть объектом")
+        t.setdefault("id", os.path.splitext(os.path.basename(path))[0])
+        if not isinstance(t["id"], str) or not t["id"].strip() or t["id"] in ids:
+            raise ValueError(f"{os.path.basename(path)}: отсутствующий или повторный id")
+        ids.add(t["id"])
+        if t.get("status") not in KNOWN_STATUSES:
+            raise ValueError(f"{t['id']}: неизвестный status {t.get('status')!r}; задача не исключена молча")
+        if t["status"] in ACTIVE_STATUSES:
+            if not isinstance(t.get("title"), str) or not t["title"].strip():
+                raise ValueError(f"{t['id']}: у открытой задачи нет заголовка")
+            amount = t.get("amount")
+            if amount is not None and str(amount).strip():
+                try:
+                    if isinstance(amount, bool):
+                        raise ValueError("boolean amount")
+                    normalized = re.sub(r"\s+", "", str(amount)).replace(",", ".")
+                    parsed = Decimal(normalized)
+                    if not parsed.is_finite() or not math.isfinite(float(parsed)):
+                        raise ValueError("nonfinite amount")
+                    t["amount"] = float(parsed)
+                except (InvalidOperation, ValueError, OverflowError):
+                    raise ValueError(f"{t['id']}: неверная сумма, прежняя сводка сохранена") from None
+        rows.append(t)
+    return rows
+
+
+def atomic_json(path, data):
+    parent = os.path.dirname(os.path.abspath(path))
+    fd, temporary = tempfile.mkstemp(prefix=".svodka-", suffix=".tmp", dir=parent)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            json.dump(data, fh, ensure_ascii=False, indent=1, allow_nan=False)
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
+
+
+def applied_events(db_dir):
+    """id событий сайта, которые разбор уже внёс в задачи (db comments: status done + eventId).
+    Пульт снимает отметку «ждёт синхронизации» только по ним, а не по времени сборки."""
+    out = set()
+    for f in glob.glob(os.path.join(db_dir, "comments", "*.json")):
+        with open(f, encoding="utf-8-sig") as fh:
+            c = json.load(fh)
+        if c.get("status") == "done" and c.get("eventId"):
+            out.add(c["eventId"])
+    return sorted(out)
+
+
 def main():
-    db_dir, summary_path = sys.argv[1], sys.argv[2]
-    out = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(__file__), "..", "data", "svodka.json")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("db_dir")
+    parser.add_argument("summary_path")
+    parser.add_argument("out", nargs="?", default=os.path.join(os.path.dirname(__file__), "..", "data", "svodka.json"))
+    parser.add_argument("--allow-at-limit", action="store_true", help="Все страницы tasks выгружены и полнота проверена")
+    args = parser.parse_args()
+    db_dir, summary_path, out = args.db_dir, args.summary_path, args.out
     tasks = []
-    for f in sorted(glob.glob(os.path.join(db_dir, "tasks", "*.json"))):
-        t = json.load(open(f, encoding="utf-8"))
-        t.setdefault("id", os.path.splitext(os.path.basename(f))[0])
-        if t.get("status") not in ("open", "wait", "expert"):
+    for t in read_export(db_dir, args.allow_at_limit):
+        if t["status"] not in ACTIVE_STATUSES:
             continue
         m = money_of(t)
         if m == "ждём" and not t.get("src"):
@@ -157,19 +345,43 @@ def main():
             "prio": 1 if t.get("prio") else 0,
             "evening": 1 if (t.get("evening") or t.get("when") == "вечер") else 0,
             "link": t.get("url") or t.get("link") or "",
+            # Для пульта «Утро»: если ветка их не записала, сайт вычислит сам
+            "short": (t.get("short") or "").strip()[:70],
+            "waiting": t.get("waiting") or "",  # я / клиент / Лена / Claude
+            "delegated": t.get("delegated") or "",  # eid поручения с сайта, внесённого разбором
+            "urgency": t.get("urgency") or "",  # сегодня / неделя / фон
+            # Сверка «Утра» (§14): без checked за сегодня, src и thread/origin пульт не показывает дело как «нужно от вас»
+            "checked": t.get("checked") or "",
+            "src": t.get("src") or "",
+            "thread": t.get("thread") or "",
+            "origin": t.get("origin") or "",
+            "proof": t.get("proof") or "",
+            # Деньги: одна операция только по явному id; без него одинаковые суммы — «возможный дубль»
+            "invoice": t.get("invoice") or "",
+            "payment": t.get("payment") or "",
+            "dedupe": t.get("dedupe") or "",
+            "cat": t.get("cat") or "",
+            # reference — справочная сумма (погашено/история): пульт не считает её деньгами в пути
+            "amountKind": t.get("amountKind") or "",
+            "amountNote": (t.get("amountNote") or "").strip(),
         })
-    summary = json.load(open(summary_path, encoding="utf-8"))
+    with open(summary_path, encoding="utf-8-sig") as fh:
+        summary = json.load(fh)
     if isinstance(summary, dict):
-        summary = summary.get("summary") or summary.get("rows") or []
+        summary = summary.get("summary", summary.get("rows"))
+    if not isinstance(summary, list) or not all(isinstance(row, dict) for row in summary):
+        raise ValueError("summary должен быть списком объектов; прежняя сводка сохранена")
     data = {
         "updated": datetime.now(MSK).strftime("%Y-%m-%dT%H:%M:%S+03:00"),
         "tasks": tasks,
         "summary": summary,
         "lena_clients": lena_clients(tasks),
         "prognoz": prognoz(),
+        "appliedEvents": applied_events(db_dir),
     }
-    with open(out, "w", encoding="utf-8") as fh:
-        json.dump(data, fh, ensure_ascii=False, indent=1)
+    sp, bs, bp, bank = spisaniya(), buh_svodka(), buh_plan(), bank_oboroty()
+    data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "bank": bank, "buh_sources": buh_sources(sp, bs, bp, bank)})
+    atomic_json(out, data)
     print(f"tasks {len(tasks)}, summary {len(summary)}, lena_clients {len(data['lena_clients'])} -> {out}")
 
 
