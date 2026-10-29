@@ -33,6 +33,7 @@ class BuilderAcceptance(unittest.TestCase):
         self.addCleanup(patch.stopall)
         patch.object(builder, "LENA_CSV", str(self.root / "missing.csv")).start()
         patch.object(builder, "PROGNOZ_JSON", str(self.root / "missing.json")).start()
+        patch.object(builder, "GARANTY_DIR", str(self.root / "no-garanty")).start()
 
     def task(self, ident="one", **fields):
         row = {"id": ident, "title": "Synthetic task", "status": "open", **fields}

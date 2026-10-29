@@ -242,6 +242,63 @@ def buh_sources(sp, bs, bp=None, bank=None):
     return out
 
 
+GARANTY_DIR = os.environ.get("GARANTY_DIR", "/mnt/project-files/daily-control/garanty-leny")
+
+
+def garanty(tasks, bank):
+    """Гаранты Лены: снимок её таблицы (scripts/import_garanty.py) + связь с задачами db и выписками.
+    Таблица только читается. Нет снимка — блок «источник не подключён», без нулей. Сбой импорта — прежние строки с пометкой."""
+    sp, stp = os.path.join(GARANTY_DIR, "snapshot.json"), os.path.join(GARANTY_DIR, "import-status.json")
+    st = json.load(open(stp, encoding="utf-8-sig")) if os.path.exists(stp) else {}
+    if not os.path.exists(sp):
+        return {"connected": False, "status": st, "rows": []}
+    snap = json.load(open(sp, encoding="utf-8-sig"))
+    items = [dict(x, account=d["account"], date=d["date"]) for d in (bank or {}).get("days", []) for x in d.get("inItems", [])]
+    used, rows = set(), []
+    src = snap.get("rows", [])
+    keys_of = [name_keys(r.get("client") or "") for r in src]
+    got = [[] for _ in src]
+    # 1) платёж той же суммы у того же клиента; 2) одна п/п на несколько строк клиента (сумма строк = платёж). Каждая п/п — один раз.
+    for k, r in enumerate(src):
+        if r.get("stage") == "paid" or r.get("amount") is None:
+            continue
+        for i, x in enumerate(items):
+            if i not in used and keys_of[k] and matches(keys_of[k], x.get("who") or "") and abs(float(x.get("amount") or 0) - r["amount"]) < 1:
+                used.add(i)
+                got[k].append({"date": x["date"], "amount": r["amount"], "basis": x.get("basis") or "", "account": x["account"]})
+                break
+    for i, x in enumerate(items):
+        if i in used:
+            continue
+        idx = [k for k, r in enumerate(src) if r.get("stage") != "paid" and r.get("amount") is not None and not got[k]
+               and keys_of[k] and matches(keys_of[k], x.get("who") or "")]
+        if len(idx) > 1 and abs(sum(src[k]["amount"] for k in idx) - float(x.get("amount") or 0)) < 1:
+            used.add(i)
+            for k in idx:
+                got[k].append({"date": x["date"], "amount": src[k]["amount"], "basis": (x.get("basis") or "") + ", одна оплата " + f"{float(x.get('amount') or 0):,.0f}".replace(",", " ") + f" ₽ на {len(idx)} строк(и) таблицы", "account": x["account"]})
+    for k, r in enumerate(src):
+        keys = keys_of[k]
+        digits = set(re.findall(r"\d{2,}", r.get("doc") or ""))
+        amt = r.get("amount")
+        linked = [t for t in tasks if keys and matches(keys, t["client"] + " " + t["title"])
+                  and ((amt is not None and t["amount"] is not None and abs(float(t["amount"]) - amt) < 1)
+                       or (digits and digits & set(re.findall(r"\d{2,}", t["title"] + " " + t["detail"]))))]
+        how = "сумма или договор"
+        if not linked and keys:
+            same = [t for t in tasks if matches(keys, t["client"] + " " + t["title"]) and t["mgr"] != "Ольга"]
+            linked, how = (same, "только по клиенту") if len(same) == 1 else ([], "")
+        bank_sum = sum(float(g["amount"] or 0) for g in got[k])
+        t0 = linked[0] if linked else None
+        rows.append({**{f: r.get(f) for f in ("key", "row", "client", "service", "doc", "amount", "amountRaw", "stage", "date", "dateRaw", "datePaid", "status", "received", "receivedRaw", "who", "note")},
+                     "bank": got[k], "bankSum": bank_sum if got[k] else None,
+                     "remain": (amt - bank_sum) if (amt is not None and got[k]) else None,
+                     "taskIds": [t["id"] for t in linked], "linkBy": how if linked else "",
+                     "next": (t0["next"] if t0 else "") or r.get("note") or "",
+                     "owner": (t0["waiting"] or t0["mgr"]) if t0 else (r.get("who") or "Лена")})
+    return {"connected": True, "live": bool((snap.get("source") or {}).get("live")), "status": st, "importedAt": snap.get("importedAt", ""), "source": snap.get("source", {}),
+            "bankCovered": sorted({(d["account"], d["date"]) for d in (bank or {}).get("days", [])}), "rows": rows}
+
+
 ACTIVE_STATUSES = {"open", "waiting", "wait", "expert"}
 KNOWN_STATUSES = ACTIVE_STATUSES | {"done", "closed", "handled"}
 
@@ -381,6 +438,7 @@ def main():
     }
     sp, bs, bp, bank = spisaniya(), buh_svodka(), buh_plan(), bank_oboroty()
     data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "bank": bank, "buh_sources": buh_sources(sp, bs, bp, bank)})
+    data["garanty"] = garanty(tasks, bank)
     atomic_json(out, data)
     print(f"tasks {len(tasks)}, summary {len(summary)}, lena_clients {len(data['lena_clients'])} -> {out}")
 

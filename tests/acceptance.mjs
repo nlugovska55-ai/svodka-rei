@@ -413,6 +413,25 @@ try {
     await M.ctx.close();
   }
 
+  // 6c. Гаранты Лены: без живой таблицы — «не подключена», неизвестный срок — «неизвестно», не 0; банк отдельно от слов Лены
+  {
+    const d0 = fresh(); delete d0.garanty;
+    const Z = await device(d0); await go(Z.p); const z = await Z.p.innerText('#garanty');
+    check('Гаранты: нет снимка — «источник не подключён», без нулей', /источник не подключён/.test(z) && !/\b0 ₽/.test(z), `«${z.replace(/\s+/g, ' ').slice(0, 90)}»`);
+    await Z.ctx.close();
+    const d = fresh();
+    d.garanty = {connected: true, live: false, importedAt: new Date(Date.now() - 864e5).toISOString(), status: {ok: true}, source: {title: 'октябрь 2026.xlsx', url: 'https://drive.google.com/file/d/T/view'}, bankCovered: [['Альфа', '2026-10-28']],
+      rows: [{key: 'a', row: 3, client: 'ООО Тест-Гарант', doc: 'прил. 9', amount: 50000, stage: 'expected', status: 'ожидается', date: null, received: null, bank: [{date: '2026-10-28', amount: 50000, basis: 'п/п 1', account: 'Альфа'}], bankSum: 50000, remain: 0, taskIds: [], next: '', owner: 'Лена'},
+             {key: 'b', row: 4, client: 'ООО Без-Срока', doc: '', amount: 32000, stage: 'forecast', status: 'обсуждаем (прогноз)', date: null, received: null, bank: [], bankSum: null, remain: null, taskIds: [], next: '', owner: 'Лена'}]};
+    const M = await device(d, {viewport: {width: 390, height: 844}, mobile: true}); await go(M.p); const g = await M.p.innerText('#garanty');
+    const ov = await M.p.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    check('Гаранты: файл не живой — помечено, срок «неизвестен», банк отдельно, 390 без прокрутки вбок',
+      /Живая таблица Лены не подключена/.test(g) && /срок неизвестен/.test(g) && /банк \+50\s000/.test(g) && /банком не подтверждено/.test(g) && /Устарело/.test(g) && ov <= 0, `лишняя ширина ${ov} px; «${g.replace(/\s+/g, ' ').slice(0, 120)}»`);
+    await go(M.p, '#money'); const reg = await M.p.$$eval('#garanty-all .gr', (x) => x.length);
+    check('Гаранты: полный реестр во вкладке «Деньги»', reg === 2, `карточек ${reg}`);
+    await M.ctx.close();
+  }
+
   // 7. Скриншоты ПК и телефона на обезличенных данных + ошибки JS
   if (SHOTS) {
     const P = await device(D); await go(P.p); await P.p.screenshot({path: path.join(SHOTS, 'pk-utro.png'), fullPage: true});
