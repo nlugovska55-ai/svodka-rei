@@ -32,7 +32,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import reestr_garanty as R  # noqa: E402
 
 # поле реестра → колонка вкладки «Реестр» (с 0). Остальные колонки — формулы или поля Claude.
-FIELDS = {"month": 1, "manager": 2, "client": 3, "service": 4, "doc": 5, "amount": 6, "stage": 7, "due": 8, "owner": 16, "question": 18}
+FIELDS = {"month": 1, "manager": 2, "client": 3, "service": 4, "doc": 5, "amount": 6, "stage": 7, "due": 8, "owner": 16, "question": 18, "maket": 22}
 CLAUDE_COLS = {"source": 14, "checked": 15, "next": 17}  # пишет только Claude (защищены)
 PFIELDS = {"rowId": 1, "date": 2, "amount": 3, "count": 5, "note": 9}
 ABBR = [("янв", 1), ("фев", 2), ("мар", 3), ("апр", 4), ("ма", 5), ("июн", 6), ("июл", 7), ("авг", 8), ("сен", 9), ("окт", 10), ("ноя", 11), ("дек", 12)]
@@ -101,7 +101,7 @@ def count(v):
 
 NORM = {"month": month, "manager": text, "client": text, "service": text, "doc": text, "amount": amount, "stage": text,
         "due": day, "owner": text, "question": text, "rowId": lambda v: (re.match(r"\s*(G-\d{4})", text(v)) or [None, None])[1],
-        "date": day, "count": count, "note": text}
+        "date": day, "count": count, "note": text, "maket": lambda v: text(v).lower()}  # макет ДС делала Лена: «да» → +500 ₽ к зарплате
 
 
 def cell(row, i):
@@ -182,14 +182,14 @@ def pull(st, sheet, today):
                 due = vals.get("due") if vals.get("due") not in (None, KEEP) else None
                 r = {"id": rid, "month": m or (due[:8] + "01" if due else today.strftime("%Y-%m-01")), "manager": "", "client": "", "service": "",
                      "doc": "", "amount": None, "stage": "Гарант", "due": None, "cost": None, "source": f"Google «Реестр», стр. {n}, ввод в таблице",
-                     "checked": today.isoformat(), "owner": "Лена", "next": "", "question": "", "seen": [], "gone": "", "manual": {}}
+                     "checked": today.isoformat(), "owner": "Лена", "next": "", "question": "", "maket": "", "seen": [], "gone": "", "manual": {}}
                 for f, v in vals.items():
                     if v not in (None, KEEP, ""):
                         r[f] = v
                 r.update(ck=R.client_key(r["client"]), dk=R.doc_key(r["doc"]), sk=R.compact(r["service"]))
                 r["seen"] = [r["month"]]
                 if mode == "excel":
-                    r["manual"] = {f: r[f] for f in FIELDS}  # строку завела таблица: Excel её поля не перезаписывает
+                    r["manual"] = {f: r.get(f) for f in FIELDS}  # строку завела таблица: Excel её поля не перезаписывает
                 r["exp"], r["expPending"] = {}, {}
                 st["rows"].append(r)
                 rows[rid] = r
@@ -277,7 +277,7 @@ def plan(st, sheet, today, since="2026-09"):
     for n, x in enumerate(reg[1:], start=2):
         if not text(cell(x, 0)):
             rows_by_content.setdefault(content_key(read(x, FIELDS, n, [])), []).append(n)
-    width, block, nxt = 19, {}, len(reg) + 1
+    width, block, nxt = 23, {}, len(reg) + 1
     for r in st["rows"]:
         n = where.get(r["id"])
         if n is None:
@@ -319,7 +319,7 @@ def plan(st, sheet, today, since="2026-09"):
     writes = []
     if block:
         lo, hi = min(block), max(block)
-        writes.append({"range": f"Реестр!A{lo}:S{hi}", "values": [block.get(n, [None] * width) for n in range(lo, hi + 1)]})
+        writes.append({"range": f"Реестр!A{lo}:W{hi}", "values": [block.get(n, [None] * width) for n in range(lo, hi + 1)]})
 
     pay = sheet.get("Платежи", [])
     pwhere = {text(cell(x, 0)): n for n, x in enumerate(pay[1:], start=2) if text(cell(x, 0))}
