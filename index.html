@@ -21,7 +21,7 @@
 }
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 var(--f-body);-webkit-font-smoothing:antialiased;
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--f-body);-webkit-font-smoothing:antialiased;
   padding:calc(16px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(48px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 ::selection{background:var(--accent-soft);color:var(--ink)}
 button,input,textarea{font:inherit;color:inherit}
@@ -29,6 +29,7 @@ button{cursor:pointer}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 [hidden]{display:none!important}
 .num{font-variant-numeric:tabular-nums}
+small{font-size:max(13px,.85em)}
 .wrap{max-width:1080px;margin:0 auto;display:grid;gap:20px}
 h1,h2,h3{text-wrap:balance;margin:0}
 /* шапка */
@@ -37,14 +38,14 @@ h1,h2,h3{text-wrap:balance;margin:0}
 .brand img{height:44px;width:auto;display:block}
 .brand .bt{display:grid;line-height:1.2}
 .brand .bt b{font:700 18px var(--f-disp);color:var(--ink)}
-.brand .bt span{font:600 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--eyebrow)}
+.brand .bt span{font:600 13.5px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--eyebrow)}
 .seal{width:44px;height:44px;border-radius:8px;background:var(--accent);display:grid;place-items:center;color:#fff;font:700 13px var(--f-disp)}
 .tabs{display:flex;gap:4px}
 .tab{border:0;border-bottom:3px solid transparent;background:transparent;border-radius:0;padding:10px 12px 7px;color:var(--muted);font-weight:600;display:flex;gap:7px;align-items:center}
 .tab svg{width:16px;height:16px}
 .tab:hover{color:var(--accent)}
 .tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
-.fresh{margin-left:auto;font-size:12.5px;color:var(--faint);display:flex;gap:8px;align-items:center}
+.fresh{margin-left:auto;font-size:13.5px;color:var(--faint);display:flex;gap:8px;align-items:center}
 .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
 .icon-btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;width:32px;height:32px;display:grid;place-items:center;color:var(--muted)}
 .icon-btn svg{width:16px;height:16px}
@@ -52,25 +53,25 @@ h1,h2,h3{text-wrap:balance;margin:0}
 .lead{display:grid;gap:14px;padding:6px 0 2px}
 .lead h1{font:700 clamp(22px,3.2vw,32px)/1.25 var(--f-disp);max-width:34ch;color:var(--ink)}
 .lead h1 em{font-style:normal;color:var(--accent)}
-.lead .day,.eyebrow{font:600 12.5px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--eyebrow)}
+.lead .day,.eyebrow{font:600 13.5px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--eyebrow)}
 .cta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .btn{border:0;background:var(--accent);color:var(--on-accent);border-radius:8px;min-height:50px;padding:0 22px;font-weight:600;display:inline-flex;gap:8px;align-items:center;justify-content:center;text-decoration:none}
 .btn:hover{background:var(--accent-h)}
 .btn.ghost{background:var(--surface);color:var(--accent);border:1px solid var(--accent)}
 .btn.ghost:hover{background:var(--accent-soft)}
 .btn.small{min-height:34px;padding:0 12px;font-size:13.5px;border-radius:8px}
-.hint{font-size:12.5px;color:var(--faint)}
+.hint{font-size:13.5px;color:var(--faint)}
 kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;color:var(--faint);background:var(--surface)}
 .sec{display:grid;gap:10px}
 .sh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .sh h2{font:700 18px/1.3 var(--f-disp);color:var(--ink)}
-.sh .c{color:var(--faint);font-size:13px}
+.sh .c{color:var(--faint);font-size:14px}
 .link{margin-left:auto;font-size:13.5px;color:var(--accent);background:none;border:0;padding:0}
 /* строки */
 .rows{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
 .rw{position:relative;overflow:hidden;border-top:1px solid var(--line)}
 .rw:first-child{border-top:0}
-.rw .under{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 18px;font-size:13px;font-weight:600}
+.rw .under{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 18px;font-size:14px;font-weight:600}
 .rw .under .l{color:var(--ok)} .rw .under .r{color:var(--warn)}
 .row{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:11px 14px;background:var(--surface);transition:background .12s,transform .2s cubic-bezier(.2,.8,.2,1),opacity .2s;touch-action:pan-y}
 .row:hover,.row.cur{background:var(--sunk)}
@@ -84,14 +85,20 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
 .hotdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--hot);margin-right:7px;vertical-align:2px}
 .main-txt{border:0;background:none;padding:0;text-align:left;min-width:0;display:grid;gap:1px}
 .main-txt .t{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.main-txt .s{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.main-txt .s{font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .am{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px;text-align:right;white-space:nowrap}
-.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:2px 9px;border-radius:99px;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:13.5px;font-weight:500;padding:2px 9px;border-radius:99px;white-space:nowrap}
 .p-hot{background:var(--hot-soft);color:var(--hot)} .p-warn{background:var(--warn-soft);color:var(--warn)} .p-ok{background:var(--ok-soft);color:var(--ok)} .p-wait{background:var(--wait-soft);color:var(--wait)} .p-acc{background:var(--accent-soft);color:var(--accent)}
-.sync{font-size:11.5px;color:var(--accent)}
+.sync{font-size:13.5px;color:var(--accent)}
 .warnline{font-size:13.5px;color:var(--warn);background:var(--warn-soft);border-radius:10px;padding:8px 12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .empty{border:1px dashed var(--line2);border-radius:10px;padding:22px;text-align:center;color:var(--muted);display:grid;gap:6px;justify-items:center}
 .empty b{color:var(--ink);font:700 17px var(--f-disp)}
+.h1gap { display: block; font-size: 15px; font-weight: 500; margin-top: 6px; }
+.jump { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 6px 16px; margin: 0 0 12px; font-size: 13px; }
+.jump .link { margin: 0; padding: 2px 0; }
+  .gap{border:1px solid var(--warn);border-left:6px solid var(--warn);background:var(--warn-soft);border-radius:10px;padding:16px 18px;display:grid;gap:8px;text-align:left}
+.gap b{color:var(--ink);font:700 17px var(--f-disp)}
+.gap .gap-acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 /* денежная полоса */
 .strip{display:grid;gap:8px}
 .pipe{display:flex;height:12px;border-radius:99px;overflow:hidden;gap:2px;background:var(--sunk)}
@@ -100,9 +107,9 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
 .stg{border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:var(--surface);text-align:left;display:grid;gap:1px}
 .stg:hover{border-color:var(--faint)}
 .stg[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
-.stg .k{font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stg .k{font-size:13.5px;color:var(--muted);display:flex;gap:6px;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stg .v{font-weight:600;font-size:16px;font-variant-numeric:tabular-nums}
-.stg .x{font-size:12px;color:var(--hot)}
+.stg .x{font-size:13.5px;color:var(--hot)}
 /* корзины */
 .buckets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .bk{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:12px 14px;text-align:left;display:grid;gap:2px}
@@ -110,13 +117,13 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
 .bk[aria-expanded="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .bk .n{font:700 22px var(--f-disp);color:var(--accent);font-variant-numeric:tabular-nums}
 .bk .k{font-weight:500}
-.bk .s{font-size:13px;color:var(--muted)}
+.bk .s{font-size:14px;color:var(--muted)}
 /* все дела */
 .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .search{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:7px 10px;background:var(--surface);flex:1 1 240px;max-width:360px}
 .search input{border:0;background:transparent;outline:0;width:100%;min-width:0}
 .search svg{width:16px;height:16px;color:var(--faint);flex:none}
-.chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 12px;font-size:13px;color:var(--muted);white-space:nowrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 12px;font-size:14px;color:var(--muted);white-space:nowrap}
 .chip[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
 .grp{display:grid;gap:0}
 .gh{display:flex;gap:10px;align-items:baseline;padding:11px 14px;background:var(--surface);border:0;border-top:1px solid var(--line);font-weight:600;width:100%;text-align:left;min-width:0}
@@ -124,10 +131,10 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
 .gh .car{color:var(--faint);width:10px;flex:none}
 .gh .c{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .gh:first-child{border-top:0}
-.gh .c{color:var(--faint);font-weight:400;font-size:13px}
+.gh .c{color:var(--faint);font-weight:400;font-size:14px}
 .gh .am{margin-left:auto}
 .gh+.rw{border-top:0}
-.av{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:10.5px;font-weight:600;background:var(--accent-soft);color:var(--accent);flex:none}
+.av{width:22px;height:22px;border-radius:50%;display:inline-grid;place-items:center;font-size:13.5px;font-weight:600;background:var(--accent-soft);color:var(--accent);flex:none}
 .av.l{background:var(--warn-soft);color:var(--warn)} .av.c{background:var(--wait-soft);color:var(--wait)} .av.k{background:var(--ok-soft);color:var(--ok)}
 /* деньги */
 .money-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:start}
@@ -135,8 +142,8 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
 .chart svg{width:100%;height:auto;display:block}
 .big{font:700 26px/1.1 var(--f-disp);font-variant-numeric:tabular-nums}
 .sub{color:var(--muted);font-size:13.5px}
-.cap{font-size:12px;color:var(--faint);margin-top:6px}
-.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--surface);font-size:12px;padding:6px 8px;border-radius:7px;white-space:nowrap;transform:translate(-50%,-110%);opacity:0;transition:opacity .1s}
+.cap{font-size:13.5px;color:var(--faint);margin-top:6px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--surface);font-size:13.5px;padding:6px 8px;border-radius:7px;white-space:nowrap;transform:translate(-50%,-110%);opacity:0;transition:opacity .1s}
 .projects{display:grid;gap:6px}
 .pj{display:flex;gap:10px;align-items:baseline;font-size:14px;color:var(--muted)}
 .pj b{color:var(--ink);font-weight:500}
@@ -147,12 +154,12 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
   padding:calc(18px + env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) 20px}
 .drawer.on{transform:none;visibility:visible}
 .dh{display:flex;justify-content:space-between;align-items:start;gap:12px}
-.dh .cl{font-size:13px;color:var(--muted)}
+.dh .cl{font-size:14px;color:var(--muted)}
 .dh h3{font:700 19px/1.3 var(--f-disp);margin-top:2px}
 .dbody{overflow:auto;display:grid;gap:14px;margin-top:14px;align-content:start;flex:1}
 .meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .fact{display:grid;gap:2px;font-size:14px}
-.fact .k{font-size:12px;color:var(--faint)}
+.fact .k{font-size:13.5px;color:var(--faint)}
 .acts{display:flex;gap:6px;flex-wrap:wrap}
 .acts button{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 11px;font-size:13.5px}
 .acts button:hover{border-color:var(--faint)}
@@ -160,13 +167,13 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
 .ai{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:14px}
 .ai textarea{border:1px solid var(--line);border-radius:10px;padding:10px;min-height:76px;background:var(--bg);resize:vertical}
 /* разбор утра */
-.ab{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 9px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-size:12.5px;color:var(--ink);white-space:nowrap;flex:none}
+.ab{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 9px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-size:13.5px;color:var(--ink);white-space:nowrap;flex:none}
 .ab svg{width:12px;height:12px}
 .ab.ok{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
 .ab.ok:hover{background:var(--ok-soft)}
 .ab.cl{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
 .abs{display:flex;gap:6px;flex:none}
-@media (max-width:480px){.abs{flex-direction:column;gap:4px}.ab{height:26px;padding:0 7px;font-size:12px}}
+@media (max-width:480px){.abs{flex-direction:column;gap:4px}.ab{height:26px;padding:0 7px;font-size:13.5px}}
 .sheet{position:fixed;inset:0;z-index:40;background:rgba(10,14,20,.42);display:grid;align-items:end;justify-items:center}
 .sheet[hidden]{display:none}
 .sh-in{width:min(520px,100%);background:var(--surface);border-radius:16px 16px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:grid;gap:10px;box-shadow:var(--shadow)}
@@ -176,7 +183,7 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
 .jr{display:grid;gap:6px}
 .jl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13.5px;padding:6px 0;border-top:1px solid var(--line)}
 .jl:first-child{border-top:0}
-.st{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--sunk);color:var(--muted)}
+.st{font-size:13.5px;padding:2px 8px;border-radius:99px;background:var(--sunk);color:var(--muted)}
 .st.acc{background:var(--accent-soft,var(--sunk));color:var(--accent)}
 .st.app{background:var(--ok-soft);color:var(--ok)}
 .st.err{background:var(--warn-soft);color:var(--warn)}
@@ -185,26 +192,26 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
 .cd:first-child{border-top:0}
 .cd .dt{color:var(--muted);font-variant-numeric:tabular-nums}
 .cd .wt{min-width:0;overflow-wrap:anywhere}
-.cd .wt small{display:block;color:var(--muted);font-size:12.5px}
-.kd{font-size:11.5px;padding:1px 7px;border-radius:99px;margin-right:6px;background:var(--sunk);color:var(--muted)}
+.cd .wt small{display:block;color:var(--muted);font-size:13.5px}
+.kd{font-size:13.5px;padding:1px 7px;border-radius:99px;margin-right:6px;background:var(--sunk);color:var(--muted)}
 .kd.pay{background:var(--warn-soft);color:var(--warn)}
 .kd.in{background:var(--ok-soft);color:var(--ok)}
 .kd.ref{background:transparent;border:1px dashed var(--line)}
 .kd.task{background:var(--sunk);color:var(--ink)}
 .kd{white-space:nowrap}
-@media (max-width:480px){.cd{grid-template-columns:40px minmax(0,1fr) auto;gap:8px;font-size:13.5px}.cd .dt{font-size:12.5px}}
-.src-l{display:grid;gap:4px;font-size:13px}
+@media (max-width:480px){.cd{grid-template-columns:40px minmax(0,1fr) auto;gap:8px;font-size:13.5px}.cd .dt{font-size:13.5px}}
+.src-l{display:grid;gap:4px;font-size:14px}
 .src-l span.no{color:var(--warn)}
 .pf{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
 .pf>div{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:10px 12px;display:grid;gap:2px}
 .pf b{font:700 18px/1.2 var(--f-disp);font-variant-numeric:tabular-nums}
-.pf small{color:var(--muted);font-size:12.5px}
+.pf small{color:var(--muted);font-size:13.5px}
 details.bs summary{cursor:pointer;font-weight:500;padding:6px 0}
 details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
 .focus{position:fixed;inset:0;z-index:25;background:var(--bg);display:grid;place-items:center;
   padding:calc(20px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .fcard{width:min(620px,100%);display:grid;gap:18px}
-.fprog{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px}
+.fprog{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px}
 .fprog .track{flex:1;height:4px;background:var(--sunk);border-radius:99px;overflow:hidden}
 .fprog .track span{display:block;height:100%;background:var(--accent);transition:width .3s}
 .fbox{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;box-shadow:var(--shadow);display:grid;gap:12px;animation:in .28s cubic-bezier(.2,.8,.2,1)}
@@ -220,7 +227,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,160%);visibility:hidden;background:var(--ink);color:var(--surface);padding:10px 14px;border-radius:10px;display:flex;gap:14px;align-items:center;z-index:40;transition:transform .3s cubic-bezier(.2,.8,.2,1),visibility .3s;font-size:14px;max-width:calc(100% - 32px)}
 .toast.on{transform:translate(-50%,0);visibility:visible}
 .toast button{background:none;border:0;color:var(--surface);font-weight:600;text-decoration:underline;text-underline-offset:3px;padding:0}
-.foot{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--faint);border-top:1px solid var(--line);padding-top:14px}
+.foot{display:flex;gap:14px;flex-wrap:wrap;font-size:13.5px;color:var(--faint);border-top:1px solid var(--line);padding-top:14px}
 .foot a{color:var(--muted)}
 .skel{height:120px;border-radius:10px;background:var(--sunk)}
 /* первый экран: охват, три приоритета, план недели, банк */
@@ -235,7 +242,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
 .pc .row{display:grid;grid-template-columns:1fr;gap:10px;align-items:start;padding:14px 16px 16px;height:100%}
 .pc .pn{display:flex;gap:10px;align-items:center}
 .pc .pn i{font:700 13px var(--f-disp);font-style:normal;width:26px;height:26px;border-radius:6px;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none}
-.pc .pn .cl{font-size:12.5px;font-weight:600;color:var(--eyebrow);text-transform:uppercase;letter-spacing:.05em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc .pn .cl{font-size:13.5px;font-weight:600;color:var(--eyebrow);text-transform:uppercase;letter-spacing:.05em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pc .pt{font:700 17px/1.3 var(--f-disp);color:var(--ink);text-align:left;border:0;background:none;padding:0}
 .pc dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;font-size:13.5px}
 .pc dt{color:var(--muted)} .pc dd{margin:0;overflow-wrap:anywhere}
@@ -247,24 +254,39 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
 .wk{display:grid;gap:0}
 .wd{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;padding:9px 14px;border-top:1px solid var(--line);align-items:baseline}
 .wd:first-child{border-top:0}
-.wd .d{font-weight:600;font-variant-numeric:tabular-nums}.wd .d small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.wd .d{font-weight:600;font-variant-numeric:tabular-nums}.wd .d small{display:block;font-weight:400;color:var(--muted);font-size:13.5px}
 .wd .it{display:flex;gap:6px;flex-wrap:wrap}
-.wi{border:1px solid var(--line);background:var(--soft);border-radius:6px;padding:3px 9px;font-size:13px;text-align:left;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wi{border:1px solid var(--line);background:var(--soft);border-radius:6px;padding:3px 9px;font-size:14px;text-align:left;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wi:hover{border-color:var(--accent)}
 .wi b{font-weight:600;color:var(--eyebrow)}
 .bankf{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:12px 14px;display:grid;gap:6px;font-size:14px}
 .bankf .k{font-weight:600}
 .bankf .ln{display:flex;gap:8px 14px;flex-wrap:wrap;align-items:baseline}
 .plus{color:var(--plus);font-variant-numeric:tabular-nums;font-weight:600}.minus{color:var(--minus);font-variant-numeric:tabular-nums;font-weight:600}
-.bankf small{color:var(--muted);font-size:12.5px}
+.bankf small{color:var(--muted);font-size:13.5px}
 .autoh{font-size:13.5px;color:var(--warn);background:var(--warn-soft);border-radius:8px;padding:8px 12px}
+.grs{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:10px}
+.gr{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:12px 14px;display:grid;gap:8px;min-width:0}
+.gr.late{border-left:4px solid var(--hot)}
+.gr .gt{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.gr .gt b{font-weight:600}.gr .ga{margin-left:auto;font-weight:600}
+.gr dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 10px;font-size:13.5px}
+.gr dt{color:var(--muted)}.gr dd{margin:0;overflow-wrap:anywhere}
+.gr small{color:var(--muted)}
+.gr .gl{font-size:13.5px;color:var(--muted)}.gr .gl a{color:var(--accent)}
+.unk{color:var(--warn)}
+.gline{display:grid;grid-template-columns:minmax(0,1fr) 110px 120px minmax(0,220px);gap:12px;align-items:baseline;padding:9px 14px;border-top:1px solid var(--line);font-size:14px}
+.gline:first-child{border-top:0}.gline.late{box-shadow:inset 3px 0 0 var(--hot)}
+.gline .gc{min-width:0}.gline .gc small{display:block;color:var(--muted);font-size:13.5px}.gline .ga{text-align:right;font-weight:600}
+@media (max-width:700px){.gline{grid-template-columns:minmax(0,1fr) auto;gap:2px 10px}.gline .gd,.gline .gb{font-size:14px}.gline .gb{text-align:right}}
+@media (max-width:480px){.grs{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:980px){.rows.prio,.rows.prio.n2{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:480px){.wd{grid-template-columns:84px minmax(0,1fr);gap:8px;padding:9px 12px}.cover{flex-wrap:wrap}.cover .link{margin-left:0}.brand img{height:36px}.brand .bt span{display:none}}
 @media (max-width:820px){
   .stages,.buckets{grid-template-columns:repeat(2,minmax(0,1fr))}.money-grid{grid-template-columns:1fr}
   .tabs{position:fixed;left:0;right:0;bottom:0;z-index:15;border-radius:0;background:var(--surface);gap:0;border-top:1px solid var(--line);justify-content:space-around;
     padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
-  .tab{flex-direction:column;gap:2px;font-size:11.5px;padding:6px 10px;min-height:48px;border-bottom:0;border-top:3px solid transparent}
+  .tab{flex-direction:column;gap:2px;font-size:13.5px;padding:6px 10px;min-height:48px;border-bottom:0;border-top:3px solid transparent}
   .tab[aria-selected="true"]{color:var(--accent);border-top-color:var(--accent);background:var(--accent-soft)}
   body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
   .fresh{margin-left:0;order:3;width:100%}
@@ -275,6 +297,51 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
   .main-txt .t{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+/* компактный пульт 29.10: таблицы вместо абзацев, «показать остальные», источник по раскрытию */
+.more{border:0;background:none;color:var(--accent);padding:6px 0;font-weight:600;text-align:left;justify-self:start}
+.more:hover{text-decoration:underline;text-underline-offset:3px}
+.who-t{font-size:13.5px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap;background:var(--accent-soft);color:var(--accent)}
+.who-t.l{background:var(--warn-soft);color:var(--warn)}.who-t.c{background:var(--wait-soft);color:var(--wait)}.who-t.k{background:var(--ok-soft);color:var(--ok)}
+details.src{display:inline}details.src summary{display:inline;cursor:pointer;color:var(--muted);font-size:14px;text-decoration:underline dotted;text-underline-offset:3px}
+details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted);overflow-wrap:anywhere;padding:4px 0}
+.tbl{display:grid;border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:hidden}
+.tr{display:grid;grid-template-columns:72px minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:10px;padding:9px 14px;border-top:1px solid var(--line);align-items:baseline;font-size:15px}
+.tr:first-child{border-top:0}.tr.th{font-size:14px;color:var(--muted);background:var(--soft);font-weight:600}
+.tr .r{text-align:right;font-variant-numeric:tabular-nums}.tr .acc{min-width:0;overflow-wrap:anywhere}
+.tr details{grid-column:1/-1}.tr details summary{cursor:pointer;color:var(--accent);font-size:14px}
+.tr details ul{margin:6px 0 0 18px;padding:0;display:grid;gap:2px;font-size:14px}
+.na{color:var(--faint)}
+.near .tr{grid-template-columns:72px 150px minmax(0,1fr) minmax(0,140px)}
+.ch{display:grid;gap:0}.ch .ln{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;padding:9px 14px;border-top:1px solid var(--line);font-size:15px;align-items:baseline}
+.ch .ln:first-child{border-top:0}.ch .ln .ic{font-weight:700;text-align:center}
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.team button{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:12px 14px;text-align:left;display:grid;gap:2px}
+.team button:hover{border-color:var(--accent)}.team b{font:700 22px var(--f-disp);color:var(--accent)}.team span{color:var(--muted);font-size:14px}
+.lena{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;background:var(--surface);padding:14px 16px;display:grid;gap:8px}
+.lena .lh{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.lena .lh h3{font:700 18px var(--f-disp)}
+.lena dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:15px}.lena dt{color:var(--muted)}.lena dd{margin:0;overflow-wrap:anywhere}
+.w4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.wc{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:12px 14px;display:grid;gap:4px;align-content:start;min-width:0}
+.wc h3{font:700 16px var(--f-disp)}.wc h3 small{display:block;font:400 14px var(--f-body);color:var(--muted)}
+/* 30.10: метка и сумма в строку, длинная сумма уходит на свою строку, а не наезжает на метку */
+.wl{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 10px;width:100%;border:0;background:none;padding:5px 0;border-top:1px solid var(--line);text-align:left;font-size:14.5px;align-items:baseline}
+.wl:hover,.wl[aria-pressed="true"]{color:var(--accent)}.wl .r{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.wl>span:first-child{flex:1 1 9em;min-width:0}.wl .r{margin-left:auto;text-align:right}
+.wl small{flex-basis:100%;color:var(--muted);font-size:13.5px}
+.wdet{border:1px solid var(--accent);border-radius:8px;background:var(--surface);padding:10px 14px}
+.mob{display:none}
+.fsa .tr{grid-template-columns:90px minmax(0,1fr) 150px}
+.treb .tr{grid-template-columns:52px minmax(0,1.6fr) minmax(0,1fr) minmax(0,1.3fr)}
+@media (max-width:980px){.w4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){
+  .w4{grid-template-columns:minmax(0,1fr)}
+  .tr{grid-template-columns:56px minmax(0,1fr) auto;gap:4px 10px;font-size:14.5px}.tr.th{display:none}
+  .tr .r.c4,.tr .r.c5{grid-column:2/-1;text-align:left}.mob{display:inline}
+  .near .tr{grid-template-columns:56px minmax(0,1fr) auto}.near .tr .k{grid-column:2/-1;order:3}
+  .fsa .tr{grid-template-columns:70px minmax(0,1fr)}.fsa .tr .r{grid-column:2/-1;text-align:left}
+  .treb .tr{grid-template-columns:44px minmax(0,1fr)}
+  .row:has(.abs) .who-t{display:none}.treb .tr>*:nth-child(n+3){grid-column:2/-1}
+}
 </style>
 </head>
 <body>
@@ -354,7 +421,12 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
   const verifiedRow = (x) => okToday(x.checked) && !!x.src && !!(x.thread || x.origin);
   const pend = store.get('svodka-pending', {});  // отмеченное на сайте, пока не пришло в базу
   const outbox = store.get('svodka-outbox', []);
-  let inflight = store.get('svodka-inflight', null);  // партия в отправке: повтор уходит с тем же batchId, сервер не создаёт второй файл
+  let inflight = store.get('svodka-inflight', null);
+  // Черновики текста для Claude: сохраняются при вводе (по делу), переживают перезагрузку и автообновление; стираются только после отправки
+  const drafts = store.get('svodka-drafts', {});
+  const draftSave = (id, v) => { if (v.trim()) drafts[id] = {v, ts: Date.now()}; else delete drafts[id]; store.set('svodka-drafts', drafts); };
+  const draftFill = (ta, id) => { if (!ta) return; ta.dataset.tid = id; const d = drafts[id]; if (d && !ta.value) { ta.value = d.v; const n = ta.parentNode.querySelector('.dnote') || ta.insertAdjacentElement('afterend', Object.assign(document.createElement('span'), {className: 'hint dnote'})); n.textContent = 'Черновик сохранён ' + new Date(d.ts).toLocaleString('ru-RU', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'}) + ', ещё не отправлен.'; } };
+  document.addEventListener('input', (e) => { const ta = e.target; if (ta.tagName === 'TEXTAREA' && ta.dataset.tid) draftSave(ta.dataset.tid, ta.value); });  // партия в отправке: повтор уходит с тем же batchId, сервер не создаёт второй файл
   let APPLIED = new Set(), REPLIES = [];
   const rid = () => Math.random().toString(36).slice(2, 10).padEnd(8, '0');
   function prep(d) {
@@ -412,6 +484,12 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
   const mine = () => mineAll().filter((t) => t.verified && !delegated(t));
   const unverified = () => mineAll().filter((t) => !t.verified && !delegated(t));
   const PORTION = 5; let portion = 0;
+  // «Показать остальные N»: по умолчанию короткие списки, раскрытое помним до перезагрузки
+  const EXP = new Set(), DEL = ['дело', 'дела', 'дел'];
+  const lim = (key, a, n) => EXP.has(key) ? a : a.slice(0, n);
+  const moreBtn = (key, a, n, f = DEL) => a.length > n ? `<button class="more" data-more="${key}">${EXP.has(key) ? 'Свернуть' : 'Показать остальные ' + plural(a.length - n, ...f)}</button>` : '';
+  const srcDet = (txt, label = 'источник') => txt ? ` <details class="src"><summary>${label}</summary><div>${esc(txt)}</div></details>` : '';
+  const num = (a) => Math.round(a).toLocaleString('ru-RU') + ' ₽';
 
   // ---------- действия: сразу в ветку inbox, с отменой ----------
   const LABEL = {reopen: 'Вернуть в работу', done: 'Я выполнила', claude: 'Поручено Claude', later: 'Отложить до завтра', eve: 'На вечер', prio: 'Горит', wait: 'Ждём клиента', ai: 'Сообщение Claude'};
@@ -432,6 +510,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
     sheet(`<b>Поручить Claude</b><div class="hint">«${esc(t.short)}». Дело останется в работе с пометкой «поручено Claude» и уйдёт из вашего списка.</div><textarea id="shText" placeholder="Что сделать (можно оставить пустым)"></textarea>
       <div class="sh-b"><button class="btn" data-sh="yes" id="cf-yes">Поручить</button><button class="btn ghost" data-sh="no">Отмена</button></div>`,
       () => { act(t, 'claude', ($('#shText').value || '').trim()); if (after) after('claude'); });
+    draftFill($('#shText'), String(t.id));
   }
   let undo = null;
   function toast(msg, onUndo) {
@@ -443,6 +522,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
     const item = {client: t.cl, taskId: String(t.id).startsWith('sum-') ? null : t.id, taskTitle: t.title.slice(0, 300), text, action: action === 'ai' ? '' : action, actionLabel: LABEL[action], at: new Date().toISOString(), qid: rid(), eid: 'e' + Date.now().toString(36) + rid()};
     const prev = pend[t.id];
     if (action === 'reopen') delete pend[t.id]; else if (action !== 'ai') pend[t.id] = {action, ts: Date.now(), eid: item.eid};
+    if (action === 'ai' || action === 'claude') draftSave(String(t.id), '');
     outbox.push(item); store.set('svodka-pending', pend); store.set('svodka-outbox', outbox);
     journal.push({qid: item.qid, eid: item.eid, taskId: t.id, short: t.short, action, at: item.at, state: 'queued'}); jsave();
     render();
@@ -466,20 +546,38 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
     j.undone = true; jsave(); act(t, 'reopen');
   }
   const jUndoable = (j, i) => j.taskId && !j.undone && !['reopen', 'ai'].includes(j.action) && !journal.slice(i + 1).some((x) => x.taskId === j.taskId);
-  function journalHTML() {
-    const since = Date.now() - 48 * 36e5, rows = journal.map((j, i) => [j, i]).filter(([j]) => Date.parse(j.at) > since).reverse().slice(0, 8);
+  // Одна лента поручений: отметка с сайта и ответ ветки — одна строка с хронологией (отправлено → принято → в работе → итог).
+  // Отдельных «Ответов» и «Журнала» больше нет: строка журнала, на которую пришёл ответ, сливается с ним по id события.
+  function feedHTML() {
+    const since = Date.now() - 48 * 36e5;
     const hmo = (v) => { const d = v ? new Date(v) : null; return d && !isNaN(d) ? FRESH.hm(d) : ''; };
-    const stage = (r) => r.result ? ['res', `Итог (${r.resultBy || 'ветка'}${hmo(r.resultAt) ? ', ' + hmo(r.resultAt) : ''}): ${r.result}`]
-      : r.status === 'routed' ? ['rt', `у ${r.routedTo || 'ветки'}${hmo(r.routedAt) ? ' с ' + hmo(r.routedAt) : ''}: ${r.reply}`] : ['', r.reply];
-    const pendRows = journal.filter((j) => j.eid && !APPLIED.has(j.eid) && ['accepted', 'remote'].includes(j.state) && Date.parse(j.at) > Date.now() - 48 * 36e5)
-      .map((j) => `<div class="jl" data-stage="wait"><span class="hint num">${hmo(j.at)}</span><span style="min-width:0;flex:1 1 200px"><b>${esc(j.short || '')}</b><br>принято сайтом, ждёт разбора</span></div>`).join('');
-    const rp = pendRows + REPLIES.map((r) => { const [k, t] = stage(r); return `<div class="jl" data-stage="${k || 'done'}"><span class="hint num">${esc((r.atStr || '').slice(-5))}</span><span style="min-width:0;flex:1 1 200px"><b>${esc((r.text || r.title).replace(/^\[[^\]]*\]\s*/, '').slice(0, 90))}</b><br>${esc(t)}</span></div>`; }).join('');
-    const repl = rp ? `<section class="sec" id="replies"><div class="sh"><h2>Ответы Claude на ваши отметки</h2><span class="c">что сделано и кем</span></div><div class="rows" style="padding:6px 14px">${rp}</div></section>` : '';
-    if (!rows.length) return repl;
-    return repl + `<section class="sec" id="journal"><div class="sh"><h2>Журнал отметок</h2><span class="c">отправлено → принято → применено в базе</span></div><div class="rows" style="padding:6px 14px">${rows.map(([j, i]) => {
-      const [c, txt] = jstate(j), wait = outbox.some((x) => x.qid === j.qid) && !(inflight && inflight.items.some((x) => x.qid === j.qid));
+    // §16: «сделано» без содержательного итога не выдаём за результат. resultCheck ставит проверка цикла (kontrol/cikl_pulta.py).
+    const weak = (x) => !String(x || '').trim() || /^(сделано|закрыто|передано|закрыл[аи]?( задачу)?|готово)[.!]?$/i.test(String(x).trim());
+    const stage = (r) => r.action === 'reopen' && !r.result ? ['reo', r.appliedTo ? 'Вернули в работу: дело снова открыто' : 'Вернуть в работу: ещё не применено']
+      : r.status === 'done' && (r.resultCheck || weak(r.result)) ? ['chk', `Итог не подтверждён${r.resultCheck ? ' (' + r.resultCheck + ')' : ''}${r.reply ? ': ответ был «' + r.reply + '»' : ''}. Проверяет ${r.routedTo || r.resultBy || 'ветка-владелец'}`]
+      : r.result && r.fit && r.fit !== 'ok' ? (r.proofFit === 'ok' ? ['res', `Итог по карточке дела: ${r.taskProof}. Ответ ${r.resultBy || 'ветки'} был не про ${r.fit}: «${r.result}»`] : ['chk', `Итог не отвечает на поручение: ждали ${r.fit}, а в ответе ${r.resultBy || 'ветки'}: «${r.result}». Проверяет ${r.routedTo || r.resultBy || 'ветка-владелец'}`])
+      : r.result ? ['res', `Итог (${r.resultBy || 'ветка'}${hmo(r.resultAt) ? ', ' + hmo(r.resultAt) : ''}): ${r.result}`]
+      : r.status === 'routed' ? ['rt', `в работе у ${r.routedTo || 'ветки'}${hmo(r.routedAt) ? ' с ' + hmo(r.routedAt) : ''}: ${r.reply}`] : ['done', r.reply];
+    const byE = new Map(journal.map((j, i) => [j.eid, [j, i]])), used = new Set(), items = [];
+    REPLIES.forEach((r) => {
+      const ji = r.eventId && byE.get(r.eventId), [k, txt] = stage(r), t = T.find((x) => x.id === r.taskId);
+      if (ji) used.add(ji[0]);
+      const note = (r.text || '').replace(/^\[[^\]]*\]\s*/, '').slice(0, 90);
+      items.push({at: Date.parse(r.at) || 0, k, hm: (r.atStr || '').slice(-5), label: LABEL[r.action] || (ji && LABEL[ji[0].action]) || '', short: (ji && ji[0].short) || (t && t.short) || r.title || 'отметка без текста', note, txt, ji});
+    });
+    journal.forEach((j, i) => {
+      if (used.has(j) || !(Date.parse(j.at) > since)) return;
+      const [c, txt] = jstate(j), k = c === 'app' ? 'app' : ['accepted', 'remote'].includes(j.state) ? 'wait' : c === 'err' ? 'err' : 'send';
       const st = c === 'app' && j.action === 'claude' ? 'применено: в работе у Claude' : c === 'app' && j.action === 'done' ? 'применено: дело закрыто' : txt;
-      return `<div class="jl" data-j="${esc(j.qid || j.eid)}"><span class="hint num">${FRESH.hm(new Date(j.at))}</span><b>${esc(LABEL[j.action] || 'Сообщение')}</b><span style="min-width:0;flex:1 1 140px">${esc(j.short || '')}</span><span class="st ${c}">${esc(j.undone ? 'возвращено' : st)}</span>${jUndoable(j, i) ? `<button class="link" style="margin:0" data-undo="${esc(j.qid || j.eid)}">${wait ? 'Отменить' : 'Вернуть'}</button>` : ''}</div>`; }).join('')}</div></section>`;
+      items.push({at: Date.parse(j.at), k, hm: FRESH.hm(new Date(j.at)), label: LABEL[j.action] || 'Сообщение', short: j.short || '', note: '', txt: j.undone ? 'возвращено' : st, ji: [j, i]});
+    });
+    if (!items.length) return '';
+    items.sort((a, b) => b.at - a.at);
+    const line = (x) => { const j = x.ji && x.ji[0], wait = j && outbox.some((o) => o.qid === j.qid) && !(inflight && inflight.items.some((o) => o.qid === j.qid));
+      return `<div class="jl" data-stage="${x.k}"${j ? ` data-j="${esc(j.qid || j.eid)}"` : ''}><span class="hint num">${esc(x.hm)}</span><span style="min-width:0;flex:1 1 220px"><b>${x.label ? esc(x.label) + ': ' : ''}${esc(x.short)}</b>${x.note && x.note !== x.short ? ` — «${esc(x.note)}»` : ''}<br>${x.k === 'chk' ? `<span style="color:var(--warn)">${esc(x.txt)}</span>` : esc(x.txt)}</span>${j && jUndoable(j, x.ji[1]) ? `<button class="link" style="margin:0" data-undo="${esc(j.qid || j.eid)}">${wait ? 'Отменить' : 'Вернуть'}</button>` : ''}</div>`; };
+    const waitN = items.filter((x) => x.k === 'wait').length, chkN = items.filter((x) => x.k === 'chk').length;
+    return `<section class="sec" id="replies"><div class="sh"><h2>Поручения и ответы</h2><span class="c">одна лента: отправлено → принято → в работе → итог${waitN ? ' · ждут разбора ' + waitN + (FRESH.nextS ? ', ближайший ' + FRESH.hm(FRESH.nextS) : '') : ''}${chkN ? ' · без подтверждённого итога ' + chkN : ''}</span></div>
+      <div class="rows" style="padding:6px 14px">${lim('feed', items, 5).map(line).join('')}</div>${moreBtn('feed', items, 5, ['запись', 'записи', 'записей'])}</section>`;
   }
   let sending = false;
   async function flush() {
@@ -507,14 +605,14 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
   const duePill = (t) => t.fromSummary ? ''
     : t.dd === null ? '' : t.dd < 0 ? `<span class="pill p-warn">просрочено ${-t.dd} дн</span>` : t.dd === 0 ? '<span class="hint">сегодня</span>'
     : t.dd === 1 ? '<span class="pill p-wait">завтра</span>' : `<span class="pill p-wait">${t.dd <= 7 ? 'через ' + t.dd + ' дн' : parseRu(t.due).toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'})}</span>`;
-  const av = (t) => t.who === 'я' ? '<span class="av" title="За вами">О</span>' : t.who === 'Лена' ? '<span class="av l" title="Ведёт Лена">Л</span>' : t.who === 'клиент' || t.who === 'эксперт' ? `<span class="av k" title="Ждём: ${t.who}">⋯</span>` : '<span class="av c" title="Ведёт Claude">C</span>';
+  const av = (t) => t.who === 'я' ? '<span class="who-t" title="Решение за вами">Вы</span>' : t.who === 'Лена' ? '<span class="who-t l" title="Ведёт Лена">Лена</span>' : t.who === 'клиент' || t.who === 'эксперт' ? `<span class="who-t k" title="Ждём ответа">ждём ${t.who === 'клиент' ? 'клиента' : 'эксперта'}</span>` : '<span class="who-t c" title="Ведёт Claude">Claude</span>';
   // Поручение — не «в работе», пока разбор не внёс его в db (eid в appliedEvents); после этого дело ведёт Claude (waiting = Claude)
   const syncTag = (t) => { const p = pend[t.id]; if (!p) return t.waiting === 'Claude' && t.delegated ? '<span class="sync">в работе у Claude</span>' : '';
     return `<span class="sync">${p.action === 'claude' ? 'поручение отправлено · ожидает разбора' : LABEL[p.action].toLowerCase() + ' · ждёт синхронизации'}</span>`; };
   const row = (t, opt = {}) => `<div class="rw" data-id="${esc(t.id)}"><div class="under"><span class="l">Сделано</span><span class="r">Отложить</span></div>
     <div class="row">${opt.reopen ? `<button class="btn ghost small" data-act="reopen">Вернуть</button>` : av(t)}
     <button class="main-txt" data-open><span class="t">${t.hot ? '<span class="hotdot" title="Горит"></span>' : ''}${esc(t.short)}</span><span class="s">${esc(opt.noClient ? (t.next || '').slice(0, 120) : t.fromSummary ? t.detail.slice(0, 140) : t.cl)}${syncTag(t) ? ' · ' : ''}${syncTag(t)}</span></button>
-    ${duePill(t)}${!opt.reopen && opt.check !== false ? `<span class="abs"><button class="ab ok" data-act="done" aria-label="Я выполнила: ${esc(t.short)}">${ico.check}Я выполнила</button><button class="ab cl" data-act="claude" aria-label="Поручить Claude: ${esc(t.short)}">Поручить Claude</button></span>` : ''}<span class="am">${t.a && !t.short.replace(/\s/g, '').includes(String(Math.round(t.a))) ? rub(t.a) : ''}</span></div></div>`;
+    ${duePill(t)}${!opt.reopen && opt.check !== false && t.who === 'я' ? `<span class="abs"><button class="ab ok" data-act="done" aria-label="Я выполнила: ${esc(t.short)}">${ico.check}Я выполнила</button><button class="ab cl" data-act="claude" aria-label="Поручить Claude: ${esc(t.short)}">Поручить Claude</button></span>` : ''}<span class="am">${t.a && !t.short.replace(/\s/g, '').includes(String(Math.round(t.a))) ? rub(t.a) : ''}</span></div></div>`;
 
   // ---------- вкладки ----------
   let tab = 'utro', q = '', who = 'all', sec = 'all', mf = '', openB = '', calN = 7;
@@ -549,13 +647,16 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
     const when = (c) => { const d = /^\d{4}-\d{2}-\d{2}T/.test(c || '') ? new Date(c) : null; if (d && !isNaN(d)) return FRESH.dm(d) + ' ' + FRESH.hm(d) + ' МСК'; return c ? esc(c) : 'время не указано'; };
     // Зелёный только у статуса, проверенного сегодня. Вчерашний статус серый и подписан «сегодня не проверено».
     const today = rows.filter((x) => okToday(x.checked)), old = rows.filter((x) => !okToday(x.checked));
-    const col = (x) => !okToday(x.checked) ? 'var(--faint)' : x.flag === 'ok' ? 'var(--ok)' : x.flag === 'срочно' ? 'var(--hot)' : 'var(--warn)';
+    const col = (x) => !okToday(x.checked) || /^не проверено/i.test(txt(x)) ? 'var(--faint)' : x.flag === 'ok' ? 'var(--ok)' : x.flag === 'срочно' ? 'var(--hot)' : 'var(--warn)';
     const txt = (x) => String(x.text).replace(/^не проверено сегодня\s*\([^)]*\):\s*/i, '');
     const last = old.map((x) => x.checked).sort().pop();
     const line = (x) => `<div class="pj"><span class="dot" style="background:${col(x)}"></span><span><b>${esc(txt(x))}</b> · ${okToday(x.checked) ? 'проверено ' + when(x.checked) : 'статус от ' + when(x.checked)}</span></div>`;
-    return `<section class="sec"><div class="sh"><h2>Автоматика</h2><span class="c">${today.length ? 'проверено сегодня: ' + today.length + ' из ' + rows.length : 'сегодня не проверено'}</span></div>
+    // Счётчики по смыслу, а не по времени отметки: строка «Не проверено…» — это непроверенный участок, не успешная проверка
+    const nch = (x) => /^не проверено|не проверен[оа]?:|сводки[^.]*нет|нет данных/i.test(txt(x)), tn = today.filter(nch), tc = today.filter((x) => !nch(x));
+    const cnt = [[tc.filter((x) => x.flag === 'ok').length, 'в норме'], [tc.filter((x) => x.flag !== 'ok' && x.flag !== 'срочно').length, 'с замечанием'], [tc.filter((x) => x.flag === 'срочно').length, 'сбой'], [tn.length, 'не проверено']].filter(([n]) => n).map(([n, l]) => n + ' ' + l).join(' · ');
+    return `<section class="sec"><div class="sh"><h2>Автоматика</h2><span class="c">${today.length ? 'отмечено сегодня ' + today.length + ' из ' + rows.length + ': ' + cnt : 'сегодня не проверено'}</span></div>
       ${old.length ? `<div class="autoh">${today.length ? plural(old.length, 'статус', 'статуса', 'статусов') + ' сегодня не проверено' : 'Сегодня автоматику ещё не проверяли'}: ниже ${old.length === rows.length ? 'всё' : 'серым'} по последней проверке ${when(last)}. Зелёным не отмечаю.</div>` : ''}
-      <div class="rows" style="padding:12px 14px"><div class="projects">${[...today.sort((a, b) => (b.flag === 'срочно') - (a.flag === 'срочно')), ...old].map(line).join('')}</div></div></section>`;
+      <details class="rows" style="padding:10px 14px"${rows.some((x) => okToday(x.checked) && x.flag === 'срочно') ? ' open' : ''}><summary><b>Статусы выгрузок · ${rows.length}</b> <span class="hint">${!today.length ? 'сегодня не проверено' : today.some((x) => x.flag === 'срочно') ? 'есть сбой сегодня' + (tn.length ? ', ' + tn.length + ' не проверено' : '') : tn.length ? 'сбоев не найдено, но ' + tn.length + ' не проверено' : 'среди проверенных сегодня сбоев нет'}</span></summary><div class="projects" style="padding-top:8px">${[...today.sort((a, b) => (b.flag === 'срочно') - (a.flag === 'срочно')), ...old].map(line).join('')}</div></details></section>`;
   }
   // ---------- первый экран: три приоритета, план недели, банковский факт ----------
   // Куда нажимать: прямая ссылка из дела (портал, заказ), иначе сервис по смыслу дела. Ничего не отправляем и не подписываем за Ольгу.
@@ -584,66 +685,205 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
     ${sy ? `<div>${sy}</div>` : ''}
     <div class="pa">${L ? `<a class="ab go" href="${esc(L[0])}" target="_blank" rel="noopener">${esc(L[1])} ↗</a>` : ''}<button class="ab ok" data-act="done" aria-label="Я выполнила: ${esc(t.short)}">${ico.check}Я выполнила</button><button class="ab cl" data-act="claude" aria-label="Поручить Claude: ${esc(t.short)}">Поручить Claude</button></div>
     </div></div>`; };
-  // План недели: только сроки из карточек дел (due), без придуманных целей. Просроченное — отдельной строкой.
+  // Сроки на 7 дней (вкладка «Все дела»): только сроки из карточек дел (due), без придуманных целей. Просроченное — отдельной строкой.
+  // По 3 дела на день, остальные раскрываются тут же подписанной кнопкой, а не «ещё 24».
   function weekHTML() {
     const o = T.filter((t) => isOpen(t) && t.dd !== null && t.dd <= 6 && !t.fromSummary);
     const late = o.filter((t) => t.dd < 0).sort(order), byD = [];
     for (let k = 0; k <= 6; k++) { const a = o.filter((t) => t.dd === k).sort(order); if (a.length) byD.push([k, a]); }
-    if (!late.length && !byD.length) return `<section class="sec"><div class="sh"><h2>План недели</h2></div><div class="hint">В карточках дел нет сроков на ближайшие 7 дней.</div></section>`;
-    const wl = (t) => `<button class="wi" data-wk="${esc(t.id)}" title="${esc(t.cl + ': ' + t.short)}"><b>${esc(t.internal ? '' : t.cl ? t.cl + ':' : '')}</b> ${esc(t.short)}${t.who !== 'я' ? ' · ' + esc(t.who) : ''}</button>`;
+    if (!late.length && !byD.length) return `<section class="sec"><div class="sh"><h2>Сроки на 7 дней</h2></div><div class="hint">В карточках дел нет сроков на ближайшие 7 дней.</div></section>`;
+    const wl = (t) => `<button class="wi" data-wk="${esc(t.id)}" title="${esc(t.cl + ': ' + t.short)}"><b>${esc(t.internal ? '' : t.cl ? t.cl + ':' : '')}</b> ${esc(t.short)}${t.who !== 'я' ? ' · ' + esc(t.who === 'клиент' ? 'ждём клиента' : t.who) : ''}</button>`;
     const day = (k) => { const d = new Date(today.getTime() + k * MS); return [d.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'}), k === 0 ? 'сегодня' : k === 1 ? 'завтра' : d.toLocaleDateString('ru-RU', {weekday: 'short'})]; };
-    const line = (h, sub, a) => `<div class="wd"><span class="d">${h}<small>${sub}</small></span><span class="it">${a.slice(0, 3).map(wl).join('')}${a.length > 3 ? `<button class="link" style="margin:0" data-go="all">ещё ${a.length - 3}</button>` : ''}</span></div>`;
-    return `<section class="sec"><div class="sh"><h2>План недели</h2><span class="c">по срокам из карточек дел; у счетов и подписей это срок контроля</span></div>
-      <div class="rows wk">${late.length ? line('Просрочено', plural(late.length, 'дело', 'дела', 'дел'), late) : ''}${byD.map(([k, a]) => { const [h, sub] = day(k); return line(h, sub, a); }).join('')}</div></section>`;
+    const line = (key, h, sub, a) => `<div class="wd"><span class="d">${h}<small>${sub}</small></span><span class="it">${lim(key, a, 3).map(wl).join('')}${a.length > 3 ? `<button class="more" style="padding:3px 0" data-more="${key}">${EXP.has(key) ? 'Свернуть' : `Показать остальные ${plural(a.length - 3, ...DEL)} на ${h}`}</button>` : ''}</span></div>`;
+    return `<section class="sec"><div class="sh"><h2>Сроки на 7 дней</h2><span class="c">по срокам из карточек дел; у счетов и подписей это срок контроля, не дата оплаты</span></div>
+      <div class="rows wk">${late.length ? line('wk-late', 'Просрочено', plural(late.length, 'дело', 'дела', 'дел'), late) : ''}${byD.map(([k, a]) => { const [h, sub] = day(k); return line('wk' + k, h, sub, a); }).join('')}</div></section>`;
   }
-  // Банк: только прочитанные выписки (svodka/bank-oboroty.json), с датой и охватом. Это не «Пришло по карточкам дел».
-  function bankHTML() {
-    const B = D.bank, days = (B && B.days) || [];
-    if (!days.length) return '<div class="bankf"><span class="k">Банк, факт по выпискам</span><small>Выписок в сборке нет, факт банка не показываю.</small></div>';
-    const by = new Map(); days.forEach((x) => { if (!by.has(x.date)) by.set(x.date, []); by.get(x.date).push(x); });
-    const ds = [...by.keys()].sort().reverse(), num = (a) => Math.round(a).toLocaleString('ru-RU') + ' ₽';
-    return `<div class="bankf"><span class="k">Банк, факт по выпискам</span>${ds.map((d) => by.get(d).map((x) => `<div class="ln"><b class="num">${dmY(d)}</b><span>${esc(x.account)}${x.partial ? ' (' + esc(x.partial) + ')' : ''}</span>${+x.in || +x.out ? `<span>поступило <span class="plus">+${num(+x.in || 0)}</span></span><span>списано <span class="minus">−${num(+x.out || 0)}</span></span>` : '<span>оборотов нет</span>'}</div>`).join('')).join('')}
-      <small>Охват: только эти счета и дни${B.built ? ', сборка ' + esc(B.built) : ''}. Не полный факт месяца и не все банки.</small></div>`;
+  // Банк: только прочитанные выписки (svodka/bank-oboroty.json), таблицей. Платежи и источник — по раскрытию.
+  // Счёт ИП Пономаренко приходит из сборки уже обрезанным: только поступления не от РЭИ, без остатка и списаний.
+  // Источник дня банка: выписка или уведомления банка (не выписка) и на какой момент. Подтверждение выпиской уведомлениям не приписываем.
+  const bkSrc = (x) => { const t = (x.partial || '') + ' ' + (x.src || ''), n = /уведомл/i.test(t), m = (x.partial || '').match(/(\d{1,2}:\d{2})/);
+    return {note: n, kind: n ? 'уведомления банка' : 'выписка', asOf: dmY(x.date) + (m ? ' ' + m[1] : n ? '' : ', конец дня'), short: n ? 'по уведомлениям' + (m ? ' до ' + m[1] : '') + ', не выписка' : 'по выписке'}; };
+  function bankTable(days) {
+    if (!days || !days.length) return '<div class="bankf"><span class="k">Банк, факт по выпискам</span><small>Выписок в сборке нет, факт банка не показываю.</small></div>';
+    const ds = [...days].sort((a, b) => b.date.localeCompare(a.date) || a.account.localeCompare(b.account)), has = (v) => v !== null && v !== undefined;
+    const it = (sign, i) => `<li>${sign}${rubX(i.amount)} ${esc(i.who)}${i.basis ? ', ' + esc(i.basis) : ''}</li>`;
+    return `<div class="tbl bank"><div class="tr th"><span>Дата</span><span>Счёт</span><span class="r">Пришло</span><span class="r">Ушло</span><span class="r">Остаток</span></div>
+      ${ds.map((x) => `<div class="tr"><span class="num">${dmY(x.date)}</span><span class="acc">${esc(x.account)} <span class="na">(${esc(bkSrc(x).short)})</span></span>
+        <span class="r c3">${+x.in ? `<span class="plus">+${rubX(+x.in)}</span>` : '<span class="na">0</span>'}</span>
+        <span class="r c4">${x.pon ? '<span class="na">не показываю</span>' : +x.out ? `<span class="minus">−${rubX(+x.out)}</span>` : '<span class="na">0</span>'}</span>
+        <span class="r c5">${has(x.close) ? rubX(x.close) + `<small class="na" style="display:block">${bkSrc(x).note ? 'на ' + esc(bkSrc(x).asOf) + ', по уведомлениям' : 'конец дня, по выписке'}</small>` : '<span class="na">—</span>'}</span>
+        <details><summary>Платежи и источник</summary><ul>${(x.inItems || []).map((i) => it('+', i)).join('')}${(x.outItems || []).map((i) => it('−', i)).join('')}<li class="na">источник: ${esc(bkSrc(x).kind)} на ${esc(bkSrc(x).asOf)} · ${esc(x.src || 'не указан')}${has(x.open) ? ' · на начало дня ' + rubX(x.open) : ''}</li></ul></details></div>`).join('')}</div>
+      <div class="hint">Охват: только эти счета и дни. Источник по дням: ${[...ds].reverse().map((x) => esc(dmY(x.date) + ' ' + x.account + ' — ' + bkSrc(x).kind + ' на ' + bkSrc(x).asOf)).join('; ')}. Уведомления не равны выписке: день сверится, когда придёт выписка. Это не полный факт месяца и не все банки.</div>`;
+  }
+  // Гаранты Лены: снимок её Google-таблицы (только чтение) → сборка «Утра». Обещано Леной/клиентом и подтверждено банком — раздельно.
+  function garHead(G) {
+    const st = G.status || {}, src = G.source || {}, url = src.url || '';
+    const dt = (x) => x ? FRESH.dm(new Date(x)) + ' ' + FRESH.hm(new Date(x)) + ' МСК' : '';
+    const stale = G.importedAt && mskYmd(G.importedAt) < FRESH.todayYmd;
+    return `${st.ok === false ? `<div class="autoh">Сбой импорта ${dt(st.lastAttempt)}: ${esc(st.lastError || '')}. Показаны строки последнего успешного импорта ${dt(G.importedAt)}.</div>` : stale ? `<div class="autoh">Устарело: последний импорт таблицы ${dt(G.importedAt)}, сегодня не обновлялось.</div>` : ''}
+      ${G.live ? '' : `<div class="autoh">Живая таблица Лены не подключена. Ниже последний известный файл${src.title ? ' «' + esc(src.title) + '»' : ''}: это не текущее состояние.</div>`}
+      ${G.format === 'reestr' ? garReestrSrc(G) : `<div class="hint">${srcDet(`${G.live ? 'таблица Лены' : 'файл'}${src.title ? ' «' + src.title + '»' : ''}${src.tab ? ', вкладка «' + src.tab + '»' : ''} · импорт ${dt(G.importedAt)} · только чтение, в таблице ничего не меняем`, 'Источник')}${url ? ` · <a href="${esc(url)}" target="_blank" rel="noopener">открыть ↗</a>` : ''}</div>`}`;
+  }
+  // Реестр (scripts/reestr_garanty.py): строки из файлов Лены в Seafile с постоянными ID; файл Лены не меняем
+  function garReestrSrc(G) {
+    const src = G.source || {}, mt = src.mtime ? Date.parse(src.mtime) : 0, age = mt ? Math.floor((Date.parse(FRESH.todayYmd) - Date.parse(src.mtime.slice(0, 10))) / MS) : null, excel = (src.mode || 'excel') === 'excel';
+    return `${excel && age === null ? '<div class="autoh">Дата файла Лены неизвестна: свежесть не проверена.</div>' : excel && age > 7 ? `<div class="autoh">Файл Лены не менялся ${age} дн (с ${dmY(src.mtime.slice(0, 10))}): возможно, она перестала его вести.</div>` : ''}
+      <div class="hint">${srcDet(`реестр: Google-таблица «${src.title || 'Реестр гарантов'}»${excel ? ' + файлы Лены (Seafile, зарплатуленька)' + (mt ? ', файл изменён ' + dmY(src.mtime.slice(0, 10)) : '') : ''} · сборка ${FRESH.dm(new Date(G.importedAt))} ${FRESH.hm(new Date(G.importedAt))} МСК · текущий месяц ${G.months && G.months.current ? dmY(G.months.current).slice(3) : ''}, следующий ${G.months && G.months.next ? dmY(G.months.next).slice(3) : ''}`, 'Источник и время сборки')}</div>`;
+  }
+  const garRowUrl = (G, r) => { const u = (G.source || {}).url; return u && /docs\.google\.com\/spreadsheets/.test(u) && G.live ? u.replace(/#.*$/, '') + '#gid=' + encodeURIComponent((G.source || {}).gid || '0') + '&range=A' + r.row : ''; };
+  const garLate = (r) => r.date && r.date < FRESH.todayYmd && !(r.remain !== null && r.remain <= 0) ? Math.round((Date.parse(FRESH.todayYmd) - Date.parse(r.date)) / MS) : 0;
+  function garRow(G, r) {
+    const late = garLate(r), u = garRowUrl(G, r), num = (a) => Math.round(a).toLocaleString('ru-RU') + ' ₽';
+    return `<div class="gr${late ? ' late' : ''}"><div class="gt"><b>${esc(r.client || 'клиент не указан')}</b>${r.doc ? ' · ' + esc(r.doc) : ''}<span class="num ga">${r.amount !== null ? num(r.amount) : esc(r.amountRaw || 'сумма не указана')}</span></div>
+      <dl><dt>Обещанная дата</dt><dd>${r.date ? dmY(r.date) + (late ? ` <span class="pill p-hot">просрочено ${late} дн</span>` : '') : '<span class="unk">неизвестно</span>' + (r.dateRaw ? ' (' + esc(r.dateRaw) + ')' : '')}</dd>
+      <dt>Этап у Лены</dt><dd>${r.status ? esc(r.status) : '<span class="unk">не указан</span>'}${r.service ? ' · ' + esc(r.service) : ''}</dd>
+      <dt>Получено, по таблице</dt><dd>${r.received !== null ? '<span class="num">' + num(r.received) + '</span> <small>со слов Лены</small>' : r.receivedRaw ? esc(r.receivedRaw) : '<span class="unk">не указано</span>'}</dd>
+      <dt>Банк</dt><dd>${r.bank.length ? r.bank.map((b) => `<span class="plus">+${num(b.amount)}</span> ${dmY(b.date)} ${esc(b.account)}${b.basis ? ' (' + esc(b.basis) + ')' : ''}`).join('; ') : (r.stage === 'paid' ? '<span class="unk">не сверено с банком</span>' : '<span class="unk">в охваченных выписках не найдено</span>')}</dd>
+      ${r.stage === 'paid' ? '' : `<dt>Остаток</dt><dd>${r.remain !== null ? '<span class="num">' + num(r.remain) + `</span> <small>${r.id ? 'сумма минус оплаты (банк или Лена, что больше; «вопрос» не вычитается)' : 'по банку'}</small>` : r.received !== null && r.amount !== null ? '<span class="num">' + num(r.amount - r.received) + '</span> <small>по таблице Лены, банком не подтверждено</small>' : '<span class="unk">неизвестно</span>'}</dd>`}
+      ${r.flags && r.flags.length ? `<dt>Флаги</dt><dd>${r.flags.map((f) => `<span class="pill${/просроч|вопрос|дубль|Лена ≠/.test(f) ? ' p-hot' : ''}">${esc(f)}</span>`).join(' ')}</dd>` : ''}
+      <dt>Дальше</dt><dd>${esc(r.next || '—')} · ${esc(r.owner || 'Лена')}</dd></dl>
+      <div class="gl">${r.id ? `<b>${esc(r.id)}</b> · ${esc(r.src || '')}${r.checked ? ' · проверено ' + dmY(r.checked) : ''}` : u ? `<a href="${esc(u)}" target="_blank" rel="noopener">строка ${r.row} в таблице ↗</a>` : `строка ${r.row}`}${r.taskIds.map((id) => { const t = T.find((x) => x.id === id); return t ? ` · <button class="link" style="margin:0" data-wk="${esc(id)}">дело: ${esc(t.short)}</button>` : ''; }).join('')}${r.linkBy === 'только по клиенту' ? ' <small>(связано только по клиенту)</small>' : ''}</div></div>`;
+  }
+  // Этап из таблицы Лены: «Гарант» — гарант поступления, «Обсуждаем» — прогноз, «Отказ» — не ждём. Прогноз денег строится только отсюда.
+  const garKind = (r) => r.stageReg === 'Обсуждаем' ? 'prog' : r.stageReg === 'Отказ' ? 'no' : 'gar';
+  const garOpen = (r) => r.id ? (r.remain > 0 || (r.flags || []).includes('вопрос')) : r.stage !== 'paid';
+  function garTotals(G) {
+    const R = G.rows, O = R.filter(garOpen), sum = (a, f) => a.reduce((x, r) => x + (Number(f(r)) || 0), 0), num = (a) => Math.round(a).toLocaleString('ru-RU') + ' ₽';
+    const noDate = O.filter((r) => !r.date).length, late = O.filter(garLate).length, cov = [...new Set((G.bankCovered || []).map(([a]) => a))].map((a) => a + ' ' + (G.bankCovered || []).filter(([x]) => x === a).map(([, d]) => dmY(d)).join(', ')).join('; ');
+    return `<div class="pf"><div><small>Обещано Леной/клиентом, ждём</small><b>${num(sum(O, (r) => r.id ? r.remain : r.amount))}</b><small>${plural(O.length, 'строка', 'строки', 'строк')} без отметки «пришло»</small></div>
+      <div><small>Пришло, по таблице Лены</small><b>${num(sum(R, (r) => r.received))}</b><small>со слов Лены, не банк</small></div>
+      <div><small>Подтверждено банком</small><b class="plus">${num(sum(R, (r) => r.bankSum))}</b><small>${cov ? 'только ' + esc(cov) : 'выписок нет'}</small></div>
+      <div><small>Без срока / просрочено</small><b>${noDate} / ${late}</b><small>срок неизвестен — это не 0</small></div></div>`;
+  }
+  function garLine(G, r) {
+    const late = garLate(r), num = (a) => Math.round(a).toLocaleString('ru-RU') + ' ₽';
+    return `<div class="gline${late ? ' late' : ''}"><span class="gc"><b>${esc(r.client)}</b>${r.doc ? ' · ' + esc(r.doc) : ''}<small>${esc(r.status || '')}${r.taskIds.length ? ' · есть дело' : ''}</small></span>
+      <span class="num ga">${r.amount !== null ? num(r.amount) : esc(r.amountRaw || '—')}</span>
+      <span class="gd">${r.date ? dmY(r.date) + (late ? ` <span class="pill p-hot">${late} дн</span>` : '') : '<span class="unk">срок неизвестен</span>'}</span>
+      <span class="gb">${r.bank.length ? `<span class="plus">банк +${num(r.bankSum)}</span> ${dmY(r.bank[0].date)}` : r.received !== null ? `пришло ${num(r.received)} <small>по таблице</small>` : '<span class="unk">банком не подтверждено</span>'}</span></div>`;
+  }
+  const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
+  // Рабочая таблица менеджера: ввод — только в ней (одна Google-таблица), пульт показывает обмен, режим, историю и доступ.
+  // Задача сверки единого файла Лены (db sverka-leny-*): подпункты закрыты/открыты и следующий шаг. Нет задачи — так и пишем.
+  function sverkaTxt() {
+    const t = T.find((x) => /^sverka-leny/.test(x.id));
+    if (!t) return '<span class="unk">задачи сверки в базе нет</span>';
+    const S = t.steps || [], ok = S.filter((x) => x.done).length, nx = S.find((x) => !x.done);
+    return `<button class="link" style="margin:0;font-size:inherit;text-align:left" data-wk="${esc(t.id)}">${esc(t.short)}</button> · подпунктов закрыто ${ok} из ${S.length}${nx ? '; дальше п.' + esc(String(nx.n)) + ': ' + esc(nx.text.length > 90 ? nx.text.slice(0, 90) + '…' : nx.text) : ''}${t.due ? ' · срок контроля ' + esc(t.due) : ''}`;
+  }
+  function lenaCard(full) {
+    const G = D.garanty;
+    if (!G || !G.connected) return `<section class="sec" id="garanty"><div class="lena"><div class="lh"><h3>Рабочая таблица Лены</h3><span class="c hint">источник не подключён</span></div><div class="autoh">Реестр гарантов не подключён${G && G.status && G.status.lastError ? ': ' + esc(G.status.lastError) : ''}. Цифр нет — это не нули. Старый перечень «октябрь 2026» от 23.10 не показываю как актуальный.</div></div></section>`;
+    const st = G.status || {}, src = G.source || {}, url = src.url || '', mode = src.mode || 'excel', acc = G.access || {};
+    const dt = (x) => x ? FRESH.dm(new Date(x)) + ' ' + FRESH.hm(new Date(x)) + ' МСК' : 'нет';
+    const stale = G.importedAt && mskYmd(G.importedAt) < FRESH.todayYmd;
+    const O = G.rows.filter(garOpen), sum = (a, f) => a.reduce((x, r) => x + (Number(f(r)) || 0), 0), late = O.filter(garLate).length, noDate = O.filter((r) => !r.date).length;
+    const byM = {}; G.rows.forEach((r) => { if (r.month) byM[r.month] = (byM[r.month] || 0) + 1; });
+    const hist = Object.keys(byM).sort().map((m) => MONTHS[+m.slice(5, 7) - 1] + ' ' + plural(byM[m], 'строка', 'строки', 'строк')).join(', ') || 'строк нет';
+    const top = O.sort((a, b) => (garLate(b) - garLate(a)) || ((a.date || '9') < (b.date || '9') ? -1 : 1));
+    return `<section class="sec" id="garanty"><div class="lena"><div class="lh"><h3>Рабочая таблица Лены</h3>${url ? `<a class="btn small" href="${esc(url)}" target="_blank" rel="noopener">Открыть таблицу ↗</a>` : ''}${full ? '' : `<button class="link" data-go="money" data-anchor="garanty-all">Весь реестр · ${G.rows.length}</button>`}</div>
+      ${garHead(G)}
+      <dl><dt>Последний обмен</dt><dd>${st.ok === false ? `<span class="unk">сбой ${dt(st.lastAttempt)}</span>; на пульте последний успешный снимок ${dt(st.lastOk || G.importedAt)}` : `успешно ${dt(st.lastOk || G.importedAt)}${stale ? ' <span class="unk">· сегодня не обновлялось</span>' : ''}`}</dd>
+      <dt>Режим</dt><dd>${mode === 'google' ? `Google-таблица — единственный ввод с ${esc(src.since ? dmY(src.since) + '.' + src.since.slice(0, 4) : '?')}; файлы Excel — архив` : 'сверка: правки в таблице сохраняются, файлы Excel Лены тоже читаются. Дату перехода на один ввод назначает Ольга'}</dd>
+      <dt>История</dt><dd>${hist}</dd>
+      <dt>Ждём по гарантам</dt><dd><b class="num">${num(sum(O, (r) => r.id ? r.remain : r.amount))}</b> · ${plural(O.length, 'строка', 'строки', 'строк')}${late ? `, просрочено <b>${late}</b>` : ''}${noDate ? `, без срока ${noDate} (это не 0)` : ''}</dd>
+      <dt>Подтверждено банком</dt><dd class="plus">${num(sum(G.rows, (r) => r.bankSum))}</dd>
+      <dt>Файл</dt><dd>единый: гаранты, оплаты и зарплата Лены в одной таблице; зарплата — отдельный лист, защищён от правки, но не скрыт, на пульт не выводится. Старый файл зарплаты — архив.</dd>
+      <dt>Сверка</dt><dd>${sverkaTxt()}</dd>
+      <dt>Доступ Лены</dt><dd>${acc.status === 'granted' ? 'выдан: ' + esc(acc.note || '') : esc(acc.note || 'не выдан: ждём её почту, доступ будет адресный, только к полям ввода')}</dd></dl>
+      ${full ? '' : `<div class="rows glines">${top.slice(0, 3).map((r) => garLine(G, r)).join('')}</div>`}</div></section>`;
+  }
+  function garMoney() {
+    const G = D.garanty;
+    if (!G || !G.connected) return '';
+    // сначала то, что ещё ждём (гарант, потом прогноз), внутри — просроченное и ближайшие сроки; оплаченное — в конце
+    const R = [...G.rows].sort((a, b) => (garOpen(b) - garOpen(a)) || ((garKind(a) === 'gar') - (garKind(b) === 'gar')) * -1 || (garLate(b) - garLate(a)) || ((a.date || '9') < (b.date || '9') ? -1 : 1));
+    return `<section class="sec" id="garanty-all"><div class="sh"><h2>Реестр гарантов Лены</h2><span class="c">все строки таблицы, обещано отдельно от банка</span></div>${garTotals(G)}<div class="grs">${lim('gar', R, 6).map((r) => garRow(G, r)).join('')}</div>${moreBtn('gar', R, 6, ['строка', 'строки', 'строк'])}</section>`;
+  }
+  // Что изменилось с прошлого рабочего дня: итоги поручений, поступления по выпискам, оплаты гарантов, новые дела
+  const prevWork = () => { let d = addD(FRESH.todayYmd, -1); while ([0, 6].includes(new Date(d + 'T12:00:00Z').getUTCDay())) d = addD(d, -1); return d; };
+  const addedYmd = (t) => { const a = String(t.added || ''); let m = a.match(/^(\d{4})-(\d{2})-(\d{2})/); if (m) return m[0]; m = a.match(/^(\d{1,2})\.(\d{1,2})(?:\.(\d{4}))?/); return m ? (m[3] || FRESH.year) + '-' + p2(m[2]) + '-' + p2(m[1]) : ''; };
+  function changesHTML() {
+    const since = prevWork(), L = [], G = D.garanty;
+    REPLIES.filter((r) => r.status === 'done' && mskYmd(r.resultAt || r.at) >= since).forEach((r) => {
+      const t = T.find((x) => x.id === r.taskId), sh = (t && t.short) || r.title || 'отметка';
+      const weak = !String(r.result || '').trim() || r.resultCheck || /^(сделано|закрыто|готово)[.!]?$/i.test(String(r.result).trim());
+      // итог про другое действие (например, оплата вместо отправки акта) не выдаём за итог: берём доказательство из карточки или ставим «!»
+      const off = r.fit && r.fit !== 'ok', res = off && r.proofFit === 'ok' ? r.taskProof : r.result, cut = (x) => esc(String(x).slice(0, 110)) + (String(x).length > 110 ? '…' : '');
+      L.push(weak ? ['!', `Закрыто без подтверждённого итога: <b>${esc(sh)}</b>`, 'warn']
+        : off && r.proofFit !== 'ok' ? ['!', `Итог не по поручению: <b>${esc(sh)}</b> — ждали ${esc(r.fit)}, в ответе: ${cut(r.result)}`, 'warn']
+        : ['✓', `Итог: <b>${esc(sh)}</b> — ${cut(res)}${off ? ' <span class="na">(по карточке дела; ответ ветки был не про ' + esc(r.fit) + ')</span>' : ''}`, 'ok']); });
+    ((D.bank && D.bank.days) || []).filter((x) => x.date >= since && (+x.in || +x.out)).forEach((x) => L.push(['₽', `${dmY(x.date)}, ${esc(x.account)}: ${+x.in ? `<span class="plus">+${num(+x.in)}</span>${x.inItems.length ? ' (' + x.inItems.slice(0, 3).map((i) => esc(i.who)).join(', ') + (x.inItems.length > 3 ? '…' : '') + ')' : ''}` : 'поступлений нет'}${+x.out ? `, ушло <span class="minus">−${num(+x.out)}</span>` : ''} <span class="na">(${esc(bkSrc(x).short)})</span>`, '']));
+    if (G && G.connected) G.rows.forEach((r) => (r.bank || []).filter((b) => b.date >= since).forEach((b) => L.push(['✓', `Оплата по таблице Лены: <b>${esc(r.client)}</b> <span class="plus">+${num(b.amount)}</span>, банк ${dmY(b.date)}`, 'ok'])));
+    const nw = T.filter((t) => !t.fromSummary && addedYmd(t) >= since && isOpen(t));
+    nw.slice(0, 3).forEach((t) => L.push(['+', `Новое дело: <button class="link" style="margin:0;font-size:inherit" data-wk="${esc(t.id)}">${esc(t.short)}</button> · ${esc(t.who === 'я' ? 'за вами' : t.who === 'клиент' ? 'ждём клиента' : 'ведёт ' + t.who)}`, '']));
+    if (nw.length > 3) L.push(['+', `Ещё ${plural(nw.length - 3, 'новое дело', 'новых дела', 'новых дел')} — во «Всех делах»`, '']);
+    return `<section class="sec" id="changes"><div class="sh"><h2>Что изменилось</h2><span class="c">с ${dmY(since)}: итоги, деньги по банку, новые дела</span></div>
+      ${L.length ? `<div class="rows ch">${lim('chg', L, 5).map(([i, h, c]) => `<div class="ln"><span class="ic" style="color:var(--${c || 'muted'})">${i}</span><span>${h}</span></div>`).join('')}</div>${moreBtn('chg', L, 5, ['изменение', 'изменения', 'изменений'])}` : `<div class="hint">С ${dmY(since)} в данных изменений нет: итогов, движений по банку и новых дел.</div>`}</section>`;
+  }
+  // Ближайшие 7 дней: поступления — только из таблицы Лены (гарант / прогноз), обязательные платежи — из реестра Бухгалтерии, сроки ваших дел
+  function nearHTML() {
+    const y = FRESH.todayYmd, end = addD(y, 6), G = D.garanty && D.garanty.connected ? D.garanty.rows : null, SP = D.spisaniya ? D.spisaniya.rows : null, ev = [];
+    const gLate = [], sLate = [];
+    (G || []).filter((r) => garOpen(r) && r.date && garKind(r) !== 'no').forEach((r) => { if (r.date < y) gLate.push(r); else if (r.date <= end) ev.push({d: r.date, k: garKind(r) === 'prog' ? ['ref', 'прогноз Лены'] : ['in', 'гарант Лены'], w: r.client + (r.doc ? ' · ' + r.doc : ''), a: num(r.remain ?? r.amount), src: (r.id || '') + ' · ' + (r.src || '')}); });
+    (SP || []).filter((r) => r.kind !== 'reference' && !r.paid).forEach((r) => { if (r.date < y) sLate.push(r); else if (r.date <= end) ev.push({d: r.date, k: ['pay', 'обязательный платёж'], w: r.who + ': ' + r.what, a: r.amount === null || r.amount === undefined ? 'сумма неизвестна' : num(r.amount), src: r.src}); });
+    mineAll().filter((t) => !t.fromSummary && t.dd !== null && t.dd >= 0 && t.dd <= 6).forEach((t) => ev.push({d: taskYmd(t), k: ['task', 'срок вашего дела'], w: t.short, id: t.id, a: t.a ? num(t.a) : ''}));
+    ev.sort((a, b) => a.d.localeCompare(b.d));
+    const sumR = (a) => a.reduce((x, r) => x + (Number(r.remain ?? r.amount) || 0), 0);
+    const late = `${gLate.length ? `<div class="tr"><span class="unk">раньше</span><span class="k"><span class="kd pay">просрочено</span></span><span class="acc">обещания в таблице Лены: ${plural(gLate.length, 'строка', 'строки', 'строк')}</span><span class="r">${num(sumR(gLate))}</span></div>` : ''}${sLate.length ? `<div class="tr"><span class="unk">раньше</span><span class="k"><span class="kd pay">не оплачено</span></span><span class="acc">обязательные платежи прошлых дат: ${sLate.length}</span><span class="r">${num(sLate.reduce((x, r) => x + (Number(r.amount) || 0), 0))}</span></div>` : ''}`;
+    const line = (e) => `<div class="tr"><span class="num">${dmY(e.d)}</span><span class="k"><span class="kd ${e.k[0]}">${e.k[1]}</span></span><span class="acc">${e.id ? `<button class="link" style="margin:0;font-size:inherit;text-align:left" data-wk="${esc(e.id)}">${esc(e.w)}</button>` : esc(e.w)}${srcDet(e.src)}</span><span class="r">${e.a}</span></div>`;
+    return `<section class="sec" id="near"><div class="sh"><h2>Ближайшие деньги и сроки</h2><span class="c">${dmY(y)}–${dmY(end)}; поступления только по таблице Лены${G ? '' : ' (не подключена)'}${SP ? '' : ', реестр платежей не получен'}</span><button class="link" data-go="money">4 недели</button></div>
+      ${ev.length || late ? `<div class="tbl near">${late}${lim('near', ev, 6).map(line).join('')}</div>${moreBtn('near', ev, 6, ['строка', 'строки', 'строк'])}` : '<div class="hint">На 7 дней в полученных данных поступлений, обязательных платежей и сроков ваших дел нет.</div>'}</section>`;
+  }
+  function teamHTML(o) {
+    const L = o.filter((t) => t.who === 'Лена'), C = o.filter((t) => t.who === 'Claude'), W = o.filter((t) => t.who === 'клиент' || t.who === 'эксперт');
+    const oldest = W.reduce((mx, t) => { const s = parseRu(t.waitSince); return s ? Math.max(mx, Math.round((today - s) / MS)) : mx; }, 0);
+    const near = (a) => { const x = a.filter((t) => t.dd !== null).sort(order)[0]; return x ? 'ближайшее: ' + x.short.slice(0, 40) + ' · ' + dueTxt(x) : 'сроков нет'; };
+    const proj = (D.summary || []).filter((s) => s.section === 'Проекты');
+    return `<section class="sec" id="team"><div class="sh"><h2>Команда и ожидания</h2><span class="c">цифра открывает «Все дела» с тем же фильтром</span></div>
+      <div class="team"><button data-go="all" data-who="Лена"><b>${L.length}</b>ведёт Лена<span>${esc(near(L))}</span></button><button data-go="all" data-who="Claude"><b>${C.length}</b>ведёт Claude<span>${esc(near(C))}</span></button>
+      <button data-go="all" data-who="клиент"><b>${W.length}</b>ждём клиента<span>${oldest ? 'дольше всех ' + oldest + ' дн' : 'от нас ничего не нужно'}</span></button>${proj.length ? `<button data-bucket="proj" aria-expanded="${openB === 'proj'}"><b>${proj.length}</b>проекты<span>${proj.filter((p) => p.flag === 'warn' || p.flag === 'срочно').length} ждут вашего шага</span></button>` : ''}</div>
+      ${openB === 'proj' ? `<div class="rows" style="padding:12px 14px"><div class="projects">${proj.map((p) => `<div class="pj"><span class="dot" style="background:${p.flag === 'ok' ? 'var(--ok)' : 'var(--warn)'}"></span><span><b>${esc(p.text.split(':')[0])}</b>${esc(p.text.slice(p.text.split(':')[0].length))}</span></div>`).join('')}</div></div>` : ''}</section>`;
   }
   function utro() {
     const m = mine(), o = T.filter(isOpen), week = unverified();
     if (portion * PORTION >= m.length) portion = 0;
     const shown = m.slice(portion * PORTION, portion * PORTION + PORTION), rest = m.length - (portion + 1) * PORTION;
-    const upd = FRESH.upd, fresh = FRESH.sameDay;
-    // «Утро разобрано» только если список «Утра» за сегодня есть и пуст; без списка или со старыми данными — так и пишем
+    const upd = FRESH.upd, fresh = FRESH.sameDay, nx = FRESH.nextS ? (FRESH.dm(FRESH.nextS) === FRESH.dm(now) ? '' : FRESH.dm(FRESH.nextS) + ' ') + FRESH.hm(FRESH.nextS) : '';
+    // «Решений не требуется» только если сегодняшний список есть и пуст; без списка или со старыми данными — так и пишем
     const listToday = fresh && (D.summary || []).length > 0;
-    const g = money(), wait = g.find((x) => x.k === 'ждём'), late = g.reduce((x, y) => x + y.late, 0);
-    const wc = o.filter((t) => t.who === 'клиент' || t.who === 'эксперт');
-    const oldest = wc.reduce((mx, t) => { const s = parseRu(t.waitSince); return s ? Math.max(mx, Math.round((today - s) / MS)) : mx; }, 0);
-    const team = o.filter((t) => t.who === 'Лена' || t.who === 'Claude'), teamHot = team.filter((t) => t.hot);
-    const proj = (D.summary || []).filter((s) => s.section === 'Проекты');
+    const G = D.garanty && D.garanty.connected ? D.garanty : null;
+    const gO = G ? G.rows.filter(garOpen) : [], gSum = (k) => gO.filter((r) => garKind(r) === k).reduce((x, r) => x + (Number(r.remain ?? r.amount) || 0), 0);
+    const moneyLine = !G ? 'Таблица Лены не подключена: прогноза поступлений нет.' : `По таблице Лены ждём: гарант ${num(gSum('gar'))}${gSum('prog') ? `, ещё обсуждаем ${num(gSum('prog'))}` : ''}.`;
     const dn = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
-    const bucket = (k, n, title, sub) => `<button class="bk" data-bucket="${k}" aria-expanded="${openB === k}"><span class="n">${n}</span><span class="k">${title}</span><span class="s">${sub}</span></button>`;
-    const bl = openB === 'wait' ? wc.sort(order) : openB === 'team' ? (teamHot.length ? teamHot : team).sort(order) : openB === 'week' ? week : [];
-    const moneyTot = g.reduce((x, y) => x + y.s, 0);
-    const moneyLine = !moneyTot ? 'Сумм в пути в данных нет.' : !wait.s ? 'Оплат в ожидании в данных нет.' : wait.sv ? `Ждём оплату ${rub(wait.sv)}, сверено сегодня${wait.sv < wait.s ? `; ещё ${rub(wait.s - wait.sv)} без сегодняшней сверки` : ''}.` : `Ждём оплату ${rub(wait.s)}, сегодня не сверено.`;
     const status = !fresh ? `<div class="warnline">Данные от ${FRESH.dm(upd)} ${FRESH.hm(upd)} МСК: сегодня сводку ещё не выкладывали, цифры могут быть устаревшими.</div>` : FRESH.late ? `<div class="warnline">Данные собраны в ${FRESH.hm(upd)} МСК, выкладка ${FRESH.hm(FRESH.lastS)} не пришла. Всё ниже — на ${FRESH.hm(upd)}.</div>` : '';
     const unsent = (outbox.length || inflight) && !sending ? `<div class="warnline">${plural(outbox.length, 'отметка не отправлена', 'отметки не отправлены', 'отметок не отправлено')}, они сохранены в этом браузере. <button class="link" style="margin:0" data-retry>Отправить снова</button></div>` : '';
     const top = shown.slice(0, portion ? 0 : 3), more = shown.slice(top.length);
-    const cover = `<div class="cover"><span>${m.length ? `Проверено «Утром» сегодня: <b>${plural(m.length, 'дело', 'дела', 'дел')}</b>. Это не полный список.` : 'Сегодня «Утро» ещё не сверило ни одного вашего дела.'}${week.length ? ` Ещё <b>${week.length}</b> ${plural(week.length, 'ваше дело пока не сверено', 'ваших дела пока не сверены', 'ваших дел пока не сверено').replace(/^\d+ /, '')}.` : ''}</span>${week.length ? `<button class="link" data-bucket="week">Показать несверенные</button>` : ''}</div>`;
+    // Полнота сверки по всем открытым делам: сколько проверено по источнику сегодня и у скольких даты проверки нет вовсе
+    const own = T.filter((t) => !t.fromSummary), allN = own.length, allToday = own.filter((t) => okToday(t.checked)).length, allNone = own.filter((t) => !String(t.checked || '').trim()).length;
+    const cover = allN ? `<div class="cover"><span>Во всех открытых делах: сверено сегодня <b>${allToday}</b> из <b>${allN}</b>${allNone ? `, без даты сверки <b>${allNone}</b>` : ''}. Решения ниже — только по сверенным с источником.</span></div>` : '';
+    const gapN = allN - allToday;
+    const gapH1 = `Контроль неполный: проверено <em style="color:var(--warn)">${allToday} из ${allN}</em>`;
+    // 30.10: одно сверенное дело не должно прятать, что остальные не сверены — неполнота видна и рядом с решениями
+    const h1 = m.length ? `Требуют вашего решения: <em>${plural(m.length, 'дело', 'дела', 'дел')}</em>${gapN ? `<span class="h1gap">${gapH1}</span>` : ''}` : gapN ? `Контроль неполный: проверено <em style="color:var(--warn)">${allToday} из ${allN}</em>` : listToday ? 'Решений от вас сегодня не требуется' : 'Список дел на сегодня ещё не собран';
+    // 29.10 (Jonas): при непроверенных делах не успокаиваем «ничего срочного» — показываем дыру в контроле и действие
+    const gapIds = own.filter((t) => !okToday(t.checked)).map((t) => t.id);
+    const gapB = gapN ? `<div class="gap" role="alert"><b>Срочность ${plural(gapN, 'дела', 'дел', 'дел')} не подтверждена: сегодня не сверено с источником ${gapN} из ${allN}${allNone ? `, у ${allNone} нет даты сверки вовсе` : ''}.</b><span>Сказать «ничего срочного» нельзя: среди непроверенных могут быть просрочки и деньги.${week.length ? ` Ваших среди них — ${week.length}.` : ''}${nx ? ' Следующая сборка ' + nx + '.' : ''}</span><span class="gap-acts"><button class="btn" data-gapclaude>Поручить Claude сверить ${gapN} сейчас</button>${week.length ? `<button class="link" data-go="utro" data-anchor="unchecked">Показать мои непроверенные (${week.length})</button>` : ''}</span></div>` : '';
+    const empty = gapN ? gapB : `<div class="empty"><b>${listToday ? 'Решений не требуется' : 'Проверенного списка ещё нет'}</b><span>${listToday ? 'Ниже — что изменилось, ближайшие деньги и чем занята команда.' : 'Ветка «Утро и задачи» ещё не выложила проверенный список. Показать нечего, это не значит, что дел нет.'}</span></div>`;
     return `<section class="lead"><div class="day">${cap(dn)}</div>
       ${status}${unsent}
-      <h1>${m.length ? `Сегодня от вас <em>${plural(m.length, 'дело', 'дела', 'дел')}</em>` : week.length ? `${plural(week.length, 'дело от вас ждёт', 'дела от вас ждут', 'дел от вас ждут')} сверки «Утра»` : listToday ? 'Утро разобрано' : 'Список дел на сегодня ещё не собран'}</h1>
-      <p class="sub" style="margin:0;font-size:15px">${moneyLine}${wc.length ? ` ${plural(wc.length, 'дело ждёт', 'дела ждут', 'дел ждут')} клиента.` : ''}</p>
+      <h1>${h1}</h1>
+      <p class="sub" style="margin:0;font-size:16px">${moneyLine}${week.length ? ` ${plural(week.length, 'ваше дело ждёт', 'ваших дела ждут', 'ваших дел ждут')} проверки.` : ''}</p>
       ${cover}</section>
-    <section class="sec"><div class="sh"><h2>Нужно от вас${top.length ? ': ' + (top.length === 3 ? 'три главных' : 'главное') : ''}</h2><span class="c">только сверенное сегодня с источником · сборка ${fresh ? '' : FRESH.dm(upd) + ' '}${FRESH.hm(upd)}${m.length > PORTION ? ' · порция ' + (portion + 1) + ' из ' + Math.ceil(m.length / PORTION) : ''}</span>${m.length > PORTION ? `<button class="link" data-portion>${rest > 0 ? 'Следующие ' + Math.min(rest, PORTION) : 'К началу'}</button>` : ''}</div>
-      ${top.length ? `<div class="rows prio n${top.length}">${top.map(pcard).join('')}</div>` : ''}${more.length ? `<div class="rows">${more.map((t) => row(t)).join('')}</div>` : ''}${shown.length ? `<div class="cta">${`<button class="btn" data-focus>Разобрать по одному <kbd style="background:transparent;color:inherit;border-color:currentColor;opacity:.7">R</kbd></button>`}<span class="hint desk">Одно дело на экране: я выполнила, отложить или поручить Claude</span></div>` : week.length ? `<div class="hint">Сверенных «Утром» дел на сегодня нет. ${plural(week.length, 'дело ждёт', 'дела ждут', 'дел ждут')} сверки, они в корзине «Ждут сверки» ниже и не выдаются за проверенные.</div>` : `<div class="hint">${listToday ? esc(/следующее/.test($('#fresh').textContent) ? $('#fresh').textContent.replace(/^.*следующее/, 'Следующее обновление') : 'Новых дел нет') : 'Ветка «Утро и задачи» ещё не выложила проверенный список. Показать нечего, это не значит, что дел нет.'}</div>`}</section>
-    ${weekHTML()}
-    <section class="sec"><div class="sh"><h2>Деньги</h2><span class="c">этапы по карточкам дел; банк отдельно</span><button class="link" data-go="money">Подробно</button></div>${stripHTML(g, 'money')}${bankHTML()}</section>
-    ${journalHTML()}
-    ${autoHTML()}
-    <section class="sec"><div class="sh"><h2>Остальное</h2><span class="c">свёрнуто, откройте нужное</span></div>
-      <div class="buckets">${bucket('week', week.length, 'Ждут сверки', week.length ? 'ваши дела, «Утро» ещё не проверило' : 'всё проверено')}${bucket('wait', wc.length, 'Ждём клиента', oldest ? 'самое долгое ожидание ' + oldest + ' дн' : 'от нас ничего не нужно')}
-      ${bucket('team', teamHot.length, 'Горит у команды', 'Лена и Claude ведут ' + plural(team.length, 'дело', 'дела', 'дел'))}
-      ${bucket('proj', proj.length, 'Проекты', proj.filter((p) => p.flag === 'warn' || p.flag === 'срочно').length + ' ждут вашего шага')}</div>
-      ${openB === 'proj' ? `<div class="rows" style="padding:12px 14px"><div class="projects">${proj.map((p) => `<div class="pj"><span class="dot" style="background:${p.flag === 'ok' ? 'var(--ok)' : 'var(--warn)'}"></span><span><b>${esc(p.text.split(':')[0])}</b>${esc(p.text.slice(p.text.split(':')[0].length))}</span></div>`).join('')}</div></div>` : ''}
-      ${bl.length ? `<div class="rows">${bl.slice(0, 15).map((t) => row(t, {check: openB === 'week'})).join('')}</div>${bl.length > 15 ? `<button class="link" style="margin:0" data-go="all" data-who="${openB === 'wait' ? 'клиент' : 'team'}">Все ${bl.length}</button>` : ''}` : ''}
-    </section>`;
+    <section class="sec" id="decide"><div class="sh"><h2>Требует вашего решения</h2><span class="c">только сверенное сегодня с источником · сборка ${fresh ? '' : FRESH.dm(upd) + ' '}${FRESH.hm(upd)}${m.length > PORTION ? ' · порция ' + (portion + 1) + ' из ' + Math.ceil(m.length / PORTION) : ''}</span>${m.length > PORTION ? `<button class="link" data-portion>${rest > 0 ? 'Следующие ' + Math.min(rest, PORTION) : 'К началу'}</button>` : ''}</div>
+      ${top.length ? `<div class="rows prio n${top.length}">${top.map(pcard).join('')}</div>` : ''}${more.length ? `<div class="rows">${more.map((t) => row(t)).join('')}</div>` : ''}${shown.length ? `<div class="cta"><button class="btn" data-focus>Разобрать по одному <kbd style="background:transparent;color:inherit;border-color:currentColor;opacity:.7">R</kbd></button><span class="hint desk">Одно дело на экране: я выполнила, отложить или поручить Claude</span></div>${gapB}` : empty}</section>
+    ${changesHTML()}
+    ${nearHTML()}
+    ${week.length ? `<section class="sec" id="unchecked"><div class="sh"><h2>Не проверено сегодня</h2><span class="c">${plural(week.length, 'ваше дело', 'ваших дела', 'ваших дел')}: сегодня не сверены с источником, срочность не подтверждена${nx ? ' · следующая сборка ' + nx : ''}</span></div><div class="rows">${lim('unch', week, 3).map((t) => row(t)).join('')}</div>${moreBtn('unch', week, 3)}</section>` : ''}
+    ${lenaCard(false)}
+    ${feedHTML()}
+    ${teamHTML(o)}
+    ${autoHTML()}`;
   }
 
   function all() {
@@ -659,19 +899,105 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
       ${chips.map(([k, l]) => `<button class="chip" data-who="${k}" aria-pressed="${who === k}">${l}</button>`).join('')}</div>
       <div class="tools">${secs.map((s) => `<button class="chip" data-sec="${s}" aria-pressed="${sec === s}">${s === 'all' ? 'Все разделы' : s}</button>`).join('')}</div>
       <div class="sh"><h2>${plural(o.length, 'дело', 'дела', 'дел')}</h2><span class="c">${plural(groups.length, 'клиент', 'клиента', 'клиентов')} и направлений</span></div>
-      ${groups.length ? `<div class="rows grp">${groups.map(([c, ts]) => { const op = q || who !== 'all' || sec !== 'all' || groups.length <= 3 || openG.has(c) || ts.some((t) => t.hot); return `<button class="gh" data-g="${esc(c)}" aria-expanded="${op}"><span class="car">${op ? '▾' : '▸'}</span>${esc(c)}<span class="c">${plural(ts.length, 'дело', 'дела', 'дел')}${!op ? ' · ' + esc(ts[0].short) : ''}</span><span class="am">${rub(ts.reduce((x, t) => x + t.a, 0))}</span></button>${op ? ts.map((t) => row(t, {noClient: true, reopen: who === 'marked'})).join('') : ''}`; }).join('')}</div>` : '<div class="empty"><b>Ничего не нашлось</b><span>Поменяйте фильтр или слово для поиска.</span></div>'}</section>`;
+      ${groups.length ? `<div class="rows grp">${lim('grp', groups, 15).map(([c, ts]) => { const op = q || who !== 'all' || sec !== 'all' || groups.length <= 3 || openG.has(c) || ts.some((t) => t.hot); return `<button class="gh" data-g="${esc(c)}" aria-expanded="${op}"><span class="car">${op ? '▾' : '▸'}</span>${esc(c)}<span class="c">${plural(ts.length, 'дело', 'дела', 'дел')}${!op ? ' · ' + esc(ts[0].short) : ''}</span><span class="am">${rub(ts.reduce((x, t) => x + t.a, 0))}</span></button>${op ? ts.map((t) => row(t, {noClient: true, reopen: who === 'marked'})).join('') : ''}`; }).join('')}</div>${moreBtn('grp', groups, 15, ['клиент', 'клиента', 'клиентов'])}` : '<div class="empty"><b>Ничего не нашлось</b><span>Поменяйте фильтр или слово для поиска.</span></div>'}</section>
+      ${who === 'all' && sec === 'all' && !q ? weekHTML() + trebHTML() : ''}`;
+  }
+  // Требования Ольги → существующее дело базы → проверка. Своего списка задач тут нет: только ссылка на дело по его id.
+  function trebHTML() {
+    const R = D.trebovaniya;
+    if (!R) return '<section class="sec" id="treb"><div class="sh"><h2>Требования Ольги</h2></div><div class="hint">Реестр требований не получен.</div></section>';
+    const rows = R.rows, n = (f) => rows.filter(f).length;
+    const ST = {pass: ['p-ok', 'проверено'], manual: ['p-wait', 'проверка вручную'], none: ['p-warn', 'проверки нет'], fail: ['p-hot', 'не прошло']};
+    const task = (r) => { const t = r.task === 'open' && T.find((x) => x.id === r.taskId); return t ? `<button class="link" style="margin:0;text-align:left;font-size:inherit" data-wk="${esc(t.id)}">${esc(t.short)}</button>` : r.task === 'closed' ? `<span class="na">дело ${esc(r.taskId)} закрыто</span>` : r.task === 'missing' ? `<span class="unk">дело ${esc(r.taskId)} не найдено</span>` : '<span class="unk">дела нет</span>'; };
+    return `<section class="sec" id="treb"><details class="rows" style="padding:10px 14px"><summary><b>Требования Ольги · ${rows.length}</b> <span class="hint">проверено ${n((r) => r.check.status === 'pass')}, вручную ${n((r) => r.check.status === 'manual')}, без проверки ${n((r) => r.check.status === 'none')}; связано с делом ${n((r) => r.task === 'open')}</span></summary>
+      <div class="tbl treb" style="margin-top:10px"><div class="tr th"><span>№</span><span>Требование</span><span>Дело</span><span>Проверка</span></div>${rows.map((r) => { const [c, l] = ST[r.check.status] || ST.none; return `<div class="tr"><span class="num">${esc(r.id)}</span><span>${esc(r.text)}${r.gap ? `<br><span class="hint">пробел: ${esc(r.gap)}</span>` : ''}</span><span>${task(r)}</span><span><span class="pill ${c}">${l}</span>${r.check.how ? srcDet(r.check.how + (r.check.at ? ' · ' + r.check.at : ''), 'как') : ''}</span></div>`; }).join('')}</div>
+      ${srcDet(R.built, 'источник')}</details></section>`;
   }
 
+  // ---------- Деньги: 4 недели по МСК. Поступления — только таблица Лены (гарант / прогноз), списания — реестр Бухгалтерии, банк — выписки ----------
+  let wsel = '';
+  function weeksHTML() {
+    const y = FRESH.todayYmd, w0 = addD(y, -((new Date(y + 'T12:00:00Z').getUTCDay() + 6) % 7));
+    const W = [0, 1, 2, 3].map((i) => ({s: addD(w0, 7 * i), e: addD(w0, 7 * i + 6)}));
+    const G = D.garanty && D.garanty.connected ? D.garanty.rows : null, SP = D.spisaniya ? D.spisaniya.rows : null, BK = (D.bank && D.bank.days) || [];
+    const has = (v) => v !== null && v !== undefined;
+    const CAT = [['bank', 'Банк: выписки и уведомления'], ['gar', 'Гарант (Лена)'], ['prog', 'Прогноз (Лена)'], ['must', 'Обязательные списания']];
+    const items = (c, w) => c === 'bank' ? BK.filter((x) => x.date >= w.s && x.date <= w.e).map((x) => ({d: x.date, w: x.account, inn: +x.in || 0, out: x.pon ? 0 : +x.out || 0, nt: bkSrc(x).note, src: bkSrc(x).kind + ' на ' + bkSrc(x).asOf + ' · ' + (x.src || '')}))
+      : c === 'gar' || c === 'prog' ? (G || []).filter((r) => garOpen(r) && garKind(r) === c && r.date && r.date >= w.s && r.date <= w.e).map((r) => ({d: r.date, w: r.client + (r.doc ? ' · ' + r.doc : ''), a: Number(r.remain ?? r.amount) || 0, src: (r.id || '') + ' · ' + (r.src || '')}))
+      : (SP || []).filter((r) => r.kind !== 'reference' && !r.paid && r.date >= w.s && r.date <= w.e).map((r) => ({d: r.date, w: r.who + ': ' + r.what, a: has(r.amount) ? Number(r.amount) : null, src: r.src}));
+    const cell = (c, w, a) => {
+      if (c === 'bank') { if (w.s > y) return ['впереди', '']; if (!a.length) return ['выписок нет', 'за эти дни выписки не прочитаны']; const inn = a.reduce((x, i) => x + i.inn, 0), out = a.reduce((x, i) => x + i.out, 0); return [`<span class="plus">+${num(inn)}</span> / <span class="minus">−${num(out)}</span>`, 'охват: ' + [...new Set(a.map((i) => i.w))].join(', ') + ' · ' + [...new Set(a.map((i) => dmY(i.d)))].join(', ') + (a.some((i) => i.nt) ? '; ' + a.filter((i) => i.nt).map((i) => dmY(i.d)).join(', ') + ' — по уведомлениям, не выписка' : '')]; }
+      if ((c === 'gar' || c === 'prog') && !G) return ['не подключено', 'таблица Лены не подключена'];
+      if (c === 'must' && !SP) return ['не получен', 'реестр списаний не получен'];
+      if (!a.length) return ['<span class="na">нет записей со сроком</span>', c === 'must' ? 'в реестре списаний на эти даты строк нет' : 'в таблице Лены нет строк с датой на эту неделю'];
+      const unk = a.filter((i) => i.a === null).length;
+      const tot = a.reduce((x, i) => x + (i.a || 0), 0);
+      return [tot.toLocaleString('ru-RU', {maximumFractionDigits: 2}), plural(a.length, 'строка', 'строки', 'строк') + (a.length <= 2 ? ': ' + a.map((i) => i.w + (i.a !== null ? ' ' + rubX(i.a) : '')).join('; ') : '') + (unk ? `, у ${unk} сумма неизвестна` : '')];
+    };
+    const yr = (d) => dmY(d) + '.' + d.slice(0, 4);
+    const card = (w, i) => `<div class="wc"><h3>${['Эта неделя', 'Следующая', 'Через одну', 'Четвёртая'][i]}<small>${dmY(w.s)}–${yr(w.e)}, пн–вс, МСК</small></h3>
+      ${CAT.map(([c, l]) => { const [v, note] = cell(c, w, items(c, w)), key = i + ':' + c; return `<button class="wl" data-wsel="${key}" aria-pressed="${wsel === key}"><span>${l}</span><span class="r">${v}</span>${note ? `<small>${esc(note)}</small>` : ''}</button>`; }).join('')}
+      <div class="wl" style="cursor:default"><span>Остаток на конец недели</span><span class="r na">не считаю</span></div></div>`;
+    let det = '';
+    if (wsel) { const [i, c] = wsel.split(':'), w = W[+i], a = w ? items(c, w) : [], l = (CAT.find((x) => x[0] === c) || [])[1];
+      if (w) det = `<div class="wdet"><div class="sh"><h2 style="font-size:16px">${l}, ${dmY(w.s)}–${yr(w.e)}</h2><button class="link" data-wsel="${wsel}">Закрыть</button></div>${a.length ? `<div class="cal">${a.map((x) => `<div class="cd"><span class="dt">${dmY(x.d)}</span><span class="wt">${esc(x.w)}${srcDet(x.src)}</span><span class="num">${c === 'bank' ? `<span class="plus">+${num(x.inn)}</span> / <span class="minus">−${num(x.out)}</span>` : x.a === null ? 'сумма неизвестна' : rubX(x.a)}</span></div>`).join('')}</div>` : '<div class="hint">Строк нет.</div>'}</div>`; }
+    const late = G ? G.filter((r) => garOpen(r) && garKind(r) !== 'no' && r.date && r.date < W[0].s) : [], noDate = G ? G.filter((r) => garOpen(r) && garKind(r) !== 'no' && !r.date) : [];
+    const sLate = SP ? SP.filter((r) => r.kind !== 'reference' && !r.paid && r.date < W[0].s) : [];
+    const sumR = (a) => a.reduce((x, r) => x + (Number(r.remain ?? r.amount) || 0), 0);
+    const bal = D.buh_plan && D.buh_plan.balance, accs = bal && bal.accounts ? bal.accounts : [];
+    const lastBk = (acc) => BK.filter((x) => x.account === acc && x.close !== null && x.close !== undefined).sort((a, b) => a.date.localeCompare(b.date)).pop();
+    const accTxt = (a) => { const b = lastBk(a.account); return esc(a.account) + ' на ' + esc(a.date) + ' (' + esc(a.src || 'источник не указан') + ')' + (b && bkSrc(b).note ? `, по уведомлениям на ${esc(bkSrc(b).asOf)} — ${rubX(b.close)}, выпиской ещё не подтверждён` : ''); };
+    const why = bal && bal.complete ? '' : accs.length ? `известен только остаток ${accs.map(accTxt).join('; ')}; остальные счета и их потоки не видны, поэтому вперёд остаток не продолжаю` : 'остатков на начало в данных нет';
+    return `<section class="sec" id="weeks"><div class="sh"><h2>Деньги на 4 недели</h2><span class="c">поступления только по таблице Лены: гарант отдельно от прогноза; обязательные списания по реестру Бухгалтерии; банк — прочитанные выписки и уведомления банка, источник у каждой строки</span></div>
+      ${late.length || sLate.length || noDate.length ? `<div class="hint">${late.length ? `До ${dmY(W[0].s)} не закрыто обещаний в таблице Лены: <b>${plural(late.length, 'строка', 'строки', 'строк')}</b> на <b>${num(sumR(late))}</b>. ` : ''}${sLate.length ? `Не оплачено обязательных платежей прошлых дат: <b>${sLate.length}</b>. ` : ''}${noDate.length ? `Без срока в таблице Лены: ${plural(noDate.length, 'строка', 'строки', 'строк')} на ${num(sumR(noDate))} — в недели не ставлю, список ниже.` : ''}</div>` : ''}
+      <div class="w4">${W.map(card).join('')}</div>${det}
+      <div class="hint">Остаток не считаю: ${why}. Счета разных лиц не складываю.</div>
+      ${accHTML()}</section>`;
+  }
+  // Точность прогноза: только по прогнозу, сохранённому в понедельник недели, и оплатам из банка по тем же ID
+  function accHTML() {
+    const A = D.accuracy;
+    if (!A) return '<div class="hint">Точность прогноза: данных нет.</div>';
+    if (!A.weeks || !A.weeks.length) return `<div class="hint"><b>Точность прогноза: начинаем сбор.</b> ${A.first ? `Прогноз по таблице Лены впервые сохранён ${esc(A.savedAt ? FRESH.dm(new Date(A.savedAt)) + ' ' + FRESH.hm(new Date(A.savedAt)) : dmY(A.first))}${A.firstPartial ? ', в середине недели — эта неделя в оценку не идёт' : ''}. Первая оценка появится после недели, прогноз которой сохранён в её понедельник.` : 'Прогноз ещё не сохранялся.'} Задним числом не считаю.</div>`;
+    return `<div class="tbl"><div class="tr th"><span>Неделя</span><span>Что</span><span class="r">Обещано</span><span class="r">Пришло по банку</span><span class="r">Доля</span></div>${A.weeks.map((w) => `<div class="tr"><span class="num">${dmY(w.week)}</span><span>${esc(w.kind || 'гарант')}, ${plural(w.n, 'строка', 'строки', 'строк')}</span><span class="r c3">${num(w.promised)}</span><span class="r c4">${num(w.cameBank)}</span><span class="r c5">${w.promised ? Math.round(w.cameBank / w.promised * 100) + ' %' : '—'}</span></div>`).join('')}</div>`;
+  }
+  // Продления и ИК: контроль сроков, в прогноз денег не входят (прогноз денег — только таблица Лены)
+  function fsaHTML() {
+    const P = D.prognoz, ik = T.filter((t) => isOpen(t) && /(^|[^а-яё])ик([^а-яё]|$)|инспекц|продлен/i.test(t.title + ' ' + t.short)).sort(order);
+    const stale = P && P.built && P.built < addD(FRESH.todayYmd, -7);
+    return `<section class="sec" id="fsa"><div class="sh"><h2>Продления и инспекционный контроль</h2><span class="c">контроль сроков по реестру ФСА; в прогноз денег не входит</span></div>
+      ${P && P.months ? `${stale ? `<div class="autoh">Реестр продлений от ${dmY(P.built)}: старше недели, сроки могли измениться.</div>` : ''}<div class="tbl fsa"><div class="tr th"><span>Месяц</span><span>Продления</span><span class="r">ИК</span></div>${P.months.slice(0, 6).map((m) => `<div class="tr"><span>${esc((m.label || m.month).replace(/ 20\d\d$/, ''))}</span><span class="acc">${m.n_docs ? plural(m.n_docs, 'документ', 'документа', 'документов') + ' у ' + plural(m.n_clients, 'клиента', 'клиентов', 'клиентов') + (m.who ? ': ' + esc(m.who) : '') : '<span class="na">нет</span>'}</span><span class="r">${m.ik ? m.ik + ' ИК у ' + plural(m.ik_clients, 'клиента', 'клиентов', 'клиентов') : '<span class="na">нет</span>'}</span></div>`).join('')}</div>${srcDet((P.source || '') + (P.built ? ' · собрано ' + P.built : ''))}` : '<div class="hint">Реестр продлений не получен.</div>'}
+      ${ik.length ? `<div class="rows">${lim('ik', ik, 5).map((t) => row(t, {check: false})).join('')}</div>${moreBtn('ik', ik, 5)}` : '<div class="hint">Открытых дел по ИК и продлениям нет.</div>'}</section>`;
+  }
+  // Обещания без срока: честно отдельным блоком и одно действие «уточнить даты» со списком. Даты не придумываем, клиентам не пишем.
+  function noDateHTML() {
+    const G = D.garanty && D.garanty.connected ? D.garanty.rows : null;
+    if (!G) return '';
+    const a = G.filter((r) => garOpen(r) && garKind(r) === 'gar' && !r.date).sort((x, y) => (y.remain ?? y.amount ?? 0) - (x.remain ?? x.amount ?? 0));
+    if (!a.length) return '';
+    const s = a.reduce((x, r) => x + (Number(r.remain ?? r.amount) || 0), 0), mon = (m) => m ? dmY(m).slice(3) : '';
+    return `<section class="sec" id="nodate"><div class="sh"><h2>Гаранты без срока</h2><span class="c">${plural(a.length, 'обещание', 'обещания', 'обещаний')} на ${rubX(s)}; в недели не попадают, пока нет даты</span></div>
+      <div class="rows"><div class="ln" style="padding:10px 14px"><b>Действие: уточнить даты ${plural(a.length, 'обещания', 'обещаний', 'обещаний')}.</b> Кто: Лена ставит срок в своей таблице (столбец срока). Срок контроля: следующий обмен с таблицей. Даты за неё не ставим, клиентам не пишем.</div>
+      ${lim('nodate', a, 8).map((r) => `<div class="tr" style="display:grid;grid-template-columns:1fr auto;gap:8px;padding:8px 14px;border-top:1px solid var(--line)"><span>${esc(r.client)}${r.doc ? ' · ' + esc(r.doc) : ''} <span class="na">${esc(r.id || '')}${r.month ? ', ' + mon(r.month) : ''}</span>${srcDet(r.src || '')}</span><span class="r num">${rubX(Number(r.remain ?? r.amount) || 0)}</span></div>`).join('')}</div>${moreBtn('nodate', a, 8)}</section>`;
+  }
   function moneyTab() {
     const g = money(), o = T.filter(isOpen);
-    const list = o.filter((t) => t.a > 0 && (mf ? t.money === mf : true)).sort((x, y) => y.a - x.a).slice(0, 15);
+    const list = o.filter((t) => t.a > 0 && (mf ? t.money === mf : true)).sort((x, y) => y.a - x.a);
     const adv = o.filter((t) => /аванс/i.test(t.title) && /без акт/i.test(t.title)), advS = adv.reduce((x, t) => x + t.a, 0);
-    const P = D.prognoz;
-    return `<section class="sec"><div class="sh"><h2>От счёта до поступления</h2><span class="c">по карточкам дел; нажмите на этап, чтобы отфильтровать</span></div>${stripHTML(g, '')}${bankHTML()}</section>
-    <div class="money-grid"><section class="sec"><div class="sh"><h2>${mf ? [...STAGES, CHECK].find((s) => s[0] === mf)[1] : 'Крупные суммы'}</h2>${mf ? '<button class="link" data-mf="">Все этапы</button>' : ''}</div>
-      ${list.length ? `<div class="rows">${list.map((t) => row(t, {check: false})).join('')}</div>` : '<div class="empty"><b>На этом этапе пусто</b></div>'}
-      ${advS ? `<div class="sub">Получено авансом без актов: <b class="num">${full(advS)}</b> (${plural(adv.length, 'запись', 'записи', 'записей')}). Нужны акты, иначе это долг перед клиентом.</div>` : ''}</section>
-      ${P && P.months ? `<section class="sec"><div class="sh"><h2>Продления по ФСА</h2><span class="c">ожидаемо за 6 мес.</span></div><div class="chart"><div class="big">${full(P.next6_expected)}</div><div class="sub">из возможных ${full(P.next6_potential)}</div>${chart(P.months.slice(0, 12))}<div class="tip" id="tip"></div><div class="cap">Тёмный столбец ожидаемо, светлый если продлят все. ${esc(P.source || '')}</div></div></section>` : ''}</div>`;
+    const nd = noDateHTML();
+    // На телефоне вкладка длинная (~10 000 px): быстрые переходы к разделам сверху
+    const J = [['weeks', '4 недели'], ...(nd ? [['nodate', 'Без срока']] : []), ['garanty', 'Таблица Лены'], ['garanty-all', 'Реестр гарантов'], ['fsa', 'Продления'], ['bank', 'Банк']];
+    return `<nav class="jump" aria-label="Разделы вкладки">${J.map(([a, l]) => `<button class="link" data-go="money" data-anchor="${a}">${l}</button>`).join('')}</nav>
+    ${weeksHTML()}
+    ${nd}
+    ${lenaCard(true)}
+    ${garMoney()}
+    ${fsaHTML()}
+    <section class="sec" id="bank"><div class="sh"><h2>Банк: выписки и уведомления</h2><span class="c">только охваченные счета и дни; у каждой строки свой источник и время</span></div>${bankTable(D.bank && D.bank.days)}</section>
+    <section class="sec"><div class="sh"><h2>Счета и подписи по делам</h2><span class="c">этапы работы с клиентом; это не прогноз поступлений</span></div>${stripHTML(g, '')}</section>
+    <section class="sec"><div class="sh"><h2>${mf ? [...STAGES, CHECK].find((s) => s[0] === mf)[1] : 'Крупные суммы в делах'}</h2>${mf ? '<button class="link" data-mf="">Все этапы</button>' : ''}</div>
+      ${list.length ? `<div class="rows">${lim('big', list, 6).map((t) => row(t, {check: false})).join('')}</div>${moreBtn('big', list, 6)}` : '<div class="empty"><b>На этом этапе пусто</b></div>'}
+      ${advS ? `<div class="sub">Получено авансом без актов: <b class="num">${full(advS)}</b> (${plural(adv.length, 'запись', 'записи', 'записей')}). Нужны акты, иначе это долг перед клиентом.</div>` : ''}</section>`;
   }
   // ---------- Бухгалтерия: план ≠ факт ≠ справочно; чего нет в данных — пишем, что не получено ----------
   const rubX = (a) => Number(a).toLocaleString('ru-RU', {maximumFractionDigits: 2}) + ' ₽';
@@ -704,13 +1030,14 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
     const conf = (r) => r.bankConfirmed || !!r.confirmedBy;
     const toPay = grp((r) => r.kind !== 'reference' && !r.paid), paidOk = grp((r) => r.kind !== 'reference' && r.paid && conf(r)), paid = grp((r) => r.kind !== 'reference' && r.paid && !conf(r)), ref = grp((r) => r.kind === 'reference');
     const sum = (a) => a.reduce((x, r) => x + (Number(r.amount) || 0), 0);
-    const list = (a) => a.map((r) => { const [c, l] = kindOf(r); return `<div class="cd"><span class="dt">${dmY(r.date)}</span><span class="wt"><span class="kd ${c}">${l}</span>${esc(r.who)}: ${esc(r.what)}<small>${r.paidOn ? 'поступило ' + dmY(r.paidOn) + (r.basis ? ' (' + esc(r.basis) + ')' : '') + (r.plan ? ', план был ' + dmY(r.plan) : '') + ' · ' : ''}${esc(r.state || '')}${conf(r) && r.bankNote ? ' · ' + esc(r.bankNote) : ''}${r.paid && !conf(r) && r.paidSrc ? ' · ' + esc(r.paidSrc) : ''}${r.paid && !conf(r) && r.bankCheck ? ' · ' + esc(r.bankCheck) : ''}${r.src ? ' · источник: ' + esc(r.src) : ''}</small></span><span class="num">${amt(r)}</span></div>`; }).join('');
+    const list = (a) => a.map((r) => { const [c, l] = kindOf(r); return `<div class="cd"><span class="dt">${dmY(r.date)}</span><span class="wt"><span class="kd ${c}">${l}</span>${esc(r.who)}: ${esc(r.what)}<small>${r.paidOn ? 'поступило ' + dmY(r.paidOn) + (r.basis ? ' (' + esc(r.basis) + ')' : '') + (r.plan ? ', план был ' + dmY(r.plan) : '') + ' · ' : ''}${esc(r.state || '')}${conf(r) && r.bankNote ? ' · ' + esc(r.bankNote) : ''}${r.paid && !conf(r) && r.paidSrc ? ' · ' + esc(r.paidSrc) : ''}${r.paid && !conf(r) && r.bankCheck ? ' · ' + esc(r.bankCheck) : ''}</small>${srcDet(r.src)}</span><span class="num">${amt(r)}</span></div>`; }).join('');
     const mPlan = grp((r) => r.kind !== 'reference' && r.date.slice(0, 7) === month), mOk = mPlan.filter((r) => r.paid && conf(r)), mPaid = mPlan.filter((r) => r.paid && !conf(r));
     const bs = D.buh_svodka, BP = D.buh_plan, bal = BP && BP.balance, BK = D.bank, bkM = BK ? BK.days.filter((x) => x.date.slice(0, 7) === month) : [];
     const bkAcc = [...new Set(bkM.map((x) => x.account))].map((a) => { const ds = bkM.filter((x) => x.account === a); return {a, dates: ds.map((x) => dmY(x.date) + (x.partial ? ' ' + x.partial : '')).join(', '), inn: ds.reduce((v, x) => v + (x.in || 0), 0), out: ds.reduce((v, x) => v + (x.out || 0), 0)}; });
-    return `<section class="sec"><div class="sh"><h2>Что получено для раздела</h2><span class="c">план, факт и справочное не смешиваются</span></div><div class="rows" style="padding:12px 14px">${srcHTML}</div></section>
+    const srcOk = src ? src.filter((x) => x.ok).length : 0;
+    return `<section class="sec"><details class="rows" style="padding:10px 14px"${src && srcOk < src.length ? ' open' : ''}><summary><b>Что получено для раздела</b> <span class="hint">${src ? `получено ${srcOk} из ${src.length}` : 'раздел «Бухгалтерия» не получен'}; план, факт и справочное не смешиваются</span></summary><div style="padding-top:8px">${srcHTML}</div></details></section>
     <section class="sec"><div class="sh"><h2>Календарь на ${calN} дней</h2><span class="c">${dmY(tY)}–${dmY(end)}</span><span style="display:flex;gap:6px;margin-left:auto">${[7, 30].map((n) => `<button class="chip" data-cal="${n}" aria-pressed="${calN === n}">${n} дней</button>`).join('')}</span></div>
-      <div class="rows" style="padding:6px 14px">${!SP ? '<div class="hint" style="color:var(--warn);padding:6px 0">Реестр списаний не получен: календарь списаний не построен.</div>' : ''}${ev.length ? ev.map((e) => `<div class="cd"><span class="dt">${dmY(e.d)}</span><span class="wt"><span class="kd ${e.c}">${e.l}</span>${e.w}${e.s ? `<small>${e.s}</small>` : ''}</span><span class="num">${e.a}</span></div>`).join('') : '<div class="hint" style="padding:6px 0">В эти дни в полученных данных платежей, поступлений и сроков нет.</div>'}
+      <div class="rows" style="padding:6px 14px">${!SP ? '<div class="hint" style="color:var(--warn);padding:6px 0">Реестр списаний не получен: календарь списаний не построен.</div>' : ''}${ev.length ? lim('cal', ev, 8).map((e) => `<div class="cd"><span class="dt">${dmY(e.d)}</span><span class="wt"><span class="kd ${e.c}">${e.l}</span>${e.w}${e.s ? `<small>${e.s}</small>` : ''}</span><span class="num">${e.a}</span></div>`).join('') + moreBtn('cal', ev, 8, ['строка', 'строки', 'строк']) : '<div class="hint" style="padding:6px 0">В эти дни в полученных данных платежей, поступлений и сроков нет.</div>'}
       ${lateT.length ? `<div class="hint" style="padding:6px 0;color:var(--warn)">Просрочено ${plural(lateT.length, 'дело', 'дела', 'дел')} Бухгалтерии, они в рабочем плане ниже.</div>` : ''}
       ${noDate.length ? `<div class="hint" style="padding:6px 0">Ещё ${plural(noDate.length, 'поступление', 'поступления', 'поступлений')} на ${rub(noDate.reduce((x, t) => x + t.a, 0))} без даты: в календарь не ставлю, они на вкладке «Деньги».</div>` : ''}</div></section>
     <section class="sec"><div class="sh"><h2>План-факт за ${['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'][+month.slice(5) - 1]}</h2><span class="c">только по полученным данным</span></div>
@@ -720,20 +1047,18 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
       ${bkAcc.length ? bkAcc.map((x) => `<div><small>Факт по банку · ${esc(x.a)}</small><b>+${rubX(x.inn)}</b><small>списано ${rubX(x.out)} · только за ${esc(x.dates)}, не полный факт месяца</small></div>`).join('') : '<div><small>Факт по банку</small><b style="color:var(--warn)">не получен</b><small>выписок банка в данных нет</small></div>'}
       ${bal && bal.known && bal.accounts && bal.accounts.length ? bal.accounts.map((a) => `<div><small>Остаток ${esc(a.account || '')}</small><b>${rubX(a.amount)}</b><small>снимок на ${esc(a.date || '?')}, не текущий остаток · ${esc(a.src || '')}</small></div>`).join('') + '<div><small>Прогноз остатка</small><b style="color:var(--warn)">не считаю</b><small>' + esc(bal.note || 'по снимку прогноз не строим') + '; по снимку прогноз не строим</small></div>'
         : `<div><small>Остаток на счетах и прогноз</small><b style="color:var(--warn)">не считаю</b><small>${esc(bal && bal.why ? bal.why : 'без выписок банка остаток не выдумываем')}</small></div>`}</div></section>
-    ${BK && BK.days.length ? `<section class="sec"><div class="sh"><h2>Банк: обороты по прочитанным выпискам</h2><span class="c">только эти счета и дни, не полный факт</span></div>
-      <div class="rows" style="padding:6px 14px">${BK.days.map((x) => `<div class="cd"><span class="dt">${dmY(x.date)}</span><span class="wt"><b>${esc(x.account)}</b>${x.partial ? ' · ' + esc(x.partial) : ''}<small>${x.in || x.out ? `пришло ${rubX(x.in || 0)}${x.inItems.length ? ' (' + x.inItems.map((i) => esc(i.who) + ' ' + rubX(i.amount) + (i.basis ? ', ' + esc(i.basis) : '')).join('; ') + ')' : ''} · ушло ${rubX(x.out || 0)}${x.outItems.length ? ' (' + x.outItems.map((i) => esc(i.who) + ' ' + rubX(i.amount) + (i.basis ? ', ' + esc(i.basis) : '')).join('; ') + ')' : ''}` : 'оборотов нет'}${x.open !== null && x.open !== undefined ? ' · на начало ' + rubX(x.open) : ''} · источник: ${esc(x.src)}</small></span><span class="num">конец ${rubX(x.close)}</span></div>`).join('')}</div></section>` : ''}
+    ${BK && BK.days.length ? `<section class="sec"><div class="sh"><h2>Банк: обороты по прочитанным выпискам</h2><span class="c">только эти счета и дни, не полный факт</span></div>${bankTable(BK.days)}</section>` : ''}
     <section class="sec"><div class="sh"><h2>Предстоящие списания</h2><span class="c">${SP ? 'реестр Бухгалтерии от ' + esc(SP.built) : 'реестр не получен'}</span></div>
       <div class="rows" style="padding:6px 14px">${SP ? `${toPay.length ? `<div class="hint" style="padding:6px 0 0">К оплате · ${rubX(sum(toPay))}</div>${list(toPay)}` : '<div class="hint" style="padding:6px 0">К оплате в реестре ничего нет.</div>'}
       ${paidOk.length ? `<div class="hint" style="padding:10px 0 0">Оплачено, подтверждено ФНС · ${rubX(sum(paidOk))}. Повторно не платить</div>${list(paidOk)}${SP.confirmedNote ? `<div class="hint" style="padding:4px 0">${esc(SP.confirmedNote)}</div>` : ''}` : ''}
       ${paid.length ? `<div class="hint" style="padding:10px 0 0">Со слов Ольги, банком и ФНС не подтверждено · ${rubX(sum(paid))}</div>${list(paid)}` : ''}
       ${ref.length ? `<div class="hint" style="padding:10px 0 0">Справочно, в итоги не входит</div>${list(ref)}` : ''}${SP.note ? `<div class="hint" style="padding:8px 0">${esc(SP.note)}</div>` : ''}` : '<div class="hint" style="color:var(--warn);padding:6px 0">Файл svodka/spisaniya.json не получен. Сумм не показываю.</div>'}</div></section>
-    <section class="sec"><div class="sh"><h2>Регулярные платежи</h2><span class="c">${BP ? 'реестр Бухгалтерии, ' + plural(BP.regular.length, 'платёж', 'платежа', 'платежей') : 'не получены'}</span></div>
-      <div class="rows" style="padding:6px 14px">${BP ? BP.regular.map((r) => `<div class="cd"><span class="dt">${esc(r.period || '')}</span><span class="wt">${r.kind === 'reference' ? '<span class="kd ref">справочно</span>' : ''}${esc(r.name || '')}${r.org ? ' · ' + esc(r.org) : ''}<small>${esc(r.note || '')}${r.dataAsOf ? ' · данные на ' + esc(r.dataAsOf) : ''}</small></span><span class="num">${r.amountKnown === false || r.amount === null || r.amount === undefined ? 'сумма неизвестна' : rubX(r.amount)}</span></div>`).join('') : '<div class="hint" style="color:var(--warn);padding:6px 0">Файл svodka/buh-plan.json не получен.</div>'}</div></section>
+    <section class="sec"><details class="rows" style="padding:6px 14px"><summary style="padding:6px 0"><b>Регулярные платежи</b> <span class="hint">${BP ? 'реестр Бухгалтерии, ' + plural(BP.regular.length, 'платёж', 'платежа', 'платежей') : 'не получены'}</span></summary>${BP ? BP.regular.map((r) => `<div class="cd"><span class="dt">${esc(r.period || '')}</span><span class="wt">${r.kind === 'reference' ? '<span class="kd ref">справочно</span>' : ''}${esc(r.name || '')}${r.org ? ' · ' + esc(r.org) : ''}<small>${esc(r.note || '')}${r.dataAsOf ? ' · данные на ' + esc(r.dataAsOf) : ''}</small></span><span class="num">${r.amountKnown === false || r.amount === null || r.amount === undefined ? 'сумма неизвестна' : rubX(r.amount)}</span></div>`).join('') : '<div class="hint" style="color:var(--warn);padding:6px 0">Файл svodka/buh-plan.json не получен.</div>'}</details></section>
     <section class="sec"><div class="sh"><h2>Ожидаемые поступления</h2><span class="c">дела базы; срок — дата контроля, не обещанная дата оплаты</span><button class="link" data-go="money">Все деньги</button></div>
-      ${inc.length ? `<div class="rows">${inc.sort((x, y) => (taskYmd(x) || '9').localeCompare(taskYmd(y) || '9')).slice(0, 8).map((t) => row(t, {check: false})).join('')}</div>` : '<div class="hint">Ожидаемых поступлений в данных нет.</div>'}</section>
+      ${inc.length ? `<div class="rows">${lim('inc', inc.sort((x, y) => (taskYmd(x) || '9').localeCompare(taskYmd(y) || '9')), 5).map((t) => row(t, {check: false})).join('')}</div>${moreBtn('inc', inc, 5)}` : '<div class="hint">Ожидаемых поступлений в данных нет.</div>'}</section>
     <section class="sec"><div class="sh"><h2>Рабочий план Бухгалтерии</h2><span class="c">${plural(buhT.length, 'открытое дело', 'открытых дела', 'открытых дел')} из базы</span></div>
-      ${buhT.length ? `<div class="rows">${buhT.slice(0, 12).map((t) => row(t)).join('')}</div>${buhT.length > 12 ? `<button class="link" style="margin:0" data-go="all" data-sec="Бухгалтерия">Все ${buhT.length}</button>` : ''}` : '<div class="hint">Открытых дел Бухгалтерии в базе нет.</div>'}
-      ${bs ? `<details class="rows" style="padding:10px 14px"><summary><b>${esc(bs.title)}</b> <span class="hint">· ${esc(bs.file)}</span></summary>${bs.sections.map((x) => `<div style="margin-top:8px"><b>${esc(x.title)}</b><ul style="margin:4px 0 0 18px;padding:0">${x.lines.map((l) => `<li style="font-size:13.5px">${esc(l)}</li>`).join('')}</ul></div>`).join('')}</details>` : '<div class="hint" style="color:var(--warn)">Дневная сводка Бухгалтерии не получена.</div>'}</section>`;
+      ${buhT.length ? `<div class="rows">${lim('buhT', buhT, 5).map((t) => row(t)).join('')}</div>${moreBtn('buhT', buhT, 5)}` : '<div class="hint">Открытых дел Бухгалтерии в базе нет.</div>'}
+      ${bs ? `<details class="rows" style="padding:10px 14px"><summary><b>${esc(bs.title)}</b>${srcDet(bs.file, 'файл')}</summary>${bs.sections.map((x) => `<div style="margin-top:8px"><b>${esc(x.title)}</b><ul style="margin:4px 0 0 18px;padding:0">${x.lines.map((l) => `<li style="font-size:13.5px">${esc(l)}</li>`).join('')}</ul></div>`).join('')}</details>` : '<div class="hint" style="color:var(--warn)">Дневная сводка Бухгалтерии не получена.</div>'}</section>`;
   }
   function chart(m) {
     const W = 440, H = 190, L = 34, B = 24, max = Math.max(...m.map((x) => x.potential || 0), 1), top = Math.ceil(max / 1e5) * 1e5, bw = (W - L - 8) / m.length;
@@ -769,11 +1094,15 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
       ${t.detail ? `<div class="fact"><span class="k">Подробности</span><span>${esc(t.detail)}</span></div>` : ''}
       ${t.next ? `<div class="fact"><span class="k">Следующий шаг</span><span>${esc(t.next)}</span></div>` : ''}
       ${t.lastMove ? `<div class="fact"><span class="k">Последнее движение</span><span>${esc(t.lastMove)}</span></div>` : ''}
-      <div class="fact"><span class="k">Сверка «Утра»</span><span>${t.checked ? esc(t.checked) : 'не сверено'}${t.src ? ' · источник: ' + esc(t.src) : ' · источник не указан'}${t.thread || t.origin ? ' · ветка: ' + esc(t.thread || t.origin) : ''}${t.verified ? '' : ' — не показываем как дело от вас, пока «Утро» не сверит'}</span></div>
+      ${(t.steps || []).length ? `<div class="fact"><span class="k">Подпункты сверки</span><span><ol style="margin:0;padding-left:18px">${t.steps.map((x) => `<li>${x.done ? '✓ ' : ''}${esc(x.text || '')}${x.criterion ? `<br><small class="na">критерий: ${esc(x.criterion)}${x.src ? ' · источник: ' + esc(x.src) : ''}</small>` : ''}${x.result ? `<br><small>итог: ${esc(x.result)}</small>` : ''}</li>`).join('')}</ol></span></div>` : ''}
+      <div class="fact"><span class="k">Проверка по источнику</span><span>${t.checked ? esc(t.checked) : 'не сверено'}${t.src ? ' · источник: ' + esc(t.src) : ' · источник не указан'}${t.thread || t.origin ? ' · ветка: ' + esc(t.thread || t.origin) : ''}${t.verified ? '' : ' — сегодня не сверено, в «Требует вашего решения» не попадает'}</span></div>
       <div class="fact"><span class="k">Откуда</span><span>${t.fromSummary ? 'Список «Нужно от вас» ветки «Утро и задачи»' : 'Завела ветка «' + esc(t.owner || 'Claude') + '»' + (t.added ? ', ' + esc(t.added) : '') + (t.section ? ' · ' + esc(t.section) : '')}</span></div>
-      ${t.link ? `<a class="btn ghost small" href="${esc(t.link)}" target="_blank" rel="noopener">Открыть в портале</a>` : ''}
+      ${(t.orders || []).length > 1 ? `<div class="fact"><span class="k">Заказы на портале</span><span>${t.orders.map((o) => `<a href="http://95.84.156.117:3839/projects/orders/${esc(o)}/" target="_blank" rel="noopener">${esc(o)}</a>`).join(' · ')}</span></div>` : ''}
+      ${!t.link && /портал/i.test([t.title, t.detail, t.next].join(' ')) ? `<div class="fact"><span class="k">Портал</span><span style="color:var(--warn)">номер заказа в деле не указан — ссылку даст ветка «${esc(t.owner || 'Браузер')}»</span></div>` : ''}
+      ${t.link ? `<a class="btn ghost small" href="${esc(t.link)}" target="_blank" rel="noopener">${/95\.84\.156\.117|\/orders\//.test(t.link) ? 'Открыть заказ в портале' : 'Открыть источник'}</a>` : ''}
       <div class="acts" role="group" aria-label="Отметить">${['done', 'claude', 'later', 'eve', 'prio', 'wait'].map((a) => `<button data-dact="${a}" aria-pressed="${!!(p && p.action === a)}">${LABEL[a]}</button>`).join('')}</div>
       <div class="ai"><label class="hint" for="aiText">Передать Claude: что сделать или что изменилось</label><textarea id="aiText" placeholder="Например: позвонила, оплатят в пятницу"></textarea><button class="btn small" data-dact="ai">Отправить</button></div>`;
+    draftFill($('#aiText'), String(t.id));
     $('#drawer').classList.add('on'); $('#drawer').setAttribute('aria-hidden', 'false'); $('#scrim').classList.add('on');
   }
   function closeTask() { $('#drawer').classList.remove('on'); $('#drawer').setAttribute('aria-hidden', 'true'); $('#scrim').classList.remove('on'); dTask = null; }
@@ -795,6 +1124,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
       <div class="fbtns"><button class="done" data-f="done">Я выполнила <kbd>E</kbd></button><button data-f="later">Отложить <kbd>S</kbd></button><button data-f="claude">Поручить Claude <kbd>A</kbd></button></div>
       <div id="fai" hidden><div class="ai" style="border:0;padding:0"><textarea id="faiText" placeholder="Что сделать Claude"></textarea><button class="btn small" data-f="aisend">Отправить <kbd style="background:transparent;color:inherit">Enter</kbd></button></div></div>
       <button class="link" data-f="skip" style="margin:0;justify-self:start">Пропустить →</button></div></div>`;
+    draftFill($('#faiText'), String(t.id)); if (drafts[String(t.id)]) $('#fai').hidden = false;
   }
   function focusAct(a) {
     const t = fq[fi]; if (!t) return;
@@ -823,6 +1153,9 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
     const b = e.target.closest('button, [data-open]'); if (!b) return; const d = b.dataset;
     const w = b.closest('.rw'), t = w && T.find((x) => x.id === w.dataset.id);
     if (d.tab) go(d.tab);
+    else if (d.gapclaude !== undefined) { const ids = T.filter((x) => !x.fromSummary && !okToday(x.checked)).map((x) => x.id);
+      act({id: 'sum-gap', cl: 'Пульт', title: 'Сверить с источником дела без сегодняшней сверки', short: 'Сверить ' + ids.length + ' непроверенных дел'}, 'ai',
+        'Сверить с источником сегодня и поставить checked/src (или «не найдено в источнике»): ' + ids.join(', ')); }
     else if (d.focus !== undefined) startFocus();
     else if (d.fend !== undefined) endFocus();
     else if (d.f) focusAct(d.f);
@@ -831,6 +1164,8 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
     else if (d.act === 'claude' && t) delegate(t);
     else if (d.undo) undoJournal(d.undo);
     else if (d.cal) { calN = +d.cal; render(); }
+    else if (d.more) { EXP.has(d.more) ? EXP.delete(d.more) : EXP.add(d.more); render(); }
+    else if (d.wsel) { wsel = wsel === d.wsel ? '' : d.wsel; render(); }
     else if (d.act && t) { const rw = $('.row', w); rw.classList.add('out'); setTimeout(() => act(t, d.act), 180); }
     else if (d.open !== undefined && t) openTask(t);
     else if (d.wk) { const x = T.find((y) => y.id === d.wk); if (x) openTask(x); }
@@ -839,7 +1174,8 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
     else if (d.retry !== undefined) flush();
     else if (d.bucket) { openB = openB === d.bucket ? '' : d.bucket; render(); }
     else if (d.mf !== undefined) { mf = mf === d.mf ? '' : d.mf; if (d.go) go(d.go, true); else render(); }
-    else if (d.go) { if (d.who) { who = d.who; sec = 'all'; } if (d.sec) { sec = d.sec; who = 'all'; } go(d.go); }
+    else if (d.go && d.anchor) { go(d.go); setTimeout(() => { const el = document.getElementById(d.anchor); if (el) el.scrollIntoView({block: 'start'}); }, 30); }
+    else if (d.go) { if (d.who) { who = d.who; sec = 'all'; q = ''; } if (d.sec) { sec = d.sec; who = 'all'; q = ''; } go(d.go); }
     else if (d.who) { who = d.who; render(); }
     else if (d.sec) { sec = d.sec; render(); }
     else if (d.g !== undefined) { openG.has(d.g) ? openG.delete(d.g) : openG.add(d.g); render(); }

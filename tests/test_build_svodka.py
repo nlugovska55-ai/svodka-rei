@@ -33,6 +33,10 @@ class BuilderAcceptance(unittest.TestCase):
         self.addCleanup(patch.stopall)
         patch.object(builder, "LENA_CSV", str(self.root / "missing.csv")).start()
         patch.object(builder, "PROGNOZ_JSON", str(self.root / "missing.json")).start()
+        patch.object(builder, "GARANTY_DIR", str(self.root / "no-garanty")).start()
+        patch.object(builder, "AUTO_STATUS", str(self.root / "no-auto.json")).start()
+        patch.object(builder, "BASELINE_JSON", str(self.root / "baseline.json")).start()
+        patch.object(builder, "TREB_JSON", str(self.root / "no-treb.json")).start()
 
     def task(self, ident="one", **fields):
         row = {"id": ident, "title": "Synthetic task", "status": "open", **fields}
@@ -115,9 +119,9 @@ class BuilderAcceptance(unittest.TestCase):
         self.task()
         comments = self.root / "comments"
         comments.mkdir()
-        for ident, status in (("applied", "done"), ("pending", "new")):
-            (comments / (ident + ".json")).write_text(json.dumps({"eventId": ident, "status": status}), encoding="utf-8")
-        self.assertEqual(["applied"], self.build()["appliedEvents"])
+        for ident, status, action in (("applied", "done", "done"), ("pending", "new", "claude"), ("routed", "routed", "claude"), ("routed-done", "routed", "done")):
+            (comments / (ident + ".json")).write_text(json.dumps({"eventId": ident, "status": status, "action": action}), encoding="utf-8")
+        self.assertEqual(["applied", "routed"], self.build()["appliedEvents"])
 
     def test_reference_amount_kind_is_passed(self):
         self.task(amount="176103.19", amountKind="reference", amountNote="погашено")
@@ -187,6 +191,110 @@ class BuilderAcceptance(unittest.TestCase):
         self.task(status="open", waiting="Claude", delegated="edlg0001")
         row = self.build()["tasks"][0]
         self.assertEqual(("Claude", "edlg0001"), (row["waiting"], row["delegated"]))
+
+
+    def test_automation_comes_from_status_file_and_registry(self):
+        auto = self.root / "auto.json"
+        auto.write_text(json.dumps([{"id": "auto-utro", "flag": "ok", "text": "Сводка выложена", "checked": "2026-10-29T19:20:18+03:00"}]), encoding="utf-8")
+        gd = self.root / "gar"
+        gd.mkdir()
+        (gd / "import-status.json").write_text(json.dumps({"ok": False, "lastAttempt": "2026-10-29T09:15:00+03:00", "lastOk": "2026-10-28T15:08:46+03:00", "lastError": "ПК недоступен"}), encoding="utf-8")
+        self.summary.write_text(json.dumps([{"section": "Автоматика", "text": "старая ручная копия", "checked": "2026-10-28"}, {"section": "Нужно от вас", "text": "x"}]), encoding="utf-8")
+        self.task()
+        with patch.object(builder, "AUTO_STATUS", str(auto)), patch.object(builder, "GARANTY_DIR", str(gd)), patch.object(builder, "VYGRUZKI", str(self.root / "net.json")):
+            self.build()
+        rows = [r for r in json.loads(self.out.read_text(encoding="utf-8"))["summary"] if r["section"] == "Автоматика"]
+        self.assertEqual([r["id"] for r in rows], ["auto-utro", "auto-garanty", "auto-vygruzki"])
+        self.assertIn("ни разу не запускался", rows[2]["text"])
+        self.assertEqual(rows[2]["flag"], "срочно")
+        g = rows[1]
+        self.assertEqual(g["flag"], "срочно")
+        self.assertIn("28.10 15:08", g["text"])
+        self.assertIn("ПК недоступен", g["text"])
+        self.assertIn("вручную", g["text"])
+        self.assertEqual(g["checked"], "2026-10-29T09:15:00+03:00")
+
+    def test_vygruzki_row_shows_missing_sources(self):
+        v = self.root / "v.json"
+        v.write_text(json.dumps({"collected": "2026-10-30T09:20", "dir": "2026-10-30", "sources": [{"label": "1С: долги покупателей (ОСВ 62)", "ok": True}, {"label": "Банк: выписка за вчера", "ok": False}]}), encoding="utf-8")
+        with patch.object(builder, "VYGRUZKI", str(v)):
+            r = builder.vygruzki_row("2026-10-30")
+        self.assertEqual(r["flag"], "срочно")
+        self.assertIn("получено 1 из 2; нет: Банк: выписка за вчера", r["text"])
+
+    def test_iso_due_becomes_ru(self):
+        self.assertEqual(builder.ru_date("2026-10-27"), "27.10.2026")
+        self.assertEqual(builder.ru_date("27.10.2026"), "27.10.2026")
+
+    def test_done_comment_without_result_is_shown_with_check_flag(self):
+        cdir = self.root / "comments"
+        cdir.mkdir(exist_ok=True)
+        (cdir / "c1.json").write_text(json.dumps({"status": "done", "at": "2099-01-01T10:00:00+03:00", "text": "[сделано] ", "reply": "Закрыл задачу по письмам Лазаревой.", "resultCheck": "требует проверки"}), encoding="utf-8")
+        (cdir / "c2.json").write_text(json.dumps({"status": "done", "at": "2099-01-01T11:00:00+03:00", "text": "[сделано] "}), encoding="utf-8")
+        self.task()
+        self.build()
+        rep = json.loads(self.out.read_text(encoding="utf-8"))["replies"]
+        self.assertEqual(len(rep), 2)
+        self.assertEqual({r["resultCheck"] for r in rep}, {"требует проверки", ""})
+
+
+    def test_superseded_mark_hidden_reopen_shown(self):
+        cdir = self.root / "comments"
+        cdir.mkdir(exist_ok=True)
+        (cdir / "a.json").write_text(json.dumps({"status": "done", "action": "done", "at": "2099-01-01T10:00:00+03:00", "text": "[отменено позже]", "supersededBy": "e2"}), encoding="utf-8")
+        (cdir / "b.json").write_text(json.dumps({"status": "done", "action": "reopen", "appliedTo": "x", "eventId": "e2", "at": "2099-01-01T10:03:00+03:00", "text": "[вернуть в работу] "}), encoding="utf-8")
+        self.task()
+        rep = self.build()["replies"]
+        self.assertEqual([(r["eventId"], r["action"], r["appliedTo"]) for r in rep], [("e2", "reopen", "x")])
+
+
+    def test_portal_orders_become_links(self):
+        self.task("a", title="ЧЗМЭК: внести оплаты в заказы 2394166 и 2394163", next="сверить 2394166")
+        self.task("b", title="Портал: заказ не указан", link="https://example.org/x")
+        self.task("c", title="Телефон 82390757123 не заказ")
+        t = {x["id"]: x for x in self.build()["tasks"]}
+        self.assertEqual(t["a"]["orders"], ["2394166", "2394163"])
+        self.assertEqual(t["a"]["link"], "http://95.84.156.117:3839/projects/orders/2394166/")
+        self.assertEqual((t["b"]["orders"], t["b"]["link"]), ([], "https://example.org/x"))
+        self.assertEqual(t["c"]["orders"], [])
+
+    def test_ponomarenko_only_incoming_not_from_rei(self):
+        bk = self.root / "bank.json"
+        bk.write_text(json.dumps({"built": "t", "days": [
+            {"account": "Точка ИП *3698", "date": "2026-10-28", "open": 10, "in": 96300 + 12000, "out": 14316.13, "close": 10 + 108300 - 14316.13,
+             "inItems": [{"who": "РЭИ", "amount": 96300}, {"who": "АЗС Спецснаб", "amount": 12000}], "outItems": [{"who": "Дракон Чай", "amount": 14316.13}]},
+            {"account": "Точка ИП *3698", "date": "2026-10-29", "open": 1, "in": 5, "out": 0, "close": 6, "inItems": [{"who": "ООО РусЭкоИнновации", "amount": 5}], "outItems": []},
+            {"account": "Альфа РЭИ *7370", "date": "2026-10-28", "open": 100, "in": 0, "out": 96300, "close": 100 - 96300,
+             "inItems": [], "outItems": [{"who": "Пономаренко", "amount": 96300, "basis": "п/п 258"}]}]}, ensure_ascii=False), encoding="utf-8")
+        patch.object(builder, "BANK_JSON", str(bk)).start()
+        days = builder.bank_oboroty()["days"]
+        pon = [d for d in days if "ИП" in d["account"]]
+        self.assertEqual(len(pon), 1, "день только с поступлением от РЭИ не показывается")
+        self.assertEqual((pon[0]["in"], pon[0]["out"], pon[0]["close"], pon[0]["outItems"]), (12000, None, None, []))
+        self.assertEqual([x["who"] for x in pon[0]["inItems"]], ["АЗС Спецснаб"])
+        alfa = next(d for d in days if "Альфа" in d["account"])
+        self.assertEqual((alfa["out"], [x["who"] for x in alfa["outItems"]]), (96300, ["прочие перечисления"]))
+        self.assertNotIn("Пономаренко", json.dumps(days, ensure_ascii=False))
+
+    def test_result_must_answer_the_assigned_action(self):
+        f = builder.result_fit
+        # находка Codex 29.10: «отправить акты» не закрывается фразой об оплате
+        self.assertEqual(f("Отправить по ЭДО акты ЗЭОТЭК и ЧЗМТ", "ЧЗМЭК 55 000 оплачены полностью: п/п 16445"), "отправку")
+        self.assertEqual(f("Отправить по ЭДО акты ЗЭОТЭК и ЧЗМТ", "акты 123 и 124 отправлены 22.10, документооборот завершён"), "ok")
+        self.assertEqual(f("Портал: внести оплату Айстандарту", "Пока не внесено: доступ"), "ok")
+        self.assertEqual(f("ИКЦ: акт сверки не подписывать", "не подписываем"), "ok")
+        self.assertEqual(f("Разобрать вопросы", "что угодно"), "")
+        self.assertEqual(f("Отправить акт", ""), "")
+
+    def test_forecast_accuracy_starts_collecting_without_backdating(self):
+        gar = {"connected": True, "rows": [{"id": "G-1", "date": "2026-10-30", "remain": 1000.0, "amount": 1000.0, "stageReg": "Гарант", "bank": []}]}
+        from datetime import date
+        first = builder.forecast_accuracy(gar, date(2026, 10, 29))  # четверг: неделя сохранена не с начала
+        self.assertEqual((first["weeks"], first["firstPartial"]), ([], True))
+        gar["rows"].append({"id": "G-2", "date": "2026-11-04", "remain": 500.0, "amount": 500.0, "stageReg": "Обсуждаем", "bank": [{"date": "2026-11-05", "amount": 500.0}]})
+        builder.forecast_accuracy(gar, date(2026, 11, 2))  # понедельник: прогноз недели сохранён вовремя
+        acc = builder.forecast_accuracy(gar, date(2026, 11, 9))
+        self.assertEqual([(w["week"], w["kind"], w["promised"], w["cameBank"]) for w in acc["weeks"]], [("2026-11-02", "прогноз", 500.0, 500.0)])
 
 
 if __name__ == "__main__":
