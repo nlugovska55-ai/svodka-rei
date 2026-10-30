@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-10-30T10:04:38.575Z",
+  "batchId": "2026-10-30T10-04-34-915Z-tu4onq92",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Востряково-2",
+      "taskId": null,
+      "taskTitle": "Подоприхин: скан «Возврат ФБУЗ.pdf» нужно направить на fbuzradiology@mail.ru. Решите: «пусть сами» (Востряково отправляют сами) или «отправлю я»",
+      "text": "",
+      "action": "done",
+      "actionLabel": "Я выполнила",
+      "at": "2026-10-30T10:04:29.904Z",
+      "eid": "emvut2fdcp10mn36t"
+    }
+  ]
+}
