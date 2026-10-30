@@ -495,15 +495,12 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     return Number(m[1]) * 60 + Number(m[2]) > h * 60 + mi;
   };
   const okToday = (c) => !!c && checkedDay(c) === FRESH.todayYmd && !futureTime(c);
-  // первичка со вчерашними датами при сегодняшней записи ветки — это правка карточки, а не свежий просмотр источника
-  const srcStale = (src) => {
-    const s = String(src || ''), ds = [];
-    for (const m of s.matchAll(/(?<![\d.])(\d{1,2})\.(\d{1,2})(?:\.(\d{4}))?(?![\d])/g)) if (+m[2] >= 1 && +m[2] <= 12 && +m[1] >= 1 && +m[1] <= 31) ds.push((m[3] || FRESH.year) + '-' + p2(m[2]) + '-' + p2(m[1]));
-    for (const m of s.matchAll(/(\d{4})-(\d{2})-(\d{2})/g)) ds.push(m[1] + '-' + m[2] + '-' + m[3]);
-    return ds.length > 0 && ds.sort().pop() < FRESH.todayYmd;
-  };
-  // единое «сверено сегодня»: запись сегодня и не в будущем, источник указан и не только вчерашний, есть ветка или происхождение
-  const verifiedRow = (x) => okToday(x.checked) && !!x.src && !srcStale(x.src) && !!(x.thread || x.origin);
+  // «сверено сегодня» — только по структурному факту чтения (Codex 30.10): sourceCheckedAt (ISO с поясом, время реального
+  // чтения первички) сегодня и не в будущем + sourceEvidence (журнал/ссылка на чтение) + ветка. Свободный текст checked/src
+  // и время правки карточки (updatedAt) сверкой не считаются: старый акт, прочитанный сегодня, — свежий; «сверка 30.10» без чтения — нет
+  const ISO_TZ = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(Z|[+-]\d{2}:?\d{2})$/;
+  const readAtOk = (v) => { const s = String(v || '').trim(); if (!ISO_TZ.test(s)) return false; const d = new Date(s); return !isNaN(d) && FRESH.ymd(d) === FRESH.todayYmd && d.getTime() <= now.getTime() + 60e3; };
+  const verifiedRow = (x) => readAtOk(x.sourceCheckedAt) && !!String(x.sourceEvidence || '').trim() && !!(x.thread || x.origin);
   const pend = store.get('svodka-pending', {});  // отмеченное на сайте, пока не пришло в базу
   const outbox = store.get('svodka-outbox', []);
   let inflight = store.get('svodka-inflight', null);
@@ -1166,8 +1163,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const shownIds = new Set(pickUtro().map((t) => t.id)), st = (t) => daySt(t, shownIds);
     const rw = (t) => `<div class="dl"><div class="dl-h"><b>${olgaStep(t) ? 'Решает Ольга' + (t.who !== 'я' && t.thread ? ' (готовит «' + esc(t.thread) + '»)' : '') : esc(t.who === 'клиент' || t.who === 'эксперт' ? 'Ждём: ' + t.who : 'Команда: ' + (t.thread || t.who))}</b> · <span class="${st(t) === 'на первом экране' ? 'ok' : 'mut'}">${st(t)}</span> · <small>${esc(t.id)}</small></div>
       <div class="dl-t">${esc((t.internal ? '' : t.cl + ': ') + t.short)}${t.dd !== null && t.dd < 0 ? ` <span class="late">просрочено ${-t.dd} дн</span>` : ''}</div>
-      ${t.next ? `<div class="dl-s">Шаг: ${esc(String(t.next).slice(0, 220))}</div>` : ''}<div class="dl-s">Источник: ${esc(String(t.src || 'не указан').slice(0, 160))}${t.checked ? ' · запись ' + esc(String(t.checked).slice(0, 40)) : ' · записи сверки нет'}</div></div>`;
-    return `<section class="sec" id="daylist"><div class="sh"><h2>На сегодня и просрочено: ${L.length}</h2><span class="c">на первом экране только решения Ольги, сверенные сегодня; дата в записи — время записи ветки, а не свежий просмотр источника</span></div><div class="dls">${L.map(rw).join('')}</div></section>`;
+      ${t.next ? `<div class="dl-s">Шаг: ${esc(String(t.next).slice(0, 220))}</div>` : ''}<div class="dl-s">Источник: ${esc(String(t.src || 'не указан').slice(0, 160))}${t.checked ? ' · запись ' + esc(String(t.checked).slice(0, 40)) : ' · записи сверки нет'} · чтение источника: ${t.sourceCheckedAt ? esc(String(t.sourceCheckedAt).slice(0, 16).replace('T', ' ')) + (t.sourceEvidence ? ' (' + esc(String(t.sourceEvidence).slice(0, 60)) + ')' : ', доказательства нет') : 'неизвестно'}</div></div>`;
+    return `<section class="sec" id="daylist"><div class="sh"><h2>На сегодня и просрочено: ${L.length}</h2><span class="c">на первом экране только решения Ольги с фактом чтения источника сегодня (время чтения + доказательство); «запись» — время правки ветки, сверкой не считается</span></div><div class="dls">${L.map(rw).join('')}</div></section>`;
   }
   function kontrol() {
     const m = mine().sort(byUrg), o = T.filter(isOpen), week = unverified();

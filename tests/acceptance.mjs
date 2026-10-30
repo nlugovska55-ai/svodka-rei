@@ -14,7 +14,9 @@ const base = JSON.parse(fs.readFileSync(path.join(ROOT, 'tests/fixture-svodka.js
 const iso = (d) => { const z = new Date(d.getTime() + 3 * 36e5); return z.toISOString().slice(0, 19) + '+03:00'; };
 const todayRu = (() => { const z = new Date(Date.now() + 3 * 36e5); return String(z.getUTCDate()).padStart(2, '0') + '.' + String(z.getUTCMonth() + 1).padStart(2, '0'); })();
 // «Сверено Утром сегодня»: checked + src + thread, как требует §14
-const verify = (t) => Object.assign(t, {checked: todayRu + ' Утро и задачи', src: 'тест: банк и почта', thread: 'Утро'});
+let READ_AT = null; // тесты с подменой часов страницы задают время чтения в их «сейчас»
+const readNow = () => (READ_AT || new Date(Date.now() - 6e4)).toISOString();
+const verify = (t) => Object.assign(t, {checked: todayRu + ' Утро и задачи', src: 'тест: банк и почта', thread: 'Утро', sourceCheckedAt: readNow(), sourceEvidence: 'тест: runs/журнал чтения'});
 // Даты дел в обезличенном снимке привязаны к 29.10.2026: сдвигаем их на сегодня, иначе сроки «стареют» и проверки зависят от дня запуска
 const SHIFT = Math.round((Date.parse(new Date(Date.now() + 3 * 36e5).toISOString().slice(0, 10)) - Date.parse('2026-10-29')) / 864e5);
 const shiftRu = (v) => { const m = /^(\d\d)\.(\d\d)\.(\d{4})(.*)$/s.exec(v || ''); if (!m || !SHIFT) return v; const z = new Date(Date.UTC(+m[3], +m[2] - 1, +m[1] + SHIFT)); return String(z.getUTCDate()).padStart(2, '0') + '.' + String(z.getUTCMonth() + 1).padStart(2, '0') + '.' + z.getUTCFullYear() + m[4]; };
@@ -196,15 +198,16 @@ try {
   {
     const z = new Date(Date.now() + 3 * 36e5), Y = z.getUTCFullYear(), dd = String(z.getUTCDate()).padStart(2, '0'), mm = String(z.getUTCMonth() + 1).padStart(2, '0');
     const tm = new Date(Date.now() + 27 * 36e5), tdd = String(tm.getUTCDate()).padStart(2, '0'), tmm = String(tm.getUTCMonth() + 1).padStart(2, '0');
-    const cases = [[`${dd}.${mm}.${Y - 1} Утро`, false], [`${dd}.${mm}.${Y} Утро`, true], [`${Y}-${mm}-${dd}`, true], [new Date().toISOString(), true], [`${Y - 1}-${mm}-${dd}T10:00:00Z`, false], [`${tdd}.${tmm}.${tm.getUTCFullYear()} Утро`, false], [`${dd}.${mm} Утро`, true], ['вчера', false]];
+    // 30.10 (Codex): сверка — только по факту чтения sourceCheckedAt (ISO с поясом), текстовые «Утро»/дата без пояса — не чтение
+    const cases = [[`${dd}.${mm}.${Y} Утро`, false], [`${Y}-${mm}-${dd}`, false], [new Date(Date.now() - 6e4).toISOString(), true], [`${Y - 1}-${mm}-${dd}T10:00:00Z`, false], [tm.toISOString(), false], [new Date(Date.now() + 30 * 6e4).toISOString(), false], [`сверка ${dd}.${mm}`, false], ['вчера', false]];
     const res = [];
     for (const [c, want] of cases) {
       const d = fresh(); const s0 = d.summary.find((s) => s.section === 'Нужно от вас'); const tk = d.tasks.find((t) => t.id === s0.id);
-      d.summary = d.summary.filter((s) => s.section !== 'Нужно от вас' || s.id === s0.id); delete s0.checked; tk.checked = c;
+      d.summary = d.summary.filter((s) => s.section !== 'Нужно от вас' || s.id === s0.id); delete s0.checked; delete s0.sourceCheckedAt; tk.sourceCheckedAt = c; tk.sourceEvidence = tk.sourceEvidence || 'тест: журнал чтения';
       const {ctx, p} = await device(d); await go(p); const got = (await ask(p)).length > 0; await ctx.close();
       res.push(`${c.slice(0, 22)}→${got ? 'сегодня' : 'нет'}${got === want ? '' : ' (ОШИБКА)'}`);
     }
-    check('checked прошлого года, будущего и мусор — не «сегодня»; с годом и ISO — да', !res.some((x) => /ОШИБКА/.test(x)), res.join('; '));
+    check('Факт чтения: только ISO с поясом за сегодня и не в будущем; текст, прошлый год, завтра, +30 мин — нет', !res.some((x) => /ОШИБКА/.test(x)), res.join('; '));
   }
 
   // 5. Нет данных / ошибка / устаревшие данные — без ложного нуля и ложного «разобрано»
@@ -250,7 +253,7 @@ try {
 
   // 6b. Без сверки за сегодня — не дело Ольги; деньги делятся на сверенные и нет; устаревание по расписанию
   {
-    const d = fresh(); d.tasks.forEach((t) => { delete t.checked; });
+    const d = fresh(); d.tasks.forEach((t) => { delete t.checked; delete t.sourceCheckedAt; }); d.summary.forEach((x) => { delete x.sourceCheckedAt; });
     const {ctx, p} = await device(d); await go(p);
     const a = await ask(p), h = await p.textContent('.lead'), b = await p.textContent('#unchecked').catch(() => '');
     check('Несверенные «готово Ольге» не выдаются за проверенные', a.length === 0 && /Не проверено сегодня/.test(b) && !/Утро разобрано|не требуется/.test(h), `в «Требует вашего решения» ${a.length}, заголовок «${h.trim().slice(0, 60)}»`);
@@ -274,6 +277,7 @@ try {
     inbox = []; apiMode = 'ok';
     let cur = fresh();
     const z = new Date(Date.now() + 3 * 36e5), start = new Date(Date.UTC(z.getUTCFullYear(), z.getUTCMonth(), z.getUTCDate(), 15, 0));  // 18:00 МСК сегодня
+    READ_AT = new Date(start.getTime() - 6e4); cur = fresh();
     const {ctx, p} = await device(() => cur, {clock: start}); await go(p);
     const before = p.dataHits, id0 = (await ask(p))[0];
     const nd = fresh(); nd.updated = iso(new Date(start.getTime() + 5 * 6e4)); const t0 = nd.tasks.find((t) => t.id === id0); t0.status = 'done'; nd.tasks = nd.tasks.filter((t) => t.id !== id0); cur = nd;
@@ -297,7 +301,7 @@ try {
     await p.evaluate(() => window.__svodkaRefresh()); await p.waitForTimeout(500);
     await p.click('#tu'); await p.clock.fastForward('00:06'); await p.waitForTimeout(500);
     check('Обновление во время окна «Отменить» не мешает отмене', (await ask(p)).includes(id1) && inbox.length === sentBefore, `дело на месте: ${(await ask(p)).includes(id1)}, отправлено лишнего: ${inbox.length - sentBefore}`);
-    await ctx.close();
+    await ctx.close(); READ_AT = null;
     // смена московской даты у оставленной вкладки
     const late = new Date(Date.UTC(z.getUTCFullYear(), z.getUTCMonth(), z.getUTCDate(), 20, 58));  // 23:58 МСК
     const dd = fresh(); dd.updated = iso(new Date(late.getTime() - 6 * 36e5));
@@ -465,7 +469,7 @@ try {
       {at, atStr: '28.10, 13:03', eventId: 'e-c2', title: 'Дело Г', text: '[сделано] ', reply: '', status: 'done', result: 'сделано'},
       {at, atStr: '29.10, 14:04', eventId: 'e-c3', title: 'ИКЦ', text: 'Отложить до 2027', reply: 'ИКЦ перенесён', status: 'done', result: 'Срок ikc2210 перенесён на 2027, акт сверки № 31 не подписываем (fakty.md, 29.10)', resultBy: 'Регламент', resultAt: at}
     ];
-    R.tasks.forEach((t, i) => { t.checked = i === 0 ? new Date(Date.now() - 6e4).toISOString() : ''; if (i === 0) Object.assign(t, {src: 'тест: банк ' + todayRu, thread: 'Утро'}); });
+    R.tasks.forEach((t, i) => { t.checked = i === 0 ? new Date(Date.now() - 6e4).toISOString() : ''; if (i === 0) Object.assign(t, {src: 'тест: банк ' + todayRu, thread: 'Утро', sourceCheckedAt: new Date(Date.now() - 6e4).toISOString(), sourceEvidence: 'тест: журнал чтения'}); });
     const Q = await device(R); await go(Q.p);
     const st = await Q.p.$$eval('#replies .jl', (x) => x.map((e) => e.dataset.stage + '|' + e.textContent.replace(/\s+/g, ' ')));
     check('Отметка «сделано» без итога: «Итог не подтверждён», не зелёный итог; содержательный итог показан как итог',

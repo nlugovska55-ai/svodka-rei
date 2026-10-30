@@ -187,6 +187,20 @@ class BuilderAcceptance(unittest.TestCase):
         patch.object(builder, "SPISANIYA_JSON", str(sp)).start()
         self.rejected()
 
+    def test_read_fact_fields_pass_through_and_are_not_invented(self):
+        # 30.10 (Codex): факт чтения переносится из базы как есть; checked в sourceCheckedAt не превращается
+        self.task("read", status="open", checked="30.10 Утро", sourceCheckedAt="2026-10-30T21:18:00+03:00",
+                  sourceEvidence="письмо Хомутова 18:00, Spr42118.pdf", updatedAt="2026-10-30T21:20:00+03:00")
+        self.task("noread", status="open", checked="30.10 21:00 Утро", src="письмо из Outlook")
+        t = {x["id"]: x for x in self.build()["tasks"]}
+        self.assertEqual(("2026-10-30T21:18:00+03:00", "письмо Хомутова 18:00, Spr42118.pdf", "2026-10-30T21:20:00+03:00"),
+                         (t["read"]["sourceCheckedAt"], t["read"]["sourceEvidence"], t["read"]["updatedAt"]))
+        self.assertEqual(("", ""), (t["noread"]["sourceCheckedAt"], t["noread"]["sourceEvidence"]))
+        self.assertEqual("30.10 21:00 Утро", t["noread"]["checked"])
+        # повторная сборка не теряет и не меняет поля
+        t2 = {x["id"]: x for x in self.build()["tasks"]}
+        self.assertEqual(t["read"]["sourceCheckedAt"], t2["read"]["sourceCheckedAt"])
+
     def test_delegated_task_stays_active_with_claude(self):
         self.task(status="open", waiting="Claude", delegated="edlg0001")
         row = self.build()["tasks"][0]
