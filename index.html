@@ -268,7 +268,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
 .sm-h{font-size:14px;color:var(--muted);margin-top:8px}
 .sl{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line);font-size:16px}
 .sl b{font-variant-numeric:tabular-nums;white-space:nowrap}.sl small{display:block;color:var(--muted);font-size:13.5px}
-.sm-h b{color:var(--ink)}.sl.sp.ok{color:var(--ok)}.sl.sp.warn span{color:var(--hot);font-weight:600}.sm-h .src{font-size:13.5px}.sl small.late{color:var(--hot);font-weight:600}body[data-tab=utro] .foot .keys{display:none}body[data-tab=utro] .tabs{display:none}.slinks{display:flex;gap:18px;justify-content:center;flex-wrap:wrap}.slinks .link{margin:0;font-size:15px}.dls{display:grid;gap:0}.dl{padding:10px 0;border-top:1px solid var(--line)}.dl-h{font-size:13.5px;color:var(--muted)}.dl-h .ok{color:var(--ok);font-weight:600}.dl-h small{color:var(--faint)}.dl-t{font-weight:600;margin:2px 0}.dl-t .late{color:var(--hot);font-size:13.5px}.dl-s{font-size:14px;color:var(--muted);overflow-wrap:anywhere}.smeta{display:block;font-size:13px;color:var(--faint);margin-top:2px}.stot{font-size:16px;margin-top:4px}.stot b{font-size:18px}.simple .st,.simple .sl span,.simple .sm-h,.simple .smore2{overflow-wrap:anywhere;min-width:0}.simple .sl b{white-space:normal}.smore2{text-align:left}.ssub+.rw.sr .row{border-top:0}.ssub{font:600 13.5px var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 0;padding-top:10px;border-top:1px solid var(--line)}.h2n{font:600 17px var(--f-body);color:var(--muted);margin-left:6px}
+.sm-h b{color:var(--ink)}.sl.sp.ok{color:var(--ok)}.sl.sp.warn span{color:var(--hot);font-weight:600}.sm-h .src{font-size:13.5px}.sl small.late{color:var(--hot);font-weight:600}body[data-tab=utro] .foot .keys{display:none}body[data-tab=utro] .tabs{display:none}.slinks{display:flex;gap:18px;justify-content:center;flex-wrap:wrap}.slinks .link{margin:0;font-size:15px}.dls{display:grid;gap:0}.dl{padding:10px 0;border-top:1px solid var(--line)}.dl-h{font-size:13.5px;color:var(--muted)}.dl-h .ok{color:var(--ok);font-weight:600}.dl-h small{color:var(--faint)}.dl-t{font-weight:600;margin:2px 0}.dl-t .late{color:var(--hot);font-size:13.5px}.dl-s{font-size:14px;color:var(--muted);overflow-wrap:anywhere}.smeta{display:block;font-size:13px;color:var(--faint);margin-top:2px}.stot{font-size:16px;margin-top:4px}.stot b{font-size:18px}.simple .st,.simple .sl span,.simple .sm-h,.simple .smore2{overflow-wrap:anywhere;min-width:0}.simple .sl b{white-space:normal}.smore2{text-align:left}.ssub+.rw.sr .row{border-top:0}.ssub{font:600 13.5px var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 0;padding-top:10px;border-top:1px solid var(--line)}body[data-tab=utro] #fresh .dot{background:var(--faint)!important}.sohv{font-size:14px;color:var(--muted);margin-top:-6px}.sweek summary{cursor:pointer;list-style:none}.sweek summary::-webkit-details-marker{display:none}.sweek summary::after{content:' ▸'}.sweek[open] summary::after{content:' ▾'}.h2n{font:600 17px var(--f-body);color:var(--muted);margin-left:6px}
 .sl.sp{margin-top:10px;display:block}.sl.sp b{font-weight:600;display:block}
 .st em{display:block;font-style:normal;font-size:13.5px;font-weight:700;color:var(--brand);letter-spacing:.02em}.smore2{margin:10px 0 0;font-size:15px}
 .tab .lg{white-space:nowrap}
@@ -1032,31 +1032,38 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const FROM_REI = /рэи|русэко|рус\s*эко|депозит|пономаренко/i;
   const niceCl = (c) => { const x = String(c || '').replace(/^gea$/i, 'ГЕА').replace(/(^|\s)(ооо|оао|ао|пао|зао|ип|ано)(?=\s|$)/gi, ' ').replace(/[«»"]/g, '').trim(); return x ? (x[0].toUpperCase() + x.slice(1)).replace(/(^|\s)([а-яё]{2,3})(?=\s|$)/gi, (m, a, b) => a + b.toUpperCase()) : ''; };
   const dueShort = (t) => t.dd === null ? 'без срока' : t.dd < 0 ? `просрочено ${-t.dd} дн` : t.dd === 0 ? 'сегодня' : t.dd === 1 ? 'завтра' : 'до ' + String(t.due || '').slice(0, 5);
+  // 30.10 (Codex): свежесть — по времени охвата источников, а не по времени сборки; зелёного нет, пока охват не свежий
+  function ohvatLine() {
+    const O = D.ohvat, V = D.vypiska, parts = [];
+    if (V && V.time) parts.push(`банк Альфа ${V.fileDate === FRESH.todayYmd ? '' : dmY(V.fileDate) + ' '}${V.time}`);
+    if (O && O.parts) O.parts.forEach((p) => parts.push(`${p.src.replace(/ и Альфа$/, '')} ${O.date === FRESH.todayYmd ? '' : dmY(O.date) + ' '}${p.time}`));
+    return parts.length ? `<div class="sohv">Данные на: ${esc(parts.join(' · '))}. Новее этого источники не смотрели.</div>` : '<div class="sohv">Время охвата источников неизвестно.</div>';
+  }
   function utro() {
     // решение Ольги — её дело или дело команды, где следующий шаг начинается с «Ольга/Ольге»; на экран — только сверенные сегодня
     const cand = T.filter((t) => isOpen(t) && olgaStep(t) && (t.verified || verifiedRow(t)) && !delegated(t) && !doneByIncome(t));
     const m = cand.sort(byUrg).slice(0, 5), y = FRESH.todayYmd, dn = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
     // 30.10 (штурм): суть дела не обрезаем многоточием — заголовок до двух строк, обрезка только у длинного пояснения
     const cut = (x, n) => x.length > n ? x.slice(0, n).replace(/[\s,;:(]+\S*$/, '') + '…' : x;
-    const why = (t) => { if (act(t)) return cut(t.short || full(t), 90); const x = String(t.why || t.next || t.detail || '').split(/(?<=[.;])\s|\s—\s|\s\(/)[0].replace(/[.;,]$/, ''); const nz = (v) => String(v || '').toLowerCase().replace(/[^а-яёa-z0-9]+/g, ' ').trim();
+    const why = (t) => { if (act(t)) { const first = String(t.title || '').split(/(?<=[.!?])\s+/)[0] || ''; return cut(IMP.test(String(t.title || '').split(/(?<=[.!?])\s+/).filter(Boolean).pop() || '') && first ? first.replace(/[.]$/, '') : (t.short || full(t)), 120); } const x = String(t.why || t.next || t.detail || '').split(/(?<=[.;])\s|\s—\s|\s\(/)[0].replace(/[.;,]$/, ''); const nz = (v) => String(v || '').toLowerCase().replace(/[^а-яёa-z0-9]+/g, ' ').trim();
       // пояснение, повторяющее заголовок, заменяем последней фразой текста — обычно это и есть действие («Проверьте и нажмите…»)
       if (x && nz(x).includes(nz(t.short).slice(0, 20))) { const last = String(t.title || '').split(/(?<=[.!?])\s+/).filter(Boolean).pop() || ''; return last && !nz(last).includes(nz(t.short).slice(0, 20)) ? cut(last.replace(/[.]$/, ''), 90) : ''; }
       return x && x !== t.short ? cut(x, 90) : ''; };
     const full = (t) => { const d = /Решите?:\s*([^.]+)/.exec(t.title || ''); return d ? 'Решить: ' + d[1].trim().replace(/^./, (c) => c.toLowerCase()) : t.short; };
     const IMP = /^(проверьте|нажмите|отправьте|внесите|подпишите|оплатите|ответьте|позвоните|решите|выберите|согласуйте)/i;
-    const act = (t) => { const last = String(t.title || '').split(/(?<=[.!?])\s+/).filter(Boolean).pop() || ''; if (IMP.test(last)) return last.replace(/[.]$/, '');
+    const act = (t) => { const last = String(t.title || '').split(/(?<=[.!?])\s+/).filter(Boolean).pop() || ''; if (IMP.test(last)) { const th = /тем[аеуы]\s*«([^»]+)»/i.exec(String(t.title || '')); return last.replace(/[.]$/, '') + (th ? ` в черновике «${th[1]}»` : ''); }
       // шаг команды «Ольге: …» — это и есть действие Ольги: берём его до первой точки с запятой
       const nx = /^Ольг[аеиу](?![а-яё])[:,]?\s*(.+)/i.exec(String(t.next || '')); return nx ? cut(nx[1].split(/;\s|\.\s/)[0].replace(/^./, (c) => c.toUpperCase()), 110) : ''; };
     const what = (t) => { const c = t.internal ? '' : niceCl(String(t.cl || t.client || '').replace(/\s*\(.*\)/, '')); return `${c ? `<em>${esc(c)}</em>` : ''}<b>${esc(act(t) || full(t))}</b>`; };
     // когда и кем последний раз сверено: это запись ветки, а не свежий просмотр источника
-    const meta = (t) => { const c = String(t.checked || ''), tm = /(\d{1,2}:\d{2})/.exec(c), who = t.thread || t.owner || ''; return tm || who ? `<small class="smeta">запись ${tm ? tm[1] : 'сегодня'}${who ? ' · ' + esc(String(who).slice(0, 40)) : ''}</small>` : ''; };
+    const meta = (t) => { const tm = /(\d{1,2}:\d{2})/.exec(String(t.checked || '')); return `<small class="smeta">делаете вы${tm ? ' · запись ' + tm[1] : ''}</small>`; };
     const btn = (t) => { const L = srcLink(t); return L ? `<a class="sbtn" href="${esc(L[0])}" target="_blank" rel="noopener">${/drafts/i.test(L[0]) ? 'Черновики' : 'Открыть'} ↗</a>` : `<button class="sbtn" data-act="done" aria-label="Я выполнила: ${esc(t.short)}">Я выполнила</button>`; };
     // срок в блоке «сегодня» показываем, только если он не «сегодня»
-    const due = (t) => t.dd === 0 || t.dd === null ? '' : `<span class="sd${t.dd !== null && t.dd < 0 ? ' late' : ''}">${dueShort(t)}</span>`;
+    const due = (t) => t.dd === 0 || t.dd === null ? '' : t.dd < 0 ? `<span class="sd late">срок был ${String(t.due || '').slice(0, 5)}</span>` : `<span class="sd">${dueShort(t)}</span>`;
     // риторика: заголовок «Сделать сегодня» обещает сегодняшнее — дела со сроком позже идут под отдельным подзаголовком
     const rowS = (t) => `<div class="rw sr" data-id="${esc(t.id)}"><div class="row"><button class="st" data-open>${what(t)}${why(t) ? `<span>${esc(why(t))}</span>` : ''}${meta(t)}</button>${due(t)}${btn(t)}</div></div>`;
     const mT = m.filter((t) => isToday(t)), mL = m.filter((t) => !isToday(t));
-    const todo = m.length ? mT.map(rowS).join('') + (mL.length ? `<div class="ssub">На неделе</div>` + mL.map(rowS).join('') : '')
+    const todo = m.length ? mT.map(rowS).join('') + (mL.length ? `<details class="sweek"><summary class="ssub">На неделе: ${mL.length}</summary>${mL.map(rowS).join('')}</details>` : '')
       : `<div class="sempty">Проверенных дел на сегодня нет.</div>`;
     // 30.10 (Codex, адвокат дьявола): несверенное не показываем как дело, но и не прячем — одна строка со счётом и ближайшим сроком
     const unv = unverified().sort((a, b) => (a.dd ?? 999) - (b.dd ?? 999)), nx = unv.find((t) => t.dd !== null && t.dd <= 7);
@@ -1099,7 +1106,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const paid = new Set([...BK.filter((x) => x.date >= addD(y, -7)).flatMap((x) => (x.inItems || []).map((i) => i.who)), ...vItems.filter((i) => i.date >= addD(y, -7)).map((i) => i.who)].map(ak));
     const top = [...wait.entries()].filter(([k]) => !paid.has(ak(k))).sort((a, b) => ((a[1].d && a[1].d <= y) ? 0 : 1) - ((b[1].d && b[1].d <= y) ? 0 : 1) || b[1].a - a[1].a).slice(0, 5), tot = top.reduce((x, [, w]) => x + w.a, 0);
     return `<section class="simple">
-      <div class="sday">${cap(dn)}</div>
+      <div class="sday">${cap(dn)}</div>${ohvatLine()}
       <div class="sgrid${m.length < 3 ? ' few' : ''}">
       <div class="sbox s-do"><h2>Сделать сегодня</h2>${todo}${more}</div>
       <div class="s-side"><div class="sbox s-money"><h2>Деньги</h2>${dayH()}${portal}</div>

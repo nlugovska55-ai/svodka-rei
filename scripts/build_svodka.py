@@ -294,6 +294,25 @@ def vypiska():
     return {"asOf": asof, "time": mt.strftime("%H:%M"), "fileDate": mt.strftime("%Y-%m-%d"), "src": "kontrol/vypiski/" + os.path.basename(files[-1]), "items": items}
 
 
+def ohvat():
+    """Время охвата источников из последней сверки дел «Утра» (obkhod/ДАТА-sverka-del-ЧЧММ.md, строка «Охват источников: …»)."""
+    files = sorted(glob.glob(os.path.join(os.path.dirname(KONTROL_DIR), "obkhod", "*-sverka-del-*.md")))
+    if not files:
+        return None
+    with open(files[-1], encoding="utf-8-sig") as fh:
+        for line in fh:
+            if line.startswith("Охват источников:"):
+                text = line.split(":", 1)[1].strip()
+                parts = []
+                for chunk in text.split(";"):
+                    m = re.search(r"(\d{1,2}:\d{2})", chunk)
+                    name = re.split(r"\s+[—-]\s+", chunk.strip())[0].strip()
+                    if m and name:
+                        parts.append({"src": name, "time": m.group(1)})
+                return {"file": "obkhod/" + os.path.basename(files[-1]), "date": os.path.basename(files[-1])[:10], "parts": parts}
+    return None
+
+
 def buh_svodka():
     """Последняя дневная сводка «Бухгалтерии» (kontrol/buh-svodka-ДАТА.md): разделы и строки как есть."""
     files = sorted(glob.glob(os.path.join(KONTROL_DIR, "buh-svodka-*.md")))
@@ -748,6 +767,7 @@ def main():
     data["bank_month"] = bank_month()
     data["income"] = income()
     data["vypiska"] = vypiska()
+    data["ohvat"] = ohvat()
     data["summary"] = automation(summary, data["garanty"])
     data["accuracy"] = forecast_accuracy(data["garanty"])
     data["trebovaniya"] = trebovaniya(tasks, closed_ids)
