@@ -707,6 +707,13 @@ def salary_sheet(wb, st, today):
     ws.append([date.fromisoformat(SAL_RULE[0]), *SAL_RULE[1:]])
     for _ in range(SAL_RATES[1] - SAL_RATES[0]):
         ws.append([])
+    # компактный итог в первых колонках (Codex 30.10): прошлый и текущий месяц, без горизонтальной прокрутки
+    for c, h in zip("FGHI", ("ИТОГ: месяц", "Начислено, ₽", "Выплачено, ₽", "Остаток, ₽")):
+        ws[f"{c}{SAL_RATES[0] - 1}"] = h
+    for k, r in ((-1, SAL_RATES[0]), (0, SAL_RATES[0] + 1)):
+        ws[f"F{r}"] = f"=EDATE(DATE(YEAR(TODAY()),MONTH(TODAY()),1),{k})"
+        for c, src in zip("GHI", "BQR"):
+            ws[f"{c}{r}"] = f'=IFERROR(INDEX(${src}${SAL_HEAD + 2}:${src}${SAL_HEAD + 19},MATCH(F{r},$A${SAL_HEAD + 2}:$A${SAL_HEAD + 19},0)),"нет данных")'
     ws.append(["Новая ставка — новой строкой с месяца начала: прошлые периоды не меняются. Закрытый месяц (F) показывает зафиксированную сумму (G). "
                "Ставки, принцип и закрытие вводит только Ольга. Лист защищён, но НЕ скрыт: его видит каждый, кому открыт файл."])
     ws.append([])
