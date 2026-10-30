@@ -1157,7 +1157,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const olgaDirect = (t) => t.who === 'я' || /^Ольг[аеиу](?![а-яё])/i.test(String(t.next || ''));
   // кто решает — по waiting (договорённость с «Утром» 30.10); шаг Ольги в тексте next при другом waiting — расхождение данных, показываем его
   const olgaStep = (t) => olgaDirect(t) || t.who === 'Ольга';
-  const gateMismatch = (t) => !olgaStep(t) && OLGA_GATE.test(String(t.next || ''));
+  // смотрим только текущий шаг (до первой точки, «;» или «→»): подпись Ольги после шага «Браузера» — следующий этап, waiting = Браузер честный
+  const gateMismatch = (t) => !olgaStep(t) && OLGA_GATE.test(String(t.next || '').split(/[.;→]\s/)[0]);
   // 30.10 (Codex): все дела на сегодня и просроченные — кто решает, следующий шаг, источник и время записи, почему не на первом экране
   function dayList() {
     const L = T.filter((t) => isOpen(t) && isToday(t)).sort((a, b) => (olgaStep(a) ? 0 : 1) - (olgaStep(b) ? 0 : 1) || (a.dd ?? 99) - (b.dd ?? 99));
