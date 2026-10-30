@@ -433,7 +433,7 @@ def build_xlsx(st, out, today, since=""):
     rg["L2"] = f'=ARRAYFORMULA(IF((A2:A="")+(G2:G=""),"",IF(H2:H="Отказ",0,IF(G2:G-{big}>0,G2:G-{big},0))))'
     q = '(S2:S<>"")+(COUNTIF(LEFT(Платежи!B2:B,6)&"|"&Платежи!F2:F,A2:A&"|вопрос")>0)'
     rg["M2"] = (f'=ARRAYFORMULA(IF(A2:A="","",IF(H2:H="Отказ","⛔ Отказ",IF(G2:G="","❓ Нет суммы",IF({q},"❓ Вопрос",IF(L2:L=0,'
-                f'IF(K2:K>=G2:G,"🟢 Оплачено, банк ✓","🟡 Пришло, банк не сверен"),IF({big}>0,"🟠 Частично",'
+                f'IF(K2:K>=G2:G,"🟢 Оплачено по выписке","🟡 Оплата отмечена менеджером"),IF({big}>0,"🟠 Частично",'
                 f'IF(H2:H="Обсуждаем","🔵 Прогноз (обсуждаем)",IF((I2:I<>"")*(I2:I<TODAY()),"🔴 Просрочено","⚪ Ждём оплату")))))))))')
     rg["N2"] = (f'=ARRAYFORMULA(IF(A2:A="",IF(D2:D="","","новая строка: ID присвоит Claude при сверке; "),IF(C2:C="","нет менеджера; ","")&IF(G2:G="","нет суммы; ","")&IF({has}*(I2:I=""),"нет срока; ","")'
                 f'&IF(F2:F="","нет договора; ","")&IF({has}*(I2:I<>"")*(I2:I<TODAY()),"просрочено; ","")'
@@ -491,14 +491,14 @@ def build_xlsx(st, out, today, since=""):
         row[2].number_format, row[3].number_format = "DD.MM.YYYY", "#,##0"
 
     # Листы менеджера: одна таблица месяца, итоги сверху, сначала то, что требует действий.
-    VIEW = ["Статус", "Клиент", "Договор, прил.", "Услуга", "Сумма, ₽", "Срок оплаты", "Оплачено, ₽", "Остаток, ₽", "Что сделать", "№"]
+    VIEW = ["Статус", "Клиент", "Договор, прил.", "Услуга", "Сумма, ₽", "Срок оплаты", "Отметка, ₽", "Остаток, ₽", "Что сделать", "№"]
     for title, k, carry in (("Этот месяц", 0, True), ("Следующий месяц", 1, False)):
         ws = wb.create_sheet(title, index=k)
         ws["A1"], ws["B1"] = "Оплаты клиентов", f"=DATE(YEAR(TODAY()),MONTH(TODAY())+{k},1)"
         ws["B1"].number_format = "MMMM YYYY"
         ws["A1"].font = ws["B1"].font = Font(bold=True, size=16)
         cards = [("Ждём, ₽", "=SUM(H7:H)"), ("Просрочено, ₽", '=SUMIF(A7:A,"*Просроч*",H7:H)'),
-                 ("Пришло по Лене, ₽", "=SUMIFS(Реестр!J:J,Реестр!B:B,B1)"), ("Подтвердил банк, ₽", "=SUMIFS(Реестр!K:K,Реестр!B:B,B1)"),
+                 ("По данным менеджера, ₽", "=SUMIFS(Реестр!J:J,Реестр!B:B,B1)"), ("По выписке, ₽", "=SUMIFS(Реестр!K:K,Реестр!B:B,B1)"),
                  ("Вопросов", '=COUNTIF(A7:A,"*Вопрос*")+COUNTIF(A7:A,"*Нет суммы*")')]
         for n, (lab, f) in enumerate(cards, start=1):
             c = openpyxl.utils.get_column_letter(n)
@@ -510,7 +510,7 @@ def build_xlsx(st, out, today, since=""):
             c.font, c.fill = bold, head_fill
         cond = "(Реестр!B2:B=B1)" + ('+(Реестр!B2:B<B1)*(Реестр!L2:L>0)*(Реестр!H2:H<>"Отказ")' if carry else "")
         prio = ('IF(REGEXMATCH(s,"Просроч"),1,IF(REGEXMATCH(s,"Вопрос|Нет суммы"),2,IF(REGEXMATCH(s,"Частич"),3,'
-                'IF(REGEXMATCH(s,"Ждём"),4,IF(REGEXMATCH(s,"не сверен"),5,IF(REGEXMATCH(s,"Оплачено"),6,7))))))')
+                'IF(REGEXMATCH(s,"Ждём"),4,IF(REGEXMATCH(s,"отмечена менеджером"),5,IF(REGEXMATCH(s,"Оплачено"),6,7))))))')
         ws["A7"] = (f'=IFERROR(ARRAYFORMULA(LET(f,FILTER(Реестр!A2:S,{cond}),s,CHOOSECOLS(f,13),'
                     f'SORT(CHOOSECOLS(f,13,4,6,5,7,9,10,12,18,1),{prio},TRUE,CHOOSECOLS(f,4),TRUE))),"строк нет")')
         ws.freeze_panes = "A7"

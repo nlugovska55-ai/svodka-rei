@@ -215,6 +215,11 @@ class Reestr(unittest.TestCase):
         self.assertEqual([ws.title for ws in wb if ws.sheet_state == "visible"], ["Этот месяц", "Следующий месяц", "Реестр", "Платежи", "Зарплата", "Как пользоваться"])
         self.assertIn("🔴 Просрочено", wb["Реестр"]["M1"].value)
         self.assertIn("🔵 Прогноз (обсуждаем)", wb["Реестр"]["M1"].value)  # «Обсуждаем» — прогноз, не «Ждём оплату»
+        # 30.10 термины как в живой таблице: отметка менеджера ≠ выписка; старые «банк не сверен» не возвращаем
+        self.assertIn("🟡 Оплата отмечена менеджером", wb["Реестр"]["M1"].value)
+        self.assertIn("🟢 Оплачено по выписке", wb["Реестр"]["M1"].value)
+        self.assertNotIn("не сверен", wb["Реестр"]["M1"].value + wb["Этот месяц"]["A7"].value)
+        self.assertEqual([wb["Этот месяц"][c].value for c in ("C3", "D3", "G6")], ["По данным менеджера, ₽", "По выписке, ₽", "Отметка, ₽"])
         self.assertIn("LEFT(Платежи!B2:B,6)", wb["Реестр"]["J1"].value)
         self.assertTrue(str(wb["Платежи"]["B2"].value).startswith("G-0002 · ооо чзмэк · 1240 ле дс прил 7 · 15000"))  # в «Платежах» выбирают «ID · клиент · договор · сумма»
         self.assertIn("ARRAYFORMULA", wb["Реестр"]["N1"].value)
