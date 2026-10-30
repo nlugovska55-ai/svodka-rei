@@ -456,6 +456,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const full = (a) => a ? Math.round(a).toLocaleString('ru-RU') + ' ₽' : '';
   const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; return n + ' ' + (m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 12 || h > 14) ? b : c); };
   const cap = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+  // шаг за Ольгой внутри дела команды: подпись, «Отправить», доступ, «да» — это не независимая работа команды (Codex 30.10)
+  const OLGA_GATE = /Ольга\s+(нажимает|подписывает|отправляет|вносит|даёт|дает)|подпис\S*\s+Ольг|«да»\s+Ольг|Ольге\s+(руками|нужно)|(ждём|ждет|ждёт)[^.;]{0,25}Ольг|решени\S+\s+Ольг/i;
   const INTERNAL = new Set(['', 'Ольга', 'Бухгалтерия', 'Claude', 'Лена']);
   // Короткий заголовок: поле short из базы, иначе первая мысль из title без имени клиента
   const shorten = (t, client) => {
@@ -482,8 +484,26 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     if (!m) return '';
     return (m[3] || FRESH.year) + '-' + p2(m[2]) + '-' + p2(m[1]);
   };
-  const okToday = (c) => !!c && checkedDay(c) === FRESH.todayYmd;
-  const verifiedRow = (x) => okToday(x.checked) && !!x.src && !!(x.thread || x.origin);
+  // время записи позже текущего момента — ошибка данных, а не сверка (Codex 30.10: «20:50» в 20:25 не принимаем)
+  const futureTime = (c) => {
+    const s = String(c || '').trim();
+    let m = s.match(/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(Z|[+-]\d{2}:?\d{2})/);
+    if (m) { const d = new Date(m[0].replace(' ', 'T')); return !isNaN(d) && d.getTime() > now.getTime() + 60e3; }
+    m = s.match(/^\d{4}-\d{2}-\d{2}[T ](\d{2}):(\d{2})/) || s.match(/^\d{1,2}\.\d{1,2}(?:\.\d{4})?,?\s+(\d{1,2}):(\d{2})(?!\d)/);
+    if (!m) return false;
+    const [h, mi] = FRESH.hm(now).split(':').map(Number);
+    return Number(m[1]) * 60 + Number(m[2]) > h * 60 + mi;
+  };
+  const okToday = (c) => !!c && checkedDay(c) === FRESH.todayYmd && !futureTime(c);
+  // первичка со вчерашними датами при сегодняшней записи ветки — это правка карточки, а не свежий просмотр источника
+  const srcStale = (src) => {
+    const s = String(src || ''), ds = [];
+    for (const m of s.matchAll(/(?<![\d.])(\d{1,2})\.(\d{1,2})(?:\.(\d{4}))?(?![\d])/g)) if (+m[2] >= 1 && +m[2] <= 12 && +m[1] >= 1 && +m[1] <= 31) ds.push((m[3] || FRESH.year) + '-' + p2(m[2]) + '-' + p2(m[1]));
+    for (const m of s.matchAll(/(\d{4})-(\d{2})-(\d{2})/g)) ds.push(m[1] + '-' + m[2] + '-' + m[3]);
+    return ds.length > 0 && ds.sort().pop() < FRESH.todayYmd;
+  };
+  // единое «сверено сегодня»: запись сегодня и не в будущем, источник указан и не только вчерашний, есть ветка или происхождение
+  const verifiedRow = (x) => okToday(x.checked) && !!x.src && !srcStale(x.src) && !!(x.thread || x.origin);
   const pend = store.get('svodka-pending', {});  // отмеченное на сайте, пока не пришло в базу
   const outbox = store.get('svodka-outbox', []);
   let inflight = store.get('svodka-inflight', null);
@@ -520,7 +540,9 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     T = (d.tasks || []).map((t) => {
       // amountKind=reference — справочная сумма (погашено, история): не деньги в пути, в метки и итоги не входит
       const ref = t.amountKind === 'reference', dd = days(t.due), a = ref ? 0 : Number(t.amount) || 0, nx = t.next || '';
-      const who = t.waiting || (t.wait ? (t.expert ? 'эксперт' : 'клиент') : (/^Ольг/.test(nx) || t.owner === 'Ольга') ? 'я' : t.mgr === 'Лена' ? 'Лена' : 'Claude');
+      // «ждём я», но дело ведёт другой проект/ветка и шага Ольги в next нет — это работа владельца, не Ольги (m40, Codex 30.10)
+      const wt = t.waiting === 'я' && t.owner && !/^(Ольга|Утро)/.test(t.owner) && !/^Ольг/.test(nx) && !OLGA_GATE.test(nx) ? t.owner : t.waiting;
+      const who = wt || (t.wait ? (t.expert ? 'эксперт' : 'клиент') : (/^Ольг/.test(nx) || t.owner === 'Ольга') ? 'я' : t.mgr === 'Лена' ? 'Лена' : 'Claude');
       const hot = !!(t.prio || (dd !== null && dd < -3 && !t.wait) || (dd !== null && dd <= 0 && a >= 100000 && !t.wait));
       const urg = t.urgency || (t.wait ? 'фон' : (hot || (dd !== null && dd <= 0)) ? 'сегодня' : (dd !== null && dd <= 7) ? 'неделя' : 'фон');
       const internal = INTERNAL.has(t.client);
@@ -548,7 +570,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const isOpen = (t) => { const p = pend[t.id]; if (!p) return true; if (p.action === 'later') return mskYmd(p.ts) < mskYmd(now); return !['done', 'wait'].includes(p.action); };
   const order = (x, y) => (y.hot - x.hot) || ((x.dd ?? 99) - (y.dd ?? 99)) || (y.a - x.a);
   const mineAll = () => T.filter((t) => t.who === 'я' && isOpen(t)).sort((x, y) => (y.hot - x.hot) || (y.fromSummary ? 1 : 0) - (x.fromSummary ? 1 : 0) || order(x, y));
-  const isToday = (t) => t.urg === 'сегодня' || (t.dd !== null && t.dd <= 0);
+  // D11 (согласовано с «Утром» 30.10): «сегодня» = срок ≤ сегодня; срочность «сегодня» без срока — только у пунктов «Нужно от вас»
+  const isToday = (t) => (t.dd !== null && t.dd <= 0) || (t.fromSummary && t.urg === 'сегодня');
   const delegated = (t) => pend[t.id] && pend[t.id].action === 'claude';
   const mine = () => mineAll().filter((t) => t.verified && !delegated(t));
   const unverified = () => mineAll().filter((t) => !t.verified && !delegated(t));
@@ -716,7 +739,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     dupes = other.filter((t) => opId(t) && cameOp.has(opId(t)));
     maybe = other.filter((t) => !dupes.includes(t) && cameKey.has(ckey(t)));
     const dup = new Set(dupes.map((t) => t.id));
-    return [...STAGES, CHECK].map(([k, l, c]) => { const a = o.filter((t) => t.money === k && !dup.has(t.id)), v = a.filter((t) => okToday(t.checked) && t.src);
+    return [...STAGES, CHECK].map(([k, l, c]) => { const a = o.filter((t) => t.money === k && !dup.has(t.id)), v = a.filter(verifiedRow);
       return {k, l, c, n: a.length, s: a.reduce((x, t) => x + t.a, 0), sv: v.reduce((x, t) => x + t.a, 0), nv: v.length, late: k === 'пришло' ? 0 : a.filter((t) => t.dd !== null && t.dd < 0).reduce((x, t) => x + t.a, 0)}; });  // пришедшие деньги не «просрочены»: их срок — срок дела, не оплаты
   }
   const stripHTML = (all, clickTo) => { const g = all.filter((x) => x.k !== CHECK[0]), chk = all.find((x) => x.k === CHECK[0]), tot = g.reduce((x, y) => x + y.s, 0) || 1;
@@ -1042,10 +1065,10 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     return parts.length ? `<div class="sohv">Данные на: ${esc(parts.join(' · '))}. Новее этого источники не смотрели.</div>` : '<div class="sohv">Время охвата источников неизвестно.</div>';
   }
   // первый экран: до 5 сверенных сегодня решений Ольги; тот же набор берут счётчик и список «На сегодня» (Codex 30.10)
-  const utroCand = (t) => isOpen(t) && olgaStep(t) && t.who !== 'Ольга' && (t.verified || verifiedRow(t)) && !delegated(t) && !doneByIncome(t);
+  const utroCand = (t) => isOpen(t) && olgaDirect(t) && (t.verified || verifiedRow(t)) && !delegated(t) && !doneByIncome(t);
   const pickUtro = () => T.filter(utroCand).sort(byUrg).slice(0, 5);
   // статус дела в «На сегодня и просрочено» — по фактически показанным ID, а не по признаку «сверено»
-  const daySt = (t, shown) => !olgaStep(t) ? 'работа команды' : shown.has(t.id) ? 'на первом экране' : doneByIncome(t) ? 'снято: оплаты внесены по реестру поступлений'
+  const daySt = (t, shown) => gateMismatch(t) ? 'работа команды, но в шаге нужна Ольга: waiting не «Ольга», сверить' : !olgaStep(t) ? 'работа команды' : shown.has(t.id) ? 'на первом экране' : doneByIncome(t) ? 'снято: оплаты внесены по реестру поступлений'
     : delegated(t) ? 'поручено Claude' : t.who === 'Ольга' ? 'ждёт решения, нет в «Нужно от вас»' : utroCand(t) ? 'ещё проверенное, за пределами 5' : 'не сверено сегодня';
   function utro() {
     // решение Ольги — её дело или дело команды, где следующий шаг начинается с «Ольга/Ольге»; на экран — только сверенные сегодня
@@ -1077,11 +1100,11 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const unv = unverified().sort((a, b) => (a.dd ?? 999) - (b.dd ?? 999)), nx = unv.find((t) => t.dd !== null && t.dd <= 7);
     // 30.10 (Codex): критерий первого экрана виден — сколько всего дел на сегодня и просроченных, сколько показано и почему остальные не здесь
     const dayAll = T.filter((t) => isOpen(t) && isToday(t)), shownIds = new Set(m.map((t) => t.id));
-    const restSt = {}; dayAll.filter((t) => olgaStep(t) && !shownIds.has(t.id)).forEach((t) => { const k = daySt(t, shownIds).split(',')[0]; restSt[k] = (restSt[k] || 0) + 1; });
+    const restSt = {}; dayAll.filter((t) => olgaStep(t) && !shownIds.has(t.id)).forEach((t) => { const k = daySt(t, shownIds).split(/[,(]/)[0].trim(); restSt[k] = (restSt[k] || 0) + 1; });
     const SHORT = {'не сверено сегодня': 'не сверено', 'ждёт решения': 'ждут решения вне списка', 'ещё проверенное': 'ещё проверенные', 'поручено Claude': 'поручено', 'снято: оплаты внесены по реестру поступлений': 'снято по реестру'};
     const myRest = Object.values(restSt).reduce((a, b) => a + b, 0), team = dayAll.filter((t) => !olgaStep(t)).length;
     const myTxt = Object.entries(restSt).map(([k, n]) => `${SHORT[k] || k} ${n}`).join(', ');
-    const more = dayAll.length ? `<button class="link smore2" data-go="kontrol" data-anchor="daylist">Ещё ${dayAll.length - dayAll.filter((t) => shownIds.has(t.id)).length} на сегодня и просрочено${myRest ? `: ваших ${myRest} (${myTxt})` : ''}${team ? `${myRest ? ',' : ':'} ${team} у команды` : ''} →</button>` : '';
+    const more = dayAll.length ? `<button class="link smore2" data-go="kontrol" data-anchor="daylist">Ещё ${dayAll.length - dayAll.filter((t) => shownIds.has(t.id)).length} на сегодня и просрочено${myRest ? `: ваших ${myRest} (${myTxt})` : ''}${team ? `${myRest ? ',' : ':'} ${team} у команды` : ''}${dayAll.filter(gateMismatch).length ? ` (у ${dayAll.filter(gateMismatch).length} в шаге нужна Ольга, waiting не проставлен)` : ''} →</button>` : '';
     // Деньги: пришло по банку вчера и сегодня, только от клиентов
     const BK = (D.bank && D.bank.days) || [], prev = addD(y, -1 - (new Date(y + 'T12:00:00Z').getUTCDay() === 1 ? 2 : 0));
     const INC = Array.isArray(D.income) ? D.income : null, key = (x) => niceCl(x).toLowerCase().replace(/[^а-яёa-z0-9]/g, '');
@@ -1121,7 +1144,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <div class="sgrid${m.length < 3 ? ' few' : ''}">
       <div class="sbox s-do"><h2>Сделать сегодня</h2>${todo}${more}</div>
       <div class="s-side"><div class="sbox s-money"><h2>Деньги</h2>${dayH()}${portal}</div>
-      <div class="sbox s-wait"><h2>Ждём оплату${tot ? ` <span class="h2n">${num(tot)}</span>` : ''}</h2>${top.length ? top.map(([k, w]) => `<div class="sl"><span>${esc(k)}<small${w.d && w.d <= y ? ' class="late"' : ''}>${w.d ? (w.d <= y ? 'контроль сегодня' : 'контроль ' + dmY(w.d)) + ' · ' : ''}${w.src}${w.why ? ': ' + esc(w.why.replace(/^получить оплату /i, '').replace(/^по акту/i, 'акт')) : ''}</small></span><b>${num(w.a)}</b></div>`).join('') : '<div class="sempty">нет данных</div>'}</div></div>
+      <div class="sbox s-wait"><h2>Ждём оплату${tot ? ` <span class="h2n">${num(tot)}</span>` : ''}</h2>${top.length ? top.map(([k, w]) => `<div class="sl"><span>${esc(k)}<small${w.d && w.d <= y ? ' class="late"' : ''}>${w.d ? (w.d <= y ? 'контроль сегодня' : 'контроль ' + dmY(w.d)) + ' · ' : ''}${w.src}${w.why ? ': ' + esc(w.why.replace(/^получить оплату /i, '').replace(/^по акту/i, 'акт')) : ''}</small></span><b>${num(w.a)}</b></div>`).join('') : `<div class="sempty">Сверенных сегодня ожиданий оплаты нет. Все ожидания — в <button class="link" data-go="money" style="margin:0">«Прогноз денег»</button>.</div>`}</div></div>
       </div>
       <nav class="slinks"><button class="link" data-go="all">Все дела</button><button class="link" data-go="kontrol">Контроль</button><button class="link" data-go="money">Прогноз денег</button>${D.garanty && D.garanty.source && D.garanty.source.url ? `<a class="link" href="${esc(D.garanty.source.url)}" target="_blank" rel="noopener">Таблица Лены ↗</a>` : ''}</nav>
     </section>`;
@@ -1131,7 +1154,10 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const low = (x) => String(x || '').toLowerCase().replace(/[«»"]/g, '').replace(/^(ооо|ао|пао|зао|ип)\s+/, '');
   const doneByIncome = (t) => { if (!/портал/i.test(t.title + ' ' + (t.cl || '')) || !/оплат/i.test(t.title)) return false;
       const txt = low(t.title), hit = (Array.isArray(D.income) ? D.income : []).filter((r) => txt.includes(low(r.payer).split(/\s+/)[0])); return hit.length > 0 && hit.every((r) => ['vneseno', 'skip'].includes(r.status)); };
-  const olgaStep = (t) => t.who === 'я' || t.who === 'Ольга' || /^Ольг[аеиу](?![а-яё])/i.test(String(t.next || ''));
+  const olgaDirect = (t) => t.who === 'я' || /^Ольг[аеиу](?![а-яё])/i.test(String(t.next || ''));
+  // кто решает — по waiting (договорённость с «Утром» 30.10); шаг Ольги в тексте next при другом waiting — расхождение данных, показываем его
+  const olgaStep = (t) => olgaDirect(t) || t.who === 'Ольга';
+  const gateMismatch = (t) => !olgaStep(t) && OLGA_GATE.test(String(t.next || ''));
   // 30.10 (Codex): все дела на сегодня и просроченные — кто решает, следующий шаг, источник и время записи, почему не на первом экране
   function dayList() {
     const L = T.filter((t) => isOpen(t) && isToday(t)).sort((a, b) => (olgaStep(a) ? 0 : 1) - (olgaStep(b) ? 0 : 1) || (a.dd ?? 99) - (b.dd ?? 99));
@@ -1157,7 +1183,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const unsent = (outbox.length || inflight) && !sending ? `<div class="warnline">${plural(outbox.length, 'отметка не отправлена', 'отметки не отправлены', 'отметок не отправлено')}, они сохранены в этом браузере. <button class="link" style="margin:0" data-retry>Отправить снова</button></div>` : '';
     const prioRows = shown.map((t, i) => (i === 0 || bucketOf(shown[i - 1]) !== bucketOf(t) ? `<div class="gsub">${BUCKN[bucketOf(t)]}</div>` : '') + pcard(t, i)).join('');
     // Полнота сверки по всем открытым делам: сколько проверено по источнику сегодня и у скольких даты проверки нет вовсе
-    const own = T.filter((t) => !t.fromSummary), allN = own.length, allToday = own.filter((t) => okToday(t.checked)).length, allNone = own.filter((t) => !String(t.checked || '').trim()).length;
+    const own = T.filter((t) => !t.fromSummary), allN = own.length, allToday = own.filter(verifiedRow).length, allNone = own.filter((t) => !String(t.checked || '').trim()).length;
     // 30.10 (Codex): полнота сверки — одна строка; подробности ниже, в «Не проверено сегодня»
     const cover = allN ? `<div class="cover"><span>Полнота: сверено сегодня <b>${allToday}</b> из <b>${allN}</b>${allNone ? `, без даты сверки <b>${allNone}</b>` : ''}${week.length ? ` · ${plural(week.length, 'ваше дело ждёт', 'ваших дела ждут', 'ваших дел ждут')} проверки` : ''}</span>${week.length ? '<button class="link" data-go="kontrol" data-anchor="unchecked">Что не сверено ▸</button>' : ''}</div>` : '';
     const gapN = allN - allToday;
@@ -1166,7 +1192,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const lateN = m.filter((t) => bucketOf(t) === 0).length;
     const h1 = m.length ? `Сегодня решить: <em>${plural(m.length, 'дело', 'дела', 'дел')}</em>${lateN ? ` <span class="late">(просрочено ${lateN})</span>` : ''}${gapN ? `<span class="h1gap">${gapH1}</span>` : ''}` : gapN ? `Контроль неполный: проверено <em style="color:var(--warn)">${allToday} из ${allN}</em>` : listToday ? 'Решений от вас сегодня не требуется' : 'Список дел на сегодня ещё не собран';
     // 29.10 (Jonas): при непроверенных делах не успокаиваем «ничего срочного» — показываем дыру в контроле и действие
-    const gapIds = own.filter((t) => !okToday(t.checked)).map((t) => t.id);
+    const gapIds = own.filter((t) => !verifiedRow(t)).map((t) => t.id);
     const gapB = gapN ? `<div class="gap" role="alert"><span><b>Срочность ${plural(gapN, 'дела', 'дел', 'дел')} не подтверждена: сегодня не сверено с источником ${gapN} из ${allN}.</b> Сказать «ничего срочного» нельзя.</span><button class="btn small" data-gapclaude>Поручить Claude сверить ${gapN} сейчас</button></div>` : '';
     const empty = gapN ? gapB : `<div class="empty"><b>${listToday ? 'Решений не требуется' : 'Проверенного списка ещё нет'}</b><span>${listToday ? 'Ниже — что изменилось, ближайшие деньги и чем занята команда.' : 'Ветка «Утро и задачи» ещё не выложила проверенный список. Показать нечего, это не значит, что дел нет.'}</span></div>`;
     return `<div class="top3"><section class="lead"><div class="day">${cap(dn)}</div>
@@ -1465,7 +1491,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const b = e.target.closest('button, [data-open]'); if (!b) return; const d = b.dataset;
     const w = b.closest('.rw'), t = w && T.find((x) => x.id === w.dataset.id);
     if (d.tab) go(d.tab);
-    else if (d.gapclaude !== undefined) { const ids = T.filter((x) => !x.fromSummary && !okToday(x.checked)).map((x) => x.id);
+    else if (d.gapclaude !== undefined) { const ids = T.filter((x) => !x.fromSummary && !verifiedRow(x)).map((x) => x.id);
       act({id: 'sum-gap', cl: 'Пульт', title: 'Сверить с источником дела без сегодняшней сверки', short: 'Сверить ' + ids.length + ' непроверенных дел'}, 'ai',
         'Сверить с источником сегодня и поставить checked/src (или «не найдено в источнике»): ' + ids.join(', ')); }
     else if (d.focus !== undefined) startFocus();

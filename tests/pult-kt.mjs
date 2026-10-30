@@ -46,12 +46,17 @@ try {
   const shownSrc = det ? await det.evaluate((e) => e.open && e.querySelector('div').innerText.trim()) : '';
   check('Источник скрыт и открывается по нажатию', det && hid === false && !!shownSrc, `«${shownSrc}»`);
   // 4. Отмена диалога ничего не меняет
+  // на живых данных сверенных решений Ольги может не быть (честно пусто) — для проверки диалога добавляем одно сверенное дело
+  const todayRu = new Intl.DateTimeFormat('ru-RU', {timeZone: 'Europe/Moscow', day: '2-digit', month: '2-digit'}).format(new Date());
+  const withMine = JSON.parse(fs.readFileSync(REAL, 'utf8')); withMine.tasks.push({id: 'kt-dlg', section: 'Мои клиенты', client: 'Тест', title: 'Проверьте тестовое дело', next: 'Ольге: проверить', due: '', waiting: 'я', urgency: 'сегодня', checked: todayRu + ' 00:01', src: 'тест: банк ' + todayRu, thread: 'Утро'});
+  const dlgFile = path.join(CASES, 'dlg.json'); fs.writeFileSync(dlgFile, JSON.stringify(withMine)); DATA = dlgFile;
   await go(p, '#kontrol'); const btn = await p.$('[data-act="done"]');
   const before = await p.evaluate(() => localStorage.getItem('svodka-pending') + '|' + localStorage.getItem('svodka-outbox'));
   const id = btn ? await btn.evaluate((e) => e.closest('.rw').dataset.id) : '';
   if (btn) { await btn.click(); await p.waitForSelector('#sheet:not([hidden])'); await p.click('[data-sh="no"]'); await p.waitForTimeout(5800); }
   const after = await p.evaluate(() => localStorage.getItem('svodka-pending') + '|' + localStorage.getItem('svodka-outbox'));
   check('«Отмена» в диалоге: ни отправки, ни отметки, дело на месте', btn && posts === 0 && before === after && !!(await p.$(`.rw[data-id="${id}"]`)), `отправок ${posts}, хранилище ${before === after ? 'не изменилось' : 'изменилось'}`);
+  DATA = REAL;
   // 4b. Находки Codex по 130ce26 на настоящих данных
   await go(p, '#money'); const bank = await p.innerText('#bank'), wks = await p.innerText('#weeks'), nd = await p.$('#nodate') ? await p.innerText('#nodate') : '';
   check('Банк: день по уведомлениям подписан источником и временем, не «по выписке»', /по уведомлениям до \d\d:\d\d, не выписка/.test(bank) && /на \d\d\.\d\d \d\d:\d\d, по уведомлениям/.test(bank) && !/сборка 29\.10\.2026 13:00/.test(bank), (bank.match(/Источник по дням[^\n]*/) || [''])[0]);
