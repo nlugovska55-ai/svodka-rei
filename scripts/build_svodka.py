@@ -149,6 +149,7 @@ def prognoz():
 SPISANIYA_JSON = "/mnt/project-files/daily-control/svodka/spisaniya.json"
 BUH_PLAN_JSON = "/mnt/project-files/daily-control/svodka/buh-plan.json"
 BANK_JSON = "/mnt/project-files/daily-control/svodka/bank-oboroty.json"
+BANK_MONTH_JSON = "/mnt/project-files/daily-control/svodka/bank-mesyac.json"
 KONTROL_DIR = "/mnt/project-files/daily-control/kontrol"
 BUH_PLANS = {
     "Реестр обязательных платежей": "/mnt/project-files/daily-control/otchety-claude/reestr-platezhey-chernovik.md",
@@ -248,6 +249,16 @@ def bank_oboroty():
             d["outItems"] = [x for x in d["outItems"] if x not in hide] + [{"who": "прочие перечисления", "amount": round(sum(float(x.get("amount") or 0) for x in hide), 2), "basis": ""}]
     days.sort(key=lambda x: (x["date"], x["account"]))
     return {"built": p.get("built", ""), "note": p.get("note", ""), "days": days}
+
+
+def bank_month():
+    """Факт месяца по выпискам (ведёт «Бухгалтерия»): по счетам отдельно, без общего итога; нет файла — None."""
+    if not os.path.exists(BANK_MONTH_JSON):
+        return None
+    with open(BANK_MONTH_JSON, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    accs = [a for a in p.get("accounts", []) if a.get("account") and isinstance(a.get("in"), (int, float))]
+    return {**p, "accounts": accs} if accs else None
 
 
 def buh_svodka():
@@ -610,8 +621,8 @@ def automation(summary, gar):
     return [r for r in summary if r.get("section") != "Автоматика"] + rows
 
 
-# Правило Ольги (§14 п.8): просьбы войти, ввести ПИН, логин или пароль на пульт не ставим никогда, только в чат
-LOGIN_RE = re.compile(r"(^|[^а-яё])пин([^а-яё]|$)|alfa id|войдите|войти в|вход в (банк|альф|точк|личн|кабинет|диадок|почт)|разлогин|залогин|логин|авториз|введите пароль|ввести пароль|сесси[яи] истекл", re.I)
+# Правило Ольги (§14 п.8): просьбы войти, ввести ПИН, логин или пароль, пароли и служебные дела для веток на пульт не ставим, только в чат
+LOGIN_RE = re.compile(r"(^|[^а-яё])пин([^а-яё]|$)|alfa id|войдите|войти в|вход в (банк|альф|точк|личн|кабинет|диадок|почт)|разлогин|залогин|логин|авториз|пароль|сесси[яи] истекл|разрешить (экран|доступ)|«разрешить»|памятк|в ветку|открыть [^.;]{0,40} в (яндекс|chrome|хром)", re.I)
 
 
 def is_login_ask(row):
@@ -701,6 +712,7 @@ def main():
     sp, bs, bp, bank = spisaniya(), buh_svodka(), buh_plan(), bank_oboroty()
     data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "bank": bank, "buh_sources": buh_sources(sp, bs, bp, bank)})
     data["garanty"] = garanty(tasks, bank)
+    data["bank_month"] = bank_month()
     data["summary"] = automation(summary, data["garanty"])
     data["accuracy"] = forecast_accuracy(data["garanty"])
     data["trebovaniya"] = trebovaniya(tasks, closed_ids)

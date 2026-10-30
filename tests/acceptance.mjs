@@ -51,7 +51,7 @@ async function device(data, opts = {}) {
 }
 // «Я выполнила» — только через подтверждение смысла
 const markDone = async (p, id) => { await p.click(`.rw[data-id="${id}"] [data-act="done"]`); await p.waitForSelector('#cf-yes'); await p.click('#cf-yes'); };
-const go = async (p, hash = '#utro') => { await p.goto(URL0 + hash); await p.waitForTimeout(700); };
+const go = async (p, hash = '#kontrol') => { await p.goto(URL0 + hash); await p.waitForTimeout(700); };
 const rowIds = (p) => p.$$eval('.rows:first-of-type .rw', (x) => x.map((e) => e.dataset.id));
 const ask = (p) => p.$$eval('section.sec', (ss) => { const s = ss.find((e) => /Требует вашего решения/.test(e.querySelector('h2')?.textContent || '')); return s ? [...s.querySelectorAll('.rw')].map((e) => e.dataset.id) : []; });
 
@@ -317,7 +317,7 @@ try {
     await markDone(A.p, i0); await A.p.waitForTimeout(5800);
     const nb = fresh(); nb.updated = iso(new Date(Date.now() + 60e3));
     await A.p.unroute('**/data/svodka.json*'); await A.p.route('**/data/svodka.json*', (r) => r.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify(nb)}));
-    await go(A.p, '#utro'); await A.p.reload(); await A.p.waitForTimeout(800);
+    await go(A.p, '#kontrol'); await A.p.reload(); await A.p.waitForTimeout(800);
     const B = await device(nb); await go(B.p);
     const a = await ask(A.p), b = await ask(B.p);
     await go(A.p, '#all'); await go(B.p, '#all');
@@ -336,7 +336,7 @@ try {
     await A.p.fill('#shText', 'сверить акт'); await A.p.click('#cf-yes'); await A.p.waitForTimeout(5800);
     const ev = inbox.find((x) => x.taskId === id0);
     await go(A.p, '#all'); await A.p.fill('#q', ''); const tag = await A.p.$eval(`.rw[data-id="${id0}"]`, (e) => e.textContent).catch(() => 'нет строки');
-    await go(A.p, '#utro'); const jr = await A.p.textContent('#replies').catch(() => '');
+    await go(A.p, '#kontrol'); const jr = await A.p.textContent('#replies').catch(() => '');
     check('Поручить Claude: в inbox action=claude, дело не закрыто и видно «ожидает разбора»', ev?.action === 'claude' && !!ev.eid && /ожидает разбора/.test(tag) && !(await ask(A.p)).includes(id0),
       `действие «${ev?.action}», строка: «${tag.replace(/\s+/g, ' ').trim().slice(0, 90)}»`);
     check('Журнал: поручение «принято, ждёт разбора»', /Поручено Claude/.test(jr) && /принято, ждёт разбора/.test(jr), `«${jr.replace(/\s+/g, ' ').trim().slice(0, 120)}»`);
@@ -415,7 +415,7 @@ try {
     const rh = await M.p.$eval('.rw', (e) => e.getBoundingClientRect().height).catch(() => 0);
     check('Телефон 390 px, «Бухгалтерия»: нет прокрутки вбок, строка с двумя кнопками не выше 90 px', ov <= 0 && rh > 0 && rh <= 90, `лишняя ширина ${ov} px, высота строки ${Math.round(rh)} px`);
     if (SHOTS) await M.p.screenshot({path: path.join(SHOTS, 'telefon-buhgalteriya.png'), fullPage: true});
-    await go(M.p, '#utro'); const bt = await M.p.$$eval('.rw .abs, .rw.pc .pa', (x) => x.map((e) => [...e.querySelectorAll('button')].map((b) => b.textContent.trim()).join(' | ')));
+    await go(M.p, '#kontrol'); const bt = await M.p.$$eval('.rw .abs, .rw.pc .pa', (x) => x.map((e) => [...e.querySelectorAll('button')].map((b) => b.textContent.trim()).join(' | ')));
     const ov2 = await M.p.evaluate(() => document.documentElement.scrollWidth - innerWidth), rh2 = await M.p.$eval('.rw:not(.pc)', (e) => e.getBoundingClientRect().height).catch(() => 0);
     check('Кнопки с глаголом: «Я выполнила» и «Поручить Claude», 390 px без прокрутки вбок', bt.length > 0 && bt.every((x) => x === 'Я выполнила | Поручить Claude') && ov2 <= 0 && rh2 <= 96, `кнопки «${bt[0]}», лишняя ширина ${ov2} px, высота строки ${Math.round(rh2)} px`);
     check('Ошибок JavaScript в «Бухгалтерии» нет', !M.p.errors.length && !N.p.errors.length, [...M.p.errors, ...N.p.errors].join('; ') || '0 ошибок');
