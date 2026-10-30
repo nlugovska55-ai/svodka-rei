@@ -106,6 +106,13 @@ def add_month(m, k=1):
     return f"{y + mo // 12}-{mo % 12 + 1:02d}-01"
 
 
+def iter_months(a, b):
+    """Месяцы от a до b включительно (ISO, первое число)."""
+    while a <= b:
+        yield a
+        a = add_month(a, 1)
+
+
 def months_to_show(today):
     """Текущий и следующий месяц: декабрь → январь следующего года."""
     cur = today.strftime("%Y-%m-01")
@@ -632,7 +639,11 @@ SALARY_COLS = ["Месяц", "К выплате, ₽", "База по месяц
                "Пришло по выписке (база), ₽", "Месяц закрыт (дата)", "Зафиксировано при закрытии, ₽",
                "База в записи Лены, ₽", "% в записи Лены, ₽", "Шт. (макеты ДС)", "Доплата в записи, ₽", "Удержания в записи, ₽",
                "Итог в записи Лены, ₽", "Проверка записи", "Запись Лены как есть", "Где запись",
-               "Выплачено наличными, ₽ (вносит Ольга)", "Остаток к выплате, ₽"]
+               "Выплачено Лене, ₽ (только подтверждённые Ольгой строки блока «Выплаты» ниже)", "Остаток к выплате, ₽",
+               "10% от подтверждённой базы, ₽", "Макеты ДС: шт. × 500, ₽", "Охват и неполнота",
+               "Корректировки, ₽ (вносит Ольга, + или −, с причиной в комментарии)"]
+SALARY_COLS[1] = "Начислено, ₽ (10% базы + макеты − удержания + корректировки)"
+PAY_COLS_SAL = ["Дата", "Сумма, ₽", "Способ", "Источник", "Подтверждено Ольгой (да / нет / вопрос)", "За какой месяц ЗП (01.10.2026)", "Вопрос Ольге"]
 SAL_HEAD = 10      # строка шапки таблицы месяцев
 SAL_RATES = (5, 7)  # строки периодов ставок
 PRINCIPLES = ["по выписке", "не согласован", "месяц обязательства", "дата оплаты"]
@@ -645,7 +656,7 @@ def head_formula(title, f):
     return f'=ARRAYFORMULA(IF(ROW(A1:A)=1,"{title}",{inner}))'
 
 
-def salary_row(i, m, n, live=False):
+def salary_row(i, m, n, live=False, pay=(32, 60), cover=""):
     """Строка месяца. К выплате (B) — только при выбранном принципе базы и ставке периода; закрытый месяц — зафиксированная сумма."""
     r0, r1 = SAL_RATES
     rs, rp, ru = (f"$A${r0}:$A${r1}", f"$B${r0}:$B${r1}", f"$C${r0}:$C${r1}")
@@ -656,7 +667,8 @@ def salary_row(i, m, n, live=False):
             # «по дате оплаты» без дат у части оплат — не считаем: даты не придумываем
             f'IF(AND($B$2="дата оплаты",COUNTIFS(Платежи!B:B,"<>",Платежи!C:C,"",Платежи!F:F,"да")>0),"не рассчитано: у части оплат нет даты",'
             f'IF(OR(p="",u=""),"не рассчитано: нет ставки на этот месяц",'
-            f'IF(ISNUMBER(b),b*p/100+N(J{i})*u-N(L{i}),"нет базы"))))))',
+            # пусто ≠ ноль (Codex 30.10): месяц без выписок и без макетов — «нет данных», а не 0
+            f'IF(NOT(ISNUMBER(b)),"нет базы",IF(AND(b=0,N(J{i})=0),"нет данных: выписок за месяц нет",b*p/100+N(J{i})*u-N(L{i})+N(V{i}))))))))',
             f'=IFERROR(INDEX(Месяцы!D:D,MATCH(A{i},Месяцы!A:A,0)),"нет в «Месяцах»")',
             f'=SUMIFS(Платежи!D:D,Платежи!C:C,">="&A{i},Платежи!C:C,"<"&EDATE(A{i},1),Платежи!F:F,"да")',
             f'=SUMIFS(Банк!D:D,Банк!C:C,">="&A{i},Банк!C:C,"<"&EDATE(A{i},1))',
@@ -668,8 +680,13 @@ def salary_row(i, m, n, live=False):
             f'=IF(M{i}="","записи нет",IF(I{i}="","% в записи не выписан",IF(I{i}+K{i}-L{i}=M{i},"арифметика сходится","не сходится на "&TEXT(I{i}+K{i}-L{i}-M{i},"#,##0"))))'
             f'&IF(AND(H{i}<>"",ISNUMBER(C{i})),IF(H{i}<>C{i}," · база у Лены ≠ реестру на "&TEXT(H{i}-C{i},"#,##0"),""),"")',
             n.get("text"), (n.get("file", "") + " " + n.get("cell", "")).strip() or None,
-            # ЗП Лене Ольга отдаёт наличными (30.10): по банку не видно, сумму вписывает Ольга; остаток = к выплате − выплачено
-            None, f'=IF(ISNUMBER(B{i}),B{i}-N(Q{i}),"")' if live else None]
+            # ЗП Лене Ольга отдаёт наличными (30.10): по банку не видно. Выплачено — только строки блока «Выплаты» с «да» от Ольги;
+            # нет таких строк — «нет данных», остаток тогда «неизвестно», а не начисленное целиком
+            *((f'=IF(COUNTIFS($F${pay[0]}:$F${pay[1]},A{i},$E${pay[0]}:$E${pay[1]},"да")=0,"нет данных",SUMIFS($B${pay[0]}:$B${pay[1]},$F${pay[0]}:$F${pay[1]},A{i},$E${pay[0]}:$E${pay[1]},"да"))',
+               f'=IF(NOT(ISNUMBER(B{i})),"нет данных",IF(ISNUMBER(Q{i}),B{i}-Q{i},"неизвестно: выплаты не внесены (начислено "&TEXT(B{i},"# ##0")&")"))',
+               f'=IF(ISNUMBER(B{i}),LET(s,MAXIFS({rs},{rs},"<="&A{i}),E{i}*INDEX({rp},MATCH(s,{rs},0))/100),"—")',
+               f'=IF(ISNUMBER(B{i}),LET(s,MAXIFS({rs},{rs},"<="&A{i}),N(J{i})*INDEX({ru},MATCH(s,{rs},0))),"—")',
+               cover or None, None) if live else ())]
 
 
 def salary_sheet(wb, st, today):
@@ -702,13 +719,20 @@ def salary_sheet(wb, st, today):
     ws.append([f"Текущий период (с {month_label(cur_from)})"])
     sec = [i]
     i += 1
+    # строки блока «Выплаты» считаем заранее: формулы «Выплачено» ссылаются на него
+    n_cur = sum(1 for _ in iter_months(cur_from, end))
+    n_arch = sum(1 for _ in iter_months(first, add_month(cur_from, -1))) if first < cur_from else 0
+    pay_from = i + n_cur + 2 + (1 + n_arch if n_arch else 0) + 4  # итог, пустая, [архив], 2 пустых, заголовок, шапка
+    pay = (pay_from, pay_from + 28)
+    covers = st.get("salaryCover", {})
     m = cur_from
     while m <= end:
-        ws.append(salary_row(i, m, notes.get(m, {}), live=True))
+        ws.append(salary_row(i, m, notes.get(m, {}), live=True, pay=pay,
+                             cover=covers.get(m, "Нет данных: месяц не наступил, выписок нет." if m > today.isoformat() else "")))
         m, i = add_month(m, 1), i + 1
     cur_rows = (sec[0] + 1, i - 1)
-    ws.append(["Итого текущий период", None, f"=SUM(C{cur_rows[0]}:C{cur_rows[1]})", f"=SUM(D{cur_rows[0]}:D{cur_rows[1]})", f"=SUM(E{cur_rows[0]}:E{cur_rows[1]})",
-               *[None] * 11, f"=SUM(R{cur_rows[0]}:R{cur_rows[1]})"])
+    ws.append(["Итого текущий период", f"=SUM(B{cur_rows[0]}:B{cur_rows[1]})", f"=SUM(C{cur_rows[0]}:C{cur_rows[1]})", f"=SUM(D{cur_rows[0]}:D{cur_rows[1]})",
+               f"=SUM(E{cur_rows[0]}:E{cur_rows[1]})"])
     i += 1
     ws.append([])
     i += 1
@@ -720,6 +744,15 @@ def salary_sheet(wb, st, today):
         while m < cur_from:
             ws.append(salary_row(i, m, notes.get(m, {})))
             m, i = add_month(m, 1), i + 1
+    # выплаты Лене: Claude пишет по источникам, в «Выплачено» идут только строки с «да» от Ольги и месяцем ЗП
+    ws.append([])
+    ws.append([])
+    ws.append(["Выплаты Лене (пишет Claude по источникам, подтверждает Ольга). В «Выплачено» (Q) идут только строки с E = «да» и месяцем ЗП в F."])
+    ws.append(PAY_COLS_SAL)
+    assert ws.max_row + 1 == pay[0], (ws.max_row, pay)
+    for x in st.get("salaryPayouts", []):
+        ws.append([date.fromisoformat(x["date"]), x["amount"], x["how"], x["source"], x.get("ok", "вопрос"),
+                   date.fromisoformat(x["month"]) if x.get("month") else None, x.get("question")])
     # вид: заголовок не обрезается, «К выплате» рядом с месяцем, текущий месяц выделен
     ws.merge_cells("A1:G1")
     ws["A1"].font = Font(bold=True, size=15)
