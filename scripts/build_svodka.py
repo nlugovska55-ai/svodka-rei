@@ -610,6 +610,14 @@ def automation(summary, gar):
     return [r for r in summary if r.get("section") != "Автоматика"] + rows
 
 
+# Правило Ольги (§14 п.8): просьбы войти, ввести ПИН, логин или пароль на пульт не ставим никогда, только в чат
+LOGIN_RE = re.compile(r"(^|[^а-яё])пин([^а-яё]|$)|alfa id|войдите|войти в|вход в (банк|альф|точк|личн|кабинет|диадок|почт)|разлогин|залогин|логин|авториз|введите пароль|ввести пароль|сесси[яи] истекл", re.I)
+
+
+def is_login_ask(row):
+    return bool(LOGIN_RE.search(" ".join(str(row.get(k) or "") for k in ("title", "short", "text", "next", "detail"))))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("db_dir")
@@ -679,6 +687,8 @@ def main():
         summary = summary.get("summary", summary.get("rows"))
     if not isinstance(summary, list) or not all(isinstance(row, dict) for row in summary):
         raise ValueError("summary должен быть списком объектов; прежняя сводка сохранена")
+    tasks = [t for t in tasks if not is_login_ask(t)]
+    summary = [r for r in summary if not is_login_ask(r)]
     data = {
         "updated": datetime.now(MSK).strftime("%Y-%m-%dT%H:%M:%S+03:00"),
         "tasks": tasks,
@@ -686,7 +696,7 @@ def main():
         "lena_clients": lena_clients(tasks),
         "prognoz": prognoz(),
         "appliedEvents": applied_events(db_dir),
-        "replies": comment_replies(db_dir),
+        "replies": [r for r in comment_replies(db_dir) if not is_login_ask(r)],
     }
     sp, bs, bp, bank = spisaniya(), buh_svodka(), buh_plan(), bank_oboroty()
     data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "bank": bank, "buh_sources": buh_sources(sp, bs, bp, bank)})
