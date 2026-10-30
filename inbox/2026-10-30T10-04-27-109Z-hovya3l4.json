@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-10-30T10:04:30.838Z",
+  "batchId": "2026-10-30T10-04-27-109Z-hovya3l4",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Альфа",
+      "taskId": null,
+      "taskTitle": "Введите ПИН Alfa ID во вкладке Альфы в Chrome: она разлогинилась, выписки не прочитать",
+      "text": "Вот такое сюда не пиши. Я в десктопе быстрее вижу, а тут потом место занимает.",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-10-30T10:04:22.095Z",
+      "eid": "emvut29cf60cf3axz"
+    }
+  ]
+}
