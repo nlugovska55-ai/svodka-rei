@@ -24,7 +24,7 @@ try {
   // 1. 1366 и 390: 4 вкладки, без прокрутки вбок, основной текст 16px
   for (const [w, h] of [[1366, 900], [390, 844]]) {
     const p = await page(w, h), out = [];
-    for (const t of ['utro', 'money', 'buh', 'all']) { await go(p, '#' + t);
+    for (const t of ['utro', 'kontrol', 'money', 'buh', 'all']) { await go(p, '#' + t);
       const m = await p.evaluate(() => ({ov: document.documentElement.scrollWidth - innerWidth, fs: getComputedStyle(document.body).fontSize, sel: document.querySelector('.tab[aria-selected="true"]')?.dataset.tab}));
       out.push([t, m]); if (SHOTS) await p.screenshot({path: path.join(SHOTS, `${w}-${t}.png`), fullPage: true}); }
     check(`${w} px: 4 вкладки открываются, прокрутки вбок нет, текст 16px`, out.every(([t, m]) => m.ov <= 0 && m.fs === '16px' && m.sel === t) && !p.errors.length, out.map(([t, m]) => `${t}: ${m.ov}px/${m.fs}`).join(', ') + (p.errors.length ? '; ошибки ' + p.errors.join('; ') : ''));
@@ -32,7 +32,7 @@ try {
   }
   const p = await page(1366, 900);
   // 2. Счётчик команды ведёт к тем же делам; фильтр «Лена» во «Всех делах»
-  await go(p, '#utro');
+  await go(p, '#kontrol');
   const lenaN = +(await p.textContent('#team [data-who="Лена"] b'));
   await p.click('#team [data-who="Лена"]'); await p.waitForTimeout(300);
   const h2 = await p.textContent('#view .sh h2'); const rowsWho = await p.$$eval('#view .rw .who-t', (x) => [...new Set(x.map((e) => e.textContent))]);
@@ -46,7 +46,7 @@ try {
   const shownSrc = det ? await det.evaluate((e) => e.open && e.querySelector('div').innerText.trim()) : '';
   check('Источник скрыт и открывается по нажатию', det && hid === false && !!shownSrc, `«${shownSrc}»`);
   // 4. Отмена диалога ничего не меняет
-  await go(p, '#utro'); const btn = await p.$('[data-act="done"]');
+  await go(p, '#kontrol'); const btn = await p.$('[data-act="done"]');
   const before = await p.evaluate(() => localStorage.getItem('svodka-pending') + '|' + localStorage.getItem('svodka-outbox'));
   const id = btn ? await btn.evaluate((e) => e.closest('.rw').dataset.id) : '';
   if (btn) { await btn.click(); await p.waitForSelector('#sheet:not([hidden])'); await p.click('[data-sh="no"]'); await p.waitForTimeout(5800); }
@@ -57,29 +57,29 @@ try {
   check('Банк: день по уведомлениям подписан источником и временем, не «по выписке»', /по уведомлениям до \d\d:\d\d, не выписка/.test(bank) && /на \d\d\.\d\d \d\d:\d\d, по уведомлениям/.test(bank) && !/сборка 29\.10\.2026 13:00/.test(bank), (bank.match(/Источник по дням[^\n]*/) || [''])[0]);
   check('Недели: пусто = «нет записей со сроком», списание 32,25 с копейками и названием', /нет записей со сроком/.test(wks) && !/\n\s*нет\s*\n/.test(wks) && /32,25/.test(wks), (wks.match(/[^\n]*32,25[^\n]*/) || ['нет 32,25'])[0]);
   check('Гаранты без срока: отдельный блок, действие «уточнить даты» и список без дат', /Действие: уточнить даты 8 обещаний/.test(nd) && /800\s000/.test(nd) && (nd.match(/G-\d{4}/g) || []).length === 8, 'строк с ID: ' + (nd.match(/G-\d{4}/g) || []).length + ' | ' + nd.split('\n').slice(0, 2).join(' | '));
-  await go(p, '#utro'); const chg = await p.innerText('#changes'), au = await p.evaluate(() => [...document.querySelectorAll('.sec')].find((x) => /Автоматика/.test(x.querySelector('h2')?.textContent || ''))?.innerText || '');
+  await go(p, '#kontrol'); const chg = await p.innerText('#changes'), au = await p.evaluate(() => [...document.querySelectorAll('.sec')].find((x) => /Автоматика/.test(x.querySelector('h2')?.textContent || ''))?.innerText || '');
   check('«Что изменилось»: отправка актов не закрыта оплатой', !/Отправить по ЭДО[^\n]*оплачены/.test(chg) && (/Отправить по ЭДО[^\n]*отправлены/.test(chg) || !/Отправить по ЭДО/.test(chg)), (chg.match(/[^\n]*Отправить по ЭДО[^\n]*/) || ['строки нет'])[0]);
   check('Автоматика: «не проверено» не считается успешной проверкой', !/10 из 10\s*$/m.test(au) && /не проверено/.test(au.split('\n')[0] + au.split('\n')[1]), au.split('\n').slice(0, 2).join(' | '));
   // 4c. Единый файл Лены: карточка говорит про один файл и задачу сверки с подпунктами; цифр зарплаты на пульте нет
-  await go(p, '#utro'); const lc = await p.innerText('#garanty'), whole = await p.innerText('body');
+  await go(p, '#kontrol'); const lc = await p.innerText('#garanty'), whole = await p.innerText('body');
   check('Карточка Лены: единый файл, задача сверки «закрыто N из M», зарплатных цифр нет', /единый/.test(lc) && /подпунктов закрыто \d+ из \d+/.test(lc) && !/22\s600|31\s380|72\s825/.test(whole), (lc.match(/Сверка[^\n]*/) || ['нет строки «Сверка»'])[0]);
   // 4d. Неполный контроль не выдаётся за «ничего срочного»: число непроверенных и действие, которое уходит Claude
-  await go(p, '#utro');
+  await go(p, '#kontrol');
   const gp = await p.evaluate(() => ({gap: document.querySelector('#decide .gap')?.innerText || '', calm: /Ничего срочного/.test(document.body.innerText), h1: document.querySelector('h1').innerText}));
   const sent0 = posts; if (gp.gap) { await p.click('[data-gapclaude]'); await p.waitForTimeout(5500); }
   check('Непроверенные дела: блок «срочность не подтверждена» с числом, кнопка поручает Claude сверку, «ничего срочного» нет',
     /не подтверждена: сегодня не сверено с источником \d+ из \d+/.test(gp.gap) && /Контроль неполный/.test(gp.h1) && !gp.calm && posts > sent0, `${gp.h1} | ${gp.gap.slice(0, 120)} | отправок ${posts - sent0}`);
   // 5. Правка Лены в таблице → сверка → пульт
-  DATA = path.join(CASES, 'ok.json'); await go(p, '#utro');
+  DATA = path.join(CASES, 'ok.json'); await go(p, '#kontrol');
   const card = await p.innerText('#garanty');
   await go(p, '#money'); const wk = await p.innerText('#weeks');
   check('Правка Лены (555 000, «Гарант», срок ' + due + ') видна в карточке и в неделе срока', /555\s000/.test(card) && /успешно/.test(card) && /Гарант \(Лена\)\s*555\s000/.test(wk), (card.match(/Ждём по гарантам[^\n]*\n?[^\n]*/) || [''])[0]);
   // 6. Сбой обмена: на пульте последний снимок и красная пометка
-  DATA = path.join(CASES, 'fail.json'); await go(p, '#utro');
+  DATA = path.join(CASES, 'fail.json'); await go(p, '#kontrol');
   const fc = await p.innerText('#garanty');
   check('Сбой обмена: «сбой», показан последний успешный снимок, данные не пропали', /сбой/.test(fc) && /последний успешный снимок/.test(fc) && /555\s000/.test(fc), fc.split('\n').slice(0, 4).join(' | '));
   // 7. Источника нет — не зелёное и не нули
-  DATA = path.join(CASES, 'none.json'); await go(p, '#utro');
+  DATA = path.join(CASES, 'none.json'); await go(p, '#kontrol');
   const nc = await p.innerText('#garanty'), green = await p.$$eval('#garanty .plus', (x) => x.length);
   await go(p, '#money'); const nw = await p.innerText('#weeks');
   check('Нет снимка: «источник не подключён», без зелёного и нулей; недели — «не подключено»', /источник не подключён/.test(nc) && !green && !/\b0 ₽/.test(nc) && /не подключено/.test(nw), nc.split('\n').slice(0, 2).join(' | '));
