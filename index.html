@@ -463,6 +463,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   let APPLIED = new Set(), REPLIES = [];
   const rid = () => Math.random().toString(36).slice(2, 10).padEnd(8, '0');
   function prep(d) {
+    // Правило Ольги (§14 п.8): просьбы войти, ввести ПИН, логин или пароль на пульт не ставим никогда — только в чат
+    ['tasks', 'summary', 'replies'].forEach((k) => { if (Array.isArray(d[k])) d[k] = d[k].filter((x) => !isLoginAsk(x)); });
     D = d; const upd = new Date(d.updated);
     // свежесть: всё по Москве, по расписанию выкладок «Утра» (будни 9:30, 13:00, 17:00 МСК)
     const M = (x) => { const z = new Date(x.getTime() + 3 * 36e5); return {y: z.getUTCFullYear(), mo: z.getUTCMonth(), d: z.getUTCDate(), h: z.getUTCHours(), mi: z.getUTCMinutes(), dow: z.getUTCDay()}; };
@@ -634,6 +636,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     } finally { sending = false; render(); }
   }
 
+  const LOGIN_RE = /(^|[^а-яё])пин([^а-яё]|$)|alfa id|войдите|войти в|вход в (банк|альф|точк|личн|кабинет|диадок|почт)|разлогин|залогин|логин|авториз|введите пароль|ввести пароль|сесси[яи] истекл/i;
+  const isLoginAsk = (x) => LOGIN_RE.test(['title', 'short', 'text', 'next', 'detail'].map((k) => x[k] || '').join(' '));
   // ---------- разделы (30.10, схема Ольги): Сегодня · Мои клиенты · Клиенты Лены · Бухгалтерия · Другие ----------
   const TABS = ['utro', 'my', 'lena', 'buh', 'other', 'money', 'all'];
   const SECN = {my: 'Мои клиенты', lena: 'Клиенты Лены', buh: 'Бухгалтерия', other: 'Другие'};
@@ -658,7 +662,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     return `<span class="sync">${p.action === 'claude' ? 'поручение отправлено · ожидает разбора' : LABEL[p.action].toLowerCase() + ' · ждёт синхронизации'}</span>`; };
   const row = (t, opt = {}) => `<div class="rw" data-id="${esc(t.id)}"><div class="under"><span class="l">Сделано</span><span class="r">Отложить</span></div>
     <div class="row">${opt.reopen ? `<button class="btn ghost small" data-act="reopen">Вернуть</button>` : av(t)}
-    <button class="main-txt" data-open><span class="t">${t.hot ? '<span class="hotdot" title="Горит"></span>' : ''}${esc(t.short)}</span><span class="s">${esc(opt.noClient ? (t.next || '').slice(0, 120) : t.fromSummary ? t.detail.slice(0, 140) : t.cl)}${syncTag(t) ? ' · ' : ''}${syncTag(t)}</span></button>
+    <button class="main-txt" data-open><span class="t">${t.hot ? '<span class="hotdot" title="Горит"></span>' : ''}${esc(t.short)}</span><span class="s">${t.verified || verifiedRow(t) ? '' : '<span class="pill p-warn">не сверено</span> '}${esc(opt.noClient ? (t.next || '').slice(0, 120) : t.fromSummary ? t.detail.slice(0, 140) : t.cl)}${syncTag(t) ? ' · ' : ''}${syncTag(t)}</span></button>
     ${duePill(t)}${!opt.reopen && opt.check !== false && t.who === 'я' ? `<span class="abs"><button class="ab ok" data-act="done" aria-label="Я выполнила: ${esc(t.short)}">${ico.check}Я выполнила</button><button class="ab cl" data-act="claude" aria-label="Поручить Claude: ${esc(t.short)}">Поручить Claude</button></span>` : ''}<span class="am">${t.a && !t.short.replace(/\s/g, '').includes(String(Math.round(t.a))) ? rub(t.a) : ''}</span></div></div>`;
 
   // ---------- вкладки ----------
@@ -920,13 +924,14 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   }
   function secCards() {
     const o = T.filter(isOpen), by = (k) => o.filter((t) => grpOf(t) === k), td = (a) => a.filter(isToday).length, sumA = (a) => a.reduce((x, t) => x + t.a, 0);
-    const {W, G} = wkSums(), st = lenaStale(), hot = o.filter((t) => t.hot);
-    const card = (k, l, sub) => { const a = by(k); return `<button class="scard" data-go="${k}"><span class="k">${SECN[k]}</span><span class="n">${td(a)}<small>срок сегодня</small></span><span class="s">всего ${plural(a.length, 'дело', 'дела', 'дел')}</span><span class="l">${l}</span>${sub ? `<span class="s">${sub}</span>` : ''}</button>`; };
+    const {W, G} = wkSums(), st = lenaStale(), hot = o.filter((t) => t.hot && !isLoginAsk(t));
+    const isVer = (t) => t.verified || verifiedRow(t);
+    const card = (k, l, sub) => { const a = by(k), v = a.filter(isVer); return `<button class="scard" data-go="${k}"><span class="k">${SECN[k]}</span><span class="n">${td(v)}<small>срок сегодня</small></span><span class="s">сверено ${v.length} из ${a.length}${a.length - v.length ? ' · <span class="unk">не сверено ' + (a.length - v.length) + '</span>' : ''}</span><span class="l">${l}</span>${sub ? `<span class="s">${sub}</span>` : ''}</button>`; };
     return `<section class="secs" aria-label="Разделы">
       ${card('my', sumA(by('my')) ? 'суммы в делах ' + num(sumA(by('my'))) : 'денежных дел нет')}
       ${card('lena', G ? 'по данным менеджера ждём ' + num(D.garanty.rows.filter((r) => garOpen(r) && garKind(r) !== 'no').reduce((x, r) => x + (Number(r.remain ?? r.amount) || 0), 0)) : 'таблица Лены не подключена', st.length ? `<span class="hotw">Лена:</span> ${plural(st.length, 'строка', 'строки', 'строк')} к обновлению` : '')}
       ${card('buh', W[0].must === null ? 'реестр списаний не получен' : W[0].must ? 'списания на неделе ' + rubX(W[0].must) : 'списаний на неделе нет')}
-      ${card('other', hot.length ? `<span class="hotw">горит:</span> ${esc(hot[0].short)}` : 'горящих нет')}
+      ${card('other', hot.filter(isVer).length ? `<span class="hotw">горит:</span> ${esc(hot.filter(isVer)[0].short)}` : 'горящих сверенных нет')}
     </section>`;
   }
   // Полосы: банк — сплошная, «по данным менеджера» — штриховка, ориентир — контур (различимы и без цвета); итог = банк + менеджер, ориентир в скобках
@@ -948,7 +953,9 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   // ---------- вкладки разделов: Мои клиенты, Клиенты Лены, Другие ----------
   let sf = 'all';
   function secTab(k) {
-    const base = T.filter((t) => isOpen(t) && grpOf(t) === k).sort(byUrg);
+    const all0 = T.filter((t) => isOpen(t) && grpOf(t) === k).sort(byUrg);
+    // 30.10 (Ольга): в основном списке только сверенное сегодня с источником; остальное отдельно, свёрнуто и с пометкой «не сверено»
+    const isVer = (t) => t.verified || verifiedRow(t), base = all0.filter(isVer), unv = all0.filter((t) => !isVer(t));
     const F = [['all', 'Все'], ['today', 'Сегодня'], ['me', 'Нужно решение Ольги'], ['pay', 'Ждём оплату'], ['wait', 'Ждём клиента']];
     const fl = {all: () => true, today: (t) => bucketOf(t) < 2, me: (t) => t.who === 'я', pay: (t) => t.a > 0 && /ждём|выставить/.test(t.money || '') || t.cat === 'pay', wait: (t) => t.who === 'клиент' || t.who === 'эксперт'};
     if (!fl[sf]) sf = 'all';
@@ -957,9 +964,10 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const st = k === 'lena' ? lenaStale() : [];
     const stale = st.length ? `<section class="sec" id="lena-stale"><div class="sh"><h2>Лена: ${plural(st.length, 'строка', 'строки', 'строк')} к обновлению</h2><span class="c">по данным менеджера срок прошёл, не указан или в строке вопрос</span><button class="link" data-go="money" data-anchor="garanty-all">Весь реестр гарантов →</button></div>
       <div class="rows">${lim('stale', st, 3).map(({r, why}) => `<div class="gline"><span class="gc">${esc(r.client)}<small>${esc(r.id || '')}${r.doc ? ' · ' + esc(r.doc) : ''}</small></span><span class="gd"><span class="pill p-warn">${esc(why)}</span></span><span class="ga">${num(Number(r.remain ?? r.amount) || 0)}</span><span class="gb"></span></div>`).join('')}</div>${moreBtn('stale', st, 3, ['строка', 'строки', 'строк'])}</section>` : '';
-    return `${stale}<section class="sec"><div class="sh"><h2>${SECN[k]}: ${plural(base.length, 'дело', 'дела', 'дел')}</h2><span class="c">клик по делу — история, комментарии и ссылки на портал</span>${k === 'lena' ? '<button class="link" data-go="money">Прогноз денег →</button>' : ''}</div>
+    const uk = 'unv-' + k, unvH = unv.length ? `<section class="sec unv"><div class="sh"><h2>Не сверено сегодня: ${plural(unv.length, 'дело', 'дела', 'дел')}</h2><span class="c">срок и суммы не подтверждены источником, решения по ним не принимаем</span><button class="link" data-more="${uk}">${EXP.has(uk) ? 'Свернуть' : 'Показать'}</button></div>${EXP.has(uk) ? `<div class="rows">${unv.map((t) => row(t)).join('')}</div>` : ''}</section>` : '';
+    return `${stale}<section class="sec"><div class="sh"><h2>${SECN[k]}: сверено сегодня ${plural(base.length, 'дело', 'дела', 'дел')}</h2><span class="c">клик по делу — история, комментарии и ссылки на портал</span>${k === 'lena' ? '<button class="link" data-go="money">Прогноз денег →</button>' : ''}</div>
       <div class="tools">${F.map(([f, l]) => `<button class="chip" data-sf="${f}" aria-pressed="${sf === f}">${l} · ${base.filter(fl[f]).length}</button>`).join('')}</div>
-      ${parts.length ? parts.map(([b, a]) => `<div class="rows prio"><div class="gsub">${BN[b]}</div>${a.map((t) => row(t)).join('')}</div>`).join('') : '<div class="empty"><b>Дел нет</b><span>По этому фильтру открытых дел нет.</span></div>'}</section>`;
+      ${parts.length ? parts.map(([b, a]) => `<div class="rows prio"><div class="gsub">${BN[b]}</div>${a.map((t) => row(t)).join('')}</div>`).join('') : `<div class="empty"><b>Сверенных дел нет</b><span>${unv.length ? 'Все дела раздела сегодня не сверены с источником — они ниже, в «Не сверено сегодня».' : 'По этому фильтру открытых дел нет.'}</span></div>`}</section>${unvH}`;
   }
   function utro() {
     const m = mine().sort(byUrg), o = T.filter(isOpen), week = unverified();
