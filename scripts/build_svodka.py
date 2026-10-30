@@ -272,6 +272,26 @@ def income():
     return [{k: v.get(k) for k in keep} for v in p.values() if isinstance(v, dict) and v.get("payer")]
 
 
+def vypiska():
+    """Последняя сводная выписка (kontrol/vypiski/ГГГГ-ММ-ДД.md): поступления «ДД.ММ | п/п | плательщик | сумма | основание»."""
+    files = sorted(glob.glob(os.path.join(KONTROL_DIR, "vypiski", "????-??-??.md")))
+    if not files:
+        return None
+    asof = os.path.basename(files[-1])[:10]
+    year, items, sec = asof[:4], [], ""
+    with open(files[-1], encoding="utf-8-sig") as fh:
+        for line in fh:
+            if line.startswith("## "):
+                sec = line[3:].strip().lower()
+                continue
+            m = re.match(r"^(\d\d)\.(\d\d)\s*\|\s*([^|]*)\|\s*([^|]+)\|\s*([\d\s ,]+)\|\s*(.*)$", line.strip())
+            if not m or not sec.startswith("поступ"):
+                continue
+            amount = float(re.sub(r"[\s ]", "", m.group(5)).replace(",", ".") or 0)
+            items.append({"date": f"{year}-{m.group(2)}-{m.group(1)}", "pp": m.group(3).strip(), "payer": m.group(4).strip(), "amount": amount, "basis": m.group(6).strip()})
+    return {"asOf": asof, "src": "kontrol/vypiski/" + os.path.basename(files[-1]), "items": items}
+
+
 def buh_svodka():
     """Последняя дневная сводка «Бухгалтерии» (kontrol/buh-svodka-ДАТА.md): разделы и строки как есть."""
     files = sorted(glob.glob(os.path.join(KONTROL_DIR, "buh-svodka-*.md")))
@@ -725,6 +745,7 @@ def main():
     data["garanty"] = garanty(tasks, bank)
     data["bank_month"] = bank_month()
     data["income"] = income()
+    data["vypiska"] = vypiska()
     data["summary"] = automation(summary, data["garanty"])
     data["accuracy"] = forecast_accuracy(data["garanty"])
     data["trebovaniya"] = trebovaniya(tasks, closed_ids)
