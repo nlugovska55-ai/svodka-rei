@@ -352,6 +352,8 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
   };
   const okToday = (c) => !!c && checkedDay(c) === FRESH.todayYmd;
   const verifiedRow = (x) => okToday(x.checked) && !!x.src && !!(x.thread || x.origin);
+  const drafts = store.get('svodka-drafts', {});  // недописанный текст для Claude по делу: живёт до отправки
+  const dv = (id) => esc(drafts[id] || '');
   const pend = store.get('svodka-pending', {});  // отмеченное на сайте, пока не пришло в базу
   const outbox = store.get('svodka-outbox', []);
   let inflight = store.get('svodka-inflight', null);  // партия в отправке: повтор уходит с тем же batchId, сервер не создаёт второй файл
@@ -429,10 +431,15 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
       (how) => { if (how === 'claude') return delegate(t, after); act(t, 'done'); if (after) after('done'); });
   }
   function delegate(t, after) {
-    sheet(`<b>Поручить Claude</b><div class="hint">«${esc(t.short)}». Дело останется в работе с пометкой «поручено Claude» и уйдёт из вашего списка.</div><textarea id="shText" placeholder="Что сделать (можно оставить пустым)"></textarea>
+    sheet(`<b>Поручить Claude</b><div class="hint">«${esc(t.short)}». Дело останется в работе с пометкой «поручено Claude» и уйдёт из вашего списка.</div><textarea id="shText" data-dk="${esc(String(t.id))}" placeholder="Что сделать (можно оставить пустым)">${dv(t.id)}</textarea>
       <div class="sh-b"><button class="btn" data-sh="yes" id="cf-yes">Поручить</button><button class="btn ghost" data-sh="no">Отмена</button></div>`,
       () => { act(t, 'claude', ($('#shText').value || '').trim()); if (after) after('claude'); });
   }
+  document.addEventListener('input', (e) => {
+    const k = e.target.dataset && e.target.dataset.dk; if (!k) return;
+    const v = e.target.value; if (v.trim()) drafts[k] = v; else delete drafts[k];
+    store.set('svodka-drafts', drafts);
+  });
   let undo = null;
   function toast(msg, onUndo) {
     $('#tt').textContent = msg; $('#tu').hidden = !onUndo; undo = onUndo || null;
@@ -440,6 +447,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
   }
   $('#tu').onclick = () => { if (undo) undo(); undo = null; $('#toast').classList.remove('on'); };
   function act(t, action, text = '') {
+    if (text && drafts[t.id]) { delete drafts[t.id]; store.set('svodka-drafts', drafts); }
     const item = {client: t.cl, taskId: String(t.id).startsWith('sum-') ? null : t.id, taskTitle: t.title.slice(0, 300), text, action: action === 'ai' ? '' : action, actionLabel: LABEL[action], at: new Date().toISOString(), qid: rid(), eid: 'e' + Date.now().toString(36) + rid()};
     const prev = pend[t.id];
     if (action === 'reopen') delete pend[t.id]; else if (action !== 'ai') pend[t.id] = {action, ts: Date.now(), eid: item.eid};
@@ -773,7 +781,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
       <div class="fact"><span class="k">Откуда</span><span>${t.fromSummary ? 'Список «Нужно от вас» ветки «Утро и задачи»' : 'Завела ветка «' + esc(t.owner || 'Claude') + '»' + (t.added ? ', ' + esc(t.added) : '') + (t.section ? ' · ' + esc(t.section) : '')}</span></div>
       ${t.link ? `<a class="btn ghost small" href="${esc(t.link)}" target="_blank" rel="noopener">Открыть в портале</a>` : ''}
       <div class="acts" role="group" aria-label="Отметить">${['done', 'claude', 'later', 'eve', 'prio', 'wait'].map((a) => `<button data-dact="${a}" aria-pressed="${!!(p && p.action === a)}">${LABEL[a]}</button>`).join('')}</div>
-      <div class="ai"><label class="hint" for="aiText">Передать Claude: что сделать или что изменилось</label><textarea id="aiText" placeholder="Например: позвонила, оплатят в пятницу"></textarea><button class="btn small" data-dact="ai">Отправить</button></div>`;
+      <div class="ai"><label class="hint" for="aiText">Передать Claude: что сделать или что изменилось</label><textarea id="aiText" data-dk="${esc(String(t.id))}" placeholder="Например: позвонила, оплатят в пятницу">${dv(t.id)}</textarea><button class="btn small" data-dact="ai">Отправить</button></div>`;
     $('#drawer').classList.add('on'); $('#drawer').setAttribute('aria-hidden', 'false'); $('#scrim').classList.add('on');
   }
   function closeTask() { $('#drawer').classList.remove('on'); $('#drawer').setAttribute('aria-hidden', 'true'); $('#scrim').classList.remove('on'); dTask = null; }
@@ -793,7 +801,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
       <div class="fbox"><div class="cl">${esc(t.cl)} ${duePill(t)} ${t.a ? `<span class="pill p-acc num">${full(t.a)}</span>` : ''}</div><h2>${esc(t.short)}</h2>
       <div class="d">${esc(t.fromSummary ? t.detail : t.next || t.detail || t.title)}</div>
       <div class="fbtns"><button class="done" data-f="done">Я выполнила <kbd>E</kbd></button><button data-f="later">Отложить <kbd>S</kbd></button><button data-f="claude">Поручить Claude <kbd>A</kbd></button></div>
-      <div id="fai" hidden><div class="ai" style="border:0;padding:0"><textarea id="faiText" placeholder="Что сделать Claude"></textarea><button class="btn small" data-f="aisend">Отправить <kbd style="background:transparent;color:inherit">Enter</kbd></button></div></div>
+      <div id="fai" ${drafts[t.id] ? '' : 'hidden'}><div class="ai" style="border:0;padding:0"><textarea id="faiText" data-dk="${esc(String(t.id))}" placeholder="Что сделать Claude">${dv(t.id)}</textarea><button class="btn small" data-f="aisend">Отправить <kbd style="background:transparent;color:inherit">Enter</kbd></button></div></div>
       <button class="link" data-f="skip" style="margin:0;justify-self:start">Пропустить →</button></div></div>`;
   }
   function focusAct(a) {
