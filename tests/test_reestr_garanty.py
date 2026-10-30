@@ -206,6 +206,8 @@ class Reestr(unittest.TestCase):
         self.assertTrue(ws[f"B{r}"].value.startswith('=IF(F'))  # закрытый месяц — зафиксированная сумма
         self.assertEqual(ws[f"O{r}"].value, "578500= 57800 +3900 (13*300)=61700")
         self.assertTrue(any('Реестр!W:W,"да"' in str(ws[f"J{x}"].value) for x in range(12, ws.max_row + 1)))  # текущий период: макеты ДС из «Реестра»
+        self.assertEqual([ws[f"Q10"].value, ws[f"R10"].value], ["Выплачено наличными, ₽ (вносит Ольга)", "Остаток к выплате, ₽"])
+        self.assertTrue(any(str(ws[f"R{x}"].value).startswith("=IF(ISNUMBER(B") for x in range(12, ws.max_row + 1)))  # остаток = к выплате − выплачено
 
     def test_workbook_has_views_and_salary_only_on_its_sheet(self):
         f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо квант", "дс", "1365 ле дс", 12000, None), ("ооо чзмэк", "дс", "1240 ле дс прил 7", None, 15000)],

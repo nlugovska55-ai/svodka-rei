@@ -631,7 +631,8 @@ def build_xlsx(st, out, today, since=""):
 SALARY_COLS = ["Месяц", "К выплате, ₽", "База по месяцу обязательства, ₽", "База по дате оплаты, ₽ (только оплаты с датой)",
                "Пришло по выписке (база), ₽", "Месяц закрыт (дата)", "Зафиксировано при закрытии, ₽",
                "База в записи Лены, ₽", "% в записи Лены, ₽", "Шт. (макеты ДС)", "Доплата в записи, ₽", "Удержания в записи, ₽",
-               "Итог в записи Лены, ₽", "Проверка записи", "Запись Лены как есть", "Где запись"]
+               "Итог в записи Лены, ₽", "Проверка записи", "Запись Лены как есть", "Где запись",
+               "Выплачено наличными, ₽ (вносит Ольга)", "Остаток к выплате, ₽"]
 SAL_HEAD = 10      # строка шапки таблицы месяцев
 SAL_RATES = (5, 7)  # строки периодов ставок
 PRINCIPLES = ["по выписке", "не согласован", "месяц обязательства", "дата оплаты"]
@@ -666,7 +667,9 @@ def salary_row(i, m, n, live=False):
             *[n.get(k) for k in ("extra", "hold", "total")],
             f'=IF(M{i}="","записи нет",IF(I{i}="","% в записи не выписан",IF(I{i}+K{i}-L{i}=M{i},"арифметика сходится","не сходится на "&TEXT(I{i}+K{i}-L{i}-M{i},"#,##0"))))'
             f'&IF(AND(H{i}<>"",ISNUMBER(C{i})),IF(H{i}<>C{i}," · база у Лены ≠ реестру на "&TEXT(H{i}-C{i},"#,##0"),""),"")',
-            n.get("text"), (n.get("file", "") + " " + n.get("cell", "")).strip() or None]
+            n.get("text"), (n.get("file", "") + " " + n.get("cell", "")).strip() or None,
+            # ЗП Лене Ольга отдаёт наличными (30.10): по банку не видно, сумму вписывает Ольга; остаток = к выплате − выплачено
+            None, f'=IF(ISNUMBER(B{i}),B{i}-N(Q{i}),"")' if live else None]
 
 
 def salary_sheet(wb, st, today):
@@ -704,7 +707,8 @@ def salary_sheet(wb, st, today):
         ws.append(salary_row(i, m, notes.get(m, {}), live=True))
         m, i = add_month(m, 1), i + 1
     cur_rows = (sec[0] + 1, i - 1)
-    ws.append(["Итого текущий период", None, f"=SUM(C{cur_rows[0]}:C{cur_rows[1]})", f"=SUM(D{cur_rows[0]}:D{cur_rows[1]})", f"=SUM(E{cur_rows[0]}:E{cur_rows[1]})"])
+    ws.append(["Итого текущий период", None, f"=SUM(C{cur_rows[0]}:C{cur_rows[1]})", f"=SUM(D{cur_rows[0]}:D{cur_rows[1]})", f"=SUM(E{cur_rows[0]}:E{cur_rows[1]})",
+               *[None] * 11, f"=SUM(R{cur_rows[0]}:R{cur_rows[1]})"])
     i += 1
     ws.append([])
     i += 1
@@ -732,12 +736,12 @@ def salary_sheet(wb, st, today):
         ws.merge_cells(f"A{r}:J{r}")
     cf = FormulaRule(formula=[f"$A{cur_rows[0]}=DATE(YEAR(TODAY()),MONTH(TODAY()),1)"], fill=PatternFill("solid", fgColor="FAEBC0"), font=Font(bold=True))
     ws.conditional_formatting.add(f"A{cur_rows[0]}:P{cur_rows[1]}", cf)  # текущий месяц выделен
-    widths = [12, 30, 16, 18, 14, 12, 14, 13, 11, 6, 11, 11, 12, 34, 40, 22]
+    widths = [12, 30, 16, 18, 14, 12, 14, 13, 11, 6, 11, 11, 12, 34, 40, 22, 16, 14]
     for k, w in enumerate(widths):
         ws.column_dimensions[chr(65 + k)].width = w
     for row in ws.iter_rows(min_row=SAL_HEAD + 1, max_row=i):
         row[0].number_format = "MMM YYYY"
-        for c in row[1:13]:
+        for c in row[1:13] + row[16:18]:
             c.number_format = "#,##0"
     return ws
 
