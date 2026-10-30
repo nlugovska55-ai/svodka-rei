@@ -737,10 +737,10 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const late = garLate(r), u = garRowUrl(G, r), num = (a) => Math.round(a).toLocaleString('ru-RU') + ' ₽';
     return `<div class="gr${late ? ' late' : ''}"><div class="gt"><b>${esc(r.client || 'клиент не указан')}</b>${r.doc ? ' · ' + esc(r.doc) : ''}<span class="num ga">${r.amount !== null ? num(r.amount) : esc(r.amountRaw || 'сумма не указана')}</span></div>
       <dl><dt>Обещанная дата</dt><dd>${r.date ? dmY(r.date) + (late ? ` <span class="pill p-hot">просрочено ${late} дн</span>` : '') : '<span class="unk">неизвестно</span>' + (r.dateRaw ? ' (' + esc(r.dateRaw) + ')' : '')}</dd>
-      <dt>Этап у Лены</dt><dd>${r.status ? esc(r.status) : '<span class="unk">не указан</span>'}${r.service ? ' · ' + esc(r.service) : ''}</dd>
+      <dt>Статус в таблице</dt><dd>${r.status ? esc(r.status) : '<span class="unk">не указан</span>'}${r.service ? ' · ' + esc(r.service) : ''}</dd>
       <dt>Получено, по таблице</dt><dd>${r.received !== null ? '<span class="num">' + num(r.received) + '</span> <small>со слов Лены</small>' : r.receivedRaw ? esc(r.receivedRaw) : '<span class="unk">не указано</span>'}</dd>
-      <dt>Банк</dt><dd>${r.bank.length ? r.bank.map((b) => `<span class="plus">+${num(b.amount)}</span> ${dmY(b.date)} ${esc(b.account)}${b.basis ? ' (' + esc(b.basis) + ')' : ''}`).join('; ') : (r.stage === 'paid' ? '<span class="unk">не сверено с банком</span>' : '<span class="unk">в охваченных выписках не найдено</span>')}</dd>
-      ${r.stage === 'paid' ? '' : `<dt>Остаток</dt><dd>${r.remain !== null ? '<span class="num">' + num(r.remain) + `</span> <small>${r.id ? 'сумма минус оплаты (банк или Лена, что больше; «вопрос» не вычитается)' : 'по банку'}</small>` : r.received !== null && r.amount !== null ? '<span class="num">' + num(r.amount - r.received) + '</span> <small>по таблице Лены, банком не подтверждено</small>' : '<span class="unk">неизвестно</span>'}</dd>`}
+      <dt>Банк</dt><dd>${r.bank.length ? r.bank.map((b) => `<span class="plus">+${num(b.amount)}</span> ${dmY(b.date)} ${esc(b.account)}${b.basis ? ' (' + esc(b.basis) + ')' : ''}`).join('; ') : (r.stage === 'paid' ? '<span class="unk">по выписке не подтверждено</span>' : '<span class="unk">в охваченных выписках не найдено</span>')}</dd>
+      ${r.stage === 'paid' ? '' : `<dt>Остаток</dt><dd>${r.remain !== null ? '<span class="num">' + num(r.remain) + `</span> <small>${r.id ? 'сумма минус оплаты (банк или Лена, что больше; «вопрос» не вычитается)' : 'по банку'}</small>` : r.received !== null && r.amount !== null ? '<span class="num">' + num(r.amount - r.received) + '</span> <small>отмечено менеджером, по выписке не подтверждено</small>' : '<span class="unk">неизвестно</span>'}</dd>`}
       ${r.flags && r.flags.length ? `<dt>Флаги</dt><dd>${r.flags.map((f) => `<span class="pill${/просроч|вопрос|дубль|Лена ≠/.test(f) ? ' p-hot' : ''}">${esc(f)}</span>`).join(' ')}</dd>` : ''}
       <dt>Дальше</dt><dd>${esc(r.next || '—')} · ${esc(r.owner || 'Лена')}</dd></dl>
       <div class="gl">${r.id ? `<b>${esc(r.id)}</b> · ${esc(r.src || '')}${r.checked ? ' · проверено ' + dmY(r.checked) : ''}` : u ? `<a href="${esc(u)}" target="_blank" rel="noopener">строка ${r.row} в таблице ↗</a>` : `строка ${r.row}`}${r.taskIds.map((id) => { const t = T.find((x) => x.id === id); return t ? ` · <button class="link" style="margin:0" data-wk="${esc(id)}">дело: ${esc(t.short)}</button>` : ''; }).join('')}${r.linkBy === 'только по клиенту' ? ' <small>(связано только по клиенту)</small>' : ''}</div></div>`;
@@ -752,8 +752,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const R = G.rows, O = R.filter(garOpen), sum = (a, f) => a.reduce((x, r) => x + (Number(f(r)) || 0), 0), num = (a) => Math.round(a).toLocaleString('ru-RU') + ' ₽';
     const noDate = O.filter((r) => !r.date).length, late = O.filter(garLate).length, cov = [...new Set((G.bankCovered || []).map(([a]) => a))].map((a) => a + ' ' + (G.bankCovered || []).filter(([x]) => x === a).map(([, d]) => dmY(d)).join(', ')).join('; ');
     return `<div class="pf"><div><small>Обещано Леной/клиентом, ждём</small><b>${num(sum(O, (r) => r.id ? r.remain : r.amount))}</b><small>${plural(O.length, 'строка', 'строки', 'строк')} без отметки «пришло»</small></div>
-      <div><small>Пришло, по таблице Лены</small><b>${num(sum(R, (r) => r.received))}</b><small>со слов Лены, не банк</small></div>
-      <div><small>Подтверждено банком</small><b class="plus">${num(sum(R, (r) => r.bankSum))}</b><small>${cov ? 'только ' + esc(cov) : 'выписок нет'}</small></div>
+      <div><small>По данным менеджера</small><b>${num(sum(R, (r) => r.received))}</b><small>отметка менеджера, не выписка</small></div>
+      <div><small>По выписке</small><b class="plus">${num(sum(R, (r) => r.bankSum))}</b><small>${cov ? 'только ' + esc(cov) : 'выписок нет'}</small></div>
       <div><small>Без срока / просрочено</small><b>${noDate} / ${late}</b><small>срок неизвестен — это не 0</small></div></div>`;
   }
   function garLine(G, r) {
@@ -761,7 +761,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     return `<div class="gline${late ? ' late' : ''}"><span class="gc"><b>${esc(r.client)}</b>${r.doc ? ' · ' + esc(r.doc) : ''}<small>${esc(r.status || '')}${r.taskIds.length ? ' · есть дело' : ''}</small></span>
       <span class="num ga">${r.amount !== null ? num(r.amount) : esc(r.amountRaw || '—')}</span>
       <span class="gd">${r.date ? dmY(r.date) + (late ? ` <span class="pill p-hot">${late} дн</span>` : '') : '<span class="unk">срок неизвестен</span>'}</span>
-      <span class="gb">${r.bank.length ? `<span class="plus">банк +${num(r.bankSum)}</span> ${dmY(r.bank[0].date)}` : r.received !== null ? `пришло ${num(r.received)} <small>по таблице</small>` : '<span class="unk">банком не подтверждено</span>'}</span></div>`;
+      <span class="gb">${r.bank.length ? `<span class="plus">банк +${num(r.bankSum)}</span> ${dmY(r.bank[0].date)}` : r.received !== null ? `отметка менеджера ${num(r.received)} <small>по выписке не подтверждено</small>` : '<span class="unk">по выписке не подтверждено</span>'}</span></div>`;
   }
   const MONTHS = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'];
   // Рабочая таблица менеджера: ввод — только в ней (одна Google-таблица), пульт показывает обмен, режим, историю и доступ.
@@ -788,7 +788,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <dt>Режим</dt><dd>${mode === 'google' ? `Google-таблица — единственный ввод с ${esc(src.since ? dmY(src.since) + '.' + src.since.slice(0, 4) : '?')}; файлы Excel — архив` : 'сверка: правки в таблице сохраняются, файлы Excel Лены тоже читаются. Дату перехода на один ввод назначает Ольга'}</dd>
       <dt>История</dt><dd>${hist}</dd>
       <dt>Ждём по гарантам</dt><dd><b class="num">${num(sum(O, (r) => r.id ? r.remain : r.amount))}</b> · ${plural(O.length, 'строка', 'строки', 'строк')}${late ? `, просрочено <b>${late}</b>` : ''}${noDate ? `, без срока ${noDate} (это не 0)` : ''}</dd>
-      <dt>Подтверждено банком</dt><dd class="plus">${num(sum(G.rows, (r) => r.bankSum))}</dd>
+      <dt>По выписке</dt><dd class="plus">${num(sum(G.rows, (r) => r.bankSum))}</dd>
       <dt>Файл</dt><dd>единый: гаранты, оплаты и зарплата Лены в одной таблице; зарплата — отдельный лист, защищён от правки, но не скрыт, на пульт не выводится. Старый файл зарплаты — архив.</dd>
       <dt>Сверка</dt><dd>${sverkaTxt()}</dd>
       <dt>Доступ Лены</dt><dd>${acc.status === 'granted' ? 'выдан: ' + esc(acc.note || '') : esc(acc.note || 'не выдан: ждём её почту, доступ будет адресный, только к полям ввода')}</dd></dl>

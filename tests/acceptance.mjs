@@ -435,7 +435,7 @@ try {
     const M = await device(d, {viewport: {width: 390, height: 844}, mobile: true}); await go(M.p); const g = await M.p.innerText('#garanty');
     const ov = await M.p.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     check('Гаранты: файл не живой — помечено, срок «неизвестен», банк отдельно, 390 без прокрутки вбок',
-      /Живая таблица Лены не подключена/.test(g) && /срок неизвестен/.test(g) && /банк \+50\s000/.test(g) && /банком не подтверждено/.test(g) && /Устарело/.test(g) && ov <= 0, `лишняя ширина ${ov} px; «${g.replace(/\s+/g, ' ').slice(0, 120)}»`);
+      /Живая таблица Лены не подключена/.test(g) && /срок неизвестен/.test(g) && /банк \+50\s000/.test(g) && /по выписке не подтверждено/.test(g) && /Устарело/.test(g) && ov <= 0, `лишняя ширина ${ov} px; «${g.replace(/\s+/g, ' ').slice(0, 120)}»`);
     await go(M.p, '#money'); const reg = await M.p.$$eval('#garanty-all .gr', (x) => x.length);
     check('Гаранты: полный реестр во вкладке «Деньги»', reg === 2, `карточек ${reg}`);
     await M.ctx.close();

@@ -359,7 +359,9 @@ def snapshot(st, today):
         stage = "paid" if lena >= (r["amount"] or 0) and lena else "guarantee"
         rows.append({"id": r["id"], "key": r["id"], "row": int(re.search(r"стр\. (\d+)", r["source"]).group(1)), "month": r["month"],
                      "client": r["client"], "service": r["service"], "doc": r["doc"], "amount": r["amount"], "amountRaw": "",
-                     "stage": stage, "status": "отказ клиента" if r["stage"] == "Отказ" else {"paid": "деньги пришли, по таблице", "guarantee": "клиент подтвердил (гарант)"}[stage],
+                     "stage": stage, # статусы — теми же словами, что в таблице (колонка M, 30.10): «оплата отмечена менеджером» ≠ «оплачено по выписке»
+                     "status": "отказ клиента" if r["stage"] == "Отказ" else "оплачено по выписке" if stage == "paid" and bank >= (r["amount"] or 0)
+                     else {"paid": "оплата отмечена менеджером", "guarantee": "клиент подтвердил (гарант)"}[stage],
                      "date": r["due"], "dateRaw": "", "datePaid": None, "received": lena or None, "receivedRaw": "",
                      "who": r["manager"], "note": r["question"], "remainReg": remain(st, r), "flags": flags(st, r, today),
                      "bankReg": [{"date": p["date"], "amount": p["amount"], "basis": p["basis"] + (", " + p["source"].split(", ", 1)[1] if ", одна" in p["source"] else ""),
