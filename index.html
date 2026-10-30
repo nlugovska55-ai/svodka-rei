@@ -1033,10 +1033,17 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const niceCl = (c) => { const x = String(c || '').replace(/(^|\s)(ооо|оао|ао|пао|зао|ип|ано)(?=\s|$)/gi, ' ').replace(/[«»"]/g, '').trim(); return x ? (x[0].toUpperCase() + x.slice(1)).replace(/(^|\s)([а-яё]{2,3})(?=\s|$)/gi, (m, a, b) => a + b.toUpperCase()) : ''; };
   const dueShort = (t) => t.dd === null ? 'без срока' : t.dd < 0 ? `просрочено ${-t.dd} дн` : t.dd === 0 ? 'сегодня' : t.dd === 1 ? 'завтра' : 'до ' + String(t.due || '').slice(0, 5);
   function utro() {
-    const m = mine().sort(byUrg).slice(0, 5), y = FRESH.todayYmd, dn = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
+    // просьба «внести оплаты в портал» снимается, если реестр поступлений уже подтвердил внесение всех упомянутых платежей
+    const INC0 = Array.isArray(D.income) ? D.income : [], low = (x) => String(x || '').toLowerCase().replace(/[«»"]/g, '').replace(/^(ооо|ао|пао|зао|ип)\s+/, '');
+    const doneByIncome = (t) => { if (!/портал/i.test(t.title + ' ' + (t.cl || '')) || !/оплат/i.test(t.title)) return false;
+      const txt = low(t.title), hit = INC0.filter((r) => txt.includes(low(r.payer).split(/\s+/)[0])); return hit.length > 0 && hit.every((r) => ['vneseno', 'skip'].includes(r.status)); };
+    const m = mine().filter((t) => !doneByIncome(t)).sort(byUrg).slice(0, 5), y = FRESH.todayYmd, dn = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
     // 30.10 (штурм): суть дела не обрезаем многоточием — заголовок до двух строк, обрезка только у длинного пояснения
     const cut = (x, n) => x.length > n ? x.slice(0, n).replace(/[\s,;:(]+\S*$/, '') + '…' : x;
-    const why = (t) => { const x = String(t.why || t.next || t.detail || '').split(/(?<=[.;])\s|\s—\s|\s\(/)[0].replace(/[.;,]$/, ''); return x && x !== t.short ? cut(x, 90) : ''; };
+    const why = (t) => { const x = String(t.why || t.next || t.detail || '').split(/(?<=[.;])\s|\s—\s|\s\(/)[0].replace(/[.;,]$/, ''); const nz = (v) => String(v || '').toLowerCase().replace(/[^а-яёa-z0-9]+/g, ' ').trim();
+      // пояснение, повторяющее заголовок, заменяем последней фразой текста — обычно это и есть действие («Проверьте и нажмите…»)
+      if (x && nz(x).includes(nz(t.short).slice(0, 20))) { const last = String(t.title || '').split(/(?<=[.!?])\s+/).filter(Boolean).pop() || ''; return last && !nz(last).includes(nz(t.short).slice(0, 20)) ? cut(last.replace(/[.]$/, ''), 90) : ''; }
+      return x && x !== t.short ? cut(x, 90) : ''; };
     const full = (t) => { const d = /Решите?:\s*([^.]+)/.exec(t.title || ''); return d ? 'Решить: ' + d[1].trim().replace(/^./, (c) => c.toLowerCase()) : t.short; };
     const what = (t) => { const c = t.internal ? '' : niceCl(String(t.cl || t.client || '').replace(/\s*\(.*\)/, '')); return `${c ? `<em>${esc(c)}</em>` : ''}<b>${esc(full(t))}</b>`; };
     const btn = (t) => { const L = srcLink(t); return L ? `<a class="sbtn" href="${esc(L[0])}" target="_blank" rel="noopener">Открыть ↗</a>` : `<button class="sbtn" data-act="done" aria-label="Я выполнила: ${esc(t.short)}">Я выполнила</button>`; };
@@ -1050,27 +1057,33 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const incOf = (who, a) => INC && INC.find((r) => Math.round(+r.amount) === Math.round(a) && key(r.payer) === key(who));
     const day = (d) => BK.filter((x) => x.date === d).flatMap((x) => (x.inItems || []).filter((i) => !FROM_REI.test(i.who || '')).map((i) => ({who: niceCl(i.who), a: +i.amount || 0})));
     const sum = (it) => it.reduce((x, i) => x + i.a, 0);
-    // 30.10 (Ольга): деньги на первом экране — только по выписке; уведомления банка выпиской не считаем
-    const stm = BK.filter((x) => x.date <= y && !bkSrc(x).note), lastD = stm.length ? stm[stm.length - 1].date : '';
-    const itL = lastD ? day(lastD) : [];
-    const dayH = () => !lastD ? '<div class="sempty">Выписок за последние дни нет.</div>'
-      : `<div class="sm-h">По выписке за ${dmY(lastD)}: пришло <b>${num(sum(itL))}</b></div>` + (itL.length ? itL.map((i) => `<div class="sl"><span>${esc(i.who)}</span><b>+${num(i.a)}</b></div>`).join('') : '<div class="sempty">поступлений нет</div>')
-      + (lastD < y ? `<div class="sm-h">За ${lastD < prev ? dmY(addD(lastD, 1)) + '–' : ''}${dmY(y)} выписки ещё нет</div>` : '');
+    // 30.10 (Ольга): деньги на первом экране — только по выписке. Источник — сводная выписка kontrol/vypiski (ведёт «Бухгалтерия»);
+    // без неё — дни bank-oboroty, где уведомления выпиской не считаем
+    const VP = D.vypiska && (D.vypiska.items || []).length ? D.vypiska : null, NOTCL = /рэи|альфа-банк|депозит|процент/i;
+    const vItems = VP ? VP.items.filter((i) => !NOTCL.test(i.payer + ' ' + (i.basis || ''))).map((i) => ({who: niceCl(i.payer), a: +i.amount || 0, date: i.date})) : [];
+    const stm = BK.filter((x) => x.date <= y && !bkSrc(x).note);
+    const lastD = VP ? (vItems.length ? vItems[vItems.length - 1].date : '') : stm.length ? stm[stm.length - 1].date : '';
+    const fromD = VP ? (lastD && lastD < prev ? lastD : prev) : lastD;
+    const itL = VP ? vItems.filter((i) => i.date >= fromD) : lastD ? day(lastD).map((i) => ({...i, date: lastD})) : [];
+    const asOf = VP ? VP.asOf : lastD;
+    const dayH = () => !asOf ? '<div class="sempty">Выписок за последние дни нет.</div>'
+      : `<div class="sm-h">По выписке от ${dmY(asOf)}: с ${dmY(fromD)} пришло <b>${num(sum(itL))}</b></div>` + (itL.length ? itL.map((i) => { const r = incOf(i.who, i.a); return `<div class="sl"><span>${esc(i.who)}<small>${dmY(i.date)}${r ? (r.status === 'vneseno' ? ' · в портале ✓' : r.status === 'skip' ? ' · в портал не вносим' : ' · ещё не в портале') : ''}</small></span><b>+${num(i.a)}</b></div>`; }).join('') : '<div class="sempty">поступлений нет</div>')
+      + (!itL.some((i) => i.date === y) ? `<div class="sm-h">За ${dmY(y)} поступлений в выписке пока нет</div>` : '');
     // «не разнесено» — из реестра поступлений (kontrol/runs/income.json), а не по тексту дел
     const notIn = INC ? INC.filter((r) => !['vneseno', 'skip'].includes(r.status)) : null;
     // поступления по выписке, которых нет в реестре внесения, — не ставим «всё внесено»
     const miss = INC ? itL.filter((i) => !incOf(i.who, i.a)) : [];
     const portal = notIn === null ? '<div class="sl sp"><span>Внесение в портал: данных нет</span></div>'
-      : notIn.length ? `<div class="sl sp warn"><span>Пришло, но не внесено в портал: ${notIn.length}</span><b>${esc(notIn.map((r) => niceCl(r.payer) + ' ' + num(+r.amount)).join(', '))}</b></div>`
+      : notIn.length ? `<div class="sl sp"><span>Внесение в портал не подтверждено: ${notIn.length}</span><b>${esc(notIn.map((r) => niceCl(r.payer) + ' ' + num(+r.amount)).join(', '))}</b></div>`
       : miss.length ? `<div class="sl sp"><span>Внесение в портал не сверено: ${miss.map((i) => `<span style="white-space:nowrap">${esc(i.who + ' ' + num(i.a))}</span>`).join(', ')}</span></div>`
       : '<div class="sl sp ok"><span>Всё пришедшее внесено в портал ✓</span></div>';
     // Ждём оплату: таблица Лены (по данным менеджера) и ваши денежные дела; кто уже заплатил по выписке за 7 дней — помечаем
     const G = D.garanty && D.garanty.connected ? D.garanty.rows : [], wait = new Map();
-    G.filter((r) => garOpen(r) && garKind(r) === 'gar' && !(r.flags || []).some((f) => /вопрос|дубль|нет договора/.test(f)) && !/дубль|не ждём/i.test(r.next || '') && !(r.taskIds || []).some((id) => /не ждём/i.test((T.find((t) => t.id === id) || {}).money || ''))).forEach((r) => { const k = niceCl(r.client), w = wait.get(k) || {a: 0, d: r.date || '', src: 'по данным менеджера'}; if ((r.flags || []).includes('вопрос')) w.q = true; w.a += Number(r.remain ?? r.amount) || 0; if (r.date && (!w.d || r.date < w.d)) w.d = r.date; wait.set(k, w); });
+    // 30.10 (Ольга): «по данным менеджера» не сверено — на первом экране только сверенные дела; строки Лены — в «Все дела» и в её таблице
     T.filter((t) => isOpen(t) && (t.verified || verifiedRow(t)) && t.a > 0 && t.mgr === 'Ольга' && /оплат/i.test(t.title + ' ' + t.short) && t.money !== 'пришло').forEach((t) => { const k = niceCl(t.client.replace(/\s*\(.*\)/, '')); if (!wait.has(k)) wait.set(k, {a: t.a, d: taskYmd(t) || '', src: 'по делу'}); });
     // ключ из отсортированных букв: «Витс групп» у Лены и «ВИСТ ГРУПП» в банке — один клиент
     const ak = (x) => [...key(x)].sort().join('');
-    const paid = new Set(BK.filter((x) => x.date >= addD(y, -7)).flatMap((x) => (x.inItems || []).map((i) => ak(i.who))));
+    const paid = new Set([...BK.filter((x) => x.date >= addD(y, -7)).flatMap((x) => (x.inItems || []).map((i) => i.who)), ...vItems.filter((i) => i.date >= addD(y, -7)).map((i) => i.who)].map(ak));
     const top = [...wait.entries()].filter(([k]) => !paid.has(ak(k))).sort((a, b) => ((a[1].d && a[1].d <= y) ? 0 : 1) - ((b[1].d && b[1].d <= y) ? 0 : 1) || b[1].a - a[1].a).slice(0, 5), tot = top.reduce((x, [, w]) => x + w.a, 0);
     return `<section class="simple">
       <div class="sday">${cap(dn)}</div>
