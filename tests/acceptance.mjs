@@ -15,7 +15,10 @@ const iso = (d) => { const z = new Date(d.getTime() + 3 * 36e5); return z.toISOS
 const todayRu = (() => { const z = new Date(Date.now() + 3 * 36e5); return String(z.getUTCDate()).padStart(2, '0') + '.' + String(z.getUTCMonth() + 1).padStart(2, '0'); })();
 // «Сверено Утром сегодня»: checked + src + thread, как требует §14
 const verify = (t) => Object.assign(t, {checked: todayRu + ' Утро и задачи', src: 'тест: банк и почта', thread: 'Утро'});
-const fresh = () => { const d = structuredClone(base); d.updated = iso(new Date(Date.now() - 5 * 6e4)); const ids = new Set(d.summary.map((s) => s.id)); d.tasks.forEach((t) => { if (ids.has(t.id)) verify(t); }); return d; };
+// Даты дел в обезличенном снимке привязаны к 29.10.2026: сдвигаем их на сегодня, иначе сроки «стареют» и проверки зависят от дня запуска
+const SHIFT = Math.round((Date.parse(new Date(Date.now() + 3 * 36e5).toISOString().slice(0, 10)) - Date.parse('2026-10-29')) / 864e5);
+const shiftRu = (v) => { const m = /^(\d\d)\.(\d\d)\.(\d{4})(.*)$/s.exec(v || ''); if (!m || !SHIFT) return v; const z = new Date(Date.UTC(+m[3], +m[2] - 1, +m[1] + SHIFT)); return String(z.getUTCDate()).padStart(2, '0') + '.' + String(z.getUTCMonth() + 1).padStart(2, '0') + '.' + z.getUTCFullYear() + m[4]; };
+const fresh = () => { const d = structuredClone(base); d.tasks.forEach((t) => ['due', 'added', 'waitSince'].forEach((k) => { if (typeof t[k] === 'string') t[k] = shiftRu(t[k]); })); d.updated = iso(new Date(Date.now() - 5 * 6e4)); const ids = new Set(d.summary.map((s) => s.id)); d.tasks.forEach((t) => { if (ids.has(t.id)) verify(t); }); return d; };
 
 const server = http.createServer((req, res) => {
   const f = path.join(ROOT, decodeURIComponent(req.url.split('?')[0]).replace(/^\/$/, '/index.html'));

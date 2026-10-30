@@ -214,6 +214,7 @@ class Reestr(unittest.TestCase):
         self.assertIn("FILTER", wb["Этот месяц"]["A7"].value)
         self.assertEqual([ws.title for ws in wb if ws.sheet_state == "visible"], ["Этот месяц", "Следующий месяц", "Реестр", "Платежи", "Зарплата", "Как пользоваться"])
         self.assertIn("🔴 Просрочено", wb["Реестр"]["M1"].value)
+        self.assertIn("🔵 Прогноз (обсуждаем)", wb["Реестр"]["M1"].value)  # «Обсуждаем» — прогноз, не «Ждём оплату»
         self.assertIn("LEFT(Платежи!B2:B,6)", wb["Реестр"]["J1"].value)
         self.assertTrue(str(wb["Платежи"]["B2"].value).startswith("G-0002 · ооо чзмэк · 1240 ле дс прил 7 · 15000"))  # в «Платежах» выбирают «ID · клиент · договор · сумма»
         self.assertIn("ARRAYFORMULA", wb["Реестр"]["N1"].value)

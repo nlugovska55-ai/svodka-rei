@@ -93,7 +93,9 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
 .warnline{font-size:13.5px;color:var(--warn);background:var(--warn-soft);border-radius:10px;padding:8px 12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .empty{border:1px dashed var(--line2);border-radius:10px;padding:22px;text-align:center;color:var(--muted);display:grid;gap:6px;justify-items:center}
 .empty b{color:var(--ink);font:700 17px var(--f-disp)}
-.gap{border:1px solid var(--warn);border-left:6px solid var(--warn);background:var(--warn-soft);border-radius:10px;padding:16px 18px;display:grid;gap:8px;text-align:left}
+.jump { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 6px 16px; margin: 0 0 12px; font-size: 13px; }
+.jump .link { margin: 0; padding: 2px 0; }
+  .gap{border:1px solid var(--warn);border-left:6px solid var(--warn);background:var(--warn-soft);border-radius:10px;padding:16px 18px;display:grid;gap:8px;text-align:left}
 .gap b{color:var(--ink);font:700 17px var(--f-disp)}
 .gap .gap-acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 /* денежная полоса */
@@ -970,8 +972,12 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const g = money(), o = T.filter(isOpen);
     const list = o.filter((t) => t.a > 0 && (mf ? t.money === mf : true)).sort((x, y) => y.a - x.a);
     const adv = o.filter((t) => /аванс/i.test(t.title) && /без акт/i.test(t.title)), advS = adv.reduce((x, t) => x + t.a, 0);
-    return `${weeksHTML()}
-    ${noDateHTML()}
+    const nd = noDateHTML();
+    // На телефоне вкладка длинная (~10 000 px): быстрые переходы к разделам сверху
+    const J = [['weeks', '4 недели'], ...(nd ? [['nodate', 'Без срока']] : []), ['garanty', 'Таблица Лены'], ['garanty-all', 'Реестр гарантов'], ['fsa', 'Продления'], ['bank', 'Банк']];
+    return `<nav class="jump" aria-label="Разделы вкладки">${J.map(([a, l]) => `<button class="link" data-go="money" data-anchor="${a}">${l}</button>`).join('')}</nav>
+    ${weeksHTML()}
+    ${nd}
     ${lenaCard(true)}
     ${garMoney()}
     ${fsaHTML()}
