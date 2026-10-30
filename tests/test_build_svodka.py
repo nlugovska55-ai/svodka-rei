@@ -222,6 +222,16 @@ class BuilderAcceptance(unittest.TestCase):
         self.assertEqual(r["flag"], "срочно")
         self.assertIn("получено 1 из 2; нет: Банк: выписка за вчера", r["text"])
 
+    def test_pay_hint_only_from_payment_task(self):
+        pay = {"id": "m02", "due": "03.11.2026", "money": "ждём", "title": "Квант: проверить оплату", "short": "Проверить оплату"}
+        bill = {"id": "e1", "due": "30.10.2026", "money": "проверяется", "title": "Запросить договор и счёт", "short": "Запросить договор и счёт", "next": "выставить счёт на аванс; оплата после"}
+        self.assertEqual(builder.pay_hint([pay, bill])["date"], "2026-11-03")
+        self.assertIsNone(builder.pay_hint([bill]))  # дело про счёт, а не про оплату — ориентира нет, строка остаётся «без срока»
+
+    def test_client_stem_matches_spelling_variant(self):
+        self.assertTrue(builder.matches(builder.name_keys("ооо морепласт"), "Мореплас: прил. 3 и 4"))
+        self.assertFalse(builder.matches(builder.name_keys("ооо квант"), "Мореплас: прил. 3 и 4"))
+
     def test_iso_due_becomes_ru(self):
         self.assertEqual(builder.ru_date("2026-10-27"), "27.10.2026")
         self.assertEqual(builder.ru_date("27.10.2026"), "27.10.2026")

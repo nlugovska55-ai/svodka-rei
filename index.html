@@ -320,7 +320,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
 .lena{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;background:var(--surface);padding:14px 16px;display:grid;gap:8px}
 .lena .lh{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.lena .lh h3{font:700 18px var(--f-disp)}
 .lena dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:15px}.lena dt{color:var(--muted)}.lena dd{margin:0;overflow-wrap:anywhere}
-.w4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.w4{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.wc.nd{background:var(--bg)}
 .wc{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:12px 14px;display:grid;gap:4px;align-content:start;min-width:0}
 .wc h3{font:700 16px var(--f-disp)}.wc h3 small{display:block;font:400 14px var(--f-body);color:var(--muted)}
 /* 30.10: метка и сумма в строку, длинная сумма уходит на свою строку, а не наезжает на метку */
@@ -332,6 +332,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
 .mob{display:none}
 .fsa .tr{grid-template-columns:90px minmax(0,1fr) 150px}
 .treb .tr{grid-template-columns:52px minmax(0,1.6fr) minmax(0,1fr) minmax(0,1.3fr)}
+@media (max-width:1280px){.w4{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:980px){.w4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:600px){
   .w4{grid-template-columns:minmax(0,1fr)}
@@ -921,15 +922,17 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const W = [0, 1, 2, 3].map((i) => ({s: addD(w0, 7 * i), e: addD(w0, 7 * i + 6)}));
     const G = D.garanty && D.garanty.connected ? D.garanty.rows : null, SP = D.spisaniya ? D.spisaniya.rows : null, BK = (D.bank && D.bank.days) || [];
     const has = (v) => v !== null && v !== undefined;
-    const CAT = [['bank', 'Банк: выписки и уведомления'], ['gar', 'Гарант (Лена)'], ['prog', 'Прогноз (Лена)'], ['must', 'Обязательные списания']];
+    // «Ориентир по делам»: у строки Лены нет срока, но в связанном деле есть срок контроля оплаты (сборка: hint) — это не обещанная дата
+    const CAT = [['bank', 'Банк: выписки и уведомления'], ['gar', 'Гарант (Лена)'], ['prog', 'Прогноз (Лена)'], ['orient', 'Ориентир по делам (Лена)'], ['must', 'Обязательные списания']];
     const items = (c, w) => c === 'bank' ? BK.filter((x) => x.date >= w.s && x.date <= w.e).map((x) => ({d: x.date, w: x.account, inn: +x.in || 0, out: x.pon ? 0 : +x.out || 0, nt: bkSrc(x).note, src: bkSrc(x).kind + ' на ' + bkSrc(x).asOf + ' · ' + (x.src || '')}))
+      : c === 'orient' ? (G || []).filter((r) => garOpen(r) && garKind(r) !== 'no' && !r.date && r.hint && r.hint.date >= w.s && r.hint.date <= w.e).map((r) => ({d: r.hint.date, w: r.client + (r.doc ? ' · ' + r.doc : ''), a: Number(r.remain ?? r.amount) || 0, src: (r.id || '') + ' · ' + r.hint.src + ', не обещанная дата оплаты'}))
       : c === 'gar' || c === 'prog' ? (G || []).filter((r) => garOpen(r) && garKind(r) === c && r.date && r.date >= w.s && r.date <= w.e).map((r) => ({d: r.date, w: r.client + (r.doc ? ' · ' + r.doc : ''), a: Number(r.remain ?? r.amount) || 0, src: (r.id || '') + ' · ' + (r.src || '')}))
       : (SP || []).filter((r) => r.kind !== 'reference' && !r.paid && r.date >= w.s && r.date <= w.e).map((r) => ({d: r.date, w: r.who + ': ' + r.what, a: has(r.amount) ? Number(r.amount) : null, src: r.src}));
     const cell = (c, w, a) => {
       if (c === 'bank') { if (w.s > y) return ['впереди', '']; if (!a.length) return ['выписок нет', 'за эти дни выписки не прочитаны']; const inn = a.reduce((x, i) => x + i.inn, 0), out = a.reduce((x, i) => x + i.out, 0); return [`<span class="plus">+${num(inn)}</span> / <span class="minus">−${num(out)}</span>`, 'охват: ' + [...new Set(a.map((i) => i.w))].join(', ') + ' · ' + [...new Set(a.map((i) => dmY(i.d)))].join(', ') + (a.some((i) => i.nt) ? '; ' + a.filter((i) => i.nt).map((i) => dmY(i.d)).join(', ') + ' — по уведомлениям, не выписка' : '')]; }
-      if ((c === 'gar' || c === 'prog') && !G) return ['не подключено', 'таблица Лены не подключена'];
+      if ((c === 'gar' || c === 'prog' || c === 'orient') && !G) return ['не подключено', 'таблица Лены не подключена'];
       if (c === 'must' && !SP) return ['не получен', 'реестр списаний не получен'];
-      if (!a.length) return ['<span class="na">нет записей со сроком</span>', c === 'must' ? 'в реестре списаний на эти даты строк нет' : 'в таблице Лены нет строк с датой на эту неделю'];
+      if (!a.length) return ['<span class="na">нет записей со сроком</span>', c === 'must' ? 'в реестре списаний на эти даты строк нет' : c === 'orient' ? 'в делах нет срока контроля оплаты на эту неделю' : 'в таблице Лены нет строк с датой на эту неделю'];
       const unk = a.filter((i) => i.a === null).length;
       const tot = a.reduce((x, i) => x + (i.a || 0), 0);
       return [tot.toLocaleString('ru-RU', {maximumFractionDigits: 2}), plural(a.length, 'строка', 'строки', 'строк') + (a.length <= 2 ? ': ' + a.map((i) => i.w + (i.a !== null ? ' ' + rubX(i.a) : '')).join('; ') : '') + (unk ? `, у ${unk} сумма неизвестна` : '')];
@@ -942,6 +945,12 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     if (wsel) { const [i, c] = wsel.split(':'), w = W[+i], a = w ? items(c, w) : [], l = (CAT.find((x) => x[0] === c) || [])[1];
       if (w) det = `<div class="wdet"><div class="sh"><h2 style="font-size:16px">${l}, ${dmY(w.s)}–${yr(w.e)}</h2><button class="link" data-wsel="${wsel}">Закрыть</button></div>${a.length ? `<div class="cal">${a.map((x) => `<div class="cd"><span class="dt">${dmY(x.d)}</span><span class="wt">${esc(x.w)}${srcDet(x.src)}</span><span class="num">${c === 'bank' ? `<span class="plus">+${num(x.inn)}</span> / <span class="minus">−${num(x.out)}</span>` : x.a === null ? 'сумма неизвестна' : rubX(x.a)}</span></div>`).join('')}</div>` : '<div class="hint">Строк нет.</div>'}</div>`; }
     const late = G ? G.filter((r) => garOpen(r) && garKind(r) !== 'no' && r.date && r.date < W[0].s) : [], noDate = G ? G.filter((r) => garOpen(r) && garKind(r) !== 'no' && !r.date) : [];
+    // Колонка «Без срока»: строки Лены без даты и без срока контроля в деле — списком с причиной, а не пустой неделей
+    const bare = noDate.filter((r) => !r.hint).sort((x, y) => (Number(y.remain ?? y.amount) || 0) - (Number(x.remain ?? x.amount) || 0));
+    const whyBare = (r) => (r.flags || []).some((f) => /вопрос/.test(f)) || /Вопрос/.test(r.status || '') ? 'вопрос в таблице Лены' : !(r.taskIds || []).length ? 'дела в системе нет' : (() => { const t = T.find((x) => x.id === r.taskIds[0]); return 'в деле «' + (t ? t.short : r.taskIds[0]) + '» нет срока оплаты'; })();
+    const noDateCard = () => G ? `<div class="wc nd"><h3>Без срока<small>${bare.length ? plural(bare.length, 'строка', 'строки', 'строк') + ' Лены на ' + num(sumR(bare)) : 'все строки с датой или ориентиром'}</small></h3>
+      ${bare.map((r) => `<div class="wl" style="cursor:default"><span>${esc(r.client)}</span><span class="r">${num(Number(r.remain ?? r.amount) || 0)}</span><small>${esc(r.id || '')}${r.month ? ', за ' + r.month.slice(5, 7) + '.' + r.month.slice(0, 4) : ''} · ${esc(whyBare(r))}</small></div>`).join('')}
+      <div class="wl" style="cursor:default"><small>Срок ставит Лена в таблице; даты за неё не придумываю.</small></div></div>` : '';
     const sLate = SP ? SP.filter((r) => r.kind !== 'reference' && !r.paid && r.date < W[0].s) : [];
     const sumR = (a) => a.reduce((x, r) => x + (Number(r.remain ?? r.amount) || 0), 0);
     const bal = D.buh_plan && D.buh_plan.balance, accs = bal && bal.accounts ? bal.accounts : [];
@@ -949,8 +958,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const accTxt = (a) => { const b = lastBk(a.account); return esc(a.account) + ' на ' + esc(a.date) + ' (' + esc(a.src || 'источник не указан') + ')' + (b && bkSrc(b).note ? `, по уведомлениям на ${esc(bkSrc(b).asOf)} — ${rubX(b.close)}, выпиской ещё не подтверждён` : ''); };
     const why = bal && bal.complete ? '' : accs.length ? `известен только остаток ${accs.map(accTxt).join('; ')}; остальные счета и их потоки не видны, поэтому вперёд остаток не продолжаю` : 'остатков на начало в данных нет';
     return `<section class="sec" id="weeks"><div class="sh"><h2>Деньги на 4 недели</h2><span class="c">поступления только по таблице Лены: гарант отдельно от прогноза; обязательные списания по реестру Бухгалтерии; банк — прочитанные выписки и уведомления банка, источник у каждой строки</span></div>
-      ${late.length || sLate.length || noDate.length ? `<div class="hint">${late.length ? `До ${dmY(W[0].s)} не закрыто обещаний в таблице Лены: <b>${plural(late.length, 'строка', 'строки', 'строк')}</b> на <b>${num(sumR(late))}</b>. ` : ''}${sLate.length ? `Не оплачено обязательных платежей прошлых дат: <b>${sLate.length}</b>. ` : ''}${noDate.length ? `Без срока в таблице Лены: ${plural(noDate.length, 'строка', 'строки', 'строк')} на ${num(sumR(noDate))} — в недели не ставлю, список ниже.` : ''}</div>` : ''}
-      <div class="w4">${W.map(card).join('')}</div>${det}
+      ${late.length || sLate.length || noDate.length ? `<div class="hint">${late.length ? `До ${dmY(W[0].s)} не закрыто обещаний в таблице Лены: <b>${plural(late.length, 'строка', 'строки', 'строк')}</b> на <b>${num(sumR(late))}</b>. ` : ''}${sLate.length ? `Не оплачено обязательных платежей прошлых дат: <b>${sLate.length}</b>. ` : ''}${noDate.length ? `Без срока в таблице Лены: ${plural(noDate.length, 'строка', 'строки', 'строк')} на ${num(sumR(noDate))}. ${noDate.length - bare.length ? `По срокам контроля в делах ${noDate.length - bare.length} из них стоят в строке «Ориентир по делам» (это не обещанная дата). ` : ''}${bare.length ? `Остальные ${bare.length} — в колонке «Без срока».` : ''}` : ''}</div>` : ''}
+      <div class="w4">${W.map(card).join('')}${noDateCard()}</div>${det}
       <div class="hint">Остаток не считаю: ${why}. Счета разных лиц не складываю.</div>
       ${accHTML()}</section>`;
   }

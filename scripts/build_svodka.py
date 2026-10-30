@@ -78,7 +78,25 @@ def matches(keys, text):
     # короткое слово (СПБ, СХМ, АВК) — только целым словом, длинное — как часть текста
     words = set(re.findall(r"[a-zа-я0-9]+", text.lower().replace("ё", "е")))
     flat = compact(text)
-    return all((k in words) if len(k) <= 3 else (k in flat) for k in keys)
+    # длинное слово — по основе без двух последних букв: «Морепласт» в таблице Лены = «Мореплас» в задаче
+    return all((k in words) if len(k) <= 3 else (k in flat) or (len(k) >= 7 and k[:-2] in flat) for k in keys)
+
+
+PAY_RX = re.compile(r"оплат|альф|поступл|п/п", re.I)
+
+
+def pay_hint(linked):
+    """Ориентир срока для строки Лены без даты: ближайший срок связанного дела, где ждём именно оплату.
+    Это дата контроля по делу (источник — дело в системе заданий), а не обещанная клиентом дата."""
+    got = []
+    for t in linked:
+        d = iso_date(t.get("due"))
+        if d and (t.get("money") in ("ждём", "ждём подпись") or PAY_RX.search(t.get("short") or t.get("title", ""))):
+            got.append((d, t))
+    if not got:
+        return None
+    d, t = min(got, key=lambda x: x[0])
+    return {"date": d, "task": t["id"], "short": t.get("short") or t["title"][:80], "src": "срок контроля дела «" + (t.get("short") or t["title"][:80]) + "»"}
 
 
 def lena_clients(tasks):
@@ -322,6 +340,7 @@ def garanty(tasks, bank):
                      "remain": r.get("remainReg") if reestr else ((amt - bank_sum) if (amt is not None and got[k]) else None),
                      "id": r.get("id", ""), "month": r.get("month", ""), "stageReg": r.get("stageReg", ""), "flags": r.get("flags", []), "src": r.get("source", ""), "checked": r.get("checked", ""),
                      "taskIds": [t["id"] for t in linked], "linkBy": how if linked else "",
+                     "hint": pay_hint(linked) if not r.get("date") else None,
                      "next": (t0["next"] if t0 else "") or r.get("note") or "",
                      "owner": (t0["waiting"] or t0["mgr"]) if t0 else (r.get("who") or "Лена")})
     acc = os.path.join(GARANTY_DIR, "access.json")  # доступ Лены к таблице: пишем только после решения Ольги
