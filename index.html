@@ -234,21 +234,50 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
 .cover{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--eyebrow);border-radius:8px;padding:12px 14px;font-size:14.5px}
 .cover b{font-variant-numeric:tabular-nums}
 .cover .link{margin-left:auto;white-space:nowrap}
-.rows.prio{border:0;background:transparent;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;overflow:visible}
-.rows.prio.n1{grid-template-columns:minmax(0,1fr)}.rows.prio.n2{grid-template-columns:repeat(2,minmax(0,1fr))}
-.rw.pc{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-.rw.pc:first-child{border-top:1px solid var(--line)}
-.rw.pc.hot{border-top:4px solid var(--hot)}
-.pc .row{display:grid;grid-template-columns:1fr;gap:10px;align-items:start;padding:14px 16px 16px;height:100%}
-.pc .pn{display:flex;gap:10px;align-items:center}
-.pc .pn i{font:700 13px var(--f-disp);font-style:normal;width:26px;height:26px;border-radius:6px;background:var(--accent);color:#fff;display:grid;place-items:center;flex:none}
-.pc .pn .cl{font-size:13.5px;font-weight:600;color:var(--eyebrow);text-transform:uppercase;letter-spacing:.05em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pc .pt{font:700 17px/1.3 var(--f-disp);color:var(--ink);text-align:left;border:0;background:none;padding:0}
-.pc dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;font-size:13.5px}
-.pc dt{color:var(--muted)} .pc dd{margin:0;overflow-wrap:anywhere}
-.pc .pa{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto}
-.pc .pa .go{grid-column:1/-1;justify-content:center}
-.pc .pa .ab{height:44px;padding:0 10px;font-size:13.5px;font-weight:600;justify-content:center}
+.rows.prio{display:block}
+.rows.prio .gsub{background:var(--soft);padding:6px 16px;font:700 12.5px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--line)}
+.rows.prio .gsub:first-child{border-top:0}
+.rw.pc .row{display:grid;grid-template-columns:minmax(0,1fr) 120px 118px auto;gap:6px 14px;align-items:center;padding:8px 16px;min-height:60px}
+.rw.pc.hot .row{box-shadow:inset 4px 0 0 var(--hot)}
+.pc .pl{display:flex;gap:8px;align-items:baseline;min-width:0;white-space:nowrap;overflow:hidden}
+.pc .tg{flex:none;font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 7px}
+.pc .pt{font:600 16px/1.3 var(--f-body);color:var(--ink);text-align:left;border:0;background:none;padding:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:0 1 auto}
+.pc .pl .cl{color:var(--muted);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:0 10 auto}
+.pc .pl .cl::before{content:"· "}
+.pc .am{font:700 16px var(--f-disp);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pc .pdue{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.pc .pa{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+.pc .pa .ab{height:44px;padding:0 12px;font-size:13.5px;font-weight:600;justify-content:center;white-space:nowrap}
+@media (max-width:1100px){.rw.pc .row{grid-template-columns:minmax(0,1fr) auto auto}.pc .pa{grid-column:1/-1;justify-content:flex-start}}
+@media (max-width:700px){.rw.pc .row{grid-template-columns:minmax(0,1fr) auto;padding:10px 14px}.pc .pl{flex-wrap:wrap;white-space:normal}.pc .pt{white-space:normal}.pc .am{grid-column:2;grid-row:1}.pc .pa{grid-column:1/-1}.pc .pa .ab{flex:1 1 40%}}
+/* «Сегодня»: разделы карточками и деньги полосами */
+.secs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.scard{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px 16px;text-align:left;display:grid;gap:4px;align-content:start;color:var(--ink)}
+.scard:hover{border-color:var(--accent)}
+.scard .k{font:700 12.5px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--eyebrow)}
+.scard .n{font:700 28px/1.1 var(--f-disp);font-variant-numeric:tabular-nums;white-space:nowrap}.scard .n small{font:600 14px var(--f-body);color:var(--muted);margin-left:6px}
+.scard .l{font-size:14px;color:var(--ink)}.scard .s{font-size:13px;color:var(--muted)}
+.scard .hotw{color:var(--hot);font-weight:700}
+/* ПК: итог и разделы слева, деньги справа, решения во всю ширину; телефон (Промты, п. 4): итог → решения → деньги → разделы */
+.top3{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);grid-template-areas:'lead mm' 'secs mm' 'dec dec';gap:16px 20px;align-items:start}
+.top3>.lead{grid-area:lead}.top3>.secs{grid-area:secs}.top3>.mmw{grid-area:mm}.top3>#decide{grid-area:dec;margin-top:8px}
+.mm{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px 16px;display:grid;gap:0}
+.mm .lg{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);padding-bottom:8px}
+.mm .lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.mw{display:grid;grid-template-columns:104px minmax(0,1fr) 150px;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:14px;text-align:left;background:none;border-left:0;border-right:0;border-bottom:0;color:var(--ink);width:100%}
+.mw .d{font-weight:600}.mw .bs{display:grid;gap:3px}.mw .b{height:12px;display:flex;gap:2px}.mw .b span{height:100%;border-radius:0 4px 4px 0;min-width:3px}
+.mw .v{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.lcol{display:grid;gap:16px;align-content:start}.mw .v b{display:block}.mw .v span{color:var(--muted)}
+.mw .na{color:var(--faint)}
+@media (max-width:980px){.top3{display:flex;flex-direction:column;align-items:stretch}.top3>.lead{order:1}.top3>#decide{order:2}.top3>.mmw{order:3}.top3>.secs{order:4}.secs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.secs{gap:8px}.scard{padding:12px}.scard .n{font-size:22px}.mw{grid-template-columns:78px minmax(0,1fr) 120px;gap:8px}}
+.tab.aux{font-weight:500;font-size:14px}
+.lead h1 .late{color:var(--hot);font-size:.7em;font-weight:600}
+.lead .cover{font-size:13.5px;color:var(--muted);padding:8px 12px}
+.mlater{display:none}
+@media (max-width:480px){.mm .mw.later{display:none}.mlater{display:block;padding-top:8px}}
+.tab .sm{display:none}
+@media (max-width:820px){.tab.aux,.tabs .sep{display:none}.tab .lg{display:none}.tab .sm{display:inline}.tab{padding:6px 4px!important;min-width:0;flex:1}.drawer{width:100%}}
+.tabs .sep{width:1px;background:var(--line);margin:8px 6px}
 .ab.go{background:var(--accent);border-color:var(--accent);color:#fff;text-decoration:none}
 .ab.go:hover{background:var(--accent-h)}
 .wk{display:grid;gap:0}
@@ -280,7 +309,6 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
 .gline .gc{min-width:0}.gline .gc small{display:block;color:var(--muted);font-size:13.5px}.gline .ga{text-align:right;font-weight:600}
 @media (max-width:700px){.gline{grid-template-columns:minmax(0,1fr) auto;gap:2px 10px}.gline .gd,.gline .gb{font-size:14px}.gline .gb{text-align:right}}
 @media (max-width:480px){.grs{grid-template-columns:minmax(0,1fr)}}
-@media (max-width:980px){.rows.prio,.rows.prio.n2{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:480px){.wd{grid-template-columns:84px minmax(0,1fr);gap:8px;padding:9px 12px}.cover{flex-wrap:wrap}.cover .link{margin-left:0}.brand img{height:36px}.brand .bt span{display:none}}
 @media (max-width:820px){
   .stages,.buckets{grid-template-columns:repeat(2,minmax(0,1fr))}.money-grid{grid-template-columns:1fr}
@@ -350,10 +378,14 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   <header class="bar">
     <a class="brand" href="#utro" aria-label="Пульт РусЭкоИнновации, на «Утро»"><img src="https://rus-ei.ru/wp-content/uploads/2018/10/logo.png" alt="РусЭкоИнновации" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'seal',textContent:'РЭИ'}))"><span class="bt"><span>РусЭкоИнновации</span><b>Рабочий пульт</b></span></a>
     <nav class="tabs" role="tablist" aria-label="Разделы">
-      <button class="tab" role="tab" data-tab="utro"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 2v2M9 14v2M2 9h2M14 9h2M4 4l1.4 1.4M12.6 12.6L14 14M4 14l1.4-1.4M12.6 5.4L14 4"/><circle cx="9" cy="9" r="3"/></svg>Утро</button>
-      <button class="tab" role="tab" data-tab="money"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4.5" width="14" height="9" rx="2"/><circle cx="9" cy="9" r="2"/></svg>Деньги</button>
-      <button class="tab" role="tab" data-tab="buh"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2.5" y="3.5" width="13" height="12" rx="2"/><path d="M2.5 7.5h13M6 2v3M12 2v3"/></svg>Бухгалтерия</button>
-      <button class="tab" role="tab" data-tab="all"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 5h10M6 9h10M6 13h10"/><circle cx="2.5" cy="5" r=".6"/><circle cx="2.5" cy="9" r=".6"/><circle cx="2.5" cy="13" r=".6"/></svg>Все дела</button>
+      <button class="tab" role="tab" data-tab="utro"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 2v2M9 14v2M2 9h2M14 9h2M4 4l1.4 1.4M12.6 12.6L14 14M4 14l1.4-1.4M12.6 5.4L14 4"/><circle cx="9" cy="9" r="3"/></svg><span class="lg">Сегодня</span><span class="sm">Сегодня</span></button>
+      <button class="tab" role="tab" data-tab="my"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="6" r="3"/><path d="M3 16c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg><span class="lg">Мои клиенты</span><span class="sm">Мои</span></button>
+      <button class="tab" role="tab" data-tab="lena"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="12.5" cy="7" r="2"/><path d="M2 15.5c.6-2.4 2.4-3.6 4.5-3.6s3.9 1.2 4.5 3.6M12 11.8c1.8 0 3.3 1 3.9 3"/></svg><span class="lg">Клиенты Лены</span><span class="sm">Лены</span></button>
+      <button class="tab" role="tab" data-tab="buh"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2.5" y="3.5" width="13" height="12" rx="2"/><path d="M2.5 7.5h13M6 2v3M12 2v3"/></svg><span class="lg">Бухгалтерия</span><span class="sm">Бухгалт.</span></button>
+      <button class="tab" role="tab" data-tab="other"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2.5" y="2.5" width="5" height="5" rx="1"/><rect x="10.5" y="2.5" width="5" height="5" rx="1"/><rect x="2.5" y="10.5" width="5" height="5" rx="1"/><rect x="10.5" y="10.5" width="5" height="5" rx="1"/></svg><span class="lg">Другие</span><span class="sm">Другие</span></button>
+      <span class="sep" aria-hidden="true"></span>
+      <button class="tab aux" role="tab" data-tab="money"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4.5" width="14" height="9" rx="2"/><circle cx="9" cy="9" r="2"/></svg><span class="lg">Прогноз денег</span><span class="sm">Деньги</span></button>
+      <button class="tab aux" role="tab" data-tab="all"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 5h10M6 9h10M6 13h10"/><circle cx="2.5" cy="5" r=".6"/><circle cx="2.5" cy="9" r=".6"/><circle cx="2.5" cy="13" r=".6"/></svg><span class="lg">Все дела</span><span class="sm">Все</span></button>
     </nav>
     <div class="fresh" id="fresh"><span class="dot" style="background:var(--faint)"></span>Загружаю данные…</div>
   </header>
@@ -602,6 +634,20 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     } finally { sending = false; render(); }
   }
 
+  // ---------- разделы (30.10, схема Ольги): Сегодня · Мои клиенты · Клиенты Лены · Бухгалтерия · Другие ----------
+  const TABS = ['utro', 'my', 'lena', 'buh', 'other', 'money', 'all'];
+  const SECN = {my: 'Мои клиенты', lena: 'Клиенты Лены', buh: 'Бухгалтерия', other: 'Другие'};
+  const MYC = /логика|эйчэнэн|gea|геа|вкусвилл|виртекс|востряково|тамбов/i;
+  const grpOf = (t) => t.section === 'Бухгалтерия' || t.cat === 'tax' ? 'buh' : t.section === 'Мои клиенты' ? 'my' : t.mgr === 'Лена' || t.section === 'Клиенты Лены' ? 'lena' : MYC.test(t.cl || t.client || '') ? 'my' : 'other';
+  // Срочность для списка «Сегодня» (Промты, п. 2): просрочено → сегодня → можно завтра; внутри — «горит», затем сумма
+  const bucketOf = (t) => t.dd !== null && t.dd < 0 && !t.fromSummary ? 0 : isToday(t) || t.hot || t.fromSummary ? 1 : 2;
+  const BUCKN = ['Просрочено', 'Сегодня', 'Можно завтра'];
+  const byUrg = (x, y) => (bucketOf(x) - bucketOf(y)) || (y.hot - x.hot) || (y.a - x.a) || order(x, y);
+  // Портал: заказы клиента по названию (фильтр портала принимает текст в windows-1251)
+  const cp1251 = (str) => [...str].map((ch) => { const c = ch.charCodeAt(0); if (/[A-Za-z0-9._~-]/.test(ch)) return ch; const b = c < 128 ? c : c >= 0x410 && c <= 0x44F ? c - 0x350 : c === 0x401 ? 0xA8 : c === 0x451 ? 0xB8 : null; return b === null ? '' : '%' + b.toString(16).toUpperCase().padStart(2, '0'); }).join('');
+  const clientUrl = (t) => { if (t.clientUrl) return t.clientUrl; if (t.internal || !t.client) return '';
+    const n = String(t.client).replace(/\(.*?\)/g, ' ').split(/[,;]/)[0].replace(/(^|\s)(ооо|оао|ао|пао|зао|ип|ано|фгуп|гуп)(?=\s|$)/gi, ' ').replace(/[«»"]/g, '').trim();
+    return n.length >= 3 ? `http://95.84.156.117:3839/projects/orders/?arrFilter_pf%5Bclientname%5D=${cp1251(n.split(/\s+/)[0])}&set_filter=Y&step=all` : ''; };
   // ---------- строки ----------
   const duePill = (t) => t.fromSummary ? ''
     : t.dd === null ? '' : t.dd < 0 ? `<span class="pill p-warn">просрочено ${-t.dd} дн</span>` : t.dd === 0 ? '<span class="hint">сегодня</span>'
@@ -679,11 +725,11 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     : t.who === 'я' ? (srcLink(t) ? 'ждёт вашего нажатия, ссылка ниже' : 'без вашего шага не двигается') : 'нет';
   const stepTxt = (t) => { const x = t.next || (t.fromSummary ? t.detail || t.title : t.title) || ''; return x.length > 220 ? x.slice(0, 220).replace(/\s\S*$/, '') + '…' : x; };
   const pcard = (t, i) => { const L = srcLink(t), sy = syncTag(t);
+    // 30.10 (Промты, п. 5): одна строка — раздел · действие · клиент, справа сумма, срок и кнопки; подробности в панели
+    const due = t.dd === null || t.fromSummary ? '<span class="pdue"></span>' : t.dd < 0 ? `<span class="pill p-hot">просрочено ${-t.dd} дн</span>` : t.dd === 0 ? '<span class="pill p-wait">сегодня</span>' : `<span class="pdue">до ${esc(String(t.due || '').slice(0, 5))}</span>`;
     return `<div class="rw pc${t.hot ? ' hot' : ''}" data-id="${esc(t.id)}"><div class="row">
-    <div class="pn"><i>${i + 1}</i><span class="cl">${esc(t.internal ? 'Лично вам' : t.cl || 'Нужно от вас')}</span>${t.hot ? '<span class="pill p-hot">горит</span>' : ''}</div>
-    <button class="pt" data-open>${esc(t.short)}</button>
-    <dl><dt>Следующий шаг</dt><dd>${esc(stepTxt(t))}</dd><dt>Кто</dt><dd>${esc(whoTxt(t))}</dd><dt>Срок</dt><dd>${dueTxt(t)}</dd><dt>Блокировка</dt><dd>${blockTxt(t)}</dd>${t.a ? `<dt>Сумма</dt><dd class="num am">${full(t.a)}</dd>` : ''}</dl>${t.a ? '' : '<span class="am" hidden></span>'}
-    ${sy ? `<div>${sy}</div>` : ''}
+    <div class="pl"><span class="tg">${esc(SECN[grpOf(t)])}</span>${t.hot ? '<span class="pill p-hot">горит</span>' : ''}<button class="pt" data-open title="${esc(t.short)}">${esc(t.short)}</button><span class="cl">${esc(t.internal ? 'лично вам' : t.cl || 'нужно от вас')}</span>${sy ? ' ' + sy : ''}</div>
+    <span class="am">${t.a ? full(t.a) : ''}</span>${due}
     <div class="pa">${L ? `<a class="ab go" href="${esc(L[0])}" target="_blank" rel="noopener">${esc(L[1])} ↗</a>` : ''}<button class="ab ok" data-act="done" aria-label="Я выполнила: ${esc(t.short)}">${ico.check}Я выполнила</button><button class="ab cl" data-act="claude" aria-label="Поручить Claude: ${esc(t.short)}">Поручить Claude</button></div>
     </div></div>`; };
   // Сроки на 7 дней (вкладка «Все дела»): только сроки из карточек дел (due), без придуманных целей. Просроченное — отдельной строкой.
@@ -846,8 +892,77 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <button data-go="all" data-who="клиент"><b>${W.length}</b>ждём клиента<span>${oldest ? 'дольше всех ' + oldest + ' дн' : 'от нас ничего не нужно'}</span></button>${proj.length ? `<button data-bucket="proj" aria-expanded="${openB === 'proj'}"><b>${proj.length}</b>проекты<span>${proj.filter((p) => p.flag === 'warn' || p.flag === 'срочно').length} ждут вашего шага</span></button>` : ''}</div>
       ${openB === 'proj' ? `<div class="rows" style="padding:12px 14px"><div class="projects">${proj.map((p) => `<div class="pj"><span class="dot" style="background:${p.flag === 'ok' ? 'var(--ok)' : 'var(--warn)'}"></span><span><b>${esc(p.text.split(':')[0])}</b>${esc(p.text.slice(p.text.split(':')[0].length))}</span></div>`).join('')}</div></div>` : ''}</section>`;
   }
+  // ---------- «Сегодня»: итог недели, разделы, деньги полосами (30.10, Промты п. 1, 3, 6) ----------
+  const MON = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+  const dMon = (y) => +y.slice(8, 10) + ' ' + MON[+y.slice(5, 7) - 1];
+  const wkLabel = (w, i) => i === 0 ? 'до ' + dMon(w.e) : w.s.slice(5, 7) === w.e.slice(5, 7) ? +w.s.slice(8, 10) + '–' + dMon(w.e) : dMon(w.s) + ' – ' + dMon(w.e);
+  function wkSums() {
+    const y = FRESH.todayYmd, w0 = addD(y, -((new Date(y + 'T12:00:00Z').getUTCDay() + 6) % 7));
+    const G = D.garanty && D.garanty.connected ? D.garanty.rows : null, SP = D.spisaniya ? D.spisaniya.rows : null, BK = (D.bank && D.bank.days) || [];
+    const amt = (r) => Number(r.remain ?? r.amount) || 0, live = (r) => garOpen(r) && garKind(r) !== 'no';
+    const W = [0, 1, 2, 3].map((i) => { const s0 = addD(w0, 7 * i), e = addD(w0, 7 * i + 6), bk = BK.filter((x) => x.date >= s0 && x.date <= e);
+      return {s: s0, e, ahead: s0 > y, bankN: bk.length, bankIn: bk.reduce((a, x) => a + (+x.in || 0), 0), bankOut: bk.reduce((a, x) => a + (x.pon ? 0 : +x.out || 0), 0),
+        mgr: G ? G.filter((r) => live(r) && r.date && r.date >= s0 && r.date <= e).reduce((a, r) => a + amt(r), 0) : null,
+        orient: G ? G.filter((r) => live(r) && !r.date && r.hint && r.hint.date >= s0 && r.hint.date <= e).reduce((a, r) => a + amt(r), 0) : null,
+        must: SP ? SP.filter((r) => r.kind !== 'reference' && !r.paid && r.date >= s0 && r.date <= e).reduce((a, r) => a + (Number(r.amount) || 0), 0) : null}; });
+    const bare = G ? G.filter((r) => live(r) && !r.date && !r.hint) : [];
+    return {W, G, bareSum: bare.reduce((a, r) => a + amt(r), 0), bareN: bare.length};
+  }
+  // Строки Лены «к обновлению»: срок прошёл, срока нет или в строке вопрос — данные менеджера устарели (главный риск прогноза)
+  function lenaStale() {
+    const G = D.garanty && D.garanty.connected ? D.garanty.rows : [], y = FRESH.todayYmd;
+    return G.filter((r) => garOpen(r) && garKind(r) !== 'no').map((r) => ({r, why: (r.flags || []).some((f) => /вопрос/.test(f)) ? 'вопрос в таблице' : !r.date ? 'срок не указан' : r.date < y ? 'срок прошёл ' + dmY(r.date) : ''})).filter((x) => x.why);
+  }
+  function weekLine() {
+    const {W, G} = wkSums(), w = W[0];
+    if (!G) return '';
+    return `Эта неделя по данным менеджера: ${w.mgr ? `ждём <b>${num(w.mgr)}</b>` : 'сроков на неё нет'}${w.orient ? ` (ориентир по делам ${num(w.orient)})` : ''}${w.bankIn ? `, банк (выписки и уведомления) +${num(w.bankIn)}` : ''}.`;
+  }
+  function secCards() {
+    const o = T.filter(isOpen), by = (k) => o.filter((t) => grpOf(t) === k), td = (a) => a.filter(isToday).length, sumA = (a) => a.reduce((x, t) => x + t.a, 0);
+    const {W, G} = wkSums(), st = lenaStale(), hot = o.filter((t) => t.hot);
+    const card = (k, l, sub) => { const a = by(k); return `<button class="scard" data-go="${k}"><span class="k">${SECN[k]}</span><span class="n">${td(a)}<small>срок сегодня</small></span><span class="s">всего ${plural(a.length, 'дело', 'дела', 'дел')}</span><span class="l">${l}</span>${sub ? `<span class="s">${sub}</span>` : ''}</button>`; };
+    return `<section class="secs" aria-label="Разделы">
+      ${card('my', sumA(by('my')) ? 'суммы в делах ' + num(sumA(by('my'))) : 'денежных дел нет')}
+      ${card('lena', G ? 'по данным менеджера ждём ' + num(D.garanty.rows.filter((r) => garOpen(r) && garKind(r) !== 'no').reduce((x, r) => x + (Number(r.remain ?? r.amount) || 0), 0)) : 'таблица Лены не подключена', st.length ? `<span class="hotw">Лена:</span> ${plural(st.length, 'строка', 'строки', 'строк')} к обновлению` : '')}
+      ${card('buh', W[0].must === null ? 'реестр списаний не получен' : W[0].must ? 'списания на неделе ' + rubX(W[0].must) : 'списаний на неделе нет')}
+      ${card('other', hot.length ? `<span class="hotw">горит:</span> ${esc(hot[0].short)}` : 'горящих нет')}
+    </section>`;
+  }
+  // Полосы: банк — сплошная, «по данным менеджера» — штриховка, ориентир — контур (различимы и без цвета); итог = банк + менеджер, ориентир в скобках
+  function moneyMini() {
+    const {W, G, bareSum, bareN} = wkSums();
+    if (!G) return `<section class="sec" id="mm"><div class="sh"><h2>Когда ждём деньги</h2></div><div class="mm"><span class="hint">Таблица Лены не подключена: прогноза поступлений нет.</span></div></section>`;
+    const mx = Math.max(1, bareSum, ...W.map((w) => Math.max((w.ahead ? 0 : w.bankIn) + w.mgr + w.orient, w.must || 0)));
+    const pc = (v) => (v / mx * 100).toFixed(1) + '%';
+    const HATCH = 'repeating-linear-gradient(135deg,var(--accent) 0 3px,transparent 3px 6px)';
+    const bar = (w) => { const b = w.ahead ? 0 : w.bankIn, parts = [b ? `<span style="width:${pc(b)};background:var(--accent)" title="банк"></span>` : '', w.mgr ? `<span style="width:${pc(w.mgr)};background:${HATCH};border:1px solid var(--accent)" title="по данным менеджера"></span>` : '', w.orient ? `<span style="width:${pc(w.orient)};border:1.5px dashed var(--eyebrow)" title="ориентир по делам"></span>` : ''].join('');
+      return `<div class="bs"><div class="b">${parts}</div>${w.must ? `<div class="b"><span style="width:${pc(w.must)};background:var(--line2)" title="обязательные списания"></span></div>` : ''}</div>`; };
+    const val = (w) => { const tot = (w.ahead ? 0 : w.bankIn) + w.mgr; return tot || w.orient || w.must ? `${tot ? `<b>+${tot.toLocaleString('ru-RU')}</b>` : ''}${w.orient ? `<span>(ориентир ${w.orient.toLocaleString('ru-RU')})</span><br>` : ''}${w.must ? `<span>−${Number(w.must).toLocaleString('ru-RU', {maximumFractionDigits: 2})}</span>` : ''}` : '<span class="na">—</span>'; };
+    return `<section class="sec" id="mm"><div class="sh"><h2>Когда ждём деньги</h2><button class="link" data-go="money" data-anchor="weeks">Подробно →</button></div>
+      <div class="mm"><div class="lg"><span><i style="background:var(--accent)"></i>Банк: выписки и уведомления</span><span><i style="background:${HATCH};border:1px solid var(--accent)"></i>По данным менеджера</span><span><i style="border:1.5px dashed var(--eyebrow)"></i>Ориентир по делам</span><span><i style="background:var(--line2)"></i>Обязательные списания</span></div>
+      ${W.map((w, i) => `<button class="mw${i ? ' later' : ''}" data-go="money" data-anchor="weeks"><span class="d">${wkLabel(w, i)}</span>${w.mgr || w.orient || w.must || (!w.ahead && w.bankIn) ? bar(w) : '<span class="na">ничего со сроком</span>'}<span class="v">${val(w)}</span></button>`).join('')}
+      <button class="mw" data-go="money" data-anchor="nodate"><span class="d">Без срока</span>${bareSum ? `<div class="bs"><div class="b"><span style="width:${pc(bareSum)};background:${HATCH};border:1px solid var(--accent)"></span></div></div>` : '<span class="na">—</span>'}<span class="v">${bareSum ? `<b>${bareSum.toLocaleString('ru-RU')}</b><span>${plural(bareN, 'строка', 'строки', 'строк')} Лены</span>` : ''}</span></button>
+      <span class="hint mlater">Остальные недели — в «Подробно».</span></div></section>`;
+  }
+  // ---------- вкладки разделов: Мои клиенты, Клиенты Лены, Другие ----------
+  let sf = 'all';
+  function secTab(k) {
+    const base = T.filter((t) => isOpen(t) && grpOf(t) === k).sort(byUrg);
+    const F = [['all', 'Все'], ['today', 'Сегодня'], ['me', 'Нужно решение Ольги'], ['pay', 'Ждём оплату'], ['wait', 'Ждём клиента']];
+    const fl = {all: () => true, today: (t) => bucketOf(t) < 2, me: (t) => t.who === 'я', pay: (t) => t.a > 0 && /ждём|выставить/.test(t.money || '') || t.cat === 'pay', wait: (t) => t.who === 'клиент' || t.who === 'эксперт'};
+    if (!fl[sf]) sf = 'all';
+    const o = base.filter(fl[sf]), BN = ['Просрочено', 'Сегодня', 'На неделе и позже'];
+    const parts = [0, 1, 2].map((b) => [b, o.filter((t) => bucketOf(t) === b)]).filter(([, a]) => a.length);
+    const st = k === 'lena' ? lenaStale() : [];
+    const stale = st.length ? `<section class="sec" id="lena-stale"><div class="sh"><h2>Лена: ${plural(st.length, 'строка', 'строки', 'строк')} к обновлению</h2><span class="c">по данным менеджера срок прошёл, не указан или в строке вопрос</span><button class="link" data-go="money" data-anchor="garanty-all">Весь реестр гарантов →</button></div>
+      <div class="rows">${lim('stale', st, 3).map(({r, why}) => `<div class="gline"><span class="gc">${esc(r.client)}<small>${esc(r.id || '')}${r.doc ? ' · ' + esc(r.doc) : ''}</small></span><span class="gd"><span class="pill p-warn">${esc(why)}</span></span><span class="ga">${num(Number(r.remain ?? r.amount) || 0)}</span><span class="gb"></span></div>`).join('')}</div>${moreBtn('stale', st, 3, ['строка', 'строки', 'строк'])}</section>` : '';
+    return `${stale}<section class="sec"><div class="sh"><h2>${SECN[k]}: ${plural(base.length, 'дело', 'дела', 'дел')}</h2><span class="c">клик по делу — история, комментарии и ссылки на портал</span>${k === 'lena' ? '<button class="link" data-go="money">Прогноз денег →</button>' : ''}</div>
+      <div class="tools">${F.map(([f, l]) => `<button class="chip" data-sf="${f}" aria-pressed="${sf === f}">${l} · ${base.filter(fl[f]).length}</button>`).join('')}</div>
+      ${parts.length ? parts.map(([b, a]) => `<div class="rows prio"><div class="gsub">${BN[b]}</div>${a.map((t) => row(t)).join('')}</div>`).join('') : '<div class="empty"><b>Дел нет</b><span>По этому фильтру открытых дел нет.</span></div>'}</section>`;
+  }
   function utro() {
-    const m = mine(), o = T.filter(isOpen), week = unverified();
+    const m = mine().sort(byUrg), o = T.filter(isOpen), week = unverified();
     if (portion * PORTION >= m.length) portion = 0;
     const shown = m.slice(portion * PORTION, portion * PORTION + PORTION), rest = m.length - (portion + 1) * PORTION;
     const upd = FRESH.upd, fresh = FRESH.sameDay, nx = FRESH.nextS ? (FRESH.dm(FRESH.nextS) === FRESH.dm(now) ? '' : FRESH.dm(FRESH.nextS) + ' ') + FRESH.hm(FRESH.nextS) : '';
@@ -859,25 +974,27 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const dn = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
     const status = !fresh ? `<div class="warnline">Данные от ${FRESH.dm(upd)} ${FRESH.hm(upd)} МСК: сегодня сводку ещё не выкладывали, цифры могут быть устаревшими.</div>` : FRESH.late ? `<div class="warnline">Данные собраны в ${FRESH.hm(upd)} МСК, выкладка ${FRESH.hm(FRESH.lastS)} не пришла. Всё ниже — на ${FRESH.hm(upd)}.</div>` : '';
     const unsent = (outbox.length || inflight) && !sending ? `<div class="warnline">${plural(outbox.length, 'отметка не отправлена', 'отметки не отправлены', 'отметок не отправлено')}, они сохранены в этом браузере. <button class="link" style="margin:0" data-retry>Отправить снова</button></div>` : '';
-    const top = shown.slice(0, portion ? 0 : 3), more = shown.slice(top.length);
+    const prioRows = shown.map((t, i) => (i === 0 || bucketOf(shown[i - 1]) !== bucketOf(t) ? `<div class="gsub">${BUCKN[bucketOf(t)]}</div>` : '') + pcard(t, i)).join('');
     // Полнота сверки по всем открытым делам: сколько проверено по источнику сегодня и у скольких даты проверки нет вовсе
     const own = T.filter((t) => !t.fromSummary), allN = own.length, allToday = own.filter((t) => okToday(t.checked)).length, allNone = own.filter((t) => !String(t.checked || '').trim()).length;
     const cover = allN ? `<div class="cover"><span>Во всех открытых делах: сверено сегодня <b>${allToday}</b> из <b>${allN}</b>${allNone ? `, без даты сверки <b>${allNone}</b>` : ''}. Решения ниже — только по сверенным с источником.</span></div>` : '';
     const gapN = allN - allToday;
     const gapH1 = `Контроль неполный: проверено <em style="color:var(--warn)">${allToday} из ${allN}</em>`;
     // 30.10: одно сверенное дело не должно прятать, что остальные не сверены — неполнота видна и рядом с решениями
-    const h1 = m.length ? `Требуют вашего решения: <em>${plural(m.length, 'дело', 'дела', 'дел')}</em>${gapN ? `<span class="h1gap">${gapH1}</span>` : ''}` : gapN ? `Контроль неполный: проверено <em style="color:var(--warn)">${allToday} из ${allN}</em>` : listToday ? 'Решений от вас сегодня не требуется' : 'Список дел на сегодня ещё не собран';
+    const lateN = m.filter((t) => bucketOf(t) === 0).length;
+    const h1 = m.length ? `Сегодня решить: <em>${plural(m.length, 'дело', 'дела', 'дел')}</em>${lateN ? ` <span class="late">(просрочено ${lateN})</span>` : ''}${gapN ? `<span class="h1gap">${gapH1}</span>` : ''}` : gapN ? `Контроль неполный: проверено <em style="color:var(--warn)">${allToday} из ${allN}</em>` : listToday ? 'Решений от вас сегодня не требуется' : 'Список дел на сегодня ещё не собран';
     // 29.10 (Jonas): при непроверенных делах не успокаиваем «ничего срочного» — показываем дыру в контроле и действие
     const gapIds = own.filter((t) => !okToday(t.checked)).map((t) => t.id);
     const gapB = gapN ? `<div class="gap" role="alert"><b>Срочность ${plural(gapN, 'дела', 'дел', 'дел')} не подтверждена: сегодня не сверено с источником ${gapN} из ${allN}${allNone ? `, у ${allNone} нет даты сверки вовсе` : ''}.</b><span>Сказать «ничего срочного» нельзя: среди непроверенных могут быть просрочки и деньги.${week.length ? ` Ваших среди них — ${week.length}.` : ''}${nx ? ' Следующая сборка ' + nx + '.' : ''}</span><span class="gap-acts"><button class="btn" data-gapclaude>Поручить Claude сверить ${gapN} сейчас</button>${week.length ? `<button class="link" data-go="utro" data-anchor="unchecked">Показать мои непроверенные (${week.length})</button>` : ''}</span></div>` : '';
     const empty = gapN ? gapB : `<div class="empty"><b>${listToday ? 'Решений не требуется' : 'Проверенного списка ещё нет'}</b><span>${listToday ? 'Ниже — что изменилось, ближайшие деньги и чем занята команда.' : 'Ветка «Утро и задачи» ещё не выложила проверенный список. Показать нечего, это не значит, что дел нет.'}</span></div>`;
-    return `<section class="lead"><div class="day">${cap(dn)}</div>
+    return `<div class="top3"><section class="lead"><div class="day">${cap(dn)}</div>
       ${status}${unsent}
       <h1>${h1}</h1>
-      <p class="sub" style="margin:0;font-size:16px">${moneyLine}${week.length ? ` ${plural(week.length, 'ваше дело ждёт', 'ваших дела ждут', 'ваших дел ждут')} проверки.` : ''}</p>
+      <p class="sub" style="margin:0;font-size:16px">${weekLine()} ${moneyLine}${week.length ? ` ${plural(week.length, 'ваше дело ждёт', 'ваших дела ждут', 'ваших дел ждут')} проверки.` : ''}</p>
       ${cover}</section>
+    ${secCards()}<div class="mmw">${moneyMini()}</div>
     <section class="sec" id="decide"><div class="sh"><h2>Требует вашего решения</h2><span class="c">только сверенное сегодня с источником · сборка ${fresh ? '' : FRESH.dm(upd) + ' '}${FRESH.hm(upd)}${m.length > PORTION ? ' · порция ' + (portion + 1) + ' из ' + Math.ceil(m.length / PORTION) : ''}</span>${m.length > PORTION ? `<button class="link" data-portion>${rest > 0 ? 'Следующие ' + Math.min(rest, PORTION) : 'К началу'}</button>` : ''}</div>
-      ${top.length ? `<div class="rows prio n${top.length}">${top.map(pcard).join('')}</div>` : ''}${more.length ? `<div class="rows">${more.map((t) => row(t)).join('')}</div>` : ''}${shown.length ? `<div class="cta"><button class="btn" data-focus>Разобрать по одному <kbd style="background:transparent;color:inherit;border-color:currentColor;opacity:.7">R</kbd></button><span class="hint desk">Одно дело на экране: я выполнила, отложить или поручить Claude</span></div>${gapB}` : empty}</section>
+      ${shown.length ? `<div class="rows prio">${prioRows}</div>` : ''}${shown.length ? `<div class="cta"><button class="btn" data-focus>Разобрать по одному <kbd style="background:transparent;color:inherit;border-color:currentColor;opacity:.7">R</kbd></button><span class="hint desk">Одно дело на экране: я выполнила, отложить или поручить Claude</span></div>${gapB}` : empty}</section></div>
     ${changesHTML()}
     ${nearHTML()}
     ${week.length ? `<section class="sec" id="unchecked"><div class="sh"><h2>Не проверено сегодня</h2><span class="c">${plural(week.length, 'ваше дело', 'ваших дела', 'ваших дел')}: сегодня не сверены с источником, срочность не подтверждена${nx ? ' · следующая сборка ' + nx : ''}</span></div><div class="rows">${lim('unch', week, 3).map((t) => row(t)).join('')}</div>${moreBtn('unch', week, 3)}</section>` : ''}
@@ -938,7 +1055,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       return [tot.toLocaleString('ru-RU', {maximumFractionDigits: 2}), plural(a.length, 'строка', 'строки', 'строк') + (a.length <= 2 ? ': ' + a.map((i) => i.w + (i.a !== null ? ' ' + rubX(i.a) : '')).join('; ') : '') + (unk ? `, у ${unk} сумма неизвестна` : '')];
     };
     const yr = (d) => dmY(d) + '.' + d.slice(0, 4);
-    const card = (w, i) => `<div class="wc"><h3>${['Эта неделя', 'Следующая', 'Через одну', 'Четвёртая'][i]}<small>${dmY(w.s)}–${yr(w.e)}, пн–вс, МСК</small></h3>
+    const card = (w, i) => `<div class="wc"><h3>${i ? wkLabel(w, i) : 'Эта неделя, ' + wkLabel(w, i)}<small>${dmY(w.s)}–${yr(w.e)}, пн–вс, МСК</small></h3>
       ${CAT.map(([c, l]) => { const [v, note] = cell(c, w, items(c, w)), key = i + ':' + c; return `<button class="wl" data-wsel="${key}" aria-pressed="${wsel === key}"><span>${l}</span><span class="r">${v}</span>${note ? `<small>${esc(note)}</small>` : ''}</button>`; }).join('')}
       <div class="wl" style="cursor:default"><span>Остаток на конец недели</span><span class="r na">не считаю</span></div></div>`;
     let det = '';
@@ -1084,14 +1201,14 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     if (!D) return;
     $$('.tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
     const y = scrollY;
-    $('#view').innerHTML = `<div class="wrap" style="max-width:none">${tab === 'utro' ? utro() : tab === 'money' ? moneyTab() : tab === 'buh' ? buhTab() : all()}</div>`;
+    $('#view').innerHTML = `<div class="wrap" style="max-width:none">${tab === 'utro' ? utro() : tab === 'money' ? moneyTab() : tab === 'buh' ? buhTab() : SECN[tab] ? secTab(tab) : all()}</div>`;
     scrollTo(0, y);
     const qi = $('#q'); if (qi) qi.oninput = (e) => { q = e.target.value.toLowerCase().trim(); const p = e.target.selectionStart; render(); const n = $('#q'); n.focus(); n.setSelectionRange(p, p); };
     $$('.cbar').forEach((g) => { g.onmouseenter = () => { const tp = $('#tip'), r = g.getBoundingClientRect(), cr = tp.parentElement.getBoundingClientRect(); tp.textContent = g.dataset.tip; tp.style.left = (r.left - cr.left + r.width / 2) + 'px'; tp.style.top = (r.top - cr.top + 40) + 'px'; tp.style.opacity = 1; }; g.onmouseleave = () => { $('#tip').style.opacity = 0; }; });
     swipes();
     const rs = $$('.rw .row'); if (cur >= rs.length) cur = rs.length - 1; if (cur >= 0 && rs[cur]) rs[cur].classList.add('cur');
   }
-  function go(t, keep) { tab = t; if (!keep) { mf = ''; openB = ''; } cur = -1; try { history.replaceState(null, '', '#' + t); } catch (e) {} render(); scrollTo(0, 0); }
+  function go(t, keep) { if (t !== tab) sf = 'all'; tab = t; if (!keep) { mf = ''; openB = ''; } cur = -1; try { history.replaceState(null, '', '#' + t); } catch (e) {} render(); scrollTo(0, 0); }
 
   // ---------- карточка дела ----------
   let dTask = null;
@@ -1109,6 +1226,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       ${(t.orders || []).length > 1 ? `<div class="fact"><span class="k">Заказы на портале</span><span>${t.orders.map((o) => `<a href="http://95.84.156.117:3839/projects/orders/${esc(o)}/" target="_blank" rel="noopener">${esc(o)}</a>`).join(' · ')}</span></div>` : ''}
       ${!t.link && /портал/i.test([t.title, t.detail, t.next].join(' ')) ? `<div class="fact"><span class="k">Портал</span><span style="color:var(--warn)">номер заказа в деле не указан — ссылку даст ветка «${esc(t.owner || 'Браузер')}»</span></div>` : ''}
       ${t.link ? `<a class="btn ghost small" href="${esc(t.link)}" target="_blank" rel="noopener">${/95\.84\.156\.117|\/orders\//.test(t.link) ? 'Открыть заказ в портале' : 'Открыть источник'}</a>` : ''}
+      ${clientUrl(t) ? `<a class="btn ghost small" href="${esc(clientUrl(t))}" target="_blank" rel="noopener">Заказы клиента в портале ↗</a>` : ''}
       <div class="acts" role="group" aria-label="Отметить">${['done', 'claude', 'later', 'eve', 'prio', 'wait'].map((a) => `<button data-dact="${a}" aria-pressed="${!!(p && p.action === a)}">${LABEL[a]}</button>`).join('')}</div>
       <div class="ai"><label class="hint" for="aiText">Передать Claude: что сделать или что изменилось</label><textarea id="aiText" placeholder="Например: позвонила, оплатят в пятницу"></textarea><button class="btn small" data-dact="ai">Отправить</button></div>`;
     draftFill($('#aiText'), String(t.id));
@@ -1174,6 +1292,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     else if (d.undo) undoJournal(d.undo);
     else if (d.cal) { calN = +d.cal; render(); }
     else if (d.more) { EXP.has(d.more) ? EXP.delete(d.more) : EXP.add(d.more); render(); }
+    else if (d.sf) { sf = d.sf; render(); }
     else if (d.wsel) { wsel = wsel === d.wsel ? '' : d.wsel; render(); }
     else if (d.act && t) { const rw = $('.row', w); rw.classList.add('out'); setTimeout(() => act(t, d.act), 180); }
     else if (d.open !== undefined && t) openTask(t);
@@ -1214,7 +1333,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     } else return;
     e.preventDefault(); $$('.row.cur').forEach((r) => r.classList.remove('cur')); const r = $('.row', rs[cur]); r.classList.add('cur'); r.scrollIntoView({block: 'nearest'});
   });
-  addEventListener('hashchange', () => { const h = location.hash.slice(1); if (['utro', 'money', 'buh', 'all'].includes(h) && h !== tab) go(h); });
+  addEventListener('hashchange', () => { const h = location.hash.slice(1); if (TABS.includes(h) && h !== tab) go(h); });
 
   // Отметки с других устройств: читаем ветку inbox за 48 ч, пока Claude их не внёс в базу
   let syncNote = '';
@@ -1256,7 +1375,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       if (refresh && busy()) { setTimeout(() => load(true), 30e3); return; }
       prep(data);
       await pull();
-      if (!refresh) { const h = location.hash.slice(1); tab = ['utro', 'money', 'buh', 'all'].includes(h) ? h : 'utro'; }
+      if (!refresh) { const h = location.hash.slice(1); tab = TABS.includes(h) ? h : 'utro'; }
       render(); if (outbox.length || inflight) flush();
     } catch (e) {
       if (refresh && D) { $('#fresh').insertAdjacentHTML('beforeend', `<span class="sync" style="color:var(--warn)"> · обновить не удалось (${esc(e.message)}), показаны данные прошлой загрузки</span>`); return; }
