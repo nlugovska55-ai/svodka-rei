@@ -326,7 +326,7 @@ def ohvat_journal():
             continue
         src = e["source"]
         if e.get("status") == "ok" and e.get("upto"):
-            last[src] = {"src": src, "time": str(e["upto"])[-5:], "at": e.get("at") or e.get("ts") or "", "run": e.get("run", "")}
+            last[src] = {"src": src, "time": str(e["upto"])[-5:], "at": e.get("at") or e.get("ts") or "", "run": e.get("run", ""), "items": e.get("items")}
             err.pop(src, None)
         elif e.get("status") != "ok":
             err[src] = {"at": str(e.get("at") or e.get("ts") or "")[11:16], "reason": str(e.get("reason") or "")[:80]}

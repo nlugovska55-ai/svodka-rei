@@ -1111,6 +1111,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const sum = (it) => it.reduce((x, i) => x + i.a, 0);
     // 30.10 (Ольга): деньги на первом экране — только по выписке. Источник — сводная выписка kontrol/vypiski (ведёт «Бухгалтерия»);
     // без неё — дни bank-oboroty, где уведомления выпиской не считаем
+    // C3: чтение Альфы из журнала после файла выписки — показываем рядом, без подмены суммы
+    const alfaRead = D.ohvat && D.ohvat.fromJournal && D.ohvat.date === FRESH.todayYmd ? (D.ohvat.parts || []).find((p) => p.src === 'Альфа' && p.time) : null;
     const VP = D.vypiska && (D.vypiska.items || []).length ? D.vypiska : null, NOTCL = /рэи|альфа-банк|депозит|процент/i;
     const vItems = VP ? VP.items.filter((i) => !NOTCL.test(i.payer + ' ' + (i.basis || ''))).map((i) => ({who: niceCl(i.payer), a: +i.amount || 0, date: i.date})) : [];
     const stm = BK.filter((x) => x.date <= y && !bkSrc(x).note);
@@ -1119,7 +1121,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const itL = VP ? vItems.filter((i) => i.date >= fromD) : lastD ? day(lastD).map((i) => ({...i, date: lastD})) : [];
     const asOf = VP ? VP.asOf : lastD;
     const dayH = () => !asOf ? '<div class="sempty">Выписок за последние дни нет.</div>'
-      : `<div class="stot">С ${dmY(fromD)} пришло <b>${num(sum(itL))}</b></div><div class="sm-h">по выписке Альфы РЭИ${VP && VP.time && VP.fileDate ? `, файл обновлён ${dmY(VP.fileDate)} в ${VP.time}` : ` от ${dmY(asOf)}`}</div>` + (itL.length ? itL.map((i) => { const r = incOf(i.who, i.a); return `<div class="sl"><span>${esc(i.who)}<small>${dmY(i.date)}${r ? (r.status === 'vneseno' ? ' · в портале ✓' : r.status === 'skip' ? ' · в портал не вносим' : ' · ещё не в портале') : ''}</small></span><b>+${num(i.a)}</b></div>`; }).join('') : '<div class="sempty">поступлений нет</div>')
+      : `<div class="stot">С ${dmY(fromD)} пришло <b>${num(sum(itL))}</b></div><div class="sm-h">по выписке Альфы РЭИ${VP && VP.time && VP.fileDate ? `, файл обновлён ${dmY(VP.fileDate)} в ${VP.time}` : ` от ${dmY(asOf)}`}${alfaRead && VP && VP.fileDate === FRESH.todayYmd && alfaRead.time > VP.time ? ` · Альфу читали позже, до ${alfaRead.time}${alfaRead.items === 0 ? ': новых операций нет' : alfaRead.items > 0 ? `: новых операций ${alfaRead.items}, в файл ещё не внесены` : ''}` : ''}</div>` + (itL.length ? itL.map((i) => { const r = incOf(i.who, i.a); return `<div class="sl"><span>${esc(i.who)}<small>${dmY(i.date)}${r ? (r.status === 'vneseno' ? ' · в портале ✓' : r.status === 'skip' ? ' · в портал не вносим' : ' · ещё не в портале') : ''}</small></span><b>+${num(i.a)}</b></div>`; }).join('') : '<div class="sempty">поступлений нет</div>')
       + (!itL.some((i) => i.date === y) ? `<div class="sm-h">За ${dmY(y)} поступлений в ней нет</div>` : '');
     // «не разнесено» — из реестра поступлений (kontrol/runs/income.json), а не по тексту дел
     const notIn = INC ? INC.filter((r) => !['vneseno', 'skip'].includes(r.status)) : null;
