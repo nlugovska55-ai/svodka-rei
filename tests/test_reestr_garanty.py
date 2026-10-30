@@ -211,7 +211,9 @@ class Reestr(unittest.TestCase):
         self.assertEqual(ws[f"O{r}"].value, "578500= 57800 +3900 (13*300)=61700")
         self.assertTrue(any('Реестр!W:W,"да"' in str(ws[f"J{x}"].value) for x in range(12, ws.max_row + 1)))  # текущий период: макеты ДС из «Реестра»
         self.assertEqual(ws["R10"].value, "Остаток к выплате, ₽")
-        self.assertEqual([ws[c].value for c in ("F4", "G4", "H4", "I4")], ["ИТОГ: месяц", "Начислено, ₽", "Выплачено, ₽", "Остаток, ₽"])
+        self.assertEqual([ws[c].value for c in ("F4", "G4", "H4", "I4", "J4")], ["ИТОГ: месяц", "Начислено (подтверждённая часть), ₽", "Выплачено, ₽", "Остаток, ₽", "Статус расчёта"])
+        self.assertIn("ПРЕДВАРИТЕЛЬНО, не готовый расчёт", ws["J6"].value)  # сумма в итоге — не готовая зарплата
+        self.assertIn("доплата 500 ₽ не проверена", ws["J5"].value)
         self.assertIn("$R$12:$R$29", ws["I6"].value)  # итог в первых колонках берёт остаток из R
         self.assertTrue(ws["Q10"].value.startswith("Выплачено Лене"))
         self.assertTrue(any(str(ws[f"R{x}"].value).startswith('=IF(NOT(ISNUMBER(B') for x in range(12, ws.max_row + 1)))  # остаток = к выплате − выплачено
