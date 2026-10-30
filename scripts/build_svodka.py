@@ -138,6 +138,13 @@ BUH_PLANS = {
 }
 
 
+def ru_date(v):
+    """Срок в ДД.ММ.ГГГГ: ветки иногда пишут ISO, а сортировки и пульт ждут русскую дату."""
+    v = (v or "").strip()
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", v)
+    return f"{m.group(3)}.{m.group(2)}.{m.group(1)}" if m else v
+
+
 def iso_date(v):
     """Дата в ГГГГ-ММ-ДД из «ДД.ММ.ГГГГ» или ISO; иначе пусто (не выдумываем)."""
     v = (v or "").strip()
@@ -349,7 +356,7 @@ def main():
             "next": (t.get("next") or "").strip(),
             "lastMove": (t.get("lastMove") or "").strip(),
             "amount": t.get("amount"),
-            "due": t.get("due") or "",
+            "due": ru_date(t.get("due")),
             "mgr": t.get("mgr") or "",
             "owner": t.get("owner") or "",
             "added": t.get("added") or "",
