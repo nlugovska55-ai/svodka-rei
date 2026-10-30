@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-30T17:36:28+03:00",
+ "updated": "2026-10-30T18:45:34+03:00",
  "tasks": [
   {
    "id": "akt2910-ank1377",
@@ -3785,18 +3785,6 @@
  ],
  "summary": [
   {
-   "id": "kvant-akt-sverki",
-   "section": "Нужно от вас",
-   "client": "Квант",
-   "flag": "warn",
-   "text": "Лена в 15:30 просила акт сверки с Квантом. Черновик ответа с PDF готов (аванс Кванта 17 000), сохранён в olga@ 15:43, тема «RE: акт сверки квант». Проверьте и нажмите «Отправить».",
-   "link": "",
-   "checked": "30.10 15:43",
-   "src": "ветка «Браузер», черновик в olga@",
-   "thread": "Утро",
-   "origin": "Браузер 30.10"
-  },
-  {
    "id": "pr3010-0",
    "section": "Проекты",
    "client": "rus-ei",
@@ -3861,8 +3849,8 @@
    "section": "Автоматика",
    "client": "Утро и сводка",
    "flag": "ok",
-   "text": "Сводка выложена, последняя 16:43",
-   "checked": "2026-10-30T16:59:32+03:00",
+   "text": "Сводка выложена, последняя 17:52",
+   "checked": "2026-10-30T18:02:59+03:00",
    "link": "https://svodka-rei.vercel.app",
    "proof": "коммит data/svodka.json в main svodka-rei",
    "src": "kontrol/avtomatika-status.json"
@@ -3873,7 +3861,7 @@
    "client": "Разбор почты",
    "flag": "срочно",
    "text": "Не прочитано вовремя: olga@, boroday@, ocenka@, info@, Альфа, Точка",
-   "checked": "2026-10-30T16:59:32+03:00",
+   "checked": "2026-10-30T18:02:59+03:00",
    "link": "",
    "proof": "kontrol/pochta-ohvat-2026-10-30.md",
    "src": "kontrol/avtomatika-status.json"
@@ -3883,8 +3871,8 @@
    "section": "Автоматика",
    "client": "Поступления в портал",
    "flag": "ok",
-   "text": "Не разнесённых дольше 2 ч нет (проверка 16:58)",
-   "checked": "2026-10-30T16:59:32+03:00",
+   "text": "Не разнесённых дольше 2 ч нет (проверка 18:02)",
+   "checked": "2026-10-30T18:02:59+03:00",
    "link": "",
    "proof": "kontrol/postupleniya-2026-10-30.md",
    "src": "kontrol/avtomatika-status.json"
@@ -3895,7 +3883,7 @@
    "client": "Бухгалтерия",
    "flag": "ok",
    "text": "Сводка прогона 13:08",
-   "checked": "2026-10-30T16:59:32+03:00",
+   "checked": "2026-10-30T18:02:59+03:00",
    "link": "",
    "proof": "kontrol/buh-svodka-2026-10-30.md",
    "src": "kontrol/avtomatika-status.json"
@@ -3906,7 +3894,7 @@
    "client": "Контроль Лены",
    "flag": "ok",
    "text": "Прогон записан: 30.10 16:36",
-   "checked": "2026-10-30T16:59:32+03:00",
+   "checked": "2026-10-30T18:02:59+03:00",
    "link": "",
    "proof": "kontrol-leny.md",
    "src": "kontrol/avtomatika-status.json"
@@ -3916,8 +3904,8 @@
    "section": "Автоматика",
    "client": "Пинатель",
    "flag": "ok",
-   "text": "Пинков 7 из 7",
-   "checked": "2026-10-30T16:59:32+03:00",
+   "text": "Пинков 8 из 8",
+   "checked": "2026-10-30T18:02:59+03:00",
    "link": "",
    "proof": "kontrol/pinok-2026-10-30-ЧЧММ.md",
    "src": "kontrol/avtomatika-status.json"
@@ -3926,9 +3914,9 @@
    "id": "auto-cikl",
    "section": "Автоматика",
    "client": "Цикл пульта",
-   "flag": "срочно",
-   "text": "Проверка 16:59: проблем 1, на проверке 1",
-   "checked": "2026-10-30T16:59:32+03:00",
+   "flag": "warn",
+   "text": "Проверка 18:02: проблем 0, на проверке 1",
+   "checked": "2026-10-30T18:02:59+03:00",
    "link": "",
    "proof": "kontrol/cikl-pulta-2026-10-30.md",
    "src": "kontrol/avtomatika-status.json"
@@ -3939,7 +3927,7 @@
    "client": "Обход проектов",
    "flag": "ok",
    "text": "Обход 14:23",
-   "checked": "2026-10-30T16:59:32+03:00",
+   "checked": "2026-10-30T18:02:59+03:00",
    "link": "",
    "proof": "obkhod/2026-10-30-proekty.md",
    "src": "kontrol/avtomatika-status.json"
@@ -3948,9 +3936,9 @@
    "id": "auto-zapusk",
    "section": "Автоматика",
    "client": "Журнал запусков",
-   "flag": "warn",
-   "text": "pochta: partial (Точка); signal: partial (Браузер:портал, Браузер:выгрузки); брошено запусков 3; ложных просьб Ольге 1 (Бухгалтерия)",
-   "checked": "2026-10-30T16:59:32+03:00",
+   "flag": "срочно",
+   "text": "pochta: failed (olga@, boroday@, ocenka@, info@, Альфа, Точка); signal: partial (Браузер:портал, Браузер:выгрузки); брошено запусков 5; ложных просьб Ольге 1 (Бухгалтерия)",
+   "checked": "2026-10-30T18:02:59+03:00",
    "link": "",
    "proof": "kontrol/runs/2026-10-30.jsonl",
    "src": "kontrol/avtomatika-status.json"
@@ -3961,7 +3949,7 @@
    "client": "ГЕА, Телеграм, LUGA",
    "flag": "warn",
    "text": "Не проверено: результаты лежат в своих проектах",
-   "checked": "2026-10-30T16:59:32+03:00",
+   "checked": "2026-10-30T18:02:59+03:00",
    "link": "",
    "proof": "файлы других проектов недоступны",
    "src": "kontrol/avtomatika-status.json"
@@ -7713,18 +7701,18 @@
    "amount": 200000.0,
    "bank": "Альфа",
    "seen": "2026-10-30T16:44:43+03:00",
-   "status": "seen",
-   "done": null,
-   "order": null
+   "status": "vneseno",
+   "done": "2026-10-30T18:44:34+03:00",
+   "order": "2394637,2394640,2394643,2394646"
   },
   {
    "payer": "Клинмаркет",
    "amount": 60000.0,
    "bank": "Альфа",
    "seen": "2026-10-30T16:44:43+03:00",
-   "status": "seen",
-   "done": null,
-   "order": null
+   "status": "vneseno",
+   "done": "2026-10-30T18:44:34+03:00",
+   "order": "2394663"
   }
  ],
  "accuracy": {
