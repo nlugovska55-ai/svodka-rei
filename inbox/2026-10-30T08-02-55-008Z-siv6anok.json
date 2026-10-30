@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-10-30T08:02:58.311Z",
+  "batchId": "2026-10-30T08-02-55-008Z-siv6anok",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "СПБ СХМ",
+      "taskId": "m03",
+      "taskTitle": "СПБ СХМ: 32 000 (заказ 2394394, отр. решение 012) — приложение клиент не подписал, оплаты нет",
+      "text": "разберись детальнее, напиши Лене.",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-10-30T08:02:50.005Z",
+      "eid": "emvuopyqdadzdxnbp"
+    }
+  ]
+}
