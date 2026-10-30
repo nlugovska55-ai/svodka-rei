@@ -528,6 +528,36 @@ def portal_orders(t):
     return list(dict.fromkeys(re.findall(r"(?<!\d)239\d{4}(?!\d)", text)))[:12]
 
 
+VYGRUZKI = os.environ.get("VYGRUZKI", "/mnt/project-files/daily-control/svodka/vygruzki.json")
+
+
+def ru_date(v):
+    """Срок в ДД.ММ.ГГГГ: ветки иногда пишут ISO (2026-10-27)."""
+    v = (v or "").strip()
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", v)
+    return f"{m[3]}.{m[2]}.{m[1]}" if m else v
+
+
+def vygruzki_row(today):
+    """Надзорщик утренних выгрузок «Браузера» (scripts/collect_vygruzki.py → vygruzki.json): чего нет — пишем, нулей не рисуем."""
+    base = {"id": "auto-vygruzki", "section": "Автоматика", "client": "", "src": "svodka/vygruzki.json"}
+    if not os.path.exists(VYGRUZKI):
+        return dict(base, flag="срочно", checked="", text="Утренние выгрузки (ОСВ 62, Битрикс24, банк): сборщик ещё ни разу не запускался, данных нет")
+    try:
+        with open(VYGRUZKI, encoding="utf-8") as fh:
+            v = json.load(fh)
+    except (ValueError, OSError) as e:
+        return dict(base, flag="срочно", checked="", text=f"Утренние выгрузки: файл не читается ({type(e).__name__})")
+    src = v.get("sources") or []
+    ok = [x for x in src if x.get("ok")]
+    miss = [x.get("label", "?") for x in src if not x.get("ok")]
+    fresh = str(v.get("dir") or "") == today
+    text = f"Утренние выгрузки за {v.get('dir') or '?'}: получено {len(ok)} из {len(src)}" + (f"; нет: {', '.join(miss)}" if miss else "")
+    if not fresh:
+        text += "; за сегодня сборки не было"
+    return dict(base, flag="ok" if (fresh and not miss) else "срочно", checked=v.get("collected") or "", text=text)
+
+
 AUTO_STATUS = os.environ.get("AUTO_STATUS", "/mnt/project-files/daily-control/kontrol/avtomatika-status.json")
 
 
@@ -557,6 +587,7 @@ def automation(summary, gar):
             "id": "auto-garanty", "section": "Автоматика", "client": "", "flag": "ok" if st.get("ok") else "срочно",
             "text": text, "checked": st.get("lastAttempt") or "", "src": "garanty-leny/import-status.json",
             "link": "garanty-leny/vnedrenie-2026-10-29.md"}]
+    rows = [r for r in rows if r.get("id") != "auto-vygruzki"] + [vygruzki_row(datetime.now(MSK).strftime("%Y-%m-%d"))]
     return [r for r in summary if r.get("section") != "Автоматика"] + rows
 
 
@@ -587,7 +618,7 @@ def main():
             "next": (t.get("next") or "").strip(),
             "lastMove": (t.get("lastMove") or "").strip(),
             "amount": t.get("amount"),
-            "due": t.get("due") or "",
+            "due": ru_date(t.get("due")),
             "mgr": t.get("mgr") or "",
             "owner": t.get("owner") or "",
             "added": t.get("added") or "",

@@ -323,9 +323,11 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
 .w4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
 .wc{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:12px 14px;display:grid;gap:4px;align-content:start;min-width:0}
 .wc h3{font:700 16px var(--f-disp)}.wc h3 small{display:block;font:400 14px var(--f-body);color:var(--muted)}
-.wl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;border:0;background:none;padding:5px 0;border-top:1px solid var(--line);text-align:left;font-size:14.5px;align-items:baseline}
+/* 30.10: метка и сумма в строку, длинная сумма уходит на свою строку, а не наезжает на метку */
+.wl{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 10px;width:100%;border:0;background:none;padding:5px 0;border-top:1px solid var(--line);text-align:left;font-size:14.5px;align-items:baseline}
 .wl:hover,.wl[aria-pressed="true"]{color:var(--accent)}.wl .r{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
-.wl small{grid-column:1/-1;color:var(--muted);font-size:13.5px}
+.wl>span:first-child{flex:1 1 9em;min-width:0}.wl .r{margin-left:auto;text-align:right}
+.wl small{flex-basis:100%;color:var(--muted);font-size:13.5px}
 .wdet{border:1px solid var(--accent);border-radius:8px;background:var(--surface);padding:10px 14px}
 .mob{display:none}
 .fsa .tr{grid-template-columns:90px minmax(0,1fr) 150px}
@@ -419,7 +421,12 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const verifiedRow = (x) => okToday(x.checked) && !!x.src && !!(x.thread || x.origin);
   const pend = store.get('svodka-pending', {});  // отмеченное на сайте, пока не пришло в базу
   const outbox = store.get('svodka-outbox', []);
-  let inflight = store.get('svodka-inflight', null);  // партия в отправке: повтор уходит с тем же batchId, сервер не создаёт второй файл
+  let inflight = store.get('svodka-inflight', null);
+  // Черновики текста для Claude: сохраняются при вводе (по делу), переживают перезагрузку и автообновление; стираются только после отправки
+  const drafts = store.get('svodka-drafts', {});
+  const draftSave = (id, v) => { if (v.trim()) drafts[id] = {v, ts: Date.now()}; else delete drafts[id]; store.set('svodka-drafts', drafts); };
+  const draftFill = (ta, id) => { if (!ta) return; ta.dataset.tid = id; const d = drafts[id]; if (d && !ta.value) { ta.value = d.v; const n = ta.parentNode.querySelector('.dnote') || ta.insertAdjacentElement('afterend', Object.assign(document.createElement('span'), {className: 'hint dnote'})); n.textContent = 'Черновик сохранён ' + new Date(d.ts).toLocaleString('ru-RU', {day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'}) + ', ещё не отправлен.'; } };
+  document.addEventListener('input', (e) => { const ta = e.target; if (ta.tagName === 'TEXTAREA' && ta.dataset.tid) draftSave(ta.dataset.tid, ta.value); });  // партия в отправке: повтор уходит с тем же batchId, сервер не создаёт второй файл
   let APPLIED = new Set(), REPLIES = [];
   const rid = () => Math.random().toString(36).slice(2, 10).padEnd(8, '0');
   function prep(d) {
@@ -503,6 +510,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     sheet(`<b>Поручить Claude</b><div class="hint">«${esc(t.short)}». Дело останется в работе с пометкой «поручено Claude» и уйдёт из вашего списка.</div><textarea id="shText" placeholder="Что сделать (можно оставить пустым)"></textarea>
       <div class="sh-b"><button class="btn" data-sh="yes" id="cf-yes">Поручить</button><button class="btn ghost" data-sh="no">Отмена</button></div>`,
       () => { act(t, 'claude', ($('#shText').value || '').trim()); if (after) after('claude'); });
+    draftFill($('#shText'), String(t.id));
   }
   let undo = null;
   function toast(msg, onUndo) {
@@ -514,6 +522,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const item = {client: t.cl, taskId: String(t.id).startsWith('sum-') ? null : t.id, taskTitle: t.title.slice(0, 300), text, action: action === 'ai' ? '' : action, actionLabel: LABEL[action], at: new Date().toISOString(), qid: rid(), eid: 'e' + Date.now().toString(36) + rid()};
     const prev = pend[t.id];
     if (action === 'reopen') delete pend[t.id]; else if (action !== 'ai') pend[t.id] = {action, ts: Date.now(), eid: item.eid};
+    if (action === 'ai' || action === 'claude') draftSave(String(t.id), '');
     outbox.push(item); store.set('svodka-pending', pend); store.set('svodka-outbox', outbox);
     journal.push({qid: item.qid, eid: item.eid, taskId: t.id, short: t.short, action, at: item.at, state: 'queued'}); jsave();
     render();
@@ -1093,6 +1102,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       ${t.link ? `<a class="btn ghost small" href="${esc(t.link)}" target="_blank" rel="noopener">${/95\.84\.156\.117|\/orders\//.test(t.link) ? 'Открыть заказ в портале' : 'Открыть источник'}</a>` : ''}
       <div class="acts" role="group" aria-label="Отметить">${['done', 'claude', 'later', 'eve', 'prio', 'wait'].map((a) => `<button data-dact="${a}" aria-pressed="${!!(p && p.action === a)}">${LABEL[a]}</button>`).join('')}</div>
       <div class="ai"><label class="hint" for="aiText">Передать Claude: что сделать или что изменилось</label><textarea id="aiText" placeholder="Например: позвонила, оплатят в пятницу"></textarea><button class="btn small" data-dact="ai">Отправить</button></div>`;
+    draftFill($('#aiText'), String(t.id));
     $('#drawer').classList.add('on'); $('#drawer').setAttribute('aria-hidden', 'false'); $('#scrim').classList.add('on');
   }
   function closeTask() { $('#drawer').classList.remove('on'); $('#drawer').setAttribute('aria-hidden', 'true'); $('#scrim').classList.remove('on'); dTask = null; }
@@ -1114,6 +1124,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <div class="fbtns"><button class="done" data-f="done">Я выполнила <kbd>E</kbd></button><button data-f="later">Отложить <kbd>S</kbd></button><button data-f="claude">Поручить Claude <kbd>A</kbd></button></div>
       <div id="fai" hidden><div class="ai" style="border:0;padding:0"><textarea id="faiText" placeholder="Что сделать Claude"></textarea><button class="btn small" data-f="aisend">Отправить <kbd style="background:transparent;color:inherit">Enter</kbd></button></div></div>
       <button class="link" data-f="skip" style="margin:0;justify-self:start">Пропустить →</button></div></div>`;
+    draftFill($('#faiText'), String(t.id)); if (drafts[String(t.id)]) $('#fai').hidden = false;
   }
   function focusAct(a) {
     const t = fq[fi]; if (!t) return;

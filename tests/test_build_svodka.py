@@ -201,16 +201,30 @@ class BuilderAcceptance(unittest.TestCase):
         (gd / "import-status.json").write_text(json.dumps({"ok": False, "lastAttempt": "2026-10-29T09:15:00+03:00", "lastOk": "2026-10-28T15:08:46+03:00", "lastError": "ПК недоступен"}), encoding="utf-8")
         self.summary.write_text(json.dumps([{"section": "Автоматика", "text": "старая ручная копия", "checked": "2026-10-28"}, {"section": "Нужно от вас", "text": "x"}]), encoding="utf-8")
         self.task()
-        with patch.object(builder, "AUTO_STATUS", str(auto)), patch.object(builder, "GARANTY_DIR", str(gd)):
+        with patch.object(builder, "AUTO_STATUS", str(auto)), patch.object(builder, "GARANTY_DIR", str(gd)), patch.object(builder, "VYGRUZKI", str(self.root / "net.json")):
             self.build()
         rows = [r for r in json.loads(self.out.read_text(encoding="utf-8"))["summary"] if r["section"] == "Автоматика"]
-        self.assertEqual([r["id"] for r in rows], ["auto-utro", "auto-garanty"])
+        self.assertEqual([r["id"] for r in rows], ["auto-utro", "auto-garanty", "auto-vygruzki"])
+        self.assertIn("ни разу не запускался", rows[2]["text"])
+        self.assertEqual(rows[2]["flag"], "срочно")
         g = rows[1]
         self.assertEqual(g["flag"], "срочно")
         self.assertIn("28.10 15:08", g["text"])
         self.assertIn("ПК недоступен", g["text"])
         self.assertIn("вручную", g["text"])
         self.assertEqual(g["checked"], "2026-10-29T09:15:00+03:00")
+
+    def test_vygruzki_row_shows_missing_sources(self):
+        v = self.root / "v.json"
+        v.write_text(json.dumps({"collected": "2026-10-30T09:20", "dir": "2026-10-30", "sources": [{"label": "1С: долги покупателей (ОСВ 62)", "ok": True}, {"label": "Банк: выписка за вчера", "ok": False}]}), encoding="utf-8")
+        with patch.object(builder, "VYGRUZKI", str(v)):
+            r = builder.vygruzki_row("2026-10-30")
+        self.assertEqual(r["flag"], "срочно")
+        self.assertIn("получено 1 из 2; нет: Банк: выписка за вчера", r["text"])
+
+    def test_iso_due_becomes_ru(self):
+        self.assertEqual(builder.ru_date("2026-10-27"), "27.10.2026")
+        self.assertEqual(builder.ru_date("27.10.2026"), "27.10.2026")
 
     def test_done_comment_without_result_is_shown_with_check_flag(self):
         cdir = self.root / "comments"

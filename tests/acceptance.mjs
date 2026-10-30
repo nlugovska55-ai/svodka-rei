@@ -285,7 +285,12 @@ try {
     const hits = p.dataHits; await p.clock.fastForward('10:05'); await p.waitForTimeout(800);
     const draft = await p.inputValue('#aiText').catch(() => ''), drawerOn = await p.$eval('#drawer', (e) => e.classList.contains('on'));
     check('Автообновление не сбрасывает открытую карточку и черновик', draft === 'черновик Ольги' && drawerOn && p.dataHits > hits, `черновик «${draft}», карточка открыта: ${drawerOn}, загрузка была: ${p.dataHits > hits}`);
-    await p.fill('#aiText', ''); await p.keyboard.press('Escape'); await p.waitForTimeout(300);
+    // черновик переживает перезагрузку страницы (предсохранение по делу), отправка его стирает
+    const did = await p.$eval('#aiText', (e) => e.dataset.tid); await p.reload(); await p.waitForTimeout(900);
+    await p.click(`.rw[data-id="${did}"] [data-open]`).catch(() => {}); await p.waitForTimeout(400);
+    const kept = await p.inputValue('#aiText').catch(() => ''), kn = await p.$eval('#db .dnote', (e) => e.textContent).catch(() => '');
+    check('Черновик текста для Claude сохраняется по делу и переживает перезагрузку', kept === 'черновик Ольги' && /Черновик сохранён/.test(kn), `после перезагрузки «${kept}», пометка «${kn}»`);
+    await p.fill('#aiText', ''); await p.dispatchEvent('#aiText', 'input'); await p.keyboard.press('Escape'); await p.waitForTimeout(300);
     // окно «Отменить»
     const id1 = (await ask(p))[0], sentBefore = inbox.length;
     await markDone(p, id1); await p.waitForTimeout(200);
