@@ -48,7 +48,7 @@ try {
   // 4. Отмена диалога ничего не меняет
   // на живых данных сверенных решений Ольги может не быть (честно пусто) — для проверки диалога добавляем одно сверенное дело
   const todayRu = new Intl.DateTimeFormat('ru-RU', {timeZone: 'Europe/Moscow', day: '2-digit', month: '2-digit'}).format(new Date());
-  const withMine = JSON.parse(fs.readFileSync(REAL, 'utf8')); withMine.tasks.push({id: 'kt-dlg', section: 'Мои клиенты', client: 'Тест', title: 'Проверьте тестовое дело', next: 'Ольге: проверить', due: '', waiting: 'я', urgency: 'сегодня', checked: todayRu + ' 00:01', src: 'тест: банк ' + todayRu, thread: 'Утро'});
+  const withMine = JSON.parse(fs.readFileSync(REAL, 'utf8')); withMine.tasks.push({id: 'kt-dlg', section: 'Мои клиенты', client: 'Тест', title: 'Проверьте тестовое дело', next: 'Ольге: проверить', due: '', waiting: 'я', urgency: 'сегодня', checked: todayRu + ' 00:01', src: 'тест: банк ' + todayRu, thread: 'Утро', sourceCheckedAt: new Date(Date.now() - 6e4).toISOString(), sourceEvidence: 'тест: журнал чтения'});
   const dlgFile = path.join(CASES, 'dlg.json'); fs.writeFileSync(dlgFile, JSON.stringify(withMine)); DATA = dlgFile;
   await go(p, '#kontrol'); const btn = await p.$('[data-act="done"]');
   const before = await p.evaluate(() => localStorage.getItem('svodka-pending') + '|' + localStorage.getItem('svodka-outbox'));

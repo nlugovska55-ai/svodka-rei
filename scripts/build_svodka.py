@@ -736,6 +736,12 @@ def main():
             "thread": t.get("thread") or "",
             "origin": t.get("origin") or "",
             "proof": t.get("proof") or "",
+            # Факт чтения источника (Codex 30.10): только из реального события чтения, иначе пусто = «неизвестно».
+            # sourceCheckedAt — ISO с часовым поясом, когда первичку прочитали; sourceEvidence — журнал/ссылка на это чтение;
+            # updatedAt — когда правили карточку (редакция не делает дело сверенным)
+            "sourceCheckedAt": t.get("sourceCheckedAt") or "",
+            "sourceEvidence": t.get("sourceEvidence") or "",
+            "updatedAt": t.get("updatedAt") or "",
             # Деньги: одна операция только по явному id; без него одинаковые суммы — «возможный дубль»
             "invoice": t.get("invoice") or "",
             "payment": t.get("payment") or "",
