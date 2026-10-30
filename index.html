@@ -1041,11 +1041,16 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     if (O && O.parts) O.parts.forEach((p) => parts.push(`${p.src.replace(/ и Альфа$/, '')} ${O.date === FRESH.todayYmd ? '' : dmY(O.date) + ' '}${p.time}`));
     return parts.length ? `<div class="sohv">Данные на: ${esc(parts.join(' · '))}. Новее этого источники не смотрели.</div>` : '<div class="sohv">Время охвата источников неизвестно.</div>';
   }
+  // первый экран: до 5 сверенных сегодня решений Ольги; тот же набор берут счётчик и список «На сегодня» (Codex 30.10)
+  const utroCand = (t) => isOpen(t) && olgaStep(t) && t.who !== 'Ольга' && (t.verified || verifiedRow(t)) && !delegated(t) && !doneByIncome(t);
+  const pickUtro = () => T.filter(utroCand).sort(byUrg).slice(0, 5);
+  // статус дела в «На сегодня и просрочено» — по фактически показанным ID, а не по признаку «сверено»
+  const daySt = (t, shown) => !olgaStep(t) ? 'работа команды' : shown.has(t.id) ? 'на первом экране' : doneByIncome(t) ? 'снято: оплаты внесены по реестру поступлений'
+    : delegated(t) ? 'поручено Claude' : t.who === 'Ольга' ? 'ждёт решения, нет в «Нужно от вас»' : utroCand(t) ? 'ещё проверенное, за пределами 5' : 'не сверено сегодня';
   function utro() {
     // решение Ольги — её дело или дело команды, где следующий шаг начинается с «Ольга/Ольге»; на экран — только сверенные сегодня
     // §14: дело с «ждём Ольгу» без «Нужно от вас» на первый экран не выносим — считаем его в «ваших» ниже
-    const cand = T.filter((t) => isOpen(t) && olgaStep(t) && t.who !== 'Ольга' && (t.verified || verifiedRow(t)) && !delegated(t) && !doneByIncome(t));
-    const m = cand.sort(byUrg).slice(0, 5), y = FRESH.todayYmd, dn = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
+    const m = pickUtro(), y = FRESH.todayYmd, dn = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
     // 30.10 (штурм): суть дела не обрезаем многоточием — заголовок до двух строк, обрезка только у длинного пояснения
     const cut = (x, n) => x.length > n ? x.slice(0, n).replace(/[\s,;:(]+\S*$/, '') + '…' : x;
     const why = (t) => { if (act(t)) { const first = String(t.title || '').split(/(?<=[.!?])\s+/)[0] || ''; return cut(IMP.test(String(t.title || '').split(/(?<=[.!?])\s+/).filter(Boolean).pop() || '') && first ? first.replace(/[.]$/, '') : (t.short || full(t)), 120); } const x = String(t.why || t.next || t.detail || '').split(/(?<=[.;])\s|\s—\s|\s\(/)[0].replace(/[.;,]$/, ''); const nz = (v) => String(v || '').toLowerCase().replace(/[^а-яёa-z0-9]+/g, ' ').trim();
@@ -1072,8 +1077,11 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const unv = unverified().sort((a, b) => (a.dd ?? 999) - (b.dd ?? 999)), nx = unv.find((t) => t.dd !== null && t.dd <= 7);
     // 30.10 (Codex): критерий первого экрана виден — сколько всего дел на сегодня и просроченных, сколько показано и почему остальные не здесь
     const dayAll = T.filter((t) => isOpen(t) && isToday(t)), shownIds = new Set(m.map((t) => t.id));
-    const myRest = dayAll.filter((t) => olgaStep(t) && !shownIds.has(t.id)).length, team = dayAll.filter((t) => !olgaStep(t)).length;
-    const more = dayAll.length ? `<button class="link smore2" data-go="kontrol" data-anchor="daylist">Ещё ${dayAll.length - dayAll.filter((t) => shownIds.has(t.id)).length} на сегодня и просрочено${myRest ? `: ${myRest} ${myRest % 10 === 1 && myRest % 100 !== 11 ? 'ваше не сверено' : 'ваших не сверены'}` : ''}${team ? `${myRest ? ',' : ':'} ${team} у команды` : ''} →</button>` : '';
+    const restSt = {}; dayAll.filter((t) => olgaStep(t) && !shownIds.has(t.id)).forEach((t) => { const k = daySt(t, shownIds).split(',')[0]; restSt[k] = (restSt[k] || 0) + 1; });
+    const SHORT = {'не сверено сегодня': 'не сверено', 'ждёт решения': 'ждут решения вне списка', 'ещё проверенное': 'ещё проверенные', 'поручено Claude': 'поручено', 'снято: оплаты внесены по реестру поступлений': 'снято по реестру'};
+    const myRest = Object.values(restSt).reduce((a, b) => a + b, 0), team = dayAll.filter((t) => !olgaStep(t)).length;
+    const myTxt = Object.entries(restSt).map(([k, n]) => `${SHORT[k] || k} ${n}`).join(', ');
+    const more = dayAll.length ? `<button class="link smore2" data-go="kontrol" data-anchor="daylist">Ещё ${dayAll.length - dayAll.filter((t) => shownIds.has(t.id)).length} на сегодня и просрочено${myRest ? `: ваших ${myRest} (${myTxt})` : ''}${team ? `${myRest ? ',' : ':'} ${team} у команды` : ''} →</button>` : '';
     // Деньги: пришло по банку вчера и сегодня, только от клиентов
     const BK = (D.bank && D.bank.days) || [], prev = addD(y, -1 - (new Date(y + 'T12:00:00Z').getUTCDay() === 1 ? 2 : 0));
     const INC = Array.isArray(D.income) ? D.income : null, key = (x) => niceCl(x).toLowerCase().replace(/[^а-яёa-z0-9]/g, '');
@@ -1128,7 +1136,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   function dayList() {
     const L = T.filter((t) => isOpen(t) && isToday(t)).sort((a, b) => (olgaStep(a) ? 0 : 1) - (olgaStep(b) ? 0 : 1) || (a.dd ?? 99) - (b.dd ?? 99));
     if (!L.length) return '';
-    const st = (t) => !olgaStep(t) ? 'работа команды' : doneByIncome(t) ? 'снято: оплаты внесены по реестру поступлений' : delegated(t) ? 'поручено Claude' : (t.verified || verifiedRow(t)) ? 'на первом экране' : 'не сверено сегодня';
+    const shownIds = new Set(pickUtro().map((t) => t.id)), st = (t) => daySt(t, shownIds);
     const rw = (t) => `<div class="dl"><div class="dl-h"><b>${olgaStep(t) ? 'Решает Ольга' + (t.who !== 'я' && t.thread ? ' (готовит «' + esc(t.thread) + '»)' : '') : esc(t.who === 'клиент' || t.who === 'эксперт' ? 'Ждём: ' + t.who : 'Команда: ' + (t.thread || t.who))}</b> · <span class="${st(t) === 'на первом экране' ? 'ok' : 'mut'}">${st(t)}</span> · <small>${esc(t.id)}</small></div>
       <div class="dl-t">${esc((t.internal ? '' : t.cl + ': ') + t.short)}${t.dd !== null && t.dd < 0 ? ` <span class="late">просрочено ${-t.dd} дн</span>` : ''}</div>
       ${t.next ? `<div class="dl-s">Шаг: ${esc(String(t.next).slice(0, 220))}</div>` : ''}<div class="dl-s">Источник: ${esc(String(t.src || 'не указан').slice(0, 160))}${t.checked ? ' · запись ' + esc(String(t.checked).slice(0, 40)) : ' · записи сверки нет'}</div></div>`;
