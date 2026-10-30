@@ -1035,13 +1035,16 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   // 30.10 (Codex): свежесть — по времени охвата источников, а не по времени сборки; зелёного нет, пока охват не свежий
   function ohvatLine() {
     const O = D.ohvat, V = D.vypiska, parts = [];
-    if (V && V.time) parts.push(`банк Альфа ${V.fileDate === FRESH.todayYmd ? '' : dmY(V.fileDate) + ' '}${V.time}`);
+    // обход банка (ohvat) и время файла выписки — разные вещи: не пишем «Альфа» дважды с разным временем
+    const alfaSeen = O && O.parts && O.parts.some((p) => /альфа/i.test(p.src));
+    if (V && V.time) parts.push(`${alfaSeen ? 'файл выписки Альфы' : 'банк Альфа'} ${V.fileDate === FRESH.todayYmd ? '' : dmY(V.fileDate) + ' '}${V.time}`);
     if (O && O.parts) O.parts.forEach((p) => parts.push(`${p.src.replace(/ и Альфа$/, '')} ${O.date === FRESH.todayYmd ? '' : dmY(O.date) + ' '}${p.time}`));
     return parts.length ? `<div class="sohv">Данные на: ${esc(parts.join(' · '))}. Новее этого источники не смотрели.</div>` : '<div class="sohv">Время охвата источников неизвестно.</div>';
   }
   function utro() {
     // решение Ольги — её дело или дело команды, где следующий шаг начинается с «Ольга/Ольге»; на экран — только сверенные сегодня
-    const cand = T.filter((t) => isOpen(t) && olgaStep(t) && (t.verified || verifiedRow(t)) && !delegated(t) && !doneByIncome(t));
+    // §14: дело с «ждём Ольгу» без «Нужно от вас» на первый экран не выносим — считаем его в «ваших» ниже
+    const cand = T.filter((t) => isOpen(t) && olgaStep(t) && t.who !== 'Ольга' && (t.verified || verifiedRow(t)) && !delegated(t) && !doneByIncome(t));
     const m = cand.sort(byUrg).slice(0, 5), y = FRESH.todayYmd, dn = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
     // 30.10 (штурм): суть дела не обрезаем многоточием — заголовок до двух строк, обрезка только у длинного пояснения
     const cut = (x, n) => x.length > n ? x.slice(0, n).replace(/[\s,;:(]+\S*$/, '') + '…' : x;
@@ -1063,14 +1066,14 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     // риторика: заголовок «Сделать сегодня» обещает сегодняшнее — дела со сроком позже идут под отдельным подзаголовком
     const rowS = (t) => `<div class="rw sr" data-id="${esc(t.id)}"><div class="row"><button class="st" data-open>${what(t)}${why(t) ? `<span>${esc(why(t))}</span>` : ''}${meta(t)}</button>${due(t)}${btn(t)}</div></div>`;
     const mT = m.filter((t) => isToday(t)), mL = m.filter((t) => !isToday(t));
-    const todo = m.length ? mT.map(rowS).join('') + (mL.length ? `<details class="sweek"><summary class="ssub">На неделе: ${mL.length}</summary>${mL.map(rowS).join('')}</details>` : '')
+    const todo = m.length ? (mT.length ? mT.map(rowS).join('') : `<div class="sempty">На сегодня проверенных решений от вас нет.</div>`) + (mL.length ? `<details class="sweek"><summary class="ssub">На неделе: ${mL.length}</summary>${mL.map(rowS).join('')}</details>` : '')
       : `<div class="sempty">Проверенных дел на сегодня нет.</div>`;
     // 30.10 (Codex, адвокат дьявола): несверенное не показываем как дело, но и не прячем — одна строка со счётом и ближайшим сроком
     const unv = unverified().sort((a, b) => (a.dd ?? 999) - (b.dd ?? 999)), nx = unv.find((t) => t.dd !== null && t.dd <= 7);
     // 30.10 (Codex): критерий первого экрана виден — сколько всего дел на сегодня и просроченных, сколько показано и почему остальные не здесь
     const dayAll = T.filter((t) => isOpen(t) && isToday(t)), shownIds = new Set(m.map((t) => t.id));
     const myRest = dayAll.filter((t) => olgaStep(t) && !shownIds.has(t.id)).length, team = dayAll.filter((t) => !olgaStep(t)).length;
-    const more = dayAll.length ? `<button class="link smore2" data-go="kontrol" data-anchor="daylist">Ещё ${dayAll.length - dayAll.filter((t) => shownIds.has(t.id)).length} на сегодня и просрочено${myRest ? `: ${myRest} ваших не сверены` : ''}${team ? `${myRest ? ',' : ':'} ${team} у команды` : ''} →</button>` : '';
+    const more = dayAll.length ? `<button class="link smore2" data-go="kontrol" data-anchor="daylist">Ещё ${dayAll.length - dayAll.filter((t) => shownIds.has(t.id)).length} на сегодня и просрочено${myRest ? `: ${myRest} ${myRest % 10 === 1 && myRest % 100 !== 11 ? 'ваше не сверено' : 'ваших не сверены'}` : ''}${team ? `${myRest ? ',' : ':'} ${team} у команды` : ''} →</button>` : '';
     // Деньги: пришло по банку вчера и сегодня, только от клиентов
     const BK = (D.bank && D.bank.days) || [], prev = addD(y, -1 - (new Date(y + 'T12:00:00Z').getUTCDay() === 1 ? 2 : 0));
     const INC = Array.isArray(D.income) ? D.income : null, key = (x) => niceCl(x).toLowerCase().replace(/[^а-яёa-z0-9]/g, '');
@@ -1120,7 +1123,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const low = (x) => String(x || '').toLowerCase().replace(/[«»"]/g, '').replace(/^(ооо|ао|пао|зао|ип)\s+/, '');
   const doneByIncome = (t) => { if (!/портал/i.test(t.title + ' ' + (t.cl || '')) || !/оплат/i.test(t.title)) return false;
       const txt = low(t.title), hit = (Array.isArray(D.income) ? D.income : []).filter((r) => txt.includes(low(r.payer).split(/\s+/)[0])); return hit.length > 0 && hit.every((r) => ['vneseno', 'skip'].includes(r.status)); };
-  const olgaStep = (t) => t.who === 'я' || /^Ольг[аеиу](?![а-яё])/i.test(String(t.next || ''));
+  const olgaStep = (t) => t.who === 'я' || t.who === 'Ольга' || /^Ольг[аеиу](?![а-яё])/i.test(String(t.next || ''));
   // 30.10 (Codex): все дела на сегодня и просроченные — кто решает, следующий шаг, источник и время записи, почему не на первом экране
   function dayList() {
     const L = T.filter((t) => isOpen(t) && isToday(t)).sort((a, b) => (olgaStep(a) ? 0 : 1) - (olgaStep(b) ? 0 : 1) || (a.dd ?? 99) - (b.dd ?? 99));
