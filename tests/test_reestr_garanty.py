@@ -220,6 +220,13 @@ class Reestr(unittest.TestCase):
         self.assertIn("🟢 Оплачено по выписке", wb["Реестр"]["M1"].value)
         self.assertNotIn("не сверен", wb["Реестр"]["M1"].value + wb["Этот месяц"]["A7"].value)
         self.assertEqual([wb["Этот месяц"][c].value for c in ("C3", "D3", "G6")], ["По данным менеджера, ₽", "По выписке, ₽", "Отметка, ₽"])
+        self.assertIn("по данным менеджера", wb["Этот месяц"]["G6"].comment.text)
+        how = wb["Как пользоваться"]
+        self.assertEqual(how["A4"].value, "Главный лист")
+        self.assertIn("🟡 оплата отмечена менеджером → 🟢 оплачено по выписке", how["B4"].value)
+        self.assertEqual(how["A15"].value, "Обещание и банк")
+        self.assertIn("Жёлтый статус не означает, что деньги не пришли", how["B15"].value)
+        self.assertNotIn("не сверен", " ".join(str(c.value) for row in how.iter_rows() for c in row if c.value))
         self.assertIn("LEFT(Платежи!B2:B,6)", wb["Реестр"]["J1"].value)
         self.assertTrue(str(wb["Платежи"]["B2"].value).startswith("G-0002 · ооо чзмэк · 1240 ле дс прил 7 · 15000"))  # в «Платежах» выбирают «ID · клиент · договор · сумма»
         self.assertIn("ARRAYFORMULA", wb["Реестр"]["N1"].value)
