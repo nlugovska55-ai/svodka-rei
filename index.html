@@ -257,7 +257,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
 .simple{display:grid;gap:12px}
 .sday{font:600 14px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--eyebrow)}.sday span{text-transform:none;letter-spacing:0;color:var(--faint);font-weight:400}
 .sgrid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);grid-template-areas:'do money' 'do wait';gap:16px 20px;align-items:start}
-.s-do{grid-area:do}.s-money{grid-area:money}.s-wait{grid-area:wait}
+.sgrid.few{grid-template-areas:'do money' 'wait money'}.s-do{grid-area:do}.s-money{grid-area:money}.s-wait{grid-area:wait}
 .sbox{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px 18px}
 .sbox h2{font:700 20px var(--f-disp);margin:0 0 6px;color:var(--ink)}
 .rw.sr .row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
@@ -268,12 +268,13 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
 .sm-h{font-size:14px;color:var(--muted);margin-top:8px}
 .sl{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line);font-size:16px}
 .sl b{font-variant-numeric:tabular-nums;white-space:nowrap}.sl small{display:block;color:var(--muted);font-size:13.5px}
+.sm-h b{color:var(--ink)}.sl.sp.ok{color:var(--ok)}.sl.sp.warn span{color:var(--hot);font-weight:600}.sm-h .src{font-size:13.5px}.sl small.late{color:var(--hot);font-weight:600}body[data-tab=utro] .foot .keys{display:none}body[data-tab=utro] .tabs{display:none}.slinks{display:flex;gap:18px;justify-content:center;flex-wrap:wrap}.slinks .link{margin:0;font-size:15px}.h2n{font:600 17px var(--f-body);color:var(--muted);margin-left:6px}
 .sl.sp{margin-top:10px;display:block}.sl.sp b{font-weight:600;display:block}
 .st em{display:block;font-style:normal;font-size:13.5px;font-weight:700;color:var(--brand);letter-spacing:.02em}.smore2{margin:10px 0 0;font-size:15px}
 .tab .lg{white-space:nowrap}
 .sempty{color:var(--muted);font-size:15px;padding:6px 0}
 .smore{justify-self:start}
-@media (max-width:820px){.sgrid{grid-template-columns:minmax(0,1fr);grid-template-areas:'do' 'money' 'wait'}.rw.sr .row{grid-template-columns:minmax(0,1fr) auto}.rw.sr .sbtn{grid-column:1/-1}}
+@media (max-width:820px){.sgrid{grid-template-columns:minmax(0,1fr);grid-template-areas:'do' 'money' 'wait'}.rw.sr .row{grid-template-columns:minmax(0,1fr) auto}.sgrid.few{grid-template-areas:'do' 'money' 'wait'}.rw.sr .row{grid-template-columns:auto 1fr;gap:10px;align-items:center}.rw.sr .st{grid-column:1/-1}.rw.sr .sd{grid-row:2}}
 /* «Сегодня»: разделы карточками и деньги полосами */
 .secs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .scard{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px 16px;text-align:left;display:grid;gap:4px;align-content:start;color:var(--ink)}
@@ -540,7 +541,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       if (twin) { Object.assign(twin, {verified: verifiedRow(twin) || verifiedRow(s), who: twin.waiting === 'Claude' && twin.delegated ? 'Claude' : 'я', link: twin.link || s.link || '', thread: twin.thread || s.thread || '', urg: 'сегодня', fromSummary: true, hot: twin.hot || s.flag === 'срочно', short: twin.short || short}); return; }
       seen.add(norm(short));
       T.push({id: 'sum-' + (s.id || i), verified: verifiedRow(s), checked: s.checked, src: s.src, title: txt, short, detail: dec ? rest2.replace(dec[0], '').trim() || rest2 : rest2, next: '', cl: s.client || (isTopic ? head : 'Нужно от вас'), client: s.client || '', internal: !s.client && !isTopic,
-        a: 0, dd: 0, who: 'я', hot: s.flag === 'срочно', urg: 'сегодня', section: 'Нужно от вас', fromSummary: true, link: s.link || '', thread: s.thread || '', mgr: 'Ольга', owner: 'Утро и задачи'});
+        a: 0, dd: null, who: 'я', hot: s.flag === 'срочно', urg: 'сегодня', section: 'Нужно от вас', fromSummary: true, link: s.link || '', thread: s.thread || '', mgr: 'Ольга', owner: 'Утро и задачи'});
     });
   }
   // «Отложить» прячет дело только до конца дня, «сделано» и «ждём клиента» — пока Claude не внесёт отметку в базу
@@ -1033,31 +1034,52 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const dueShort = (t) => t.dd === null ? 'без срока' : t.dd < 0 ? `просрочено ${-t.dd} дн` : t.dd === 0 ? 'сегодня' : t.dd === 1 ? 'завтра' : 'до ' + String(t.due || '').slice(0, 5);
   function utro() {
     const m = mine().sort(byUrg).slice(0, 5), y = FRESH.todayYmd, dn = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
+    // 30.10 (штурм): суть дела не обрезаем многоточием — заголовок до двух строк, обрезка только у длинного пояснения
     const cut = (x, n) => x.length > n ? x.slice(0, n).replace(/[\s,;:(]+\S*$/, '') + '…' : x;
-    const why = (t) => { const x = String(t.why || t.next || t.detail || '').split(/(?<=[.;])\s|\s—\s|\s\(/)[0].replace(/[.;,]$/, ''); return x && x !== t.short ? cut(x, 70) : ''; };
-    const what = (t) => { const c = t.internal ? '' : niceCl(String(t.cl || t.client || '').replace(/\s*\(.*\)/, '')); return `${c ? `<em>${esc(c)}</em>` : ''}<b>${esc(cut(t.short, 70))}</b>`; };
+    const why = (t) => { const x = String(t.why || t.next || t.detail || '').split(/(?<=[.;])\s|\s—\s|\s\(/)[0].replace(/[.;,]$/, ''); return x && x !== t.short ? cut(x, 90) : ''; };
+    const full = (t) => { const d = /Решите?:\s*([^.]+)/.exec(t.title || ''); return d ? 'Решить: ' + d[1].trim().replace(/^./, (c) => c.toLowerCase()) : t.short; };
+    const what = (t) => { const c = t.internal ? '' : niceCl(String(t.cl || t.client || '').replace(/\s*\(.*\)/, '')); return `${c ? `<em>${esc(c)}</em>` : ''}<b>${esc(full(t))}</b>`; };
     const btn = (t) => { const L = srcLink(t); return L ? `<a class="sbtn" href="${esc(L[0])}" target="_blank" rel="noopener">Открыть ↗</a>` : `<button class="sbtn" data-act="done" aria-label="Я выполнила: ${esc(t.short)}">Я выполнила</button>`; };
-    const todo = m.length ? m.map((t) => `<div class="rw sr" data-id="${esc(t.id)}"><div class="row"><button class="st" data-open>${what(t)}${why(t) ? `<span>${esc(why(t))}</span>` : ''}</button><span class="sd${t.dd !== null && t.dd < 0 ? ' late' : ''}">${dueShort(t)}</span>${btn(t)}</div></div>`).join('')
-      : `<div class="sempty">Сверенных дел на сегодня нет.</div>`;
-    const unv = unverified().length, more = unv ? `<button class="link smore2" data-go="kontrol" data-anchor="unchecked">Ещё ${plural(unv, 'ваше дело ждёт', 'ваших дела ждут', 'ваших дел ждут')} проверки →</button>` : '';
+    // срок в блоке «сегодня» показываем, только если он не «сегодня»
+    const due = (t) => t.dd === 0 ? '' : `<span class="sd${t.dd !== null && t.dd < 0 ? ' late' : ''}">${dueShort(t)}</span>`;
+    const todo = m.length ? m.map((t) => `<div class="rw sr" data-id="${esc(t.id)}"><div class="row"><button class="st" data-open>${what(t)}${why(t) ? `<span>${esc(why(t))}</span>` : ''}</button>${due(t)}${btn(t)}</div></div>`).join('')
+      : `<div class="sempty">Проверенных дел на сегодня нет.</div>`;
     // Деньги: пришло по банку вчера и сегодня, только от клиентов
     const BK = (D.bank && D.bank.days) || [], prev = addD(y, -1 - (new Date(y + 'T12:00:00Z').getUTCDay() === 1 ? 2 : 0));
+    const INC = Array.isArray(D.income) ? D.income : null, key = (x) => niceCl(x).toLowerCase().replace(/[^а-яёa-z0-9]/g, '');
+    const incOf = (who, a) => INC && INC.find((r) => Math.round(+r.amount) === Math.round(a) && key(r.payer) === key(who));
     const day = (d) => BK.filter((x) => x.date === d).flatMap((x) => (x.inItems || []).filter((i) => !FROM_REI.test(i.who || '')).map((i) => ({who: niceCl(i.who), a: +i.amount || 0})));
-    const dayH = (d, l) => { const has = BK.some((x) => x.date === d), it = day(d); return `<div class="sm-h">${l}, ${dmY(d)}</div>${!has ? '<div class="sempty">выписки ещё нет</div>' : it.length ? it.map((i) => `<div class="sl"><span>${esc(i.who)}</span><b>+${num(i.a)}</b></div>`).join('') : '<div class="sempty">поступлений нет</div>'}`; };
-    const portal = [...new Set(T.filter((t) => isOpen(t) && /внест\S* оплат|разнест/i.test(t.title + ' ' + t.short)).map((t) => niceCl(t.client.split(/[\/,]/)[0])))];
-    // Ждём оплату: таблица Лены (по данным менеджера) и ваши денежные дела
+    const sum = (it) => it.reduce((x, i) => x + i.a, 0);
+    // 30.10 (Ольга): деньги на первом экране — только по выписке; уведомления банка выпиской не считаем
+    const stm = BK.filter((x) => x.date <= y && !bkSrc(x).note), lastD = stm.length ? stm[stm.length - 1].date : '';
+    const itL = lastD ? day(lastD) : [];
+    const dayH = () => !lastD ? '<div class="sempty">Выписок за последние дни нет.</div>'
+      : `<div class="sm-h">По выписке за ${dmY(lastD)}: пришло <b>${num(sum(itL))}</b></div>` + (itL.length ? itL.map((i) => `<div class="sl"><span>${esc(i.who)}</span><b>+${num(i.a)}</b></div>`).join('') : '<div class="sempty">поступлений нет</div>')
+      + (lastD < y ? `<div class="sm-h">За ${lastD < prev ? dmY(addD(lastD, 1)) + '–' : ''}${dmY(y)} выписки ещё нет</div>` : '');
+    // «не разнесено» — из реестра поступлений (kontrol/runs/income.json), а не по тексту дел
+    const notIn = INC ? INC.filter((r) => !['vneseno', 'skip'].includes(r.status)) : null;
+    // поступления по выписке, которых нет в реестре внесения, — не ставим «всё внесено»
+    const miss = INC ? itL.filter((i) => !incOf(i.who, i.a)) : [];
+    const portal = notIn === null ? '<div class="sl sp"><span>Внесение в портал: данных нет</span></div>'
+      : notIn.length ? `<div class="sl sp warn"><span>Пришло, но не внесено в портал: ${notIn.length}</span><b>${esc(notIn.map((r) => niceCl(r.payer) + ' ' + num(+r.amount)).join(', '))}</b></div>`
+      : miss.length ? `<div class="sl sp"><span>Внесение в портал не сверено: ${miss.map((i) => `<span style="white-space:nowrap">${esc(i.who + ' ' + num(i.a))}</span>`).join(', ')}</span></div>`
+      : '<div class="sl sp ok"><span>Всё пришедшее внесено в портал ✓</span></div>';
+    // Ждём оплату: таблица Лены (по данным менеджера) и ваши денежные дела; кто уже заплатил по выписке за 7 дней — помечаем
     const G = D.garanty && D.garanty.connected ? D.garanty.rows : [], wait = new Map();
-    G.filter((r) => garOpen(r) && garKind(r) === 'gar').forEach((r) => { const k = niceCl(r.client), w = wait.get(k) || {a: 0, d: r.date || '', src: 'по данным менеджера'}; w.a += Number(r.remain ?? r.amount) || 0; if (r.date && (!w.d || r.date < w.d)) w.d = r.date; wait.set(k, w); });
-    T.filter((t) => isOpen(t) && t.a > 0 && t.mgr === 'Ольга' && /оплат/i.test(t.title + ' ' + t.short) && t.money !== 'пришло').forEach((t) => { const k = niceCl(t.client.replace(/\s*\(.*\)/, '')); if (!wait.has(k)) wait.set(k, {a: t.a, d: taskYmd(t) || '', src: 'по делу'}); });
-    const top = [...wait.entries()].sort((a, b) => b[1].a - a[1].a).slice(0, 5);
+    G.filter((r) => garOpen(r) && garKind(r) === 'gar' && !(r.flags || []).some((f) => /вопрос|дубль|нет договора/.test(f)) && !/дубль|не ждём/i.test(r.next || '') && !(r.taskIds || []).some((id) => /не ждём/i.test((T.find((t) => t.id === id) || {}).money || ''))).forEach((r) => { const k = niceCl(r.client), w = wait.get(k) || {a: 0, d: r.date || '', src: 'по данным менеджера'}; if ((r.flags || []).includes('вопрос')) w.q = true; w.a += Number(r.remain ?? r.amount) || 0; if (r.date && (!w.d || r.date < w.d)) w.d = r.date; wait.set(k, w); });
+    T.filter((t) => isOpen(t) && (t.verified || verifiedRow(t)) && t.a > 0 && t.mgr === 'Ольга' && /оплат/i.test(t.title + ' ' + t.short) && t.money !== 'пришло').forEach((t) => { const k = niceCl(t.client.replace(/\s*\(.*\)/, '')); if (!wait.has(k)) wait.set(k, {a: t.a, d: taskYmd(t) || '', src: 'по делу'}); });
+    // ключ из отсортированных букв: «Витс групп» у Лены и «ВИСТ ГРУПП» в банке — один клиент
+    const ak = (x) => [...key(x)].sort().join('');
+    const paid = new Set(BK.filter((x) => x.date >= addD(y, -7)).flatMap((x) => (x.inItems || []).map((i) => ak(i.who))));
+    const top = [...wait.entries()].filter(([k]) => !paid.has(ak(k))).sort((a, b) => ((a[1].d && a[1].d <= y) ? 0 : 1) - ((b[1].d && b[1].d <= y) ? 0 : 1) || b[1].a - a[1].a).slice(0, 5), tot = top.reduce((x, [, w]) => x + w.a, 0);
     return `<section class="simple">
-      <div class="sday">${cap(dn)} <span>· данные на ${FRESH.hm(FRESH.upd)}</span></div>
-      <div class="sgrid">
-      <div class="sbox s-do"><h2>Сделать сегодня</h2>${todo}${more}</div>
-      <div class="sbox s-money"><h2>Деньги</h2>${dayH(prev, 'Вчера')}${dayH(y, 'Сегодня')}<div class="sl sp"><span>Не разнесено в портал</span><b>${portal.length ? portal.length + ': ' + esc(portal.join(', ')) : 'нет'}</b></div></div>
-      <div class="sbox s-wait"><h2>Ждём оплату</h2>${top.length ? top.map(([k, w]) => `<div class="sl"><span>${esc(k)}<small>${w.d ? 'срок ' + dmY(w.d) : 'срок не указан'} · ${w.src}</small></span><b>${num(w.a)}</b></div>`).join('') : '<div class="sempty">нет данных</div>'}</div>
+      <div class="sday">${cap(dn)}</div>
+      <div class="sgrid${m.length < 3 ? ' few' : ''}">
+      <div class="sbox s-do"><h2>Сделать сегодня</h2>${todo}</div>
+      <div class="sbox s-money"><h2>Деньги</h2>${dayH()}${portal}</div>
+      <div class="sbox s-wait"><h2>Ждём оплату${tot ? ` <span class="h2n">${num(tot)}</span>` : ''}</h2>${top.length ? top.map(([k, w]) => `<div class="sl"><span>${esc(k)}<small${w.d && w.d <= y ? ' class="late"' : ''}>${w.d ? (w.d <= y ? 'срок сегодня' : 'срок ' + dmY(w.d)) + ' · ' : ''}${w.src}</small></span><b>${num(w.a)}</b></div>`).join('') : '<div class="sempty">нет данных</div>'}</div>
       </div>
-      <button class="link smore" data-go="kontrol">Сверка, журналы и служебное — во вкладке «Контроль» →</button>
+      <nav class="slinks"><button class="link" data-go="all">Все дела</button><button class="link" data-go="kontrol">Контроль</button><button class="link" data-go="money">Прогноз денег</button>${D.garanty && D.garanty.source && D.garanty.source.url ? `<a class="link" href="${esc(D.garanty.source.url)}" target="_blank" rel="noopener">Таблица Лены ↗</a>` : ''}</nav>
     </section>`;
   }
   // Вкладка «Контроль»: прежний полный разбор дня — сверка, журналы, служебное
@@ -1301,6 +1323,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   let cur = -1;
   function render() {
     if (!D) return;
+    document.body.dataset.tab = tab;
     $$('.tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
     const y = scrollY;
     $('#view').innerHTML = `<div class="wrap" style="max-width:none">${tab === 'utro' ? utro() : tab === 'kontrol' ? kontrol() : tab === 'money' ? moneyTab() : tab === 'buh' ? buhTab() : SECN[tab] ? secTab(tab) : all()}</div>`;
@@ -1442,8 +1465,10 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   async function pull() {
     try {
       const all = []; let cursor = '', complete = false;
+      // 30.10 (Codex): один таймаут на всю пагинацию — без него зависший запрос держит страницу пустой
+      const signal = AbortSignal.timeout(8000);
       for (let i = 0; i < 50; i++) {
-        const res = await fetch('/api/comments' + (cursor ? '?cursor=' + encodeURIComponent(cursor) : ''), {cache: 'no-store'});
+        const res = await fetch('/api/comments' + (cursor ? '?cursor=' + encodeURIComponent(cursor) : ''), {cache: 'no-store', signal});
         const j = await res.json().catch(() => ({}));
         if (!res.ok || !j.ok) throw new Error(j.error || ('ответ ' + res.status));
         all.push(...(j.items || []));

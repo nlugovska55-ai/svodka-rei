@@ -150,6 +150,7 @@ SPISANIYA_JSON = "/mnt/project-files/daily-control/svodka/spisaniya.json"
 BUH_PLAN_JSON = "/mnt/project-files/daily-control/svodka/buh-plan.json"
 BANK_JSON = "/mnt/project-files/daily-control/svodka/bank-oboroty.json"
 BANK_MONTH_JSON = "/mnt/project-files/daily-control/svodka/bank-mesyac.json"
+INCOME_JSON = "/mnt/project-files/daily-control/kontrol/runs/income.json"
 KONTROL_DIR = "/mnt/project-files/daily-control/kontrol"
 BUH_PLANS = {
     "Реестр обязательных платежей": "/mnt/project-files/daily-control/otchety-claude/reestr-platezhey-chernovik.md",
@@ -259,6 +260,16 @@ def bank_month():
         p = json.load(fh)
     accs = [a for a in p.get("accounts", []) if a.get("account") and isinstance(a.get("in"), (int, float))]
     return {**p, "accounts": accs} if accs else None
+
+
+def income():
+    """Реестр поступлений для портала (kontrol/runs/income.json, ведёт «Браузер»): кто, сколько, внесено ли; нет файла — None."""
+    if not os.path.exists(INCOME_JSON):
+        return None
+    with open(INCOME_JSON, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    keep = ("payer", "amount", "bank", "seen", "status", "done", "order")
+    return [{k: v.get(k) for k in keep} for v in p.values() if isinstance(v, dict) and v.get("payer")]
 
 
 def buh_svodka():
@@ -713,6 +724,7 @@ def main():
     data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "bank": bank, "buh_sources": buh_sources(sp, bs, bp, bank)})
     data["garanty"] = garanty(tasks, bank)
     data["bank_month"] = bank_month()
+    data["income"] = income()
     data["summary"] = automation(summary, data["garanty"])
     data["accuracy"] = forecast_accuracy(data["garanty"])
     data["trebovaniya"] = trebovaniya(tasks, closed_ids)
