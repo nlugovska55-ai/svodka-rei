@@ -465,7 +465,7 @@ try {
       {at, atStr: '28.10, 13:03', eventId: 'e-c2', title: 'Дело Г', text: '[сделано] ', reply: '', status: 'done', result: 'сделано'},
       {at, atStr: '29.10, 14:04', eventId: 'e-c3', title: 'ИКЦ', text: 'Отложить до 2027', reply: 'ИКЦ перенесён', status: 'done', result: 'Срок ikc2210 перенесён на 2027, акт сверки № 31 не подписываем (fakty.md, 29.10)', resultBy: 'Регламент', resultAt: at}
     ];
-    R.tasks.forEach((t, i) => { t.checked = i === 0 ? new Date().toISOString() : ''; });
+    R.tasks.forEach((t, i) => { t.checked = i === 0 ? new Date(Date.now() - 6e4).toISOString() : ''; if (i === 0) Object.assign(t, {src: 'тест: банк ' + todayRu, thread: 'Утро'}); });
     const Q = await device(R); await go(Q.p);
     const st = await Q.p.$$eval('#replies .jl', (x) => x.map((e) => e.dataset.stage + '|' + e.textContent.replace(/\s+/g, ' ')));
     check('Отметка «сделано» без итога: «Итог не подтверждён», не зелёный итог; содержательный итог показан как итог',
