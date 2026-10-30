@@ -294,6 +294,52 @@ def vypiska():
     return {"asOf": asof, "time": mt.strftime("%H:%M"), "fileDate": mt.strftime("%Y-%m-%d"), "src": "kontrol/vypiski/" + os.path.basename(files[-1]), "items": items}
 
 
+OHVAT_SRC = ["olga@", "boroday@", "ocenka@", "info@", "Альфа", "Точка"]  # обход почты и банков (job pochta)
+
+
+def ohvat_journal():
+    """Охват источников из журнала запусков (kontrol/runs/ДАТА.jsonl, события source): по каждому источнику последнее
+    успешное чтение (upto) и ошибка после него. Запуски из runs/revoked.json не считаются (Codex 30.10: 19:11 b7c8)."""
+    files = sorted(glob.glob(os.path.join(KONTROL_DIR, "runs", "????-??-??.jsonl")))
+    if not files:
+        return None
+    revoked = set()
+    rv = os.path.join(KONTROL_DIR, "runs", "revoked.json")
+    if os.path.exists(rv):
+        with open(rv, encoding="utf-8-sig") as fh:
+            revoked = {r.get("run") for r in (json.load(fh).get("runs") or [])}
+    last, err, events, fin = {}, {}, [], {}
+    with open(files[-1], encoding="utf-8-sig") as fh:
+        for line in fh:
+            try:
+                events.append(json.loads(line))
+            except ValueError:
+                continue
+    # чтение засчитываем, только если завершение запуска его подтвердило (finished.ok); брошенный запуск (ok: []) — не чтение
+    for e in events:
+        if e.get("event") == "finished":
+            fin[e.get("run")] = set(e.get("ok") or [])
+    for e in events:
+        if e.get("status") == "ok" and e.get("run") in fin and e.get("source") not in fin[e.get("run")]:
+            continue
+        if e.get("event") != "source" or e.get("run") in revoked or e.get("source") not in OHVAT_SRC:
+            continue
+        src = e["source"]
+        if e.get("status") == "ok" and e.get("upto"):
+            last[src] = {"src": src, "time": str(e["upto"])[-5:], "at": e.get("at") or e.get("ts") or "", "run": e.get("run", "")}
+            err.pop(src, None)
+        elif e.get("status") != "ok":
+            err[src] = {"at": str(e.get("at") or e.get("ts") or "")[11:16], "reason": str(e.get("reason") or "")[:80]}
+    names = [n for n in OHVAT_SRC if n in last or n in err]
+    parts = []
+    for n in names:
+        row = dict(last.get(n) or {"src": n, "time": ""})
+        if n in err:
+            row["err"] = err[n]
+        parts.append(row)
+    return {"file": "kontrol/runs/" + os.path.basename(files[-1]), "date": os.path.basename(files[-1])[:10], "fromJournal": True, "parts": parts}
+
+
 def ohvat():
     """Время охвата источников из последней сверки дел «Утра» (obkhod/ДАТА-sverka-del-ЧЧММ.md, строка «Охват источников: …»)."""
     files = sorted(glob.glob(os.path.join(os.path.dirname(KONTROL_DIR), "obkhod", "*-sverka-del-*.md")))
@@ -774,7 +820,7 @@ def main():
     data["bank_month"] = bank_month()
     data["income"] = income()
     data["vypiska"] = vypiska()
-    data["ohvat"] = ohvat()
+    data["ohvat"] = ohvat_journal() or ohvat()
     data["summary"] = automation(summary, data["garanty"])
     data["accuracy"] = forecast_accuracy(data["garanty"])
     data["trebovaniya"] = trebovaniya(tasks, closed_ids)

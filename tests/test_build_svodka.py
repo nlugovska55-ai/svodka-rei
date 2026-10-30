@@ -187,6 +187,27 @@ class BuilderAcceptance(unittest.TestCase):
         patch.object(builder, "SPISANIYA_JSON", str(sp)).start()
         self.rejected()
 
+    def test_ohvat_from_journal_skips_revoked_and_unconfirmed_runs(self):
+        runs = self.root / "kontrol" / "runs"
+        runs.mkdir(parents=True)
+        ev = [
+            {"run": "r1", "event": "source", "source": "Точка", "status": "ok", "at": "2026-10-30T13:10:05+03:00", "upto": "2026-10-30 13:09"},
+            {"run": "r1", "event": "finished", "status": "partial", "ok": ["Точка"]},
+            {"run": "r2", "event": "source", "source": "Точка", "status": "ok", "at": "2026-10-30T14:44:29+03:00", "upto": "2026-10-30 14:44"},
+            {"run": "r2", "event": "finished", "status": "failed", "ok": []},
+            {"run": "bad", "event": "source", "source": "Альфа", "status": "ok", "at": "2026-10-30T19:11:12+03:00", "upto": "2026-10-30 18:42"},
+            {"run": "bad", "event": "finished", "status": "ok", "ok": ["Альфа"]},
+            {"run": "r3", "event": "source", "source": "Альфа", "status": "ok", "at": "2026-10-30T15:38:00+03:00", "upto": "2026-10-30 15:38"},
+            {"run": "r4", "event": "source", "source": "Точка", "status": "error", "at": "2026-10-30T21:25:38+03:00", "reason": "код входа"},
+        ]
+        (runs / "2026-10-30.jsonl").write_text("\n".join(json.dumps(e, ensure_ascii=False) for e in ev), encoding="utf-8")
+        (runs / "revoked.json").write_text(json.dumps({"runs": [{"run": "bad"}]}), encoding="utf-8")
+        patch.object(builder, "KONTROL_DIR", str(self.root / "kontrol")).start()
+        o = {p["src"]: p for p in builder.ohvat_journal()["parts"]}
+        self.assertEqual("13:09", o["Точка"]["time"])  # брошенный r2 (ok: []) не считается
+        self.assertEqual("21:25", o["Точка"]["err"]["at"])
+        self.assertEqual("15:38", o["Альфа"]["time"])  # отозванный запуск bad не считается
+
     def test_read_fact_fields_pass_through_and_are_not_invented(self):
         # 30.10 (Codex): факт чтения переносится из базы как есть; checked в sourceCheckedAt не превращается
         self.task("read", status="open", checked="30.10 Утро", sourceCheckedAt="2026-10-30T21:18:00+03:00",

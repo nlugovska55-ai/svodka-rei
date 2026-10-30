@@ -1058,7 +1058,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     // обход банка (ohvat) и время файла выписки — разные вещи: не пишем «Альфа» дважды с разным временем
     const alfaSeen = O && O.parts && O.parts.some((p) => /альфа/i.test(p.src));
     if (V && V.time) parts.push(`${alfaSeen ? 'файл выписки Альфы' : 'банк Альфа'} ${V.fileDate === FRESH.todayYmd ? '' : dmY(V.fileDate) + ' '}${V.time}`);
-    if (O && O.parts) O.parts.forEach((p) => parts.push(`${p.src.replace(/ и Альфа$/, '')} ${O.date === FRESH.todayYmd ? '' : dmY(O.date) + ' '}${p.time}`));
+    // из журнала запусков: время — до какого момента реально прочитан источник; ошибка после этого чтения показана рядом
+    if (O && O.parts) O.parts.forEach((p, i) => parts.push(`${O.fromJournal && i === 0 && /@/.test(p.src) ? 'почта ' : ''}${p.src.replace(/ и Альфа$/, '')} ${p.time ? (O.date === FRESH.todayYmd ? '' : dmY(O.date) + ' ') + p.time : 'не прочитан'}${p.err ? ` (в ${p.err.at} вход не прошёл)` : ''}`));
     return parts.length ? `<div class="sohv">Данные на: ${esc(parts.join(' · '))}. Новее этого источники не смотрели.</div>` : '<div class="sohv">Время охвата источников неизвестно.</div>';
   }
   // первый экран: до 5 сверенных сегодня решений Ольги; тот же набор берут счётчик и список «На сегодня» (Codex 30.10)
@@ -1092,7 +1093,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const rowS = (t) => `<div class="rw sr" data-id="${esc(t.id)}"><div class="row"><button class="st" data-open>${what(t)}${why(t) ? `<span>${esc(why(t))}</span>` : ''}${meta(t)}</button>${due(t)}${btn(t)}</div></div>`;
     const mT = m.filter((t) => isToday(t)), mL = m.filter((t) => !isToday(t));
     const todo = m.length ? (mT.length ? mT.map(rowS).join('') : `<div class="sempty">На сегодня проверенных решений от вас нет.</div>`) + (mL.length ? `<details class="sweek"><summary class="ssub">На неделе: ${mL.length}</summary>${mL.map(rowS).join('')}</details>` : '')
-      : `<div class="sempty">Проверенных дел на сегодня нет.</div>`;
+      : `<div class="sempty">На сегодня проверенных решений от вас нет.</div>`;
     // 30.10 (Codex, адвокат дьявола): несверенное не показываем как дело, но и не прячем — одна строка со счётом и ближайшим сроком
     const unv = unverified().sort((a, b) => (a.dd ?? 999) - (b.dd ?? 999)), nx = unv.find((t) => t.dd !== null && t.dd <= 7);
     // 30.10 (Codex): критерий первого экрана виден — сколько всего дел на сегодня и просроченных, сколько показано и почему остальные не здесь
