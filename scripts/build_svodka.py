@@ -289,7 +289,9 @@ def vypiska():
                 continue
             amount = float(re.sub(r"[\s ]", "", m.group(5)).replace(",", ".") or 0)
             items.append({"date": f"{year}-{m.group(2)}-{m.group(1)}", "pp": m.group(3).strip(), "payer": m.group(4).strip(), "amount": amount, "basis": m.group(6).strip()})
-    return {"asOf": asof, "src": "kontrol/vypiski/" + os.path.basename(files[-1]), "items": items}
+    # время охвата — когда «Бухгалтерия» последний раз обновила файл выписки (МСК)
+    mt = datetime.fromtimestamp(os.path.getmtime(files[-1]), timezone(timedelta(hours=3)))
+    return {"asOf": asof, "time": mt.strftime("%H:%M"), "fileDate": mt.strftime("%Y-%m-%d"), "src": "kontrol/vypiski/" + os.path.basename(files[-1]), "items": items}
 
 
 def buh_svodka():
@@ -653,7 +655,7 @@ def automation(summary, gar):
 
 
 # Правило Ольги (§14 п.8): просьбы войти, ввести ПИН, логин или пароль, пароли и служебные дела для веток на пульт не ставим, только в чат
-LOGIN_RE = re.compile(r"(^|[^а-яё])пин([^а-яё]|$)|alfa id|войдите|войти в|вход в (банк|альф|точк|личн|кабинет|диадок|почт)|разлогин|залогин|логин|авториз|пароль|сесси[яи] истекл|разрешить (экран|доступ)|«разрешить»|памятк|в ветку|открыть [^.;]{0,40} в (яндекс|chrome|хром)", re.I)
+LOGIN_RE = re.compile(r"(^|[^а-яё])пин([^а-яё]|$)|alfa id|войдите|войти в|вход в (банк|альф|точк|личн|кабинет|диадок|почт)|разлогин|залогин|логин|авториз|пароль|сесси[яи] истекл|разрешить (экран|доступ)|«разрешить»|памятк|в ветку|переключить ветку|\.py(?![a-z])|проект\S* «промты»|список веток|открыть [^.;]{0,40} в (яндекс|chrome|хром)", re.I)
 
 
 def is_login_ask(row):
