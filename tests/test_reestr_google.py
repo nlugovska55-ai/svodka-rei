@@ -98,10 +98,13 @@ class Google(unittest.TestCase):
         self.sheet["Реестр"].append(row)
         return len(self.sheet["Реестр"])
 
-    def month_sheet(self, title, rows):
-        top = [[title]] + [[""]] * 6 + [["ID", "Клиент", "Услуга", "Ссылка на услугу", "Договор, прил.", "Сумма, ₽", "Статус"]]
+    HEAD = ["ID", "Клиент", "Услуга", "Ссылка на услугу", "Договор, прил.", "Сумма, ₽", "Статус"]
+
+    def month_sheet(self, title, rows, spare=2):
+        """Разметка с 02.11 13:35: шапка в 1-й строке, клиенты, запасные пустые строки, внизу блок «ИТОГИ»."""
         self.sheet = {k: v for k, v in self.sheet.items() if k not in ("Реестр", "Платежи")}
-        self.sheet[title] = top + [list(r) for r in rows]
+        self.sheet[title] = [list(self.HEAD)] + [list(r) for r in rows] + [[""]] * spare + [
+            ["ИТОГИ МЕСЯЦА И ЗАРПЛАТА ЛЕНЫ"], ["Пришло по выписке, ₽", "1 434 000"], ["ID", "не строка данных"]]
 
     def test_month_sheets_are_the_input_from_02_11(self):
         st = {r["id"]: r for r in self.st()["rows"]}
@@ -110,9 +113,11 @@ class Google(unittest.TestCase):
         row = lambda rid, r, status, **kw: [rid, r["client"], r["service"], kw.get("link", ""), r["doc"], f"{r['amount']:,.0f}".replace(",", " "),
                                             status, kw.get("paid", ""), "", "", kw.get("ds", ""), kw.get("lena", ""), kw.get("q", "")]
         self.month_sheet("Октябрь 2026", [row(ermash, st[ermash], "⚪ Гарант"), row(uks, st[uks], "✅ Оплачено", paid="50 000", ds="1", lena="1")])
-        # перенос в ноябрь: Эрмаш в ноябре, статус меняет Лена; новая строка без ID
-        self.sheet["Ноябрь 2026"] = self.sheet["Октябрь 2026"][:8] + [row(ermash, st[ermash], "⛔ Отказ", link="https://rus-ei.ru/x", q="клиент отказался"),
-                                                                      ["", "ооо новый", "дс тр тс", "", "12 прил 1", "12 000", "🔵 Прогноз"]]
+        oct_ = self.sheet["Октябрь 2026"]
+        # перенос в ноябрь: Эрмаш в ноябре, статус меняет Лена; новая строка без ID (Лена вписала в пустую строку над итогами)
+        self.month_sheet("Ноябрь 2026", [row(ermash, st[ermash], "⛔ Отказ", link="https://rus-ei.ru/x", q="клиент отказался"),
+                                         ["", "ооо новый", "дс тр тс", "", "12 прил 1", "12 000", "🔵 Прогноз"]])
+        self.sheet["Октябрь 2026"] = oct_
         out = self.pull("2026-11-02")
         self.assertIn("новых 1", out)
         r = {x["id"]: x for x in self.st()["rows"]}
@@ -124,18 +129,21 @@ class Google(unittest.TestCase):
         out = self.dir / "w.json"
         self.sh(GS, "plan", self.save_sheet(), "--out", str(out), "--today", "2026-11-02")
         writes = json.loads(out.read_text(encoding="utf-8"))
-        self.assertEqual([w for w in writes if not w["range"].startswith("Банк")], [{"range": "'Ноябрь 2026'!A10", "values": [[new["id"]]]}])
-        self.sheet["Ноябрь 2026"][9][0] = new["id"]
-        self.assertIn("правок 0, новых 0, проблем 0", self.pull("2026-11-02"))
+        self.assertEqual([w for w in writes if not w["range"].startswith("Банк")], [{"range": "'Ноябрь 2026'!A3", "values": [[new["id"]]]}])
+        self.sheet["Ноябрь 2026"][2][0] = new["id"]
+        self.assertIn("правок 0, новых 0, проблем 0", self.pull("2026-11-02"))  # строки блока итогов не читаются как клиенты
         self.assertFalse(any(x.get("sheetGone") for x in self.st()["rows"]))
-        # строку, которой нет в листах (например, из Excel Лены), plan дописывает в лист её месяца
-        del self.sheet["Октябрь 2026"][9]
-        self.sheet["Октябрь 2026"].append(["", "", "", "", "", "", ""])  # пустая строка не мешает
+        # строку, которой нет в листах (например, из Excel Лены), plan дописывает в первую пустую строку над итогами
+        del self.sheet["Октябрь 2026"][2]  # УКС (строка 3) пропал; пустые теперь строки 3 и 4, итоги с 5-й
         self.sh(GS, "plan", self.save_sheet(), "--out", str(out), "--today", "2026-11-02")
         writes = [w for w in json.loads(out.read_text(encoding="utf-8")) if not w["range"].startswith("Банк")]
         self.assertEqual(len(writes), 1)
-        self.assertTrue(writes[0]["range"].startswith("'Октябрь 2026'!A11:N11"))
+        self.assertTrue(writes[0]["range"].startswith("'Октябрь 2026'!A3:N3"))
         self.assertEqual(writes[0]["values"][0][:2], [uks, st[uks]["client"]])
+        # над итогами нет места → строка не пишется поверх итогов
+        self.month_sheet("Октябрь 2026", [row(ermash, st[ermash], "⚪ Гарант")], spare=0)
+        self.sh(GS, "plan", self.save_sheet(), "--out", str(out), "--today", "2026-11-02")
+        self.assertFalse([w for w in json.loads(out.read_text(encoding="utf-8")) if w["range"].startswith("'Октябрь")])
 
     def test_first_export_then_repeat_pull_is_quiet(self):
         self.assertEqual(set(self.reg()), {"G-0001", "G-0002"})
