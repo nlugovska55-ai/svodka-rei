@@ -6,6 +6,8 @@
     python3 -I scripts/reestr_google.py mode [excel|google] [--since ГГГГ-ММ-ДД --by "чьё решение"]
 
 <лист.json> — значения вкладок, как их отдаёт чтение таблицы: {"Реестр": [[шапка], [строка]...], "Платежи": [...]}.
+С 02.11.2026 (Ольга) ввод — листы месяцев «Октябрь 2026», «Ноябрь 2026»…: {"Ноябрь 2026": [[строка 1]...], ...}.
+Если в <лист.json> есть такие листы, читаются только они (строки с 9-й), «Реестр» и «Платежи» не нужны.
 Числа и даты могут прийти отформатированными («25 000», «15.11.2026», «сент. 2026») — приводятся к одному виду.
 
 Источник ввода (st["source"]["mode"]):
@@ -32,7 +34,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import reestr_garanty as R  # noqa: E402
 
 # поле реестра → колонка вкладки «Реестр» (с 0). Остальные колонки — формулы или поля Claude.
-FIELDS = {"month": 1, "manager": 2, "client": 3, "service": 4, "doc": 5, "amount": 6, "stage": 7, "due": 8, "owner": 16, "question": 18}
+FIELDS = {"month": 1, "manager": 2, "client": 3, "service": 4, "doc": 5, "amount": 6, "stage": 7, "due": 8, "owner": 16, "question": 18, "maket": 22}
 CLAUDE_COLS = {"source": 14, "checked": 15, "next": 17}  # пишет только Claude (защищены)
 PFIELDS = {"rowId": 1, "date": 2, "amount": 3, "count": 5, "note": 9}
 ABBR = [("янв", 1), ("фев", 2), ("мар", 3), ("апр", 4), ("ма", 5), ("июн", 6), ("июл", 7), ("авг", 8), ("сен", 9), ("окт", 10), ("ноя", 11), ("дек", 12)]
@@ -101,7 +103,7 @@ def count(v):
 
 NORM = {"month": month, "manager": text, "client": text, "service": text, "doc": text, "amount": amount, "stage": text,
         "due": day, "owner": text, "question": text, "rowId": lambda v: (re.match(r"\s*(G-\d{4})", text(v)) or [None, None])[1],
-        "date": day, "count": count, "note": text}
+        "date": day, "count": count, "note": text, "maket": lambda v: text(v).lower()}  # макет ДС делала Лена: «да» → +500 ₽ к зарплате
 
 
 def cell(row, i):
@@ -160,7 +162,85 @@ def content_key(vals):
     return json.dumps({k: v for k, v in vals.items() if v is not KEEP}, ensure_ascii=False, sort_keys=True)
 
 
+MONTHS_RU = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"]
+MONTH_FIRST = 9  # листы месяцев (Ольга 02.11): шапка и ЗП в строках 1–8, данные с 9-й
+# колонка листа месяца (с 0): A ID, B клиент, C услуга, D ссылка, E договор, F сумма, G статус, H оплачено по словам Лены,
+# I–J считаются по «Банку», K ДС в заказе, L ДС выгрузила Лена, M комментарий, N откуда строка
+MCOLS = {"client": 1, "service": 2, "link": 3, "doc": 4, "amount": 5, "status": 6, "lenaPaid": 7, "ds": 10, "dsLena": 11, "question": 12}
+STATUS_STAGE = {"прогноз": "Обсуждаем", "гарант": "Гарант", "частично": "Гарант", "оплачено": "Пришло по Лене", "отказ": "Отказ"}
+EXTRA = ("link", "ds", "dsLena")  # поля только листов месяцев: в «Реестре» колонок под них нет
+
+
+def month_tabs(sheet):
+    """Листы вида «Ноябрь 2026» → [(месяц ГГГГ-ММ-01, название)], по возрастанию."""
+    out = []
+    for t in sheet:
+        m = re.fullmatch(r"(\S+) (20\d\d)", t)
+        if m and m.group(1) in MONTHS_RU:
+            out.append((f"{m.group(2)}-{MONTHS_RU.index(m.group(1)) + 1:02d}-01", t))
+    return sorted(out)
+
+
+def stage_of(status):
+    s = text(status).lower()
+    return next((v for k, v in STATUS_STAGE.items() if k in s), None)
+
+
+def from_months(st, sheet):
+    """Листы месяцев → строки в разметке «Реестра»/«Платежей», чтобы правки шли через тот же pull.
+    Строка, перенесённая в следующий месяц, берётся из последнего листа, где она есть. Возвращает
+    ({"Реестр", "Платежи"}, где[(лист, строка листа)] по строкам «Реестра», доп. поля по ID)."""
+    rows = {r["id"]: r for r in st["rows"]}
+    for r in st["rows"]:
+        r.setdefault("maket", "")  # старые строки без поля: пустое = «не отмечено», не правка
+    latest, order = {}, []
+    for m, tab in month_tabs(sheet):
+        for n, x in enumerate(sheet[tab][MONTH_FIRST - 1:], start=MONTH_FIRST):
+            if not any(text(cell(x, i)) for i in (0, 1, 5)):
+                continue
+            rid = text(cell(x, 0))
+            key = rid or f"{tab}#{n}"
+            if key not in latest:
+                order.append(key)
+            prev = latest.get(key)
+            paid = text(cell(x, MCOLS["lenaPaid"])) or (prev and prev[3])
+            latest[key] = (m, tab, n, paid, x)
+    reg, pays, where, extra = [["ID"]], [["ID"]], [], {}
+    for key in order:
+        m, tab, n, paid, x = latest[key]
+        rid = text(cell(x, 0))
+        old = rows.get(rid, {})
+        line = [""] * 23
+        line[0] = rid
+        line[1] = m
+        for f in ("client", "service", "doc", "amount", "question"):
+            line[FIELDS[f]] = cell(x, MCOLS[f])
+        line[FIELDS["manager"]] = old.get("manager", "")
+        line[FIELDS["owner"]] = old.get("owner") or "Лена"
+        line[FIELDS["due"]] = old.get("due") or ""
+        line[FIELDS["maket"]] = old.get("maket", "")
+        line[FIELDS["stage"]] = stage_of(cell(x, MCOLS["status"])) or old.get("stage") or "Гарант"
+        reg.append(line)
+        where.append((tab, n))
+        extra[rid or key] = {f: text(cell(x, MCOLS[f])) for f in EXTRA}
+        if not rid or not paid:
+            continue
+        mine = [p for p in st["payments"] if p["rowId"] == rid and p["kind"] == "Лена" and p.get("count") == "да"]
+        if len(mine) == 1:
+            p = mine[0]
+            pays.append([p["id"], rid, p.get("date") or "", paid, "Лена", "да", "", "", "", p.get("note") or ""])
+        elif not mine:
+            pays.append(["", rid, "", paid, "", "да", "", "", "", "из листа «" + tab + "»"])
+        else:
+            pays.append(["?", rid])  # несколько оплат Лены по строке: сумму из листа не разложить, нужен разбор
+    return {"Реестр": reg, "Платежи": pays}, where, extra
+
+
 def pull(st, sheet, today):
+    tabs = month_tabs(sheet)
+    extra = {}
+    if tabs:  # с 02.11 ввод — листы месяцев; «Реестр» скрыт и только для пульта
+        sheet, where, extra = from_months(st, sheet)
     mode = st.setdefault("source", {"mode": "excel"})["mode"]
     st.setdefault("pendingIds", {})
     st.setdefault("pseq", 0)
@@ -182,14 +262,14 @@ def pull(st, sheet, today):
                 due = vals.get("due") if vals.get("due") not in (None, KEEP) else None
                 r = {"id": rid, "month": m or (due[:8] + "01" if due else today.strftime("%Y-%m-01")), "manager": "", "client": "", "service": "",
                      "doc": "", "amount": None, "stage": "Гарант", "due": None, "cost": None, "source": f"Google «Реестр», стр. {n}, ввод в таблице",
-                     "checked": today.isoformat(), "owner": "Лена", "next": "", "question": "", "seen": [], "gone": "", "manual": {}}
+                     "checked": today.isoformat(), "owner": "Лена", "next": "", "question": "", "maket": "", "seen": [], "gone": "", "manual": {}}
                 for f, v in vals.items():
                     if v not in (None, KEEP, ""):
                         r[f] = v
                 r.update(ck=R.client_key(r["client"]), dk=R.doc_key(r["doc"]), sk=R.compact(r["service"]))
                 r["seen"] = [r["month"]]
                 if mode == "excel":
-                    r["manual"] = {f: r[f] for f in FIELDS}  # строку завела таблица: Excel её поля не перезаписывает
+                    r["manual"] = {f: r.get(f) for f in FIELDS}  # строку завела таблица: Excel её поля не перезаписывает
                 r["exp"], r["expPending"] = {}, {}
                 st["rows"].append(r)
                 rows[rid] = r
@@ -209,6 +289,10 @@ def pull(st, sheet, today):
         r.pop("sheetGone", None)
         edits += apply(st, r, vals, rid, mode)
     for r in st["rows"]:
+        if tabs and not (tabs[0][0] <= r["month"] <= tabs[-1][0]):
+            continue  # листы месяцев покрывают только свои месяцы: старые строки остаются как есть
+        if tabs and r.get("owner") != "Лена":
+            continue  # в листах месяцев только строки Лены (заказ Ольги G-0211 там не показан)
         if r["id"] not in seen and r.get("exp") and not r.get("sheetGone"):
             r["sheetGone"] = today.isoformat()
             R.log(st, f"{r['id']}: строки нет в таблице (удалили или вырезали) — в реестре оставлена, нужен разбор")
@@ -218,6 +302,9 @@ def pull(st, sheet, today):
     pseen = set()
     for n, row in enumerate(sheet.get("Платежи", [])[1:], start=2):
         pid = text(cell(row, 0))
+        if pid == "?":
+            problems.append(f"{text(cell(row, 1))}: несколько оплат Лены по строке — сумму из листа месяца не меняю, нужен разбор")
+            continue
         vals = read(row, PFIELDS, n, problems)
         if not pid:
             if not any(text(c) for c in row[1:10]):
@@ -246,6 +333,17 @@ def pull(st, sheet, today):
             continue
         pseen.add(pid)
         edits += apply(st, p, vals, pid, mode)
+    if tabs:
+        ids = {x[0]: x[1] for x in new if len(x) == 2}
+        for i, (tab, n) in enumerate(where):
+            rid = text(cell(sheet["Реестр"][i + 1], 0)) or ids.get(i + 2)
+            r = rows.get(rid)
+            vals = extra.get(text(cell(sheet["Реестр"][i + 1], 0)) or f"{tab}#{n}", {})
+            for f, v in vals.items():
+                if r is not None and text(r.get(f)) != v:
+                    if r.get(f) not in (None, ""):  # первое заполнение (поле появилось 02.11) — не правка
+                        edits.append(f"{rid}: {f} {r.get(f)!r} → {v!r} (правка в листе «{tab}»)")
+                    r[f] = v
     for e in edits:
         R.log(st, e)
     for e in problems:
@@ -269,15 +367,58 @@ def label(r):
     return f"{r['id']} · {r['client']} · {r['doc']} · {r['amount']:.0f}" if r.get("amount") is not None else f"{r['id']} · {r['client']} · {r['doc']} · "
 
 
+def bank_write(st, shown):
+    bank = [p for p in st["payments"] if p["kind"] == "банк" and p["rowId"] in shown]
+    bank.sort(key=lambda p: (p["date"] or "", p["rowId"]))
+    bvals = [[f"B-{k:04d}", p["rowId"], p["date"], p["amount"], p["account"], (p["basis"] or "").split(",")[0], p["source"], "Claude по выписке"]
+             for k, p in enumerate(bank, start=1)]
+    return {"range": f"Банк!A2:H{len(bvals) + 1}", "values": bvals, "clearAfter": f"Банк!A{len(bvals) + 2}:H"}
+
+
+def plan_months(st, sheet):
+    """Листы месяцев: Claude пишет только ID новых строк (колонка A) и «Банк». Остальное в листах вводят люди."""
+    syn, where, _ = from_months(st, sheet)
+    writes, pending_here = [], set()
+    for i, (tab, n) in enumerate(where):
+        line = syn["Реестр"][i + 1]
+        if text(line[0]):
+            continue
+        key = content_key(read(line, FIELDS, i + 2, []))
+        ids = st["pendingIds"].get(key, [])
+        if ids:
+            writes.append({"range": f"'{tab}'!A{n}", "values": [[ids[0]]]})
+            pending_here.add(ids[0])
+    # строки, которых в листах нет (пришли из Excel Лены в режиме сверки), — дописать в лист своего месяца
+    present = {text(cell(x, 0)) for _, t in month_tabs(sheet) for x in sheet[t][MONTH_FIRST - 1:]} | pending_here
+    tabs = dict(month_tabs(sheet))
+    nxt = {t: len(sheet[t]) + 1 for t in tabs.values()}
+    lena = {}
+    for p in st["payments"]:
+        if p["kind"] == "Лена" and p.get("count") == "да":
+            lena[p["rowId"]] = lena.get(p["rowId"], 0) + p["amount"]
+    for r in st["rows"]:
+        t = tabs.get(r["month"])
+        if not t or r["id"] in present or r.get("owner") != "Лена" or r.get("sheetGone"):
+            continue
+        status = {"Обсуждаем": "🔵 Прогноз", "Отказ": "⛔ Отказ", "Пришло по Лене": "✅ Оплачено"}.get(r["stage"], "⚪ Гарант")
+        writes.append({"range": f"'{t}'!A{nxt[t]}:N{nxt[t]}", "values": [[r["id"], r["client"], r["service"], r.get("link", ""), r["doc"], r["amount"],
+                       status, lena.get(r["id"]) or "", None, None, r.get("ds", ""), r.get("dsLena", ""), r.get("question", ""), r["source"]]]})
+        nxt[t] += 1
+    writes.append(bank_write(st, {r["id"] for r in st["rows"]}))
+    return writes
+
+
 def plan(st, sheet, today, since="2026-09"):
     """Минимальные записи в таблицу. Ячейки, которые менять не нужно, — null (чтение таблицы их пропускает, формулы целы)."""
+    if month_tabs(sheet):
+        return plan_months(st, sheet)
     reg = sheet.get("Реестр", [])
     where = {text(cell(x, 0)): n for n, x in enumerate(reg[1:], start=2) if text(cell(x, 0))}
     rows_by_content = {}
     for n, x in enumerate(reg[1:], start=2):
         if not text(cell(x, 0)):
             rows_by_content.setdefault(content_key(read(x, FIELDS, n, [])), []).append(n)
-    width, block, nxt = 19, {}, len(reg) + 1
+    width, block, nxt = 23, {}, len(reg) + 1
     for r in st["rows"]:
         n = where.get(r["id"])
         if n is None:
@@ -319,7 +460,7 @@ def plan(st, sheet, today, since="2026-09"):
     writes = []
     if block:
         lo, hi = min(block), max(block)
-        writes.append({"range": f"Реестр!A{lo}:S{hi}", "values": [block.get(n, [None] * width) for n in range(lo, hi + 1)]})
+        writes.append({"range": f"Реестр!A{lo}:W{hi}", "values": [block.get(n, [None] * width) for n in range(lo, hi + 1)]})
 
     pay = sheet.get("Платежи", [])
     pwhere = {text(cell(x, 0)): n for n, x in enumerate(pay[1:], start=2) if text(cell(x, 0))}
@@ -367,11 +508,7 @@ def plan(st, sheet, today, since="2026-09"):
         lo, hi = min(pblock), max(pblock)
         writes.append({"range": f"Платежи!A{lo}:J{hi}", "values": [pblock.get(n, [None] * 10) for n in range(lo, hi + 1)]})
 
-    bank = [p for p in st["payments"] if p["kind"] == "банк" and p["rowId"] in shown]
-    bank.sort(key=lambda p: (p["date"] or "", p["rowId"]))
-    bvals = [[f"B-{k:04d}", p["rowId"], p["date"], p["amount"], p["account"], (p["basis"] or "").split(",")[0], p["source"], "Claude по выписке"]
-             for k, p in enumerate(bank, start=1)]
-    writes.append({"range": f"Банк!A2:H{len(bvals) + 1}", "values": bvals, "clearAfter": f"Банк!A{len(bvals) + 2}:H"})
+    writes.append(bank_write(st, shown))
     return writes
 
 

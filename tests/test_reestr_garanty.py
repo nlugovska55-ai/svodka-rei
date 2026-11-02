@@ -185,10 +185,12 @@ class Reestr(unittest.TestCase):
         out = self.dir / "r.xlsx"
         subprocess.run([sys.executable, "-I", str(SCRIPT), "xlsx", "--out", str(out), "--today", "2026-07-15"], env=self.env, check=True, capture_output=True)
         ws = openpyxl.load_workbook(out)["Зарплата"]
-        self.assertEqual(ws["B2"].value, "не согласован")  # принцип базы не выбран — к выплате не считается
-        self.assertTrue(all(ws[f"{c}{r}"].value is None for c in "ABC" for r in (5, 6, 7)))  # периоды ставок пустые, не ноль
+        self.assertEqual(ws["B2"].value, "по выписке")  # Ольга 30.10: 10% от пришедшего по выписке + 500 ₽ за макет ДС
+        self.assertEqual([ws["B5"].value, ws["C5"].value], [10, 500])
+        self.assertEqual(ws["A5"].value.date().isoformat(), "2026-10-01")  # с октября; сентябрь — «нет ставки», не ноль
+        self.assertTrue(all(ws[f"{c}{r}"].value is None for c in "ABC" for r in (6, 7)))
         self.assertEqual(ws["A10"].value, "Месяц")
-        self.assertEqual(ws["B10"].value, "К выплате, ₽")  # ключевая колонка рядом с месяцем
+        self.assertTrue(ws["B10"].value.startswith("Начислено, ₽"))  # ключевая колонка рядом с месяцем
         self.assertIsNone(ws.freeze_panes)  # без закрепления: заголовок и пояснения объединены, не обрезаются
         self.assertIn("A1:G1", [str(x) for x in ws.merged_cells.ranges])
         cur = [r for r in range(12, ws.max_row + 1) if ws[f"A{r}"].value == datetime(2026, 7, 1)]
@@ -197,10 +199,24 @@ class Reestr(unittest.TestCase):
         self.assertIn("Месяцы!D:D", ws[f"C{r}"].value)  # база по месяцу обязательства — из единого реестра
         self.assertIn("Платежи!C:C", ws[f"D{r}"].value)  # база по дате оплаты — отдельно, только оплаты с датой
         self.assertIn("принцип базы не согласован", ws[f"B{r}"].value)
+        self.assertIn('$B$2="по выписке",E', ws[f"B{r}"].value)
+        self.assertIn("нет данных: выписок за месяц нет", ws[f"B{r}"].value)  # пусто ≠ 0
+        pay = [x for x in range(12, ws.max_row + 1) if str(ws[f"A{x}"].value).startswith("Выплаты Лене")]
+        self.assertEqual(len(pay), 1)
+        self.assertTrue(any(f"$F${pay[0] + 2}:" in str(ws[f"Q{x}"].value) for x in range(12, pay[0])))  # «Выплачено» ссылается на блок «Выплаты»  # база — пришло по выписке (колонка E)
+        self.assertIsNone(ws[f"J{r}"].value)  # архив: «шт.» только из записи Лены
         self.assertIn("MAXIFS", ws[f"B{r}"].value)  # ставка берётся из периода, а не одна на всё прошлое
         self.assertIn("у части оплат нет даты", ws[f"B{r}"].value)
         self.assertTrue(ws[f"B{r}"].value.startswith('=IF(F'))  # закрытый месяц — зафиксированная сумма
         self.assertEqual(ws[f"O{r}"].value, "578500= 57800 +3900 (13*300)=61700")
+        self.assertTrue(any('Реестр!W:W,"да"' in str(ws[f"J{x}"].value) for x in range(12, ws.max_row + 1)))  # текущий период: макеты ДС из «Реестра»
+        self.assertEqual(ws["R10"].value, "Остаток к выплате, ₽")
+        self.assertEqual([ws[c].value for c in ("F4", "G4", "H4", "I4", "J4")], ["ИТОГ: месяц", "Начислено (подтверждённая часть), ₽", "Выплачено, ₽", "Остаток, ₽", "Статус расчёта"])
+        self.assertIn("ПРЕДВАРИТЕЛЬНО, не готовый расчёт", ws["J6"].value)  # сумма в итоге — не готовая зарплата
+        self.assertIn("доплата 500 ₽ не проверена", ws["J5"].value)
+        self.assertIn("$R$12:$R$29", ws["I6"].value)  # итог в первых колонках берёт остаток из R
+        self.assertTrue(ws["Q10"].value.startswith("Выплачено Лене"))
+        self.assertTrue(any(str(ws[f"R{x}"].value).startswith('=IF(NOT(ISNUMBER(B') for x in range(12, ws.max_row + 1)))  # остаток = к выплате − выплачено
 
     def test_workbook_has_views_and_salary_only_on_its_sheet(self):
         f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо квант", "дс", "1365 ле дс", 12000, None), ("ооо чзмэк", "дс", "1240 ле дс прил 7", None, 15000)],
@@ -215,17 +231,18 @@ class Reestr(unittest.TestCase):
         self.assertEqual([ws.title for ws in wb if ws.sheet_state == "visible"], ["Этот месяц", "Следующий месяц", "Реестр", "Платежи", "Зарплата", "Как пользоваться"])
         self.assertIn("🔴 Просрочено", wb["Реестр"]["M1"].value)
         self.assertIn("🔵 Прогноз (обсуждаем)", wb["Реестр"]["M1"].value)  # «Обсуждаем» — прогноз, не «Ждём оплату»
-        # 30.10 термины как в живой таблице: отметка менеджера ≠ выписка; старые «банк не сверен» не возвращаем
-        self.assertIn("🟡 Оплата отмечена менеджером", wb["Реестр"]["M1"].value)
-        self.assertIn("🟢 Оплачено по выписке", wb["Реестр"]["M1"].value)
+        # 30.10 (Ольга): один статус; отметка менеджера без выписки — приписка к ✅, не отдельный жёлтый статус
+        self.assertIn("✅ Деньги пришли · сверяю с выпиской", wb["Реестр"]["M1"].value)
+        self.assertNotIn("🟡", wb["Реестр"]["M1"].value)
+        self.assertEqual(wb["Реестр"]["W1"].value, "Макет ДС делала Лена")
         self.assertNotIn("не сверен", wb["Реестр"]["M1"].value + wb["Этот месяц"]["A7"].value)
         self.assertEqual([wb["Этот месяц"][c].value for c in ("C3", "D3", "G6")], ["По данным менеджера, ₽", "По выписке, ₽", "Отметка, ₽"])
         self.assertIn("по данным менеджера", wb["Этот месяц"]["G6"].comment.text)
         how = wb["Как пользоваться"]
         self.assertEqual(how["A4"].value, "Главный лист")
-        self.assertIn("🟡 оплата отмечена менеджером → 🟢 оплачено по выписке", how["B4"].value)
+        self.assertIn("🟠 пришла часть → ⚪ гарант, ждём оплату → 🔵 прогноз → ✅ деньги пришли", how["B4"].value)
         self.assertEqual(how["A15"].value, "Обещание и банк")
-        self.assertIn("Жёлтый статус не означает, что деньги не пришли", how["B15"].value)
+        self.assertIn("Статус (M) один", how["B15"].value)
         self.assertNotIn("не сверен", " ".join(str(c.value) for row in how.iter_rows() for c in row if c.value))
         self.assertIn("LEFT(Платежи!B2:B,6)", wb["Реестр"]["J1"].value)
         self.assertTrue(str(wb["Платежи"]["B2"].value).startswith("G-0002 · ооо чзмэк · 1240 ле дс прил 7 · 15000"))  # в «Платежах» выбирают «ID · клиент · договор · сумма»
