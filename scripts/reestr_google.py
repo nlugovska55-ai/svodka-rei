@@ -163,7 +163,9 @@ def content_key(vals):
 
 
 MONTHS_RU = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"]
-MONTH_FIRST = 9  # листы месяцев (Ольга 02.11): шапка и ЗП в строках 1–8, данные с 9-й
+# листы месяцев (Ольга 02.11): строка шапки — первая, где в A стоит «ID»; данные под ней до строки-итога,
+# у которой A начинается с FOOTER (блок итогов и ЗП внизу листа, Ольга 02.11 13:35). Старая разметка (шапка в 8-й) тоже читается.
+FOOTER = "ИТОГИ"
 # колонка листа месяца (с 0): A ID, B клиент, C услуга, D ссылка, E договор, F сумма, G статус, H оплачено по словам Лены,
 # I–J считаются по «Банку», K ДС в заказе, L ДС выгрузила Лена, M комментарий, N откуда строка
 MCOLS = {"client": 1, "service": 2, "link": 3, "doc": 4, "amount": 5, "status": 6, "lenaPaid": 7, "ds": 10, "dsLena": 11, "question": 12}
@@ -181,6 +183,31 @@ def month_tabs(sheet):
     return sorted(out)
 
 
+def month_rows(sheet, tab):
+    """Строки данных листа месяца: [(номер строки, значения)], от шапки «ID» до блока итогов."""
+    rows = sheet[tab]
+    head = next((i for i, x in enumerate(rows) if text(cell(x, 0)) == "ID"), None)
+    if head is None:
+        return []
+    out = []
+    for n, x in enumerate(rows[head + 1:], start=head + 2):
+        if text(cell(x, 0)).upper().startswith(FOOTER):
+            break
+        out.append((n, x))
+    return out
+
+
+def free_rows(sheet, tab):
+    """Пустые строки над блоком итогов (туда plan дописывает строки). Без блока итогов — строки после последней."""
+    rows = month_rows(sheet, tab)
+    footer = any(text(cell(x, 0)).upper().startswith(FOOTER) for x in sheet[tab])
+    free = [n for n, x in rows if not any(text(v) for v in x)]
+    if not footer:
+        last = max([n for n, x in rows if any(text(v) for v in x)], default=len(sheet[tab]))
+        free = [n for n in free if n > last] + list(range(max(len(sheet[tab]), last) + 1, max(len(sheet[tab]), last) + 200))
+    return free
+
+
 def stage_of(status):
     s = text(status).lower()
     return next((v for k, v in STATUS_STAGE.items() if k in s), None)
@@ -195,7 +222,7 @@ def from_months(st, sheet):
         r.setdefault("maket", "")  # старые строки без поля: пустое = «не отмечено», не правка
     latest, order = {}, []
     for m, tab in month_tabs(sheet):
-        for n, x in enumerate(sheet[tab][MONTH_FIRST - 1:], start=MONTH_FIRST):
+        for n, x in month_rows(sheet, tab):
             if not any(text(cell(x, i)) for i in (0, 1, 5)):
                 continue
             rid = text(cell(x, 0))
@@ -389,9 +416,9 @@ def plan_months(st, sheet):
             writes.append({"range": f"'{tab}'!A{n}", "values": [[ids[0]]]})
             pending_here.add(ids[0])
     # строки, которых в листах нет (пришли из Excel Лены в режиме сверки), — дописать в лист своего месяца
-    present = {text(cell(x, 0)) for _, t in month_tabs(sheet) for x in sheet[t][MONTH_FIRST - 1:]} | pending_here
+    present = {text(cell(x, 0)) for _, t in month_tabs(sheet) for _, x in month_rows(sheet, t)} | pending_here
     tabs = dict(month_tabs(sheet))
-    nxt = {t: len(sheet[t]) + 1 for t in tabs.values()}
+    nxt = {t: free_rows(sheet, t) for t in tabs.values()}
     lena = {}
     for p in st["payments"]:
         if p["kind"] == "Лена" and p.get("count") == "да":
@@ -401,9 +428,12 @@ def plan_months(st, sheet):
         if not t or r["id"] in present or r.get("owner") != "Лена" or r.get("sheetGone"):
             continue
         status = {"Обсуждаем": "🔵 Прогноз", "Отказ": "⛔ Отказ", "Пришло по Лене": "✅ Оплачено"}.get(r["stage"], "⚪ Гарант")
-        writes.append({"range": f"'{t}'!A{nxt[t]}:N{nxt[t]}", "values": [[r["id"], r["client"], r["service"], r.get("link", ""), r["doc"], r["amount"],
+        if not nxt[t]:
+            print(f"ПРОБЛЕМА: в листе «{t}» нет пустых строк над итогами, строка {r['id']} не дописана — вставьте строки", file=sys.stderr)
+            continue
+        n = nxt[t].pop(0)
+        writes.append({"range": f"'{t}'!A{n}:N{n}", "values": [[r["id"], r["client"], r["service"], r.get("link", ""), r["doc"], r["amount"],
                        status, lena.get(r["id"]) or "", None, None, r.get("ds", ""), r.get("dsLena", ""), r.get("question", ""), r["source"]]]})
-        nxt[t] += 1
     writes.append(bank_write(st, {r["id"] for r in st["rows"]}))
     return writes
 
