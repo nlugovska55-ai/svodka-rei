@@ -149,6 +149,8 @@ def prognoz():
 SPISANIYA_JSON = "/mnt/project-files/daily-control/svodka/spisaniya.json"
 BUH_PLAN_JSON = "/mnt/project-files/daily-control/svodka/buh-plan.json"
 BANK_JSON = "/mnt/project-files/daily-control/svodka/bank-oboroty.json"
+BANK_MONTH_JSON = "/mnt/project-files/daily-control/svodka/bank-mesyac.json"
+INCOME_JSON = "/mnt/project-files/daily-control/kontrol/runs/income.json"
 KONTROL_DIR = "/mnt/project-files/daily-control/kontrol"
 BUH_PLANS = {
     "Реестр обязательных платежей": "/mnt/project-files/daily-control/otchety-claude/reestr-platezhey-chernovik.md",
@@ -248,6 +250,113 @@ def bank_oboroty():
             d["outItems"] = [x for x in d["outItems"] if x not in hide] + [{"who": "прочие перечисления", "amount": round(sum(float(x.get("amount") or 0) for x in hide), 2), "basis": ""}]
     days.sort(key=lambda x: (x["date"], x["account"]))
     return {"built": p.get("built", ""), "note": p.get("note", ""), "days": days}
+
+
+def bank_month():
+    """Факт месяца по выпискам (ведёт «Бухгалтерия»): по счетам отдельно, без общего итога; нет файла — None."""
+    if not os.path.exists(BANK_MONTH_JSON):
+        return None
+    with open(BANK_MONTH_JSON, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    accs = [a for a in p.get("accounts", []) if a.get("account") and isinstance(a.get("in"), (int, float))]
+    return {**p, "accounts": accs} if accs else None
+
+
+def income():
+    """Реестр поступлений для портала (kontrol/runs/income.json, ведёт «Браузер»): кто, сколько, внесено ли; нет файла — None."""
+    if not os.path.exists(INCOME_JSON):
+        return None
+    with open(INCOME_JSON, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    keep = ("payer", "amount", "bank", "seen", "status", "done", "order")
+    return [{k: v.get(k) for k in keep} for v in p.values() if isinstance(v, dict) and v.get("payer")]
+
+
+def vypiska():
+    """Последняя сводная выписка (kontrol/vypiski/ГГГГ-ММ-ДД.md): поступления «ДД.ММ | п/п | плательщик | сумма | основание»."""
+    files = sorted(glob.glob(os.path.join(KONTROL_DIR, "vypiski", "????-??-??.md")))
+    if not files:
+        return None
+    asof = os.path.basename(files[-1])[:10]
+    year, items, sec = asof[:4], [], ""
+    with open(files[-1], encoding="utf-8-sig") as fh:
+        for line in fh:
+            if line.startswith("## "):
+                sec = line[3:].strip().lower()
+                continue
+            m = re.match(r"^(\d\d)\.(\d\d)\s*\|\s*([^|]*)\|\s*([^|]+)\|\s*([\d\s ,]+)\|\s*(.*)$", line.strip())
+            if not m or not sec.startswith("поступ"):
+                continue
+            amount = float(re.sub(r"[\s ]", "", m.group(5)).replace(",", ".") or 0)
+            items.append({"date": f"{year}-{m.group(2)}-{m.group(1)}", "pp": m.group(3).strip(), "payer": m.group(4).strip(), "amount": amount, "basis": m.group(6).strip()})
+    # время охвата — когда «Бухгалтерия» последний раз обновила файл выписки (МСК)
+    mt = datetime.fromtimestamp(os.path.getmtime(files[-1]), timezone(timedelta(hours=3)))
+    return {"asOf": asof, "time": mt.strftime("%H:%M"), "fileDate": mt.strftime("%Y-%m-%d"), "src": "kontrol/vypiski/" + os.path.basename(files[-1]), "items": items}
+
+
+OHVAT_SRC = ["olga@", "boroday@", "ocenka@", "info@", "Альфа", "Точка"]  # обход почты и банков (job pochta)
+
+
+def ohvat_journal():
+    """Охват источников из журнала запусков (kontrol/runs/ДАТА.jsonl, события source): по каждому источнику последнее
+    успешное чтение (upto) и ошибка после него. Запуски из runs/revoked.json не считаются (Codex 30.10: 19:11 b7c8)."""
+    files = sorted(glob.glob(os.path.join(KONTROL_DIR, "runs", "????-??-??.jsonl")))
+    if not files:
+        return None
+    revoked = set()
+    rv = os.path.join(KONTROL_DIR, "runs", "revoked.json")
+    if os.path.exists(rv):
+        with open(rv, encoding="utf-8-sig") as fh:
+            revoked = {r.get("run") for r in (json.load(fh).get("runs") or [])}
+    last, err, events, fin = {}, {}, [], {}
+    with open(files[-1], encoding="utf-8-sig") as fh:
+        for line in fh:
+            try:
+                events.append(json.loads(line))
+            except ValueError:
+                continue
+    # чтение засчитываем, только если завершение запуска его подтвердило (finished.ok); брошенный запуск (ok: []) — не чтение
+    for e in events:
+        if e.get("event") == "finished":
+            fin[e.get("run")] = set(e.get("ok") or [])
+    for e in events:
+        if e.get("status") == "ok" and e.get("run") in fin and e.get("source") not in fin[e.get("run")]:
+            continue
+        if e.get("event") != "source" or e.get("run") in revoked or e.get("source") not in OHVAT_SRC:
+            continue
+        src = e["source"]
+        if e.get("status") == "ok" and e.get("upto"):
+            last[src] = {"src": src, "time": str(e["upto"])[-5:], "at": e.get("at") or e.get("ts") or "", "run": e.get("run", ""), "items": e.get("items")}
+            err.pop(src, None)
+        elif e.get("status") != "ok":
+            err[src] = {"at": str(e.get("at") or e.get("ts") or "")[11:16], "reason": str(e.get("reason") or "")[:80]}
+    names = [n for n in OHVAT_SRC if n in last or n in err]
+    parts = []
+    for n in names:
+        row = dict(last.get(n) or {"src": n, "time": ""})
+        if n in err:
+            row["err"] = err[n]
+        parts.append(row)
+    return {"file": "kontrol/runs/" + os.path.basename(files[-1]), "date": os.path.basename(files[-1])[:10], "fromJournal": True, "parts": parts}
+
+
+def ohvat():
+    """Время охвата источников из последней сверки дел «Утра» (obkhod/ДАТА-sverka-del-ЧЧММ.md, строка «Охват источников: …»)."""
+    files = sorted(glob.glob(os.path.join(os.path.dirname(KONTROL_DIR), "obkhod", "*-sverka-del-*.md")))
+    if not files:
+        return None
+    with open(files[-1], encoding="utf-8-sig") as fh:
+        for line in fh:
+            if line.startswith("Охват источников:"):
+                text = line.split(":", 1)[1].strip()
+                parts = []
+                for chunk in text.split(";"):
+                    m = re.search(r"(\d{1,2}:\d{2})", chunk)
+                    name = re.split(r"\s+[—-]\s+", chunk.strip())[0].strip()
+                    if m and name:
+                        parts.append({"src": name, "time": m.group(1)})
+                return {"file": "obkhod/" + os.path.basename(files[-1]), "date": os.path.basename(files[-1])[:10], "parts": parts}
+    return None
 
 
 def buh_svodka():
@@ -488,10 +597,11 @@ def applied_events(db_dir):
 
 # Итог должен отвечать на поручение: «отправить акт» не закрывается фразой об оплате (находка Codex 29.10)
 FIT = [(re.compile(r"портал|внести", re.I), re.compile(r"внес|портал|заказ", re.I), "внесение в портал"),
-       (re.compile(r"отправ|по\s+эдо|диадок", re.I), re.compile(r"отправл|документооборот|доставлен|диадок|эдо", re.I), "отправку"),
+       # «скан направлен на …» — это выполненная отправка (находка Codex 30.10, возврат ФБУЗ)
+       (re.compile(r"отправ|направ|по\s+эдо|диадок", re.I), re.compile(r"отправл|направл|выслан|переслан|документооборот|доставлен|диадок|эдо", re.I), "отправку"),
        (re.compile(r"подпис", re.I), re.compile(r"подпис", re.I), "подпись"),
        (re.compile(r"оплат|заплат", re.I), re.compile(r"оплач|оплат|п/п|поступ|списан", re.I), "оплату"),
-       (re.compile(r"письм|ответить|написать", re.I), re.compile(r"черновик|письм|ответ|отправ", re.I), "письмо")]
+       (re.compile(r"письм|ответить|написать", re.I), re.compile(r"черновик|письм|ответ|отправ|направл", re.I), "письмо")]
 
 
 def result_fit(title, result):
@@ -610,6 +720,14 @@ def automation(summary, gar):
     return [r for r in summary if r.get("section") != "Автоматика"] + rows
 
 
+# Правило Ольги (§14 п.8): просьбы войти, ввести ПИН, логин или пароль, пароли и служебные дела для веток на пульт не ставим, только в чат
+LOGIN_RE = re.compile(r"(^|[^а-яё])пин([^а-яё]|$)|alfa id|войдите|войти в|вход в (банк|альф|точк|личн|кабинет|диадок|почт)|разлогин|залогин|логин|авториз|пароль|сесси[яи] истекл|разрешить (экран|доступ)|«разрешить»|памятк|в ветку|переключить ветку|\.py(?![a-z])|проект\S* «промты»|список веток|открыть [^.;]{0,40} в (яндекс|chrome|хром)", re.I)
+
+
+def is_login_ask(row):
+    return bool(LOGIN_RE.search(" ".join(str(row.get(k) or "") for k in ("title", "short", "text", "next", "detail"))))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("db_dir")
@@ -664,6 +782,12 @@ def main():
             "thread": t.get("thread") or "",
             "origin": t.get("origin") or "",
             "proof": t.get("proof") or "",
+            # Факт чтения источника (Codex 30.10): только из реального события чтения, иначе пусто = «неизвестно».
+            # sourceCheckedAt — ISO с часовым поясом, когда первичку прочитали; sourceEvidence — журнал/ссылка на это чтение;
+            # updatedAt — когда правили карточку (редакция не делает дело сверенным)
+            "sourceCheckedAt": t.get("sourceCheckedAt") or "",
+            "sourceEvidence": t.get("sourceEvidence") or "",
+            "updatedAt": t.get("updatedAt") or "",
             # Деньги: одна операция только по явному id; без него одинаковые суммы — «возможный дубль»
             "invoice": t.get("invoice") or "",
             "payment": t.get("payment") or "",
@@ -679,6 +803,8 @@ def main():
         summary = summary.get("summary", summary.get("rows"))
     if not isinstance(summary, list) or not all(isinstance(row, dict) for row in summary):
         raise ValueError("summary должен быть списком объектов; прежняя сводка сохранена")
+    tasks = [t for t in tasks if not is_login_ask(t)]
+    summary = [r for r in summary if not is_login_ask(r)]
     data = {
         "updated": datetime.now(MSK).strftime("%Y-%m-%dT%H:%M:%S+03:00"),
         "tasks": tasks,
@@ -686,11 +812,15 @@ def main():
         "lena_clients": lena_clients(tasks),
         "prognoz": prognoz(),
         "appliedEvents": applied_events(db_dir),
-        "replies": comment_replies(db_dir),
+        "replies": [r for r in comment_replies(db_dir) if not is_login_ask(r)],
     }
     sp, bs, bp, bank = spisaniya(), buh_svodka(), buh_plan(), bank_oboroty()
     data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "bank": bank, "buh_sources": buh_sources(sp, bs, bp, bank)})
     data["garanty"] = garanty(tasks, bank)
+    data["bank_month"] = bank_month()
+    data["income"] = income()
+    data["vypiska"] = vypiska()
+    data["ohvat"] = ohvat_journal() or ohvat()
     data["summary"] = automation(summary, data["garanty"])
     data["accuracy"] = forecast_accuracy(data["garanty"])
     data["trebovaniya"] = trebovaniya(tasks, closed_ids)

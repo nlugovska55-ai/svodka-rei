@@ -364,7 +364,7 @@ def snapshot(st, today):
     for r in st["rows"]:
         lena, bank = paid(st, r["id"], "Лена"), paid(st, r["id"], "банк")
         stage = "paid" if lena >= (r["amount"] or 0) and lena else "guarantee"
-        rows.append({"id": r["id"], "key": r["id"], "row": int(re.search(r"стр\. (\d+)", r["source"]).group(1)), "month": r["month"],
+        rows.append({"id": r["id"], "key": r["id"], "row": int(m.group(1)) if (m := re.search(r"стр\. (\d+)", r["source"] or "")) else None, "month": r["month"],
                      "client": r["client"], "service": r["service"], "doc": r["doc"], "amount": r["amount"], "amountRaw": "",
                      "stage": stage, # статусы — теми же словами, что в таблице (колонка M, 30.10): «оплата отмечена менеджером» ≠ «оплачено по выписке»
                      "status": "отказ клиента" if r["stage"] == "Отказ" else "оплачено по выписке" if stage == "paid" and bank >= (r["amount"] or 0)
