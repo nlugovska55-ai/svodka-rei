@@ -128,6 +128,14 @@ class Google(unittest.TestCase):
         self.sheet["Ноябрь 2026"][9][0] = new["id"]
         self.assertIn("правок 0, новых 0, проблем 0", self.pull("2026-11-02"))
         self.assertFalse(any(x.get("sheetGone") for x in self.st()["rows"]))
+        # строку, которой нет в листах (например, из Excel Лены), plan дописывает в лист её месяца
+        del self.sheet["Октябрь 2026"][9]
+        self.sheet["Октябрь 2026"].append(["", "", "", "", "", "", ""])  # пустая строка не мешает
+        self.sh(GS, "plan", self.save_sheet(), "--out", str(out), "--today", "2026-11-02")
+        writes = [w for w in json.loads(out.read_text(encoding="utf-8")) if not w["range"].startswith("Банк")]
+        self.assertEqual(len(writes), 1)
+        self.assertTrue(writes[0]["range"].startswith("'Октябрь 2026'!A11:N11"))
+        self.assertEqual(writes[0]["values"][0][:2], [uks, st[uks]["client"]])
 
     def test_first_export_then_repeat_pull_is_quiet(self):
         self.assertEqual(set(self.reg()), {"G-0001", "G-0002"})

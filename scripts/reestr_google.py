@@ -191,6 +191,8 @@ def from_months(st, sheet):
     Строка, перенесённая в следующий месяц, берётся из последнего листа, где она есть. Возвращает
     ({"Реестр", "Платежи"}, где[(лист, строка листа)] по строкам «Реестра», доп. поля по ID)."""
     rows = {r["id"]: r for r in st["rows"]}
+    for r in st["rows"]:
+        r.setdefault("maket", "")  # старые строки без поля: пустое = «не отмечено», не правка
     latest, order = {}, []
     for m, tab in month_tabs(sheet):
         for n, x in enumerate(sheet[tab][MONTH_FIRST - 1:], start=MONTH_FIRST):
@@ -339,7 +341,7 @@ def pull(st, sheet, today):
             vals = extra.get(text(cell(sheet["Реестр"][i + 1], 0)) or f"{tab}#{n}", {})
             for f, v in vals.items():
                 if r is not None and text(r.get(f)) != v:
-                    if r.get(f) not in (None, "") or v:
+                    if r.get(f) not in (None, ""):  # первое заполнение (поле появилось 02.11) — не правка
                         edits.append(f"{rid}: {f} {r.get(f)!r} → {v!r} (правка в листе «{tab}»)")
                     r[f] = v
     for e in edits:
@@ -376,7 +378,7 @@ def bank_write(st, shown):
 def plan_months(st, sheet):
     """Листы месяцев: Claude пишет только ID новых строк (колонка A) и «Банк». Остальное в листах вводят люди."""
     syn, where, _ = from_months(st, sheet)
-    writes = []
+    writes, pending_here = [], set()
     for i, (tab, n) in enumerate(where):
         line = syn["Реестр"][i + 1]
         if text(line[0]):
@@ -385,6 +387,23 @@ def plan_months(st, sheet):
         ids = st["pendingIds"].get(key, [])
         if ids:
             writes.append({"range": f"'{tab}'!A{n}", "values": [[ids[0]]]})
+            pending_here.add(ids[0])
+    # строки, которых в листах нет (пришли из Excel Лены в режиме сверки), — дописать в лист своего месяца
+    present = {text(cell(x, 0)) for _, t in month_tabs(sheet) for x in sheet[t][MONTH_FIRST - 1:]} | pending_here
+    tabs = dict(month_tabs(sheet))
+    nxt = {t: len(sheet[t]) + 1 for t in tabs.values()}
+    lena = {}
+    for p in st["payments"]:
+        if p["kind"] == "Лена" and p.get("count") == "да":
+            lena[p["rowId"]] = lena.get(p["rowId"], 0) + p["amount"]
+    for r in st["rows"]:
+        t = tabs.get(r["month"])
+        if not t or r["id"] in present or r.get("owner") != "Лена" or r.get("sheetGone"):
+            continue
+        status = {"Обсуждаем": "🔵 Прогноз", "Отказ": "⛔ Отказ", "Пришло по Лене": "✅ Оплачено"}.get(r["stage"], "⚪ Гарант")
+        writes.append({"range": f"'{t}'!A{nxt[t]}:N{nxt[t]}", "values": [[r["id"], r["client"], r["service"], r.get("link", ""), r["doc"], r["amount"],
+                       status, lena.get(r["id"]) or "", None, None, r.get("ds", ""), r.get("dsLena", ""), r.get("question", ""), r["source"]]]})
+        nxt[t] += 1
     writes.append(bank_write(st, {r["id"] for r in st["rows"]}))
     return writes
 
