@@ -57,3 +57,12 @@ class Izmeneniya(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class MonthHeader(unittest.TestCase):
+    def test_header_by_client_column_and_missing_header_stops(self):
+        import reestr_google as G
+        rows = [[" ", "Клиент", "Услуга"], ["G-0001", "ооо а", "дс"]]
+        self.assertEqual([n for n, _ in G.month_rows({"Октябрь 2026": rows}, "Октябрь 2026")], [2])
+        with self.assertRaises(SystemExit):
+            G.month_rows({"Октябрь 2026": [["", "", ""], ["G-0001", "ооо а"]]}, "Октябрь 2026")
