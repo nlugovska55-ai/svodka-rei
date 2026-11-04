@@ -379,6 +379,11 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
 .lena{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;background:var(--surface);padding:14px 16px;display:grid;gap:8px}
 .lena .lh{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.lena .lh h3{font:700 18px var(--f-disp)}
 .lena dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:15px}.lena dt{color:var(--muted)}.lena dd{margin:0;overflow-wrap:anywhere}
+.pm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.pm .pc2{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.pm h3{margin:0;font-size:15px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}.pm h3 b{font-size:20px;font-variant-numeric:tabular-nums}
+.pm .pp{margin:10px 0 2px;font-size:12px;color:var(--muted)}.pm .pi{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:3px 0;font-size:13px;border-top:1px solid var(--line)}
+.pm .pi .num{text-align:right;white-space:nowrap}.pm .pi small{grid-column:1/-1;color:var(--muted)}.pm .pi.z{opacity:.7}
+@media (max-width:760px){.pm{grid-template-columns:1fr}}
 .w4{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.wc.nd{background:var(--bg)}
 .wc{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:12px 14px;display:grid;gap:4px;align-content:start;min-width:0}
 .wc h3{font:700 16px var(--f-disp)}.wc h3 small{display:block;font:400 14px var(--f-body);color:var(--muted)}
@@ -881,6 +886,15 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const S = t.steps || [], ok = S.filter((x) => x.done).length, nx = S.find((x) => !x.done);
     return `<button class="link" style="margin:0;font-size:inherit;text-align:left" data-wk="${esc(t.id)}">${esc(t.short)}</button> · подпунктов закрыто ${ok} из ${S.length}${nx ? '; дальше п.' + esc(String(nx.n)) + ': ' + esc(nx.text.length > 90 ? nx.text.slice(0, 90) + '…' : nx.text) : ''}${t.due ? ' · срок контроля ' + esc(t.due) : ''}`;
   }
+  // Сводка шага 6a: что изменилось в таблице Лены за сутки (garanty-leny/izmeneniya/ДАТА.json)
+  function garChTxt() {
+    const GC = D.garanty_changes;
+    if (!GC) return '<span class="unk">сводка изменений ещё не собиралась</span>';
+    const hm = (x) => x.slice(8, 10) + '.' + x.slice(5, 7) + ' ' + x.slice(11, 16);
+    const when = (GC.since ? 'с ' + hm(GC.since) + ' по ' + hm(GC.until) : 'на ' + dmY(GC.date)) + (GC.date < FRESH.todayYmd ? ' <span class="unk">(не сегодня)</span>' : '');
+    if (!GC.items.length) return when + ': изменений нет';
+    return `${when}: ${plural(GC.items.length, 'строка', 'строки', 'строк')}<ul style="margin:4px 0 0;padding-left:18px">${GC.items.slice(0, 8).map((x) => `<li><b>${esc(x.client || x.id)}</b> — ${esc(x.text)}</li>`).join('')}</ul>${GC.items.length > 8 ? `<span class="hint">и ещё ${GC.items.length - 8}, полный список в izmeneniya/${esc(GC.date)}.md</span>` : ''}`;
+  }
   function lenaCard(full) {
     const G = D.garanty;
     if (!G || !G.connected) return `<section class="sec" id="garanty"><div class="lena"><div class="lh"><h3>Рабочая таблица Лены</h3><span class="c hint">источник не подключён</span></div><div class="autoh">Реестр гарантов не подключён${G && G.status && G.status.lastError ? ': ' + esc(G.status.lastError) : ''}. Цифр нет — это не нули. Старый перечень «октябрь 2026» от 23.10 не показываю как актуальный.</div></div></section>`;
@@ -899,6 +913,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <dt>Ждём по гарантам</dt><dd><b class="num">${num(sum(O, (r) => r.id ? r.remain : r.amount))}</b> · ${plural(O.length, 'строка', 'строки', 'строк')}${late ? `, просрочено <b>${late}</b>` : ''}${noDate ? `, без срока ${noDate} (это не 0)` : ''}</dd>
       <dt>По выписке</dt><dd class="plus">${num(sum(G.rows, (r) => r.bankSum))}</dd>
       <dt>Файл</dt><dd>единый: гаранты, оплаты и зарплата Лены в одной таблице; зарплата — отдельный лист, защищён от правки, но не скрыт, на пульт не выводится. Старый файл зарплаты — архив.</dd>
+      <dt>Изменения</dt><dd>${garChTxt()}</dd>
       <dt>Сверка</dt><dd>${sverkaTxt()}</dd>
       <dt>Доступ Лены</dt><dd>${acc.status === 'granted' ? 'выдан: ' + esc(acc.note || '') : esc(acc.note || 'не выдан: ждём её почту, доступ будет адресный, только к полям ввода')}</dd></dl>
       ${full ? '' : `<div class="rows glines">${top.slice(0, 3).map((r) => garLine(G, r)).join('')}</div>`}</div></section>`;
@@ -925,6 +940,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
         : ['✓', `Итог: <b>${esc(sh)}</b> — ${cut(res)}${off ? ' <span class="na">(по карточке дела; ответ ветки был не про ' + esc(r.fit) + ')</span>' : ''}`, 'ok']); });
     ((D.bank && D.bank.days) || []).filter((x) => x.date >= since && (+x.in || +x.out)).forEach((x) => L.push(['₽', `${dmY(x.date)}, ${esc(x.account)}: ${+x.in ? `<span class="plus">+${num(+x.in)}</span>${x.inItems.length ? ' (' + x.inItems.slice(0, 3).map((i) => esc(i.who)).join(', ') + (x.inItems.length > 3 ? '…' : '') + ')' : ''}` : 'поступлений нет'}${+x.out ? `, ушло <span class="minus">−${num(+x.out)}</span>` : ''} <span class="na">(${esc(bkSrc(x).short)})</span>`, '']));
     if (G && G.connected) G.rows.forEach((r) => (r.bank || []).filter((b) => b.date >= since).forEach((b) => L.push(['✓', `Оплата по таблице Лены: <b>${esc(r.client)}</b> <span class="plus">+${num(b.amount)}</span>, банк ${dmY(b.date)}`, 'ok'])));
+    const GC = D.garanty_changes;
+    if (GC && GC.date >= since) GC.items.forEach((x) => L.push(['Δ', `Таблица Лены: <b>${esc(x.client || x.id)}</b> — ${esc(x.text)}`, '']));
     const nw = T.filter((t) => !t.fromSummary && addedYmd(t) >= since && isOpen(t));
     nw.slice(0, 3).forEach((t) => L.push(['+', `Новое дело: <button class="link" style="margin:0;font-size:inherit" data-wk="${esc(t.id)}">${esc(t.short)}</button> · ${esc(t.who === 'я' ? 'за вами' : t.who === 'клиент' ? 'ждём клиента' : 'ведёт ' + t.who)}`, '']));
     if (nw.length > 3) L.push(['+', `Ещё ${plural(nw.length - 3, 'новое дело', 'новых дела', 'новых дел')} — во «Всех делах»`, '']);
@@ -1317,15 +1334,32 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <div class="rows"><div class="ln" style="padding:10px 14px"><b>Действие: уточнить даты ${plural(a.length, 'обещания', 'обещаний', 'обещаний')}.</b> Кто: Лена ставит срок в своей таблице (столбец срока). Срок контроля: следующий обмен с таблицей. Даты за неё не ставим, клиентам не пишем.</div>
       ${lim('nodate', a, 8).map((r) => `<div class="tr" style="display:grid;grid-template-columns:1fr auto;gap:8px;padding:8px 14px;border-top:1px solid var(--line)"><span>${esc(r.client)}${r.doc ? ' · ' + esc(r.doc) : ''} <span class="na">${esc(r.id || '')}${r.month ? ', ' + mon(r.month) : ''}</span>${srcDet(r.src || '')}</span><span class="r num">${rubX(Number(r.remain ?? r.amount) || 0)}</span></div>`).join('')}</div>${moreBtn('nodate', a, 8)}</section>`;
   }
+  // Обязательные платежи на текущий и следующий месяц: прогноз «Бухгалтерии», принятый Ольгой; без подрядчиков, переводов в ИП, ГлавУпДК и ЗП Лены
+  const CATP = {zp: 'зарплата и ЕНП', svc: 'сервисы', rent: 'аренда', ip: 'ИП'};
+  function payHTML() {
+    const P = D.platezhi, ym = FRESH.todayYmd.slice(0, 7);
+    const head = (c) => `<section class="sec" id="platezhi"><div class="sh"><h2>Обязательные платежи: ближайшие 2 месяца</h2><span class="c">${c}</span></div>`;
+    if (!P) return head('прогноз Бухгалтерии не получен') + '<div class="hint">Файл прогноза платежей не найден, цифр нет.</div></section>';
+    const M = P.months.filter((m) => m.ym >= ym).slice(0, 2);
+    if (!M.length) return head(esc(P.file)) + `<div class="hint">В прогнозе нет месяцев с ${MONTHS[+ym.slice(5, 7) - 1]}: нужен следующий план Бухгалтерии.</div></section>`;
+    const am = (r) => Number(r.amount) ? (r.approx ? '≈ ' : '') + num(r.amount) : '0';
+    const card = (m) => { const per = [...new Set(m.rows.map((r) => r.period))];
+      return `<div class="pc2"><h3>${cap(MONTHS[+m.ym.slice(5, 7) - 1])} ${m.ym.slice(0, 4)}<b>${num(m.total)}</b></h3>${m.note ? `<div class="hint" style="color:var(--warn)">${esc(m.note)}</div>` : ''}
+        ${per.map((p) => `<div class="pp">${esc(p)}</div>${m.rows.filter((r) => r.period === p).map((r) => `<div class="pi${Number(r.amount) ? '' : ' z'}"><span>${esc(r.item)}${CATP[r.category] ? ` <span class="hint">· ${CATP[r.category]}</span>` : ''}</span><span class="num">${am(r)}</span>${r.note ? `<small>${esc(r.note)}</small>` : ''}</div>`).join('')}`).join('')}</div>`; };
+    const pers = P.personal.length ? `<div class="hint" style="padding:10px 0 0"><b>Личное, вне итога:</b> ${P.personal.map((x) => `${esc(x.item)}${x.due ? ' до ' + esc(x.due) : ''} ≈ ${num(x.amount)}${x.alt ? ' (≈ ' + num(x.alt) + ' при смене страховой)' : ''}`).join('; ')}</div>` : '';
+    return head(`прогноз Бухгалтерии${P.accepted ? ', принят Ольгой ' + esc((P.accepted.match(/\d{2}\.\d{2}\.\d{4}/) || [P.accepted])[0]) : ''}`) + `<div class="pm">${M.map(card).join('')}</div>${pers}
+      ${P.excluded.length ? `<div class="hint" style="padding:6px 0 0">Не входят: ${P.excluded.map(esc).join(', ')}. «≈» — сумма по последним платежам.</div>` : ''}</section>`;
+  }
   function moneyTab() {
     const g = money(), o = T.filter(isOpen);
     const list = o.filter((t) => t.a > 0 && (mf ? t.money === mf : true)).sort((x, y) => y.a - x.a);
     const adv = o.filter((t) => /аванс/i.test(t.title) && /без акт/i.test(t.title)), advS = adv.reduce((x, t) => x + t.a, 0);
     const nd = noDateHTML();
     // На телефоне вкладка длинная (~10 000 px): быстрые переходы к разделам сверху
-    const J = [['weeks', '4 недели'], ...(nd ? [['nodate', 'Без срока']] : []), ['garanty', 'Таблица Лены'], ['garanty-all', 'Реестр гарантов'], ['fsa', 'Продления'], ['bank', 'Банк']];
+    const J = [['weeks', '4 недели'], ['platezhi', 'Платежи 2 мес.'], ...(nd ? [['nodate', 'Без срока']] : []), ['garanty', 'Таблица Лены'], ['garanty-all', 'Реестр гарантов'], ['fsa', 'Продления'], ['bank', 'Банк']];
     return `<nav class="jump" aria-label="Разделы вкладки">${J.map(([a, l]) => `<button class="link" data-go="money" data-anchor="${a}">${l}</button>`).join('')}</nav>
     ${weeksHTML()}
+    ${payHTML()}
     ${nd}
     ${lenaCard(true)}
     ${garMoney()}

@@ -196,6 +196,31 @@ def spisaniya():
     return {"built": p.get("built", ""), "note": p.get("note", ""), "confirmedNote": p.get("confirmed_note", ""), "rows": rows}
 
 
+PLATEZHI_JSON = os.environ.get("PLATEZHI", "/mnt/project-files/daily-control/platezhi-do-ng-2026.json")
+RU_MONTHS = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"]
+
+
+def platezhi():
+    """Обязательные платежи по месяцам (прогноз «Бухгалтерии», принят Ольгой). Нет файла — None, пульт пишет «не получен».
+
+    Строки идут как в файле; итог месяца берём из файла и сверяем с суммой строк (расхождение — в note, цифру не правим)."""
+    if not os.path.exists(PLATEZHI_JSON):
+        return None
+    with open(PLATEZHI_JSON, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    months = []
+    for ym, total in sorted((p.get("months") or {}).items()):
+        name = RU_MONTHS[int(ym[5:7]) - 1]
+        rows = [{"period": r.get("period") or "", "category": r.get("category") or "", "item": r.get("item") or "",
+                 "note": r.get("note") or "", "amount": r.get("amount"), "approx": bool(r.get("approx"))}
+                for r in p.get("rows", []) if str(r.get("month") or "").lower() == name]
+        s = sum(float(r["amount"] or 0) for r in rows)
+        months.append({"ym": ym, "total": total, "rows": rows,
+                       "note": "" if abs(s - float(total or 0)) < 1 else f"сумма строк {s:,.0f} не равна итогу файла".replace(",", " ")})
+    return {"accepted": p.get("accepted") or "", "file": os.path.basename(PLATEZHI_JSON), "total": p.get("total"),
+            "months": months, "excluded": p.get("excluded") or [], "personal": p.get("personal") or []}
+
+
 def buh_plan():
     """Регулярные платежи и остаток от «Бухгалтерии» (svodka/buh-plan.json). Её tasks не берём: дела идут из db."""
     if not os.path.exists(BUH_PLAN_JSON):
@@ -394,6 +419,13 @@ def buh_sources(sp, bs, bp=None, bank=None):
 
 
 GARANTY_DIR = os.environ.get("GARANTY_DIR", "/mnt/project-files/daily-control/garanty-leny")
+
+
+def garanty_changes():
+    """Сводка «что изменилось в гарантах за сутки» (шаг 6a, scripts/izmeneniya_garanty.py); нет — None."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import izmeneniya_garanty
+    return izmeneniya_garanty.latest(os.path.join(GARANTY_DIR, "izmeneniya"), datetime.now(MSK).strftime("%Y-%m-%d"))
 
 
 def garanty(tasks, bank):
@@ -818,6 +850,8 @@ def main():
     data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "bank": bank, "buh_sources": buh_sources(sp, bs, bp, bank)})
     data["garanty"] = garanty(tasks, bank)
     data["bank_month"] = bank_month()
+    data["platezhi"] = platezhi()
+    data["garanty_changes"] = garanty_changes()
     data["income"] = income()
     data["vypiska"] = vypiska()
     data["ohvat"] = ohvat_journal() or ohvat()
