@@ -186,9 +186,11 @@ def month_tabs(sheet):
 def month_rows(sheet, tab):
     """Строки данных листа месяца: [(номер строки, значения)], от шапки «ID» до блока итогов."""
     rows = sheet[tab]
-    head = next((i for i, x in enumerate(rows) if text(cell(x, 0)) == "ID"), None)
+    # шапка: «ID» в A или «Клиент» в B (A1 бывает случайно стёрт — 04.11 в «Октябрь 2026» стоял пробел)
+    head = next((i for i, x in enumerate(rows) if text(cell(x, 0)) == "ID" or text(cell(x, 1)) == "Клиент"), None)
     if head is None:
-        return []
+        # без шапки строки листа не прочитать; пустой результат пометил бы все строки месяца «пропавшими»
+        raise SystemExit(f"лист «{tab}»: не найдена шапка (ID / Клиент) — реестр не меняю")
     out = []
     for n, x in enumerate(rows[head + 1:], start=head + 2):
         if text(cell(x, 0)).upper().startswith(FOOTER):
