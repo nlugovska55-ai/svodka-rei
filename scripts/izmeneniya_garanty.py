@@ -16,7 +16,7 @@ import sys
 
 DIR = os.environ.get("GARANTY_DIR", "/mnt/project-files/daily-control/garanty-leny")
 MSK = dt.timezone(dt.timedelta(hours=3))
-FIELDS = {"stage": "Этап", "month": "Месяц", "question": "Вопрос", "amount": "Сумма", "due": "Срок оплаты",
+FIELDS = {"stage": "Этап", "month": "Месяц", "question": "Комментарий", "amount": "Сумма", "due": "Срок оплаты",
           "client": "Клиент", "service": "Услуга", "doc": "Договор", "manager": "Менеджер", "owner": "Ответственный",
           "next": "Что сделать", "maket": "Макет ДС", "received": "По данным менеджера"}
 EDIT_RX = re.compile(r"^(\w+) '(.*)' → '(.*)'(?: \((.+)\))?$", re.S)
