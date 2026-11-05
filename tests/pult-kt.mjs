@@ -74,6 +74,11 @@ try {
     check('«Сегодня от Ольги»: все дела waiting Ольга/я, несверенное с меткой, сумма/место/срок/ссылка', o.join() === 'kt-o1,kt-o2' && /12\s345/.test(o1) && /Диадок/.test(o1) && /завтра/.test(o1) && !/не сверено/.test(o1) && /не сверено сегодня/.test(o2) && /1С/.test(o2) && !!(await p.$('.s-do .rw[data-id="kt-o1"] a[href^="https://diadoc"]')), `${o.join()} | ${o1.replace(/\s+/g, ' ')} | ${o2.replace(/\s+/g, ' ')}`);
     check('Открытые: дубли по dedupe и заголовку+ветке схлопнуты, у строки шаг и исполнитель', op.join() === 'kt-t1,kt-t3' && /Шаг: Шаг/.test(await p.innerText('.s-open')), op.join());
     check('Архив: без движения > 14 дней и archive сборщика', ar.length === 2 && ar.some((x) => /^kt-a1:.*без движения 20 дн/.test(x)) && ar.some((x) => /^kt-a2:.*закрыто 04\.11/.test(x)), ar.join(' | ').slice(0, 200));
+    // 05.11 (Ольга: «в части карточек одни команды, в части другие»): одинаковые команды в строках всех вкладок и в карточке дела
+    const sets = new Set(); for (const tb of ['utro', 'kontrol', 'all']) { await go(p, '#' + tb); (await p.$$eval('.rw', (x) => x.map((e) => [...e.querySelectorAll('[data-act],[data-cmt]')].map((q) => q.textContent.trim()).join('/')))).forEach((k) => sets.add(k)); }
+    await go(p, '#utro'); await p.click('.s-open .rw .st'); await p.waitForTimeout(400); const dr = await p.$$eval('[data-dact]', (x) => x.map((q) => q.textContent.trim()).join('/'));
+    check('Одинаковые команды во всех строках и в карточке: Я выполнила / Поручить Claude / Комментарий', sets.size === 1 && [...sets][0] === 'Я выполнила/Поручить Claude/Комментарий' && dr.startsWith('Я выполнила/Поручить Claude/Комментарий/'), [...sets].join(' | ') + ' · карточка: ' + dr);
+    await p.keyboard.press('Escape');
     DATA = REAL; }
   // 4b. Находки Codex по 130ce26 на настоящих данных
   await go(p, '#money'); const bank = await p.innerText('#bank'), wks = await p.innerText('#weeks'), nd = await p.$('#nodate') ? await p.innerText('#nodate') : '';
