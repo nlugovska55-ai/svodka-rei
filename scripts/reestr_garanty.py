@@ -166,7 +166,8 @@ def save(path, data):
 def find_row(st, month, src, used):
     """Та же строка того же месяца (по ключу и порядку повторов); иначе открытая строка прошлых месяцев (перенос остатка)."""
     ck, dk, sk = client_key(src["client"]), doc_key(src["doc"]), compact(src["service"])
-    same = [r for r in st["rows"] if r["month"] == month and r["ck"] == ck and r["dk"] == dk and r["sk"] == sk and r["id"] not in used]
+    # строка, перенесённая в таблице в другой месяц (02.11: неоплаченные октября → ноябрь), остаётся той же строкой файла своего месяца
+    same = [r for r in st["rows"] if (r["month"] == month or month in r.get("seen", [])) and r["ck"] == ck and r["dk"] == dk and r["sk"] == sk and r["id"] not in used]
     if same:
         return same[0], "тот же месяц"
     if dk != "|":
@@ -254,14 +255,16 @@ def sync(paths, mtime, bank_path, today):
                     if upd:
                         log(st, f"{r['id']}: у Лены изменилось {r['stage']} {r['amount']} → {upd.get('stage', r['stage'])} {upd.get('amount', r['amount'])}")
                         r.update(upd)
-                r.update(source=f"{fname}, стр. {src['row']}", checked=today.isoformat(), gone="")
+                note = r["source"].split("; ", 1)[1] if r["source"].startswith(fname + ",") and "; " in r["source"] else ""
+                r.update(source=f"{fname}, стр. {src['row']}" + (f"; {note}" if note else ""), checked=today.isoformat(), gone="")  # пояснение к строке не теряется
             used.add(r["id"])
             upsert_lena_payment(st, r, src, fname)
             if src["D"] and src["E"]:
                 r["question"] = (f"В строке {src['row']} файла Лены и ожидаемая {src['D']:_.0f}, и пришедшая {src['E']:_.0f}. "
                                  f"Это частичная оплата или другой ввод? Остаток не уменьшен до подтверждения.").replace("_", " ")
         for r in st["rows"]:
-            if r["month"] == month and r["id"] not in used and not r["gone"]:
+            # строки Ольги (по выписке, заказы портала) в файле Лены не бывают — «пропала» к ним не относится
+            if r["month"] == month and r["id"] not in used and not r["gone"] and r.get("owner", "Лена") == "Лена":
                 r["gone"] = today.isoformat()
                 log(st, f"{r['id']}: строки больше нет в {fname} — оставлена в реестре с пометкой")
         D = sum(x["D"] or 0 for x in recs)
