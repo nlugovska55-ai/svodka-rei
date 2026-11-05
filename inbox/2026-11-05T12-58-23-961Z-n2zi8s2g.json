@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-05T12:58:24.909Z",
+  "batchId": "2026-11-05T12-58-23-961Z-n2zi8s2g",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Подоприхин",
+      "taskId": "lm0511-podoprikhin-original",
+      "taskTitle": "Отправить письмо Александру про акт",
+      "text": "я отправила",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-11-05T12:58:18.956Z",
+      "eid": "emw3jx2h87ax32gqf"
+    }
+  ]
+}
