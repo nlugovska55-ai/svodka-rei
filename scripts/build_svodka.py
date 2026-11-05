@@ -761,6 +761,22 @@ def is_login_ask(row):
     return bool(LOGIN_RE.search(" ".join(str(row.get(k) or "") for k in ("title", "short", "text", "next", "detail"))))
 
 
+# Правило Ольги (§13 п.9, 05.11): ожидания нажатий Ольги и служебные дела веток на пульт не ставим.
+# «Нажми «Отправить», дай «да», введи код, открой сайт, вставь текст в ветку» — только чат и kontrol/nuzhno-ot-olgi.md.
+# kind «press» (ждём только нажатия Ольги) и «service» (работа веток над системой) пульт не показывает никогда;
+# дело без пометки, где ход Ольги и в next/short просьба нажать, тоже снимается, а сборка печатает его id ветке-владельцу.
+HIDDEN_KINDS = {"press", "service"}
+PRESS_RE = re.compile(r"нажать «|нажмите «|нажать на «|дать «да»|дайте «да»|вашего «да»|ваше «да»|ввести код|введите код|вставить в (чат|ветк)|открыть [^.;]{0,60} в (яндекс|chrome|хром)", re.I)
+
+
+def is_press_wait(row):
+    if (row.get("kind") or "") in HIDDEN_KINDS:
+        return True
+    if "waiting" in row and row.get("waiting") not in ("я", "Ольга", ""):
+        return False  # ход команды или клиента: дело настоящее, даже если в тексте упомянуто нажатие
+    return bool(PRESS_RE.search(" ".join(str(row.get(k) or "") for k in ("short", "text", "next"))))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("db_dir")
@@ -826,6 +842,7 @@ def main():
             "payment": t.get("payment") or "",
             "dedupe": t.get("dedupe") or "",
             "cat": t.get("cat") or "",
+            "kind": t.get("kind") or "",  # press / service — на пульт не идут (§13 п.9)
             # reference — справочная сумма (погашено/история): пульт не считает её деньгами в пути
             "amountKind": t.get("amountKind") or "",
             "amountNote": (t.get("amountNote") or "").strip(),
@@ -838,6 +855,11 @@ def main():
         raise ValueError("summary должен быть списком объектов; прежняя сводка сохранена")
     tasks = [t for t in tasks if not is_login_ask(t)]
     summary = [r for r in summary if not is_login_ask(r)]
+    press = [t["id"] for t in tasks if is_press_wait(t)]
+    if press:
+        print("снято с пульта (§13 п.9: нажатие Ольги или служебное дело): " + ", ".join(press), file=sys.stderr)
+    tasks = [t for t in tasks if not is_press_wait(t)]
+    summary = [r for r in summary if r.get("section") == "Автоматика" or not is_press_wait(r)]
     data = {
         "updated": datetime.now(MSK).strftime("%Y-%m-%dT%H:%M:%S+03:00"),
         "tasks": tasks,
