@@ -273,6 +273,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
 .st em{display:block;font-style:normal;font-size:13.5px;font-weight:700;color:var(--brand);letter-spacing:.02em}.smore2{margin:10px 0 0;font-size:15px}
 .tab .lg{white-space:nowrap}
 .sempty{color:var(--muted);font-size:15px;padding:6px 0}
+.nsv{color:var(--warn);font-weight:600}.olink{margin:0;font-size:14.5px;white-space:nowrap;align-self:center}.s-open,.s-arch{margin-top:16px}.s-arch summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}.s-arch summary::-webkit-details-marker{display:none}.s-arch summary h2{margin:0}.s-arch summary::after{content:' ▸';color:var(--muted)}.s-arch[open] summary::after{content:' ▾'}.s-open .rw.sr .row,.s-arch .rw.sr .row{grid-template-columns:minmax(0,1fr) auto}
 .smore{justify-self:start}
 @media (max-width:820px){.sgrid{grid-template-columns:minmax(0,1fr);grid-template-areas:'do' 'side'}.rw.sr .row{grid-template-columns:minmax(0,1fr) auto}.rw.sr .row{grid-template-columns:auto 1fr;gap:10px;align-items:center}.rw.sr .st{grid-column:1/-1}.rw.sr .sd{grid-row:2}}
 /* «Сегодня»: разделы карточками и деньги полосами */
@@ -567,6 +568,10 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       T.push({id: 'sum-' + (s.id || i), verified: verifiedRow(s), checked: s.checked, src: s.src, title: txt, short, detail: dec ? rest2.replace(dec[0], '').trim() || rest2 : rest2, next: '', cl: s.client || (isTopic ? head : 'Нужно от вас'), client: s.client || '', internal: !s.client && !isTopic,
         a: 0, dd: null, who: 'я', hot: s.flag === 'срочно', urg: 'сегодня', section: 'Нужно от вас', fromSummary: true, link: s.link || '', thread: s.thread || '', mgr: 'Ольга', owner: 'Утро и задачи'});
     });
+    // 05.11 (Ольга, «в куче»): одно дело — одна строка. Дубль = тот же id, тот же dedupe или тот же заголовок того же клиента из той же ветки
+    const dk = new Set();
+    T = T.filter((t) => { const ks = ['i:' + t.id, t.dedupe ? 'd:' + String(t.dedupe).trim() : '', t.title && (t.origin || t.thread) ? 't:' + String(t.title).toLowerCase().replace(/[^a-zа-яё0-9]+/g, ' ').trim() + '|' + (t.client || '') + '|' + (t.origin || t.thread) : ''].filter(Boolean);
+      if (ks.some((k) => dk.has(k))) return false; ks.forEach((k) => dk.add(k)); return true; });
   }
   // «Отложить» прячет дело только до конца дня, «сделано» и «ждём клиента» — пока Claude не внесёт отметку в базу
   const isOpen = (t) => { const p = pend[t.id]; if (!p) return true; if (p.action === 'later') return mskYmd(p.ts) < mskYmd(now); return !['done', 'wait'].includes(p.action); };
@@ -1086,9 +1091,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const daySt = (t, shown) => gateMismatch(t) ? 'работа команды, но в шаге нужна Ольга: waiting не «Ольга», сверить' : !olgaStep(t) ? 'работа команды' : shown.has(t.id) ? 'на первом экране' : doneByIncome(t) ? 'снято: оплаты внесены по реестру поступлений'
     : delegated(t) ? 'поручено Claude' : t.who === 'Ольга' ? 'ждёт решения, нет в «Нужно от вас»' : utroCand(t) ? 'ещё проверенное, за пределами 5' : 'не сверено сегодня';
   function utro() {
-    // решение Ольги — её дело или дело команды, где следующий шаг начинается с «Ольга/Ольге»; на экран — только сверенные сегодня
-    // §14: дело с «ждём Ольгу» без «Нужно от вас» на первый экран не выносим — считаем его в «ваших» ниже
-    const m = pickUtro(), y = FRESH.todayYmd, dn = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
+    // 05.11: «Сегодня от Ольги» — все дела, где ждут Ольгу (waiting «Ольга»/«я»); сверку показывает метка, а не отбор
+    const y = FRESH.todayYmd, dn = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
     // 30.10 (штурм): суть дела не обрезаем многоточием — заголовок до двух строк, обрезка только у длинного пояснения
     const cut = (x, n) => x.length > n ? x.slice(0, n).replace(/[\s,;:(]+\S*$/, '') + '…' : x;
     const why = (t) => { if (act(t)) { const first = String(t.title || '').split(/(?<=[.!?])\s+/)[0] || ''; return cut(IMP.test(String(t.title || '').split(/(?<=[.!?])\s+/).filter(Boolean).pop() || '') && first ? first.replace(/[.]$/, '') : (t.short || full(t)), 120); } const x = String(t.why || t.next || t.detail || '').split(/(?<=[.;])\s|\s—\s|\s\(/)[0].replace(/[.;,]$/, ''); const nz = (v) => String(v || '').toLowerCase().replace(/[^а-яёa-z0-9]+/g, ' ').trim();
@@ -1101,25 +1105,32 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       // шаг команды «Ольге: …» — это и есть действие Ольги: берём его до первой точки с запятой
       const nx = /^Ольг[аеиу](?![а-яё])[:,]?\s*(.+)/i.exec(String(t.next || '')); return nx ? cut(nx[1].split(/;\s|\.\s/)[0].replace(/^./, (c) => c.toUpperCase()), 110) : ''; };
     const what = (t) => { const c = t.internal ? '' : niceCl(String(t.cl || t.client || '').replace(/\s*\(.*\)/, '')); return `${c ? `<em>${esc(c)}</em>` : ''}<b>${esc(act(t) || full(t))}</b>`; };
-    // когда и кем последний раз сверено: это запись ветки, а не свежий просмотр источника
-    const meta = (t) => { const tm = /(\d{1,2}:\d{2})/.exec(String(t.checked || '')); return `<small class="smeta">делаете вы${tm ? ' · запись ' + tm[1] : ''}</small>`; };
-    const btn = (t) => { const L = srcLink(t); return L ? `<a class="sbtn" href="${esc(L[0])}" target="_blank" rel="noopener">${/drafts/i.test(L[0]) ? 'Черновики' : 'Открыть'} ↗</a>` : `<button class="sbtn" data-act="done" aria-label="Я выполнила: ${esc(t.short)}">Я выполнила</button>`; };
-    // срок в блоке «сегодня» показываем, только если он не «сегодня»
-    const due = (t) => t.dd === 0 || t.dd === null ? '' : t.dd < 0 ? `<span class="sd late">срок был ${String(t.due || '').slice(0, 5)}</span>` : `<span class="sd">${dueShort(t)}</span>`;
-    // риторика: заголовок «Сделать сегодня» обещает сегодняшнее — дела со сроком позже идут под отдельным подзаголовком
-    const rowS = (t) => `<div class="rw sr" data-id="${esc(t.id)}"><div class="row"><button class="st" data-open>${what(t)}${why(t) ? `<span>${esc(why(t))}</span>` : ''}${meta(t)}</button>${due(t)}${btn(t)}</div></div>`;
-    const mT = m.filter((t) => isToday(t)), mL = m.filter((t) => !isToday(t));
-    const todo = m.length ? (mT.length ? mT.map(rowS).join('') : `<div class="sempty">На сегодня проверенных решений от вас нет.</div>`) + (mL.length ? `<details class="sweek"><summary class="ssub">На неделе: ${mL.length}</summary>${mL.map(rowS).join('')}</details>` : '')
-      : `<div class="sempty">На сегодня проверенных решений от вас нет.</div>`;
-    // 30.10 (Codex, адвокат дьявола): несверенное не показываем как дело, но и не прячем — одна строка со счётом и ближайшим сроком
-    const unv = unverified().sort((a, b) => (a.dd ?? 999) - (b.dd ?? 999)), nx = unv.find((t) => t.dd !== null && t.dd <= 7);
-    // 30.10 (Codex): критерий первого экрана виден — сколько всего дел на сегодня и просроченных, сколько показано и почему остальные не здесь
-    const dayAll = T.filter((t) => isOpen(t) && isToday(t)), shownIds = new Set(m.map((t) => t.id));
-    const restSt = {}; dayAll.filter((t) => olgaStep(t) && !shownIds.has(t.id)).forEach((t) => { const k = daySt(t, shownIds).split(/[,(]/)[0].trim(); restSt[k] = (restSt[k] || 0) + 1; });
-    const SHORT = {'не сверено сегодня': 'не сверено', 'ждёт решения': 'ждут решения вне списка', 'ещё проверенное': 'ещё проверенные', 'поручено Claude': 'поручено', 'снято: оплаты внесены по реестру поступлений': 'снято по реестру'};
-    const myRest = Object.values(restSt).reduce((a, b) => a + b, 0), team = dayAll.filter((t) => !olgaStep(t)).length;
-    const myTxt = Object.entries(restSt).map(([k, n]) => `${SHORT[k] || k} ${n}`).join(', ');
-    const more = dayAll.length ? `<button class="link smore2" data-go="kontrol" data-anchor="daylist">Ещё ${dayAll.length - dayAll.filter((t) => shownIds.has(t.id)).length} на сегодня и просрочено${myRest ? `: ваших ${myRest} (${myTxt})` : ''}${team ? `${myRest ? ',' : ':'} ${team} у команды` : ''}${dayAll.filter(gateMismatch).length ? ` (у ${dayAll.filter(gateMismatch).length} в шаге нужна Ольга, waiting не проставлен)` : ''} →</button>` : '';
+    // 05.11 (Ольга: «пульт нерабочий, всё старое и в куче»): верх — все дела, где ждут Ольгу; несверенное не прячем, а помечаем.
+    // Ниже — открытые дела команды (один шаг, исполнитель, срок, ссылка), закрытые и застывшие > 14 дней — в «Архив».
+    const okR = (t) => t.verified || verifiedRow(t);
+    const olgaNow = (t) => t.waiting === 'Ольга' || (t.who === 'я' && !/^Ольг[аеиу]\s+\d/i.test(String(t.next || '')));
+    const PLACE = [[/diadoc|диадок|(^|[^а-яё])эдо([^а-яё]|$)/i, 'Диадок'], [/alfa|альф/i, 'Альфа'], [/tochka|точк[аеиу]-?банк|банк[а-яё]*\s+«?точк/i, 'Точка'], [/(^|[^0-9a-zа-яё])1[сc]([^0-9a-zа-яё]|$)|бухгалтери/i, '1С'], [/95\.84\.156\.117|\/orders\/|портал/i, 'Портал'], [/docs\.google|таблиц/i, 'Google-таблица'], [/outlook|почт|черновик|письм|mail/i, 'Почта']];
+    const place = (t) => { for (const x of [t.link, String(t.next || '').split(/[.;]\s/)[0], t.src]) { const h = PLACE.find(([r]) => r.test(String(x || ''))); if (h) return h[1]; } return t.thread ? 'ветка «' + t.thread + '»' : ''; };
+    const dueS = (t) => t.dd !== null && t.dd < 0 ? `<span class="late">${dueShort(t)}</span>` : esc(dueShort(t));
+    // ссылка — своя у дела, иначе по месту текущего шага (слово «черновик» в истории дела ссылку на почту не даёт)
+    const PURL = {'Диадок': 'https://diadoc.kontur.ru/', 'Почта': 'https://e.mail.ru/drafts/', 'Портал': 'http://95.84.156.117:3839/projects/orders/'};
+    const linkB = (t) => { const u = /^https?:\/\//.test(t.link || '') ? t.link : PURL[place(t)]; return u ? `<a class="sbtn" href="${esc(u)}" target="_blank" rel="noopener">${/drafts/i.test(u) ? 'Черновики' : 'Открыть'} ↗</a>` : ''; };
+    const rowO = (t) => `<div class="rw sr" data-id="${esc(t.id)}"><div class="row"><button class="st" data-open>${what(t)}${why(t) ? `<span>${esc(why(t))}</span>` : ''}<small class="smeta">${[t.a ? esc(num(t.a)) : '', esc(place(t)), dueS(t)].filter(Boolean).join(' · ')}${okR(t) ? '' : ' · <span class="nsv">не сверено сегодня</span>'}</small></button>${linkB(t) || `<button class="sbtn" data-act="done" aria-label="Я выполнила: ${esc(t.short)}">Я выполнила</button>`}</div></div>`;
+    const step1 = (t) => cut(String(t.next || '').replace(/^Шаг\s+/i, '').split(/(?<=[.;])\s|\s→\s/)[0].replace(/[.;]$/, ''), 140);
+    const rowT = (t) => `<div class="rw sr" data-id="${esc(t.id)}"><div class="row"><button class="st" data-open><b>${esc((t.internal ? '' : niceCl(t.cl) + ': ') + t.short)}</b>${step1(t) ? `<span>Шаг: ${esc(step1(t))}</span>` : ''}<small class="smeta">${esc(whoTxt(t))} · ${dueS(t)}${t.a ? ' · ' + esc(num(t.a)) : ''}${t.archived ? ' · ' + esc(t.archived) : ''}</small></button>${linkB(t).replace('class="sbtn"', 'class="link olink"') || '<span></span>'}</div></div>`;
+    // последнее движение: самая поздняя дата из updatedAt / lastMove / чтения / записи сверки / создания
+    const moveYmd = (t) => [t.updatedAt, t.lastMove, t.sourceCheckedAt, t.checked, t.added].map((v) => { const x = String(v || ''); let r = /^(\d{4})-(\d{2})-(\d{2})/.exec(x); if (r) return r[0];
+      r = /^(\d{1,2})\.(\d{1,2})(?:\.(\d{4}))?/.exec(x); if (!r) return ''; const mo = +r[2], yr = r[3] ? +r[3] : mo > +y.slice(5, 7) + 1 ? +y.slice(0, 4) - 1 : +y.slice(0, 4); return yr + '-' + p2(mo) + '-' + p2(+r[1]); }).filter(Boolean).sort().pop() || '';
+    const idle = (t) => { const d = moveYmd(t); return d ? Math.round((Date.parse(y) - Date.parse(d)) / 864e5) : null; };
+    // архив: признак сборщика (archive/archived) или закрыто отметкой «сделано», или без движения больше 14 дней
+    const arch = (t) => t.archive === true ? (t.archiveReason || 'в архиве по сборке') : typeof t.archived === 'string' && t.archived ? t.archived : (pend[t.id] || {}).action === 'done' ? 'закрыто: отмечено «сделано»' : idle(t) !== null && idle(t) > 14 ? `без движения ${idle(t)} дн` : '';
+    const byDue = (a, b) => (a.dd ?? 999) - (b.dd ?? 999) || b.a - a.a;
+    const olga = T.filter((t) => isOpen(t) && olgaNow(t)).sort((a, b) => (okR(b) - okR(a)) || byDue(a, b));
+    const archL = T.filter((t) => !olgaNow(t) && arch(t)).map((t) => ({...t, archived: arch(t)})).sort(byDue);
+    const archIds = new Set(archL.map((t) => t.id)), openL = T.filter((t) => isOpen(t) && !olgaNow(t) && !archIds.has(t.id)).sort(byDue);
+    const todo = olga.length ? olga.map(rowO).join('') : '<div class="sempty">Ваших шагов сейчас нет.</div>';
+    const openH = `<div class="sbox s-open"><h2>Открытые дела <span class="h2n">${openL.length}</span></h2><div class="sm-h">у каждого один следующий шаг, исполнитель и срок; сначала просроченные</div>${openL.length ? lim('open', openL, 12).map(rowT).join('') + moreBtn('open', openL, 12) : '<div class="sempty">Открытых дел нет.</div>'}</div>`;
+    const archH = archL.length ? `<details class="sbox s-arch"><summary><h2>Архив <span class="h2n">${archL.length}</span></h2><span class="sm-h">закрытые и без движения больше 14 дней</span></summary>${lim('arch', archL, 20).map(rowT).join('')}${moreBtn('arch', archL, 20)}</details>` : '';
     // Деньги: пришло по банку вчера и сегодня, только от клиентов
     const BK = (D.bank && D.bank.days) || [], prev = addD(y, -1 - (new Date(y + 'T12:00:00Z').getUTCDay() === 1 ? 2 : 0));
     const INC = Array.isArray(D.income) ? D.income : null, key = (x) => niceCl(x).toLowerCase().replace(/[^а-яёa-z0-9]/g, '');
@@ -1158,11 +1169,12 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const top = [...wait.entries()].filter(([k]) => !paid.has(ak(k))).sort((a, b) => ((a[1].d && a[1].d <= y) ? 0 : 1) - ((b[1].d && b[1].d <= y) ? 0 : 1) || b[1].a - a[1].a).slice(0, 5), tot = top.reduce((x, [, w]) => x + w.a, 0);
     return `<section class="simple">
       <div class="sday">${cap(dn)}</div>${ohvatLine()}
-      <div class="sgrid${m.length < 3 ? ' few' : ''}">
-      <div class="sbox s-do"><h2>Сделать сегодня</h2>${todo}${more}</div>
+      <div class="sgrid${olga.length < 3 ? ' few' : ''}">
+      <div class="sbox s-do"><h2>Сегодня от Ольги <span class="h2n">${olga.length}</span></h2>${olga.length ? `<div class="sm-h">все дела, где ждут вас; сверено сегодня ${olga.filter(okR).length} из ${olga.length}</div>` : ''}${todo}</div>
       <div class="s-side"><div class="sbox s-money"><h2>Деньги</h2>${dayH()}${portal}</div>
       <div class="sbox s-wait"><h2>Ждём оплату${tot ? ` <span class="h2n">${num(tot)}</span>` : ''}</h2>${top.length ? top.map(([k, w]) => `<div class="sl"><span>${esc(k)}<small${w.d && w.d <= y ? ' class="late"' : ''}>${w.d ? (w.d <= y ? 'контроль сегодня' : 'контроль ' + dmY(w.d)) + ' · ' : ''}${w.src}${w.why ? ': ' + esc(w.why.replace(/^получить оплату /i, '').replace(/^по акту/i, 'акт')) : ''}</small></span><b>${num(w.a)}</b></div>`).join('') : `<div class="sempty">Сверенных сегодня ожиданий оплаты нет. Все ожидания — в <button class="link" data-go="money" style="margin:0">«Прогноз денег»</button>.</div>`}</div></div>
       </div>
+      ${openH}${archH}
       <nav class="slinks"><button class="link" data-go="all">Все дела</button><button class="link" data-go="kontrol">Контроль</button><button class="link" data-go="money">Прогноз денег</button>${D.garanty && D.garanty.source && D.garanty.source.url ? `<a class="link" href="${esc(D.garanty.source.url)}" target="_blank" rel="noopener">Таблица Лены ↗</a>` : ''}</nav>
     </section>`;
   }

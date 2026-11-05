@@ -57,6 +57,24 @@ try {
   const after = await p.evaluate(() => localStorage.getItem('svodka-pending') + '|' + localStorage.getItem('svodka-outbox'));
   check('«Отмена» в диалоге: ни отправки, ни отметки, дело на месте', btn && posts === 0 && before === after && !!(await p.$(`.rw[data-id="${id}"]`)), `отправок ${posts}, хранилище ${before === after ? 'не изменилось' : 'изменилось'}`);
   DATA = REAL;
+  // 05.11 (Ольга: «нерабочий, всё старое и в куче»): «Сегодня от Ольги» — все дела waiting Ольга/я, несверенные с меткой;
+  // дубли (тот же dedupe / заголовок+ветка) — одна строка; без движения > 14 дней и archive от сборщика — в «Архив»
+  { const R = JSON.parse(fs.readFileSync(REAL, 'utf8')), ymd = (n) => new Date(Date.now() + n * 864e5 + 3 * 36e5).toISOString().slice(0, 10), ru = (y) => y.slice(8, 10) + '.' + y.slice(5, 7) + '.' + y.slice(0, 4);
+    const base = {client: 'Тест', amount: 0, next: 'Шаг', thread: 'Утро', due: ru(ymd(1)), lastMove: ru(ymd(0)), added: ru(ymd(0))};
+    R.tasks = [{...base, id: 'kt-o1', title: 'Подписать акт Тест', waiting: 'Ольга', amount: 12345, link: 'https://diadoc.kontur.ru/x', sourceCheckedAt: new Date().toISOString(), sourceEvidence: 'Диадок'},
+      {...base, id: 'kt-o2', title: 'Ответить Тесту', waiting: 'я', next: 'Ольге ответить в 1С'},
+      {...base, id: 'kt-t1', title: 'Сверить Тест', waiting: 'Лена', dedupe: 'D1'}, {...base, id: 'kt-t2', title: 'Сверить Тест (копия)', waiting: 'Лена', dedupe: 'D1'},
+      {...base, id: 'kt-t3', title: 'Тот же заголовок', waiting: 'Claude', origin: 'X'}, {...base, id: 'kt-t4', title: 'Тот же  заголовок!', waiting: 'Claude', origin: 'X'},
+      {...base, id: 'kt-a1', title: 'Старое дело', waiting: 'клиент', lastMove: ru(ymd(-20)), added: ru(ymd(-30)), checked: ''},
+      {...base, id: 'kt-a2', title: 'Закрыто сборщиком', waiting: 'Лена', archive: true, archiveReason: 'закрыто 04.11'}];
+    R.summary = []; const f = path.join(CASES, 'utro.json'); fs.writeFileSync(f, JSON.stringify(R)); DATA = f; await go(p, '#utro');
+    const ids = (sel) => p.$$eval(sel + ' .rw', (x) => x.map((e) => e.dataset.id));
+    const o = await ids('.s-do'), op = await ids('.s-open'), ar = await p.$$eval('.s-arch .rw', (x) => x.map((e) => e.dataset.id + ':' + e.textContent.replace(/\s+/g, ' ')));
+    const o1 = await p.innerText('.s-do .rw[data-id="kt-o1"]'), o2 = await p.innerText('.s-do .rw[data-id="kt-o2"]');
+    check('«Сегодня от Ольги»: все дела waiting Ольга/я, несверенное с меткой, сумма/место/срок/ссылка', o.join() === 'kt-o1,kt-o2' && /12\s345/.test(o1) && /Диадок/.test(o1) && /завтра/.test(o1) && !/не сверено/.test(o1) && /не сверено сегодня/.test(o2) && /1С/.test(o2) && !!(await p.$('.s-do .rw[data-id="kt-o1"] a[href^="https://diadoc"]')), `${o.join()} | ${o1.replace(/\s+/g, ' ')} | ${o2.replace(/\s+/g, ' ')}`);
+    check('Открытые: дубли по dedupe и заголовку+ветке схлопнуты, у строки шаг и исполнитель', op.join() === 'kt-t1,kt-t3' && /Шаг: Шаг/.test(await p.innerText('.s-open')), op.join());
+    check('Архив: без движения > 14 дней и archive сборщика', ar.length === 2 && ar.some((x) => /^kt-a1:.*без движения 20 дн/.test(x)) && ar.some((x) => /^kt-a2:.*закрыто 04\.11/.test(x)), ar.join(' | ').slice(0, 200));
+    DATA = REAL; }
   // 4b. Находки Codex по 130ce26 на настоящих данных
   await go(p, '#money'); const bank = await p.innerText('#bank'), wks = await p.innerText('#weeks'), nd = await p.$('#nodate') ? await p.innerText('#nodate') : '';
   check('Банк: день по уведомлениям подписан источником и временем, не «по выписке»', /по уведомлениям до \d\d:\d\d, не выписка/.test(bank) && /на \d\d\.\d\d \d\d:\d\d, по уведомлениям/.test(bank) && !/сборка 29\.10\.2026 13:00/.test(bank), (bank.match(/Источник по дням[^\n]*/) || [''])[0]);
