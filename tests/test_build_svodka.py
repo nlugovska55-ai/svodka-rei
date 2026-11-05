@@ -228,6 +228,20 @@ class BuilderAcceptance(unittest.TestCase):
         self.assertEqual(("Claude", "edlg0001"), (row["waiting"], row["delegated"]))
 
 
+    def test_press_waits_and_service_never_reach_pult(self):
+        self.task("press", kind="press", waiting="я")
+        self.task("service", kind="service", waiting="Claude")
+        self.task("send", waiting="Ольга", next="Ольга: проверить черновик и нажать «Отправить»")
+        self.task("da", waiting="я", next="Ольга: в ветке «Новость» дать «да»")
+        self.task("team", waiting="Браузер", next="Браузер: черновик, потом Ольга нажать «Отправить»")
+        self.task("real", waiting="я", next="Ольга: получить акты у АП-РИАЛ до 31.12")
+        self.summary.write_text(json.dumps([
+            {"id": "p1", "section": "Проекты", "text": "правки сайта ждут вашего «да»"},
+            {"id": "p2", "section": "Проекты", "text": "Без изменений"}]), encoding="utf-8")
+        data = self.build()
+        self.assertEqual({"team", "real"}, {t["id"] for t in data["tasks"]})
+        self.assertEqual(["p2"], [r["id"] for r in data["summary"] if r.get("section") == "Проекты"])
+
     def test_automation_comes_from_status_file_and_registry(self):
         auto = self.root / "auto.json"
         auto.write_text(json.dumps([{"id": "auto-utro", "flag": "ok", "text": "Сводка выложена", "checked": "2026-10-29T19:20:18+03:00"}]), encoding="utf-8")
