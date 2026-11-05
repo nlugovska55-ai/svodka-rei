@@ -560,7 +560,8 @@ def trebovaniya(tasks, closed_ids):
 
 
 ACTIVE_STATUSES = {"open", "waiting", "wait", "expert"}
-KNOWN_STATUSES = ACTIVE_STATUSES | {"done", "closed", "handled"}
+# 05.11: «cancelled» (отменено) — закрытое дело; раньше сборка падала и пульт застывал на прошлой выкладке
+KNOWN_STATUSES = ACTIVE_STATUSES | {"done", "closed", "handled", "cancelled", "canceled"}
 
 
 def read_export(db_dir, allow_at_limit=False):
