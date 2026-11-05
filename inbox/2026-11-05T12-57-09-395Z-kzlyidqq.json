@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-05T12:57:10.454Z",
+  "batchId": "2026-11-05T12-57-09-395Z-kzlyidqq",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "АНО ИПБ",
+      "taskId": "ipb0511-prilozh3",
+      "taskTitle": "ИПБ: подписать приложение 3",
+      "text": "Z dsgjkybkf/ Gjxtve в части карточек одни команды, в части другие.",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-11-05T12:57:04.391Z",
+      "eid": "emw3jvgxz7ri2deob"
+    }
+  ]
+}
