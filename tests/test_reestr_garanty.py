@@ -155,6 +155,23 @@ class Reestr(unittest.TestCase):
         self.assertEqual(st["rows"][0]["month"], "2026-10-01")
         self.assertTrue(any("не дублируем" in j["msg"] for j in st["journal"]))
 
+    def test_row_moved_to_next_month_in_table_not_duplicated(self):
+        # 02.11: неоплаченные строки октября перенесены в таблице в ноябрь; Excel октября остаётся прежним
+        f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо квант", "дс", "1365 ле дс", 12000, None), ("ооо купер", "ик", "824 ле гост прил 48", 180000, None)])
+        self.run_sync(f)
+        st = self.st()
+        st["rows"][0]["month"] = "2026-11-01"
+        st["rows"][0]["source"] += "; пояснение Claude к строке"
+        st["rows"].append(dict(st["rows"][1], id="G-0099", ck="ольга", owner="Ольга", source="выписка"))
+        (self.state / "reestr.json").write_text(json.dumps(st, ensure_ascii=False), encoding="utf-8")
+        self.run_sync(f)
+        rows = {r["id"]: r for r in self.st()["rows"]}
+        self.assertEqual(len(rows), 3)
+        self.assertEqual(rows["G-0001"]["month"], "2026-11-01")
+        self.assertEqual(rows["G-0001"]["gone"], "")
+        self.assertIn("пояснение Claude к строке", rows["G-0001"]["source"])
+        self.assertEqual(rows["G-0099"]["gone"], "")
+
     def test_manual_total_mismatch_logged_rows_not_replaced(self):
         f = lena_file(self.dir / "октябрь 2026.xlsx", [("ооо квант", "дс", "1365 ле дс", 12000, None),
                                                       ("ооо чзмэк", "дс", "1240 ле дс прил 7", None, 15000)], total=(1240000, 1200600))
