@@ -45,6 +45,10 @@ class Izmeneniya(unittest.TestCase):
         self.assertEqual(items[0]["text"], "Этап: Гарант → Оплачено (правка в таблице); Месяц: окт. 2026 → ноя. 2026 (правка в таблице)")
         self.assertEqual(other, [])
 
+    def test_unquoted_amount_and_stage_words(self):
+        self.assertEqual(I.human("amount 58000.0 → 29000.0 (правка в таблице)"), "Сумма: 58 000 → 29 000 (правка в таблице)")
+        self.assertEqual(I.human("stage 'Гарант' → 'Пришло по Лене' (правка в таблице)"), "Этап: Гарант → Оплачено (отметил менеджер) (правка в таблице)")
+
     def test_empty_writes_no_changes(self):
         until = dt.datetime(2026, 11, 5, 9, 12, tzinfo=MSK)
         with tempfile.TemporaryDirectory() as d:
