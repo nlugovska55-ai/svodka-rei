@@ -91,6 +91,30 @@ class Ozhidaem(unittest.TestCase):
         self.assertEqual(sorted(x["client"] for x in f["firms"]), ["ООО «Виртекс» (Москва)", "ооо новый", "эм кабель"])
         self.assertEqual(f["total"]["amount"], 15000 + 175500 + 180000)
 
+    def test_bank_notifications_after_statement_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, "pochta-razbor-2026-11-06.md"), "w", encoding="utf-8") as fh:
+                fh.write("- Уведомления: Альфа 09:02 +20 000 Ферингер (прил. 16) ⇒ kl0611; ЖКХ «Точка Комфорта» 09:54 ЕПД\n"
+                         "- olga@ 12:46 Альфа: поступление +32 000 от ООО «СПБ СХМ», п/п 4178, остаток 176 503,10. ⇒ lk3010\n"
+                         "- olga@ 13:16 Альфа: списание −20 000 по документу № 265, остаток 156 314,10\n"
+                         "- Банки 11:09: Альфа без новых, Точка 54 077,03.\n"
+                         "- повтор: Альфа 09:02 +20 000 Ферингер (прил. 16)\n")
+            with open(os.path.join(d, "pochta-razbor-2026-11-05.md"), "w", encoding="utf-8") as fh:
+                fh.write("- Альфа 10:00 +99 000 Старый (уже в файле выписки)\n")
+            old, B.OBKHOD_DIR = B.OBKHOD_DIR, d
+            try:
+                got = B.bank_notifications("2026-11-05")
+            finally:
+                B.OBKHOD_DIR = old
+        self.assertEqual([(x["date"], x["amount"], x["payer"], x["pp"]) for x in got],
+                         [("2026-11-06", 20000.0, "Ферингер", ""), ("2026-11-06", 32000.0, "ООО СПБ СХМ", "4178")])
+        gar = {"rows": [{"id": "G-1", "client": "ооо завод ферингер", "amount": 20000.0, "stageReg": "Гарант", "bankSum": None, "month": "2026-11-01"}]}
+        tasks = [{"id": "m9", "cat": "pay", "client": "Ферингер", "amount": 20000, "waiting": "клиент", "due": "10.11.2026"}]
+        o = B.ozhidaem(gar, tasks, dt.date(2026, 11, 6), vyp={"items": got})
+        self.assertEqual(o["garanty"]["total"]["remain"], 0)
+        self.assertTrue(o["garanty"]["firms"][0]["rows"][0]["status"].startswith("пришло 06.11 по уведомлению банка"))
+        self.assertNotIn("m9", [r["id"] for f in o["prognoz"]["firms"] for r in f["rows"]])  # дело по уже пришедшему гаранту второй раз не считается
+
 
 if __name__ == "__main__":
     unittest.main()
