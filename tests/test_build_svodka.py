@@ -235,6 +235,7 @@ class BuilderAcceptance(unittest.TestCase):
         self.task("da", waiting="я", next="Ольга: в ветке «Новость» дать «да»")
         self.task("team", waiting="Браузер", next="Браузер: черновик, потом Ольга нажать «Отправить»")
         self.task("real", waiting="я", next="Ольга: получить акты у АП-РИАЛ до 31.12")
+        self.task("watch", kind="watch", status="wait", owner="Бухгалтерия", waiting="Лариса", next="ждём счёт Ларисы")
         self.summary.write_text(json.dumps([
             {"id": "p1", "section": "Проекты", "text": "правки сайта ждут вашего «да»"},
             {"id": "p2", "section": "Проекты", "text": "Без изменений"}]), encoding="utf-8")
