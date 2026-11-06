@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-06T10:56:25.252Z",
+  "batchId": "2026-11-06T10-56-22-531Z-7h3xbwuq",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Подоприхин",
+      "taskId": "podoprikhin0611-pasport",
+      "taskTitle": "ВкусВилл: Подоприхин просит паспорт на аппарат (проект 26.61-ТХ)",
+      "text": "И?",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-11-06T10:56:17.511Z",
+      "eid": "emw4uzzvr7sz9l5pj"
+    }
+  ]
+}
