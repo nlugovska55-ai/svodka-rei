@@ -225,6 +225,23 @@ class Google(unittest.TestCase):
         self.assertIn("не выбран клиент", out)
         self.assertFalse([p for p in self.st()["payments"] if p["id"].startswith("P-M-")])
 
+    def test_id_of_row_not_in_sheets_is_not_reused(self):
+        # 06.11: в новую строку ноября вписали ID G-0221 строки Купера (заведена Claude по акту, в листах не было) — Купер не затирается
+        st = self.st()
+        ermash = next(r for r in st["rows"] if "эрмаш" in r["client"])
+        kuper = dict(ermash, id="G-0099", client="ооо купер", ck="ооо купер", month="2026-09-01", seen=["2026-09-01"], exp={}, expPending={}, manual={})
+        st["rows"].append(kuper)
+        (self.state / "reestr.json").write_text(json.dumps(st, ensure_ascii=False), encoding="utf-8")
+        self.month_sheet("Ноябрь 2026", [[ermash["id"], ermash["client"], ermash["service"], "", ermash["doc"], "600 000", "⚪ Гарант"],
+                                         ["G-0099", "ао по севермаш", "дс тр тс 010", "", "941 прил 29", "20 000", "⚪ Гарант"]])
+        out = self.pull("2026-11-06")
+        self.assertIn("новых 1", out)
+        self.assertIn("«Ноябрь 2026», стр. 3: ID G-0099 занят строкой ооо купер", out)
+        r = {x["id"]: x for x in self.st()["rows"]}
+        self.assertEqual((r["G-0099"]["client"], r["G-0099"]["month"]), ("ооо купер", "2026-09-01"))
+        new = next(x for x in r.values() if x["client"] == "ао по севермаш")
+        self.assertNotEqual(new["id"], "G-0099")
+
     def test_month_change_dec_to_jan(self):
         self.new_row("ооо январь", "5 прил 1", 30000, "20.01.2027")
         self.round(today="2026-12-31")

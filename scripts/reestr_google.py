@@ -267,7 +267,7 @@ def from_months(st, sheet):
 
 def pull(st, sheet, today):
     tabs = month_tabs(sheet)
-    extra = {}
+    extra, where = {}, []
     if tabs:  # с 02.11 ввод — листы месяцев; «Реестр» скрыт и только для пульта
         sheet, where, extra = from_months(st, sheet)
     mode = st.setdefault("source", {"mode": "excel"})["mode"]
@@ -279,6 +279,13 @@ def pull(st, sheet, today):
     for n, row in enumerate(sheet.get("Реестр", [])[1:], start=2):
         rid = text(cell(row, 0))
         vals = read(row, FIELDS, n, problems)
+        old = rows.get(rid)
+        if old is not None and not old.get("exp") and vals.get("client") not in (None, KEEP, "") and R.client_key(vals["client"]) != old["ck"]:
+            # 06.11: в новую строку вписали ID строки, которой в таблице не было (G-0221 Купер → Севермаш): это новая строка, чужую не трогаем
+            at = f"«{where[n - 2][0]}», стр. {where[n - 2][1]}" if tabs and n - 2 < len(where) else f"«Реестр», стр. {n}"
+            R.log(st, f"{rid}: в таблице ({at}) этим ID подписана другая строка ({vals['client']}) — {rid} оставлен как был, строке дан новый ID")
+            problems.append(f"{at}: ID {rid} занят строкой {old['client']} — строке дан новый ID")
+            rid = ""
         if not rid:
             if not (vals.get("client") or vals.get("amount") not in (None, KEEP)):
                 continue
