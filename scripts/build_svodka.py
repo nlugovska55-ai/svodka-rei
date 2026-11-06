@@ -43,12 +43,14 @@ def money_of(t):
     return "ждём"
 
 
-SECTIONS = ("Мои клиенты", "Клиенты Лены", "Бухгалтерия", "Диадок", "Прочее")
+SECTIONS = ("Мои клиенты", "Клиенты Лены", "Бухгалтерия", "Диадок", "Прочее", "Личное")
 
 
 def section_of(t):
     if t.get("section") in SECTIONS:
         return t["section"]
+    if t.get("cat") == "personal":
+        return "Личное"  # 06.11 Ольга: «внеси в мои личные задачи, сделай такой блок» — не работа, свой блок на пульте
     cat, mgr = t.get("cat"), t.get("mgr")
     if cat in ("tax", "supplier") or t.get("owner") == "Лариса" or (cat == "pay" and not mgr):
         return "Бухгалтерия"
@@ -770,6 +772,8 @@ PRESS_RE = re.compile(r"нажать «|нажмите «|нажать на «|�
 
 
 def is_press_wait(row):
+    if row.get("section") == "Личное" and (row.get("kind") or "") != "service":
+        return False  # §13 п.12: личные дела Ольги она ведёт сама, блок «Личное» показывает и её шаги
     if (row.get("kind") or "") in HIDDEN_KINDS:
         return True
     if "waiting" in row and row.get("waiting") not in ("я", "Ольга", ""):

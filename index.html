@@ -1096,6 +1096,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   // статус дела в «На сегодня и просрочено» — по фактически показанным ID, а не по признаку «сверено»
   const daySt = (t, shown) => gateMismatch(t) ? 'работа команды, но в шаге нужна Ольга: waiting не «Ольга», сверить' : !olgaStep(t) ? 'работа команды' : shown.has(t.id) ? 'на первом экране' : doneByIncome(t) ? 'снято: оплаты внесены по реестру поступлений'
     : delegated(t) ? 'поручено Claude' : t.who === 'Ольга' ? 'ждёт решения, нет в «Нужно от вас»' : utroCand(t) ? 'ещё проверенное, за пределами 5' : 'не сверено сегодня';
+  // 06.11 (Ольга: «внеси в мои личные задачи, сделай такой блок»): личные дела — отдельный блок, не в «Сегодня от Ольги» и не в делах команды
+  const personal = (t) => t.section === 'Личное';
   function utro() {
     // 05.11: «Сегодня от Ольги» — все дела, где ждут Ольгу (waiting «Ольга»/«я»); сверку показывает метка, а не отбор
     const y = FRESH.todayYmd, dn = now.toLocaleDateString('ru-RU', {weekday: 'long', day: 'numeric', month: 'long'});
@@ -1131,11 +1133,14 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     // архив: признак сборщика (archive/archived) или закрыто отметкой «сделано», или без движения больше 14 дней
     const arch = (t) => t.archive === true ? (t.archiveReason || 'в архиве по сборке') : typeof t.archived === 'string' && t.archived ? t.archived : (pend[t.id] || {}).action === 'done' ? 'закрыто: отмечено «сделано»' : idle(t) !== null && idle(t) > 14 ? `без движения ${idle(t)} дн` : '';
     const byDue = (a, b) => (a.dd ?? 999) - (b.dd ?? 999) || b.a - a.a;
-    const olga = T.filter((t) => isOpen(t) && olgaNow(t)).sort((a, b) => (okR(b) - okR(a)) || byDue(a, b));
-    const archL = T.filter((t) => !olgaNow(t) && arch(t)).map((t) => ({...t, archived: arch(t)})).sort(byDue);
-    const archIds = new Set(archL.map((t) => t.id)), openL = T.filter((t) => isOpen(t) && !olgaNow(t) && !archIds.has(t.id)).sort(byDue);
+    const olga = T.filter((t) => isOpen(t) && olgaNow(t) && !personal(t)).sort((a, b) => (okR(b) - okR(a)) || byDue(a, b));
+    const archL = T.filter((t) => !olgaNow(t) && !personal(t) && arch(t)).map((t) => ({...t, archived: arch(t)})).sort(byDue);
+    const archIds = new Set(archL.map((t) => t.id)), openL = T.filter((t) => isOpen(t) && !olgaNow(t) && !personal(t) && !archIds.has(t.id)).sort(byDue);
     const todo = olga.length ? olga.map(rowO).join('') : '<div class="sempty">Ваших шагов сейчас нет.</div>';
     const openH = `<div class="sbox s-open"><h2>Открытые дела <span class="h2n">${openL.length}</span></h2><div class="sm-h">у каждого один следующий шаг, исполнитель и срок; сначала просроченные</div>${openL.length ? lim('open', openL, 12).map(rowT).join('') + moreBtn('open', openL, 12) : '<div class="sempty">Открытых дел нет.</div>'}</div>`;
+    const lichL = T.filter((t) => isOpen(t) && personal(t)).sort(byDue);
+    const rowL = (t) => `<div class="rw sr" data-id="${esc(t.id)}"><div class="row"><button class="st" data-open><b>${esc(t.short)}</b>${step1(t) ? `<span>Шаг: ${esc(step1(t))}</span>` : ''}<small class="smeta">${[t.client ? esc(t.client) : '', t.a ? esc(num(t.a)) : '', dueS(t)].filter(Boolean).join(' · ')}</small></button><span class="sacts">${ACTS(t, 'link')}</span></div></div>`;
+    const lichH = lichL.length ? `<div class="sbox s-open s-lich"><h2>Личное <span class="h2n">${lichL.length}</span></h2><div class="sm-h">ваши личные дела, не работа; оплачиваете сами</div>${lichL.map(rowL).join('')}</div>` : '';
     const archH = archL.length ? `<details class="sbox s-arch"><summary><h2>Архив <span class="h2n">${archL.length}</span></h2><span class="sm-h">закрытые и без движения больше 14 дней</span></summary>${lim('arch', archL, 20).map(rowT).join('')}${moreBtn('arch', archL, 20)}</details>` : '';
     // Деньги: пришло по банку вчера и сегодня, только от клиентов
     const BK = (D.bank && D.bank.days) || [], prev = addD(y, -1 - (new Date(y + 'T12:00:00Z').getUTCDay() === 1 ? 2 : 0));
@@ -1180,7 +1185,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <div class="s-side"><div class="sbox s-money"><h2>Деньги</h2>${dayH()}${portal}</div>
       <div class="sbox s-wait"><h2>Ждём оплату${tot ? ` <span class="h2n">${num(tot)}</span>` : ''}</h2>${top.length ? top.map(([k, w]) => `<div class="sl"><span>${esc(k)}<small${w.d && w.d <= y ? ' class="late"' : ''}>${w.d ? (w.d <= y ? 'контроль сегодня' : 'контроль ' + dmY(w.d)) + ' · ' : ''}${w.src}${w.why ? ': ' + esc(w.why.replace(/^получить оплату /i, '').replace(/^по акту/i, 'акт')) : ''}</small></span><b>${num(w.a)}</b></div>`).join('') : `<div class="sempty">Сверенных сегодня ожиданий оплаты нет. Все ожидания — в <button class="link" data-go="money" style="margin:0">«Прогноз денег»</button>.</div>`}</div></div>
       </div>
-      ${openH}${archH}
+      ${lichH}${openH}${archH}
       <nav class="slinks"><button class="link" data-go="all">Все дела</button><button class="link" data-go="kontrol">Контроль</button><button class="link" data-go="money">Прогноз денег</button>${D.garanty && D.garanty.source && D.garanty.source.url ? `<a class="link" href="${esc(D.garanty.source.url)}" target="_blank" rel="noopener">Таблица Лены ↗</a>` : ''}</nav>
     </section>`;
   }
