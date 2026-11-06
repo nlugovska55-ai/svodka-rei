@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-06T10:51:58.575Z",
+  "batchId": "2026-11-06T10-51-55-863Z-m34eso2n",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Купер",
+      "taskId": "kuper0511-akt61",
+      "taskTitle": "Купер: лишний акт 61, сальдо 62 после пометки на удаление",
+      "text": "Тут перепроверь. Почему вопрос продолжвет висеть?",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-11-06T10:51:50.853Z",
+      "eid": "emw4uua4li86dkd7h"
+    }
+  ]
+}
