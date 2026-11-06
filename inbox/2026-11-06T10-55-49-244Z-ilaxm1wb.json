@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-06T10:55:51.976Z",
+  "batchId": "2026-11-06T10-55-49-244Z-ilaxm1wb",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "АЗС Спецснаб",
+      "taskId": "pochta0511-azs",
+      "taskTitle": "АЗС Спецснаб: рукава",
+      "text": "Не поняла. Что мне нужно им ответить?",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-11-06T10:55:44.227Z",
+      "eid": "emw4uza776gwhgsl4"
+    }
+  ]
+}
