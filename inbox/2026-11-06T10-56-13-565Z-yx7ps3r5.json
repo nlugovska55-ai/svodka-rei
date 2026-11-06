@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-06T10:56:16.284Z",
+  "batchId": "2026-11-06T10-56-13-565Z-yx7ps3r5",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Логика молока",
+      "taskId": "pochta0511-veronika-adres",
+      "taskTitle": "Вероника: адрес для акта",
+      "text": "Ответь",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-11-06T10:56:08.548Z",
+      "eid": "emw4uzsysq0ujzsnp"
+    }
+  ]
+}
