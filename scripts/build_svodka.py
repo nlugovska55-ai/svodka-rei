@@ -127,6 +127,18 @@ def lena_clients(tasks):
     return out
 
 
+LENA_EXCLUDED = os.environ.get("LENA_EXCLUDED", "/mnt/project-files/daily-control/lena-klienty/ne-nashi.json")
+
+
+def lena_excluded():
+    """«Не наши» клиенты Лены (по её словам): пульт убирает их дела о переоформлении вниз вкладки, с причиной."""
+    if not os.path.exists(LENA_EXCLUDED):
+        return None
+    with open(LENA_EXCLUDED, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    return {"note": p.get("note", ""), "items": [{k: x.get(k, "") for k in ("client", "match", "why")} for x in p.get("items", []) if x.get("client")]}
+
+
 PROGNOZ_JSON = "/mnt/project-files/daily-control/prodleniya/prognoz.json"
 
 
@@ -318,7 +330,47 @@ def vypiska():
             items.append({"date": f"{year}-{m.group(2)}-{m.group(1)}", "pp": m.group(3).strip(), "payer": m.group(4).strip(), "amount": amount, "basis": m.group(6).strip()})
     # время охвата — когда «Бухгалтерия» последний раз обновила файл выписки (МСК)
     mt = datetime.fromtimestamp(os.path.getmtime(files[-1]), timezone(timedelta(hours=3)))
-    return {"asOf": asof, "time": mt.strftime("%H:%M"), "fileDate": mt.strftime("%Y-%m-%d"), "src": "kontrol/vypiski/" + os.path.basename(files[-1]), "items": items}
+    # Ольга 06.11: «Деньги» не обновлялись — файл выписки ведётся вручную. Дни после него добираем из разбора почты
+    # (уведомления банков, obkhod/pochta-razbor-ДАТА.md) с пометкой «по уведомлению, выпиской не подтверждено».
+    notif = bank_notifications(asof)
+    return {"asOf": asof, "time": mt.strftime("%H:%M"), "fileDate": mt.strftime("%Y-%m-%d"), "src": "kontrol/vypiski/" + os.path.basename(files[-1]),
+            "items": items + notif, "notifUpto": max((x["seen"] for x in notif), default="")}
+
+
+OBKHOD_DIR = os.environ.get("OBKHOD_DIR", "/mnt/project-files/daily-control/obkhod")
+NOTIF_RX = re.compile(r"(Альфа|Точка)[^+\n]{0,40}?\+\s?(\d[\d  ]*(?:,\d{1,2})?)\s*(?:₽\s*)?(?:от\s+)?([^,(⇒;]+)")
+
+
+def bank_notifications(after):
+    """Поступления из уведомлений банков в разборе почты за дни после файла выписки: «Альфа 09:02 +20 000 Ферингер (прил. 16)»,
+    «olga@ 12:46 Альфа: поступление +32 000 от ООО «СПБ СХМ», п/п 4178». Повтор одного уведомления в нескольких разборах — одна строка."""
+    out, seen = [], set()
+    for f in sorted(glob.glob(os.path.join(OBKHOD_DIR, "pochta-razbor-????-??-??.md"))):
+        day = os.path.basename(f)[14:24]
+        if day <= after:
+            continue
+        with open(f, encoding="utf-8-sig") as fh:
+            for line in fh:
+                if not line.lstrip().startswith("-"):
+                    continue
+                for seg in re.split(r";\s", line):
+                    m = NOTIF_RX.search(seg)
+                    if not m or re.search(r"списани|−|остаток\s+\+", seg[:m.start(2)]):
+                        continue
+                    d = re.search(r"(\d\d)\.(\d\d)\s+\d\d:\d\d", seg)
+                    date = f"{day[:4]}-{d[2]}-{d[1]}" if d else day
+                    t = re.search(r"\d\d:\d\d", seg)
+                    amount = float(re.sub(r"[\s  ]", "", m[2]).replace(",", "."))
+                    payer = re.sub(r"[«»\"]", "", re.sub(r"\s*(п/п|остаток).*$", "", m[3])).strip()
+                    pp = re.search(r"п/п\s*(\d+)", seg)
+                    k = (date, round(amount), payer.lower()[:8])
+                    if not payer or amount <= 0 or k in seen:
+                        continue
+                    seen.add(k)
+                    pr = re.search(r"прил\.?\s*(\d+)", seg)
+                    out.append({"date": date, "pp": pp[1] if pp else "", "payer": payer, "amount": amount, "basis": f"прил. {pr[1]}" if pr else "", "notif": True,
+                                "bank": m[1], "seen": f"{date} {t[0] if t else ''}".strip(), "src": "obkhod/" + os.path.basename(f)})
+    return out
 
 
 OHVAT_SRC = ["olga@", "boroday@", "ocenka@", "info@", "Альфа", "Точка"]  # обход почты и банков (job pochta)
@@ -424,7 +476,7 @@ GARANTY_DIR = os.environ.get("GARANTY_DIR", "/mnt/project-files/daily-control/ga
 
 
 PLAN_JSON = os.environ.get("PRODLENIYA_PLAN", "/mnt/project-files/daily-control/prodleniya/plan.json")
-ORG_RX = re.compile(r"\b(ооо|оао|зао|пао|нао|ао|ип|кфх|ано|дпо|ооо|llc)\b")
+ORG_RX = re.compile(r"\b(ооо|оао|зао|пао|нао|ао|ип|кфх|ано|дпо|llc|завод|компания|фирма|тд|нпп|нпо|по|гк)\b")
 
 
 def firm_key(name):
@@ -438,7 +490,7 @@ def parse_ru(v):
     return datetime(int(m[3]), int(m[2]), int(m[1])).date() if m else None
 
 
-def ozhidaem(gar, tasks, today=None):
+def ozhidaem(gar, tasks, today=None, vyp=None):
     """Ольга 06.11: сколько денег ждём в этом месяце — гаранты и прогнозы раздельно, по фирмам, факт по выписке.
     Гаранты и прогнозы листа Лены — из реестра (оплата только по выписке). Прогнозы: продления ФСА (plan.json, оценка)
     и открытые дела db с суммой и сроком в этом месяце, если у фирмы нет неоплаченного гаранта (иначе это одни и те же деньги)."""
@@ -469,8 +521,23 @@ def ozhidaem(gar, tasks, today=None):
                 "paid": paid, "marked": float(r["amount"]) - paid if marked else 0.0, "status": status, "src": "лист Лены, " + (r.get("src") or r["id"])}
 
     gar_items = [g_item(r) for r in rows if r.get("stageReg") != "Обсуждаем"]
+    # деньги, которые банк уже показал (выписка или уведомление), а реестр Лены ещё не сверил: та же фирма и ровно та же сумма
+    fk = lambda n: firm_key(n)
+    same = lambda a, b: min(len(a), len(b)) >= 4 and a[:len(b)] == b[:len(a)]
+    used = set()
+    for it in [x for x in ((vyp or {}).get("items") or []) if (x.get("date") or "")[:7] == ym]:
+        pr = re.search(r"прил\.?\s*(\d+)", it.get("basis") or "")
+        # сначала строка с тем же приложением («Ферингер (прил. 16)» → 457 ле пс прил 16), потом любая подходящая
+        order = sorted(gar_items, key=lambda g: 0 if pr and re.search(r"прил\.?\s*" + pr[1] + r"\b", g["what"]) else 1)
+        for g in order:
+            if g["paid"] < g["amount"] and id(g) not in used and abs(g["amount"] - g["paid"] - float(it["amount"])) < 1 and same(fk(g["client"]), fk(it["payer"])):
+                used.add(id(g))
+                g["paid"], g["marked"] = g["amount"], 0.0
+                g["status"] = f"пришло {it['date'][8:10]}.{it['date'][5:7]} " + ("по уведомлению банка, выпиской не подтверждено" if it.get("notif") else "по выписке, реестр ещё не сверил")
+                break
     fc_items = [dict(g_item(r), src="лист Лены, прогноз") for r in rows if r.get("stageReg") == "Обсуждаем"]
-    open_gar = {firm_key(x["client"]) for x in gar_items + fc_items if x["paid"] < x["amount"]}
+    # дела этих фирм не считаем: гарант ещё ждём, или он только что пришёл по банку и дело просто не успели закрыть
+    open_gar = {firm_key(x["client"]) for x in gar_items + fc_items if x["paid"] < x["amount"] or re.match(r"пришло \d\d\.\d\d", x["status"])}
     plan = []
     if os.path.exists(PLAN_JSON):
         plan = [x for x in json.load(open(PLAN_JSON, encoding="utf-8")) if x.get("month") == ym and x.get("expected")]
@@ -969,6 +1036,7 @@ def main():
         "tasks": tasks,
         "summary": summary,
         "lena_clients": lena_clients(tasks),
+        "lena_excluded": lena_excluded(),
         "prognoz": prognoz(),
         "appliedEvents": applied_events(db_dir),
         "replies": [r for r in comment_replies(db_dir) if not is_login_ask(r)],
@@ -979,7 +1047,7 @@ def main():
     data["bank_month"] = bank_month()
     data["platezhi"] = platezhi()
     data["garanty_changes"] = garanty_changes()
-    data["ozhidaem"] = ozhidaem(data["garanty"], tasks)
+    data["ozhidaem"] = ozhidaem(data["garanty"], tasks, vyp=vypiska())
     data["income"] = income()
     data["vypiska"] = vypiska()
     data["ohvat"] = ohvat_journal() or ohvat()

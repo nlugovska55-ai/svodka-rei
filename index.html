@@ -388,7 +388,10 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
 .pm .pp{margin:10px 0 2px;font-size:12px;color:var(--muted)}.pm .pi{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:3px 0;font-size:13px;border-top:1px solid var(--line)}
 .pm .pi .num{text-align:right;white-space:nowrap}.pm .pi small{grid-column:1/-1;color:var(--muted)}.pm .pi.z{opacity:.7}
 @media (max-width:760px){.pm{grid-template-columns:1fr}}
-.pm .pi.ok{opacity:.65}.pm .pi .ozs.w{color:var(--warn)}.pm .tot{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:4px 0 2px}.pm .tot b{color:var(--text)}
+.sgh{margin:12px 0 2px;padding-top:8px;border-top:1px solid var(--line)}.sgh:first-of-type{border-top:0}.sgh .sm-h{display:inline}.lcs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 16px}@media (max-width:900px){.lcs{grid-template-columns:1fr}}
+.lc{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}.lc-h{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:16px}.lc-m{font-weight:600;font-variant-numeric:tabular-nums}
+.lc-s{font-size:12px;color:var(--muted);margin:2px 0 6px}.lc-r{border-top:1px solid var(--line);padding:6px 0;font-size:13px}.lc-r .st{all:unset;cursor:pointer;display:block;width:100%}.lc-r small{display:block;color:var(--muted);font-size:12px;margin-top:2px}.lc-r .num{float:right;font-variant-numeric:tabular-nums}
+.lc-r.g b{font-weight:500}.lc-r .lc-n{color:var(--text);opacity:.8}.lc-q{font-size:12px;color:var(--warn);border-top:1px solid var(--line);padding-top:6px}.lc-x summary{cursor:pointer;padding:6px 0}.lena-top .hint{margin:4px 0 8px}.pm .pi.ok{opacity:.65}.pm .pi .ozs.w{color:var(--warn)}.pm .tot{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:4px 0 2px}.pm .tot b{color:var(--text)}
 .w4{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.wc.nd{background:var(--bg)}
 .wc{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:12px 14px;display:grid;gap:4px;align-content:start;min-width:0}
 .wc h3{font:700 16px var(--f-disp)}.wc h3 small{display:block;font:400 14px var(--f-body);color:var(--muted)}
@@ -1039,6 +1042,58 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <button class="mw" data-go="money" data-anchor="nodate"><span class="d">Без срока</span>${bareSum ? `<div class="bs"><div class="b"><span style="width:${pc(bareSum)};background:${HATCH};border:1px solid var(--accent)"></span></div></div>` : '<span class="na">—</span>'}<span class="v">${bareSum ? `<b>${bareSum.toLocaleString('ru-RU')}</b><span>${plural(bareN, 'строка', 'строки', 'строк')} Лены</span>` : ''}</span></button>
       <span class="hint mlater">Остальные недели — в «Подробно».</span></div></section>`;
   }
+  // ---------- Клиенты Лены (Ольга 06.11: «полный бардак, о чём и для чего?») ----------
+  // Одна карточка на клиента: что в работе, сколько ждём денег, за кем ход, когда было последнее движение.
+  // Деньги — только по выписке; «не наши» и устаревшее убраны вниз, свёрнуто, с причиной.
+  let lf = 'all';
+  const fkey = (x) => String(x || '').toLowerCase().replace(/ё/g, 'е').replace(/(^|[^а-яa-z])(ооо|оао|зао|пао|ао|ип|кфх|ано|дпо|завод|компания|группа|групп)(?=[^а-яa-z]|$)/g, ' ').replace(/[^а-яa-z0-9]/g, '').slice(0, 6);
+  const lastMv = (t) => [t.updatedAt, t.lastMove, t.sourceCheckedAt, t.checked, t.added].map((v) => { const x = String(v || ''); let r = /^(\d{4})-(\d{2})-(\d{2})/.exec(x); if (r) return r[0];
+    r = /^(\d{1,2})\.(\d{1,2})(?:\.(\d{4}))?/.exec(x); if (!r) return ''; const y0 = FRESH.todayYmd, mo = +r[2], yr = r[3] ? +r[3] : mo > +y0.slice(5, 7) + 1 ? +y0.slice(0, 4) - 1 : +y0.slice(0, 4); return yr + '-' + p2(mo) + '-' + p2(+r[1]); }).filter(Boolean).sort().pop() || '';
+  const daysAgo = (ymd) => ymd ? Math.round((Date.parse(FRESH.todayYmd) - Date.parse(ymd)) / 864e5) : null;
+  function lenaTab() {
+    const y = FRESH.todayYmd, ym = y.slice(0, 7), EXC = (D.lena_excluded && D.lena_excluded.items) || [];
+    const excOf = (t) => EXC.find((e) => fkey(t.cl || t.client) === fkey(e.client) && (!e.match || new RegExp(e.match, 'i').test(t.title + ' ' + (t.short || ''))));
+    const tasks = T.filter((t) => isOpen(t) && grpOf(t) === 'lena');
+    const gone = [], old = [], live = [];
+    tasks.forEach((t) => { const e = excOf(t), d = daysAgo(lastMv(t)); if (e) gone.push({t, why: e.why}); else if (d !== null && d > 14) old.push({t, why: `без движения ${d} дн`}); else live.push(t); });
+    const G = D.garanty && D.garanty.connected ? D.garanty.rows.filter((r) => (r.month || '').slice(0, 7) <= ym && r.stageReg !== 'Отказ') : [];
+    // пришло по банку, но реестр Лены ещё не сверил (уведомление банка, блок «Ждём денег»): в «ждём» не считаем, показываем отметку
+    const OZ = new Map(((D.ozhidaem && D.ozhidaem.garanty.firms) || []).flatMap((f) => f.rows).filter((r) => /^пришло \d/.test(r.status || '')).map((r) => [r.id, r.status]));
+    const gWait = G.filter((r) => Number(r.remain) > 0 && !OZ.has(r.id)), gAsk = G.filter((r) => !(Number(r.remain) > 0) && (r.flags || []).includes('вопрос'));
+    const C = new Map(), add = (name, k, x) => { const key = fkey(name) || name; if (!C.has(key)) C.set(key, {name: niceCl(name), tasks: [], gar: [], ask: [], paid: []}); C.get(key)[k].push(x); };
+    live.forEach((t) => add(t.cl || t.client || t.short, 'tasks', t));
+    gWait.forEach((r) => add(r.client, 'gar', r));
+    gAsk.forEach((r) => add(r.client, 'ask', r));
+    const turn = (t) => /^лен/i.test(t.who || '') ? 'lena' : t.who === 'клиент' || t.who === 'эксперт' ? 'client' : 'us';
+    const cards = [...C.values()].map((c) => {
+      const money = c.gar.reduce((s, r) => s + Number(r.remain), 0), mv = c.tasks.map(lastMv).filter(Boolean).sort().pop() || '';
+      const late = c.tasks.some((t) => t.dd !== null && t.dd < 0), idle = mv ? daysAgo(mv) : null;
+      return {...c, money, mv, late, idle, lena: c.tasks.filter((t) => turn(t) === 'lena').length, client: c.tasks.filter((t) => turn(t) === 'client').length};
+    });
+    const FL = [['all', 'Все', () => true], ['lena', 'Ход за Леной', (c) => c.lena > 0], ['client', 'Ждём клиента', (c) => c.client > 0], ['money', 'Ждём денег', (c) => c.money > 0], ['idle', 'Без движения 7+ дн', (c) => c.idle !== null && c.idle >= 7]];
+    if (!FL.some((f) => f[0] === lf)) lf = 'all';
+    const shown = cards.filter(FL.find((f) => f[0] === lf)[2]).sort((a, b) => (b.late - a.late) || (b.money - a.money) || (b.lena - a.lena) || a.name.localeCompare(b.name, 'ru'));
+    const tot = cards.reduce((s, c) => s + c.money, 0);
+    const turnTxt = (t) => turn(t) === 'lena' ? 'ход за Леной' : turn(t) === 'client' ? 'ждём ' + t.who + 'а' : 'делаем мы: ' + whoTxt(t);
+    const mvTxt = (d) => { const n = daysAgo(d); return d ? (n === 0 ? 'сегодня' : n === 1 ? 'вчера' : dmY(d) + (n >= 7 ? ` · ${n} дн без движения` : '')) : 'движения нет'; };
+    const tRow = (t) => `<div class="lc-r" data-id="${esc(t.id)}"><button class="st" data-open><b>${esc(t.short || t.title)}</b>${t.a ? ` <span class="num">${num(t.a)}</span>` : ''}
+      <small>${esc(turnTxt(t))} · срок ${esc(dueShort(t))}${t.dd !== null && t.dd < 0 ? ' <span class="late">просрочено</span>' : ''} · движение ${esc(mvTxt(lastMv(t)))}</small>
+      ${t.next ? `<small class="lc-n">Шаг: ${esc(cutS(String(t.next), 160))}</small>` : ''}</button></div>`;
+    const gRow = (r) => `<div class="lc-r g"><span><b>${esc([r.service, r.doc].filter(Boolean).join(' · ') || r.id)}</b> <span class="num">${num(Number(r.remain))}</span>
+      <small>таблица Лены, ${esc(r.id)} · ${r.stageReg === 'Обсуждаем' ? 'прогноз' : r.stageReg === 'Пришло по Лене' ? 'менеджер отметил «Оплачено», по выписке нет' : 'гарант, ждём оплату'} · за ${esc((r.month || '').slice(5, 7) + '.' + (r.month || '').slice(0, 4))}</small></span></div>`;
+    const card = (c) => `<div class="lc"><div class="lc-h"><b>${esc(c.name)}</b><span class="lc-m">${c.money ? 'ждём ' + num(c.money) : ''}</span></div>
+      <div class="lc-s">${[c.tasks.length ? plural(c.tasks.length, 'дело', 'дела', 'дел') : '', c.lena ? `ход за Леной: ${c.lena}` : '', c.client ? `ждём клиента: ${c.client}` : '', `последнее движение: ${mvTxt(c.mv)}`].filter(Boolean).join(' · ')}</div>
+      ${c.paid.map((r) => `<div class="lc-r g"><span><b>${esc([r.service, r.doc].filter(Boolean).join(' · ') || r.id)}</b> <span class="num">✓ ${num(Number(r.amount))}</span><small>${esc(r.id)} · ${esc(OZ.get(r.id))}</small></span></div>`).join('')}${c.gar.map(gRow).join('')}${c.tasks.sort(byDue2).map(tRow).join('')}${c.ask.length ? `<div class="lc-q">Вопрос в таблице Лены: ${c.ask.map((r) => esc(r.id + (r.doc ? ' (' + r.doc + ')' : ''))).join(', ')}</div>` : ''}</div>`;
+    G.filter((r) => OZ.has(r.id)).forEach((r) => add(r.client, 'paid', r));
+    const list = (L, k) => L.length ? `<details class="sec lc-x"><summary><b>${k} · ${L.length}</b></summary>${L.map(({t, why}) => `<div class="lc-r"><b>${esc(niceCl(t.cl || t.client))}: ${esc(t.short || t.title)}</b><small>${esc(why)}</small></div>`).join('')}</details>` : '';
+    return `<section class="sec lena-top"><div class="sh"><h2>Клиенты Лены</h2><span class="c">${plural(cards.length, 'клиент', 'клиента', 'клиентов')} в работе · ждём денег ${num(tot)}</span></div>
+      <div class="hint">Зачем блок: по каждому клиенту Лены видно, что в работе, сколько денег ждём и за кем следующий шаг. Деньги — строки таблицы Лены, оплата засчитывается только по выписке. Дела — из db, их сверяет ветка «Клиенты Лены». Убранное («не наш» по словам Лены, без движения больше 14 дней) — внизу.</div>
+      <div class="tools">${FL.map(([k, l, f]) => `<button class="chip" data-lf="${k}" aria-pressed="${lf === k}">${l} · ${cards.filter(f).length}</button>`).join('')}</div></section>
+      <div class="lcs">${shown.length ? shown.map(card).join('') : '<div class="empty"><b>По этому фильтру клиентов нет</b></div>'}</div>
+      ${list(gone, 'Убрано: Лена сказала «не наш» или «не делаем»')}${list(old, 'Устарело: без движения больше 14 дней')}`;
+  }
+  const byDue2 = (a, b) => (a.dd ?? 999) - (b.dd ?? 999);
+  const cutS = (x, n) => x.length > n ? x.slice(0, n).replace(/[\s,;:(]+\S*$/, '') + '…' : x;
   // ---------- вкладки разделов: Мои клиенты, Клиенты Лены, Другие ----------
   let sf = 'all';
   function secTab(k) {
@@ -1138,7 +1193,11 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const archL = T.filter((t) => !olgaNow(t) && !personal(t) && arch(t)).map((t) => ({...t, archived: arch(t)})).sort(byDue);
     const archIds = new Set(archL.map((t) => t.id)), openL = T.filter((t) => isOpen(t) && !olgaNow(t) && !personal(t) && !archIds.has(t.id)).sort(byDue);
     const todo = olga.length ? olga.map(rowO).join('') : '<div class="sempty">Ваших шагов сейчас нет.</div>';
-    const openH = `<div class="sbox s-open"><h2>Открытые дела <span class="h2n">${openL.length}</span></h2><div class="sm-h">у каждого один следующий шаг, исполнитель и срок; сначала просроченные</div>${openL.length ? lim('open', openL, 12).map(rowT).join('') + moreBtn('open', openL, 12) : '<div class="sempty">Открытых дел нет.</div>'}</div>`;
+    // Ольга 06.11: «открытые дела — с кем открыты?» Делим по тому, за кем следующий шаг: мы (Claude и помощники), Лена, клиент и другие
+    const openGrp = (t) => /^лен/i.test(t.who || '') ? 'lena' : /^(claude|браузер|бухгалтер|утро|регламент|реестр|дашборд|помощ)/i.test(t.who || '') || !t.who ? 'us' : 'wait';
+    const GRP = [['us', 'Делаем мы', 'Claude и помощники, ваших шагов здесь нет'], ['lena', 'Ждём Лену', 'следующий шаг за Леной'], ['wait', 'Ждём клиента и других', 'клиент, эксперт, орган, бухгалтер']];
+    const openG = GRP.map(([k, h, sub]) => [k, h, sub, openL.filter((t) => openGrp(t) === k)]).filter((g) => g[3].length);
+    const openH = `<div class="sbox s-open"><h2>Дела в работе <span class="h2n">${openL.length}</span></h2><div class="sm-h">ваших шагов здесь нет — они выше, в «Сегодня от Ольги»; у каждого дела один следующий шаг и срок, сначала просроченные</div>${openL.length ? openG.map(([k, h, sub, L]) => `<div class="sgh"><b>${h}</b> <span class="h2n">${L.length}</span> <span class="sm-h">${sub}</span></div>${lim('open-' + k, L, 6).map(rowT).join('')}${moreBtn('open-' + k, L, 6)}`).join('') : '<div class="sempty">Дел в работе нет.</div>'}</div>`;
     const lichL = T.filter((t) => isOpen(t) && personal(t)).sort(byDue);
     const rowL = (t) => `<div class="rw sr" data-id="${esc(t.id)}"><div class="row"><button class="st" data-open><b>${esc(t.short)}</b>${step1(t) ? `<span>Шаг: ${esc(step1(t))}</span>` : ''}<small class="smeta">${[t.client ? esc(t.client) : '', t.a ? esc(num(t.a)) : '', dueS(t)].filter(Boolean).join(' · ')}</small></button><span class="sacts">${ACTS(t, 'link')}</span></div></div>`;
     const lichH = lichL.length ? `<div class="sbox s-open s-lich"><h2>Личное <span class="h2n">${lichL.length}</span></h2><div class="sm-h">ваши личные дела, не работа; оплачиваете сами</div>${lichL.map(rowL).join('')}</div>` : '';
@@ -1154,14 +1213,14 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     // C3: чтение Альфы из журнала после файла выписки — показываем рядом, без подмены суммы
     const alfaRead = D.ohvat && D.ohvat.fromJournal && D.ohvat.date === FRESH.todayYmd ? (D.ohvat.parts || []).find((p) => p.src === 'Альфа' && p.time) : null;
     const VP = D.vypiska && (D.vypiska.items || []).length ? D.vypiska : null, NOTCL = /рэи|альфа-банк|депозит|процент/i;
-    const vItems = VP ? VP.items.filter((i) => !NOTCL.test(i.payer + ' ' + (i.basis || ''))).map((i) => ({who: niceCl(i.payer), a: +i.amount || 0, date: i.date})) : [];
+    const vItems = VP ? VP.items.filter((i) => !NOTCL.test(i.payer + ' ' + (i.basis || ''))).map((i) => ({who: niceCl(i.payer), a: +i.amount || 0, date: i.date, notif: !!i.notif, bank: i.bank || ''})) : [];
     const stm = BK.filter((x) => x.date <= y && !bkSrc(x).note);
     const lastD = VP ? (vItems.length ? vItems[vItems.length - 1].date : '') : stm.length ? stm[stm.length - 1].date : '';
     const fromD = VP ? (lastD && lastD < prev ? lastD : prev) : lastD;
     const itL = VP ? vItems.filter((i) => i.date >= fromD) : lastD ? day(lastD).map((i) => ({...i, date: lastD})) : [];
     const asOf = VP ? VP.asOf : lastD;
     const dayH = () => !asOf ? '<div class="sempty">Выписок за последние дни нет.</div>'
-      : `<div class="stot">С ${dmY(fromD)} пришло <b>${num(sum(itL))}</b></div><div class="sm-h">по выписке Альфы РЭИ${VP && VP.time && VP.fileDate ? `, файл обновлён ${dmY(VP.fileDate)} в ${VP.time}` : ` от ${dmY(asOf)}`}${alfaRead && VP && VP.fileDate === FRESH.todayYmd && alfaRead.time > VP.time ? ` · Альфу читали позже, до ${alfaRead.time}${alfaRead.items === 0 ? ': новых операций нет' : alfaRead.items > 0 ? `: новых операций ${alfaRead.items}, в файл ещё не внесены` : ''}` : ''}</div>` + (itL.length ? itL.map((i) => { const r = incOf(i.who, i.a); return `<div class="sl"><span>${esc(i.who)}<small>${dmY(i.date)}${r ? (r.status === 'vneseno' ? ' · в портале ✓' : r.status === 'skip' ? ' · в портал не вносим' : ' · ещё не в портале') : ''}</small></span><b>+${num(i.a)}</b></div>`; }).join('') : '<div class="sempty">поступлений нет</div>')
+      : `<div class="stot">С ${dmY(fromD)} пришло <b>${num(sum(itL))}</b></div><div class="sm-h">по выписке Альфы РЭИ${VP && VP.time && VP.fileDate ? `, файл обновлён ${dmY(VP.fileDate)} в ${VP.time}` : ` от ${dmY(asOf)}`}${VP && VP.notifUpto ? `; после него — по уведомлениям банков до ${dmY(VP.notifUpto.slice(0, 10))} ${VP.notifUpto.slice(11)}` : ''}${alfaRead && VP && VP.fileDate === FRESH.todayYmd && alfaRead.time > VP.time ? ` · Альфу читали позже, до ${alfaRead.time}${alfaRead.items === 0 ? ': новых операций нет' : alfaRead.items > 0 ? `: новых операций ${alfaRead.items}, в файл ещё не внесены` : ''}` : ''}</div>` + (itL.length ? itL.map((i) => { const r = incOf(i.who, i.a); return `<div class="sl"><span>${esc(i.who)}<small>${dmY(i.date)}${i.notif ? ` · уведомление ${esc(i.bank)}, выпиской не подтверждено` : ''}${r ? (r.status === 'vneseno' ? ' · в портале ✓' : r.status === 'skip' ? ' · в портал не вносим' : ' · ещё не в портале') : ''}</small></span><b>+${num(i.a)}</b></div>`; }).join('') : '<div class="sempty">поступлений нет</div>')
       + (!itL.some((i) => i.date === y) ? `<div class="sm-h">За ${dmY(y)} поступлений в ней нет</div>` : '');
     // «не разнесено» — из реестра поступлений (kontrol/runs/income.json), а не по тексту дел
     const notIn = INC ? INC.filter((r) => !['vneseno', 'skip'].includes(r.status)) : null;
@@ -1489,7 +1548,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     document.body.dataset.tab = tab;
     $$('.tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
     const y = scrollY;
-    $('#view').innerHTML = `<div class="wrap" style="max-width:none">${tab === 'utro' ? utro() : tab === 'kontrol' ? kontrol() : tab === 'money' ? moneyTab() : tab === 'buh' ? buhTab() : SECN[tab] ? secTab(tab) : all()}</div>`;
+    $('#view').innerHTML = `<div class="wrap" style="max-width:none">${tab === 'utro' ? utro() : tab === 'kontrol' ? kontrol() : tab === 'money' ? moneyTab() : tab === 'buh' ? buhTab() : tab === 'lena' ? lenaTab() : SECN[tab] ? secTab(tab) : all()}</div>`;
     scrollTo(0, y);
     const qi = $('#q'); if (qi) qi.oninput = (e) => { q = e.target.value.toLowerCase().trim(); const p = e.target.selectionStart; render(); const n = $('#q'); n.focus(); n.setSelectionRange(p, p); };
     $$('.cbar').forEach((g) => { g.onmouseenter = () => { const tp = $('#tip'), r = g.getBoundingClientRect(), cr = tp.parentElement.getBoundingClientRect(); tp.textContent = g.dataset.tip; tp.style.left = (r.left - cr.left + r.width / 2) + 'px'; tp.style.top = (r.top - cr.top + 40) + 'px'; tp.style.opacity = 1; }; g.onmouseleave = () => { $('#tip').style.opacity = 0; }; });
@@ -1581,6 +1640,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     else if (d.cal) { calN = +d.cal; render(); }
     else if (d.more) { EXP.has(d.more) ? EXP.delete(d.more) : EXP.add(d.more); render(); }
     else if (d.sf) { sf = d.sf; render(); }
+    else if (d.lf) { lf = d.lf; render(); }
     else if (d.wsel) { wsel = wsel === d.wsel ? '' : d.wsel; render(); }
     else if (d.act && t) { const rw = $('.row', w); rw.classList.add('out'); setTimeout(() => act(t, d.act), 180); }
     else if (d.cmt !== undefined && t) { openTask(t); setTimeout(() => { const a = $('#aiText'); if (a) a.focus(); }, 300); }
