@@ -723,6 +723,27 @@ def vygruzki_row(today):
 
 
 AUTO_STATUS = os.environ.get("AUTO_STATUS", "/mnt/project-files/daily-control/kontrol/avtomatika-status.json")
+# §17 п.6 (Ольга 06.11: «Почти любое письмо это задача»): итог проверки kontrol/pochta_ohvat.py —
+# письма без реакции и ссылки «⇒ id» на задачи, которых нет в db. Есть хоть одно — красная строка на пульте.
+PISMA_JSON = os.environ.get("PISMA_JSON", "/mnt/project-files/daily-control/kontrol/pisma-bez-reakcii.json")
+
+
+def pisma_row(today):
+    try:
+        with open(PISMA_JSON, encoding="utf-8-sig") as fh:
+            got = json.load(fh)
+    except (ValueError, OSError):
+        return None
+    if not isinstance(got, dict) or got.get("date") != today:
+        return None
+    items = [x for x in (got.get("items") or []) if isinstance(x, dict)]
+    base = {"id": "auto-pisma", "section": "Автоматика", "client": "", "checked": got.get("checked") or "",
+            "src": "kontrol/pochta-ohvat-" + today + ".md"}
+    if not items:
+        tail = "" if got.get("dbChecked") else " (ссылки с базой не сверены)"
+        return dict(base, flag="ok", text="Письма: у каждого разобранного письма есть задача или причина «не требует»" + tail)
+    first = "; ".join(f"{x.get('problem')}: {str(x.get('line') or '')[:70]}" for x in items[:3])
+    return dict(base, flag="срочно", text=f"Письма без реакции: {len(items)} — {first}")
 
 
 def automation(summary, gar):
@@ -751,7 +772,11 @@ def automation(summary, gar):
             "id": "auto-garanty", "section": "Автоматика", "client": "", "flag": "ok" if st.get("ok") else "срочно",
             "text": text, "checked": st.get("lastAttempt") or "", "src": "garanty-leny/import-status.json",
             "link": "garanty-leny/vnedrenie-2026-10-29.md"}]
-    rows = [r for r in rows if r.get("id") != "auto-vygruzki"] + [vygruzki_row(datetime.now(MSK).strftime("%Y-%m-%d"))]
+    today = datetime.now(MSK).strftime("%Y-%m-%d")
+    rows = [r for r in rows if r.get("id") not in ("auto-vygruzki", "auto-pisma")] + [vygruzki_row(today)]
+    pr = pisma_row(today)
+    if pr:
+        rows.append(pr)
     return [r for r in summary if r.get("section") != "Автоматика"] + rows
 
 
