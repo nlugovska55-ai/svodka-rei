@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-06T10:56:35.358Z",
+  "batchId": "2026-11-06T10-56-32-648Z-t1sdzeu9",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "ГЕА",
+      "taskId": "shchetki2710",
+      "taskTitle": "Щётки CowCleaner Duo (Катя Лазарева): оценка СС на партию, ОС КГ и ОС РФ — ждём от Кати данные, ОЧЕНЬ ВАЖНО",
+      "text": "Задача снята.",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-11-06T10:56:27.636Z",
+      "eid": "emw4v07p0r6f3as2p"
+    }
+  ]
+}
