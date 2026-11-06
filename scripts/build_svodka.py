@@ -423,6 +423,81 @@ def buh_sources(sp, bs, bp=None, bank=None):
 GARANTY_DIR = os.environ.get("GARANTY_DIR", "/mnt/project-files/daily-control/garanty-leny")
 
 
+PLAN_JSON = os.environ.get("PRODLENIYA_PLAN", "/mnt/project-files/daily-control/prodleniya/plan.json")
+ORG_RX = re.compile(r"\b(ооо|оао|зао|пао|нао|ао|ип|кфх|ано|дпо|ооо|llc)\b")
+
+
+def firm_key(name):
+    """Ключ фирмы для сведения строк: без формы собственности и знаков, первые 6 букв (Мореплас = морепласт, Эр-Маш = ооо эрмаш)."""
+    s = ORG_RX.sub(" ", str(name or "").lower().replace("ё", "е"))
+    return re.sub(r"[^a-zа-я0-9]", "", s)[:6]
+
+
+def parse_ru(v):
+    m = re.match(r"^(\d{2})\.(\d{2})\.(\d{4})", ru_date(str(v or "")))
+    return datetime(int(m[3]), int(m[2]), int(m[1])).date() if m else None
+
+
+def ozhidaem(gar, tasks, today=None):
+    """Ольга 06.11: сколько денег ждём в этом месяце — гаранты и прогнозы раздельно, по фирмам, факт по выписке.
+    Гаранты и прогнозы листа Лены — из реестра (оплата только по выписке). Прогнозы: продления ФСА (plan.json, оценка)
+    и открытые дела db с суммой и сроком в этом месяце, если у фирмы нет неоплаченного гаранта (иначе это одни и те же деньги)."""
+    today = today or datetime.now(MSK).date()
+    ym = today.strftime("%Y-%m")
+    rows = [r for r in (gar or {}).get("rows", []) if (r.get("month") or "")[:7] == ym and r.get("stageReg") != "Отказ" and r.get("amount")]
+
+    def firms(items):
+        out = {}
+        for r in items:
+            k = firm_key(r["client"])
+            f = out.setdefault(k, {"client": r["client"], "amount": 0.0, "paid": 0.0, "rows": [], "marked": 0.0})
+            f["amount"] += r["amount"]
+            f["paid"] += r.get("paid") or 0.0
+            f["marked"] += r.get("marked") or 0.0
+            f["rows"].append({k2: r.get(k2) for k2 in ("id", "what", "amount", "paid", "status", "src", "due")})
+        res = sorted(out.values(), key=lambda f: -(f["amount"] - f["paid"]))
+        for f in res:
+            f["remain"] = round(f["amount"] - f["paid"], 2)
+        return res
+
+    def g_item(r):
+        paid = min(float(r.get("bankSum") or 0), float(r["amount"]))
+        marked = r.get("stageReg") == "Пришло по Лене" and paid < r["amount"]
+        status = ("пришло по выписке" if paid >= r["amount"] else f"по выписке {paid:,.0f} из {r['amount']:,.0f}".replace(",", " ") if paid
+                  else "менеджер отметил оплату, по выписке нет" if marked else "ждём")
+        return {"client": r["client"], "id": r["id"], "what": " · ".join(x for x in (r.get("service"), r.get("doc")) if x), "amount": float(r["amount"]),
+                "paid": paid, "marked": float(r["amount"]) - paid if marked else 0.0, "status": status, "src": "лист Лены, " + (r.get("src") or r["id"])}
+
+    gar_items = [g_item(r) for r in rows if r.get("stageReg") != "Обсуждаем"]
+    fc_items = [dict(g_item(r), src="лист Лены, прогноз") for r in rows if r.get("stageReg") == "Обсуждаем"]
+    open_gar = {firm_key(x["client"]) for x in gar_items + fc_items if x["paid"] < x["amount"]}
+    plan = []
+    if os.path.exists(PLAN_JSON):
+        plan = [x for x in json.load(open(PLAN_JSON, encoding="utf-8")) if x.get("month") == ym and x.get("expected")]
+    for x in plan:
+        fc_items.append({"client": x["client"], "id": x.get("id", ""), "what": f"продление: {x.get('n', 0)} док., первое окончание {x.get('first_end', '')}",
+                         "amount": float(x["expected"]), "paid": 0.0, "marked": 0.0, "status": f"оценка 50% от {x.get('potential', 0):,.0f}".replace(",", " "),
+                         "src": "прогноз продлений ФСА (ветка «Продления»)", "due": x.get("first_end", "")})
+    month_end = (today.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+    for t in tasks:
+        due = parse_ru(t.get("due"))
+        if (t.get("cat") not in ("pay", "client") or not t.get("amount") or t.get("amountKind") == "reference" or str(t.get("id", "")).startswith("pr-")
+                or (t.get("waiting") or "") not in ("клиент", "Лена", "я", "") or not due or due > month_end or t.get("status") in ("done", "closed")):
+            continue
+        name = t.get("client") or t.get("who") or t.get("title", "")
+        k = firm_key(name)
+        if any(k[:len(g)] == g[:len(k)] and min(len(k), len(g)) >= 4 for g in open_gar):
+            continue  # у фирмы есть неоплаченный гарант этого месяца: те же деньги не считаем дважды
+        fc_items.append({"client": name, "id": t["id"], "what": (t.get("short") or t.get("title") or "")[:90], "amount": float(t["amount"]), "paid": 0.0,
+                         "marked": 0.0, "status": "дело в db, ждём оплату", "src": "db tasks " + t["id"], "due": t.get("due", "")})
+    G, F = firms(gar_items), firms(fc_items)
+    tot = lambda L: {"amount": round(sum(f["amount"] for f in L), 2), "paid": round(sum(f["paid"] for f in L), 2), "remain": round(sum(f["remain"] for f in L), 2),
+                     "marked": round(sum(f["marked"] for f in L), 2), "firms": len(L)}
+    return {"month": ym, "garanty": {"firms": G, "total": tot(G)}, "prognoz": {"firms": F, "total": tot(F)},
+            "rule": "Оплата засчитывается только по выписке. Отметка менеджера «Оплачено» без выписки остаётся в «ждём». Прогноз продлений — оценка 50%.",
+            "sources": {"garanty": (gar or {}).get("importedAt", ""), "plan": PLAN_JSON if plan else ""}}
+
+
 def garanty_changes():
     """Сводка «что изменилось в гарантах за сутки» (шаг 6a, scripts/izmeneniya_garanty.py); нет — None."""
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -904,6 +979,7 @@ def main():
     data["bank_month"] = bank_month()
     data["platezhi"] = platezhi()
     data["garanty_changes"] = garanty_changes()
+    data["ozhidaem"] = ozhidaem(data["garanty"], tasks)
     data["income"] = income()
     data["vypiska"] = vypiska()
     data["ohvat"] = ohvat_journal() or ohvat()

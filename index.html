@@ -388,6 +388,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
 .pm .pp{margin:10px 0 2px;font-size:12px;color:var(--muted)}.pm .pi{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:3px 0;font-size:13px;border-top:1px solid var(--line)}
 .pm .pi .num{text-align:right;white-space:nowrap}.pm .pi small{grid-column:1/-1;color:var(--muted)}.pm .pi.z{opacity:.7}
 @media (max-width:760px){.pm{grid-template-columns:1fr}}
+.pm .pi.ok{opacity:.65}.pm .pi .ozs.w{color:var(--warn)}.pm .tot{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:4px 0 2px}.pm .tot b{color:var(--text)}
 .w4{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.wc.nd{background:var(--bg)}
 .wc{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:12px 14px;display:grid;gap:4px;align-content:start;min-width:0}
 .wc h3{font:700 16px var(--f-disp)}.wc h3 small{display:block;font:400 14px var(--f-body);color:var(--muted)}
@@ -1359,6 +1360,23 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   }
   // Обязательные платежи на текущий и следующий месяц: прогноз «Бухгалтерии», принятый Ольгой; без подрядчиков, переводов в ИП, ГлавУпДК и ЗП Лены
   const CATP = {zp: 'зарплата и ЕНП', svc: 'сервисы', rent: 'аренда', ip: 'ИП'};
+  // Ольга 06.11: сколько денег ждём в этом месяце — гаранты и прогнозы раздельно, по фирмам; оплата только по выписке
+  function ozhHTML() {
+    const O = D.ozhidaem;
+    const head = (c) => `<section class="sec" id="ozhidaem"><div class="sh"><h2>Ждём денег в этом месяце: гаранты и прогнозы</h2><span class="c">${c}</span></div>`;
+    if (!O) return head('данные не получены') + '<div class="hint">Сборка не передала блок, цифр нет.</div></section>';
+    const mon = cap(MONTHS[+O.month.slice(5, 7) - 1]) + ' ' + O.month.slice(0, 4);
+    const firm = (f) => `<div class="pi${f.remain <= 0 ? ' ok' : ''}"><span>${esc(f.client)}${f.rows.length > 1 ? ` <span class="hint">· ${f.rows.length} стр.</span>` : ''}</span><span class="num">${f.remain <= 0 ? '✓ ' + num(f.amount) : num(f.remain)}</span>
+      <small>${f.rows.map((r) => `${esc(r.what || r.id)} — ${num(r.amount)} · <span class="ozs${/по выписке нет/.test(r.status) ? ' w' : ''}">${esc(r.status)}</span>`).join('<br>')}</small></div>`;
+    const card = (title, B, note) => `<div class="pc2"><h3>${title}<b>${num(B.total.remain)}</b></h3>
+      <div class="tot"><span>всего <b>${num(B.total.amount)}</b></span><span>пришло по выписке <b>${num(B.total.paid)}</b></span><span>ждём <b>${num(B.total.remain)}</b></span><span>${plural(B.total.firms, 'фирма', 'фирмы', 'фирм')}</span></div>
+      ${B.total.marked ? `<div class="hint" style="color:var(--warn)">Менеджер отметил «Оплачено» на ${num(B.total.marked)}, по выписке поступления нет — сумма в «ждём».</div>` : ''}
+      ${B.firms.length ? B.firms.map(firm).join('') : '<div class="hint">Нет строк на этот месяц.</div>'}${note ? `<div class="hint" style="padding-top:6px">${note}</div>` : ''}</div>`;
+    return head(`${mon}; гаранты — из реестра Лены (${esc((O.sources.garanty || '').slice(0, 16).replace('T', ' '))}), оплата только по выписке`) + `<div class="pm">
+      ${card('Гаранты', O.garanty, 'Клиент подтвердил оплату. ✓ — пришло по выписке полностью.')}
+      ${card('Прогнозы', O.prognoz, 'Продления ФСА — оценка 50% от цены; дела из db — с суммой и сроком в этом месяце. Если у фирмы есть неоплаченный гарант, дело не считается второй раз.')}</div>
+      <div class="hint" style="padding:6px 0 0">${esc(O.rule)}</div></section>`;
+  }
   function payHTML() {
     const P = D.platezhi, ym = FRESH.todayYmd.slice(0, 7);
     const head = (c) => `<section class="sec" id="platezhi"><div class="sh"><h2>Обязательные платежи: ближайшие 2 месяца</h2><span class="c">${c}</span></div>`;
@@ -1379,9 +1397,10 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const adv = o.filter((t) => /аванс/i.test(t.title) && /без акт/i.test(t.title)), advS = adv.reduce((x, t) => x + t.a, 0);
     const nd = noDateHTML();
     // На телефоне вкладка длинная (~10 000 px): быстрые переходы к разделам сверху
-    const J = [['weeks', '4 недели'], ['platezhi', 'Платежи 2 мес.'], ...(nd ? [['nodate', 'Без срока']] : []), ['garanty', 'Таблица Лены'], ['garanty-all', 'Реестр гарантов'], ['fsa', 'Продления'], ['bank', 'Банк']];
+    const J = [['weeks', '4 недели'], ['ozhidaem', 'Ждём в месяце'], ['platezhi', 'Платежи 2 мес.'], ...(nd ? [['nodate', 'Без срока']] : []), ['garanty', 'Таблица Лены'], ['garanty-all', 'Реестр гарантов'], ['fsa', 'Продления'], ['bank', 'Банк']];
     return `<nav class="jump" aria-label="Разделы вкладки">${J.map(([a, l]) => `<button class="link" data-go="money" data-anchor="${a}">${l}</button>`).join('')}</nav>
     ${weeksHTML()}
+    ${ozhHTML()}
     ${payHTML()}
     ${nd}
     ${lenaCard(true)}
