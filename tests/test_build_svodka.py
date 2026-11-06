@@ -243,6 +243,14 @@ class BuilderAcceptance(unittest.TestCase):
         self.assertEqual({"team", "real"}, {t["id"] for t in data["tasks"]})
         self.assertEqual(["p2"], [r["id"] for r in data["summary"] if r.get("section") == "Проекты"])
 
+    def test_personal_block_keeps_olga_steps(self):
+        self.task("flat", cat="personal", waiting="я", kind="press", next="Ольга: оплатить счёт и нажать «Отправить»")
+        self.task("svc", section="Личное", kind="service", waiting="Claude")
+        data = self.build()
+        self.assertEqual({"flat"}, {t["id"] for t in data["tasks"]})
+        self.assertEqual("Личное", data["tasks"][0]["section"])
+        self.assertEqual("", data["tasks"][0]["money"])
+
     def test_automation_comes_from_status_file_and_registry(self):
         auto = self.root / "auto.json"
         auto.write_text(json.dumps([{"id": "auto-utro", "flag": "ok", "text": "Сводка выложена", "checked": "2026-10-29T19:20:18+03:00"}]), encoding="utf-8")
