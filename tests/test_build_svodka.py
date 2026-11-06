@@ -35,6 +35,7 @@ class BuilderAcceptance(unittest.TestCase):
         patch.object(builder, "PROGNOZ_JSON", str(self.root / "missing.json")).start()
         patch.object(builder, "GARANTY_DIR", str(self.root / "no-garanty")).start()
         patch.object(builder, "AUTO_STATUS", str(self.root / "no-auto.json")).start()
+        patch.object(builder, "PISMA_JSON", str(self.root / "no-pisma.json")).start()
         patch.object(builder, "BASELINE_JSON", str(self.root / "baseline.json")).start()
         patch.object(builder, "TREB_JSON", str(self.root / "no-treb.json")).start()
 
@@ -242,6 +243,21 @@ class BuilderAcceptance(unittest.TestCase):
         data = self.build()
         self.assertEqual({"team", "real"}, {t["id"] for t in data["tasks"]})
         self.assertEqual(["p2"], [r["id"] for r in data["summary"] if r.get("section") == "Проекты"])
+
+    def test_letters_without_reaction_make_red_row(self):
+        self.task("one")
+        today = builder.datetime.now(builder.MSK).strftime("%Y-%m-%d")
+        pj = self.root / "pisma.json"
+        pj.write_text(json.dumps({"date": today, "checked": today + "T12:00:00+03:00", "dbChecked": True,
+                                  "items": [{"n": 20, "line": "- olga@ 08:55 Подоприхин ⇒ podoprikhin0611-pasport", "problem": "ссылка на задачу, которой нет в db: podoprikhin0611-pasport"}]}), encoding="utf-8")
+        with patch.object(builder, "PISMA_JSON", str(pj)):
+            rows = [r for r in self.build()["summary"] if r.get("id") == "auto-pisma"]
+        self.assertEqual(1, len(rows))
+        self.assertEqual("срочно", rows[0]["flag"])
+        self.assertIn("Письма без реакции: 1", rows[0]["text"])
+        pj.write_text(json.dumps({"date": "2026-01-01", "items": [{"line": "x", "problem": "y"}]}), encoding="utf-8")
+        with patch.object(builder, "PISMA_JSON", str(pj)):
+            self.assertEqual([], [r for r in self.build()["summary"] if r.get("id") == "auto-pisma"])
 
     def test_personal_block_keeps_olga_steps(self):
         self.task("flat", cat="personal", waiting="я", kind="press", next="Ольга: оплатить счёт и нажать «Отправить»")
