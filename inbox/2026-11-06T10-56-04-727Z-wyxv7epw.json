@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-06T10:56:07.448Z",
+  "batchId": "2026-11-06T10-56-04-727Z-wyxv7epw",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Уральский завод РТИ",
+      "taskId": "pochta0511-makarova",
+      "taskTitle": "Уральский завод РТИ: испытания рукавов",
+      "text": "Что  мне надо тут сделать? Это мое задание?",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-11-06T10:55:59.720Z",
+      "eid": "emw4uzm5ky8boln3q"
+    }
+  ]
+}
