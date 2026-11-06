@@ -19,7 +19,9 @@ MSK = dt.timezone(dt.timedelta(hours=3))
 FIELDS = {"stage": "Этап", "month": "Месяц", "question": "Комментарий", "amount": "Сумма", "due": "Срок оплаты",
           "client": "Клиент", "service": "Услуга", "doc": "Договор", "manager": "Менеджер", "owner": "Ответственный",
           "next": "Что сделать", "maket": "Макет ДС", "received": "По данным менеджера"}
-EDIT_RX = re.compile(r"^(\w+) '(.*)' → '(.*)'(?: \((.+)\))?$", re.S)
+EDIT_RX = re.compile(r"^(\w+) '?(.*?)'? → '?(.*?)'?(?: \((.+)\))?$", re.S)
+# этапы реестра — словами листа месяца (как видит Лена и пульт)
+STAGE = {"Обсуждаем": "Прогноз", "Пришло по Лене": "Оплачено (отметил менеджер)"}
 ID_RX = re.compile(r"^(?:таблица: )?(G-\d+): (.*)$", re.S)
 
 
@@ -37,12 +39,14 @@ MON = ["янв.", "фев.", "мар.", "апр.", "мая", "июн.", "июл.
 
 def human(msg, row=None):
     if msg.startswith("новая строка") and row:
-        bits = [x for x in (row.get("service"), f"{short(row['amount'])} ₽" if row.get("amount") else "", row.get("stage")) if x]
+        bits = [x for x in (row.get("service"), f"{short(row['amount'])} ₽" if row.get("amount") else "", STAGE.get(row.get("stage"), row.get("stage"))) if x]
         return "новая строка: " + ", ".join(bits)
     m = EDIT_RX.match(msg)
     if not m:
         return msg
     f, a, b, how = m.groups()
+    if f == "stage":
+        a, b = STAGE.get(a, a), STAGE.get(b, b)
     if f == "month":
         a, b = [MON[int(x[5:7]) - 1] + " " + x[:4] if re.match(r"\d{4}-\d{2}", x) else x for x in (a, b)]
     name = FIELDS.get(f, f)
