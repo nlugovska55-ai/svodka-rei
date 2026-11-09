@@ -888,6 +888,30 @@ def pisma_row(today):
     return dict(base, flag="срочно", text=f"Письма без реакции: {len(items)} — {first}")
 
 
+# §17 п.9 (Ольга 09.11: «заявка с сайта… её никто не увидел. Важно сразу писать Лене и ставить под контроль»):
+# реестр заявок с сайта на info@ из kontrol/pochta_ohvat.py. Сбой (нет задачи, нет черновика Лене, нет ответа клиенту) — красная строка.
+ZAYAVKI_JSON = os.environ.get("ZAYAVKI_JSON", "/mnt/project-files/daily-control/kontrol/zayavki-sayta.json")
+
+
+def zayavki_row(today):
+    try:
+        with open(ZAYAVKI_JSON, encoding="utf-8-sig") as fh:
+            got = json.load(fh)
+    except (ValueError, OSError):
+        return None
+    if not isinstance(got, dict) or str(got.get("checked") or "")[:10] != today:
+        return None
+    items = [x for x in (got.get("items") or []) if isinstance(x, dict)]
+    bad = [x for x in items if x.get("problems")]
+    base = {"id": "auto-zayavki", "section": "Автоматика", "client": "", "checked": got.get("checked") or "",
+            "src": "kontrol/zayavki-sayta.json"}
+    if bad:
+        first = "; ".join(f"{x.get('got') or ''} {'; '.join(x.get('problems') or [])}" for x in bad[:3])
+        return dict(base, flag="срочно", text=f"Заявки с сайта: сбоев {len(bad)} — {first}")
+    opened = sum(1 for x in items if str(x.get("state") or "").startswith("на контроле"))
+    return dict(base, flag="ok", text=f"Заявки с сайта: всего {len(items)}, на контроле у Лены {opened}, без сбоев")
+
+
 def automation(summary, gar):
     """Статусы автоматики на пульт берутся прямо из kontrol/avtomatika-status.json (пишет «Регламент» по файлам и коммитам),
     а не из ручной копии в summary. Нет файла или он битый — остаются строки summary как были.
@@ -915,10 +939,10 @@ def automation(summary, gar):
             "text": text, "checked": st.get("lastAttempt") or "", "src": "garanty-leny/import-status.json",
             "link": "garanty-leny/vnedrenie-2026-10-29.md"}]
     today = datetime.now(MSK).strftime("%Y-%m-%d")
-    rows = [r for r in rows if r.get("id") not in ("auto-vygruzki", "auto-pisma")] + [vygruzki_row(today)]
-    pr = pisma_row(today)
-    if pr:
-        rows.append(pr)
+    rows = [r for r in rows if r.get("id") not in ("auto-vygruzki", "auto-pisma", "auto-zayavki")] + [vygruzki_row(today)]
+    for row in (pisma_row(today), zayavki_row(today)):
+        if row:
+            rows.append(row)
     return [r for r in summary if r.get("section") != "Автоматика"] + rows
 
 

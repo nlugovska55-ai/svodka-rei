@@ -259,6 +259,28 @@ class BuilderAcceptance(unittest.TestCase):
         with patch.object(builder, "PISMA_JSON", str(pj)):
             self.assertEqual([], [r for r in self.build()["summary"] if r.get("id") == "auto-pisma"])
 
+    def test_site_requests_row(self):
+        self.task("one")
+        today = builder.datetime.now(builder.MSK).strftime("%Y-%m-%d")
+        zj = self.root / "zayavki.json"
+        zj.write_text(json.dumps({"checked": today + "T12:40:00+03:00", "items": [
+            {"got": "09.11 11:55", "state": "брак", "problems": ["нет задачи в db"]},
+            {"got": "09.11 12:10", "state": "на контроле, срок 2026-11-10", "problems": []}]}), encoding="utf-8")
+        with patch.object(builder, "ZAYAVKI_JSON", str(zj)):
+            rows = [r for r in self.build()["summary"] if r.get("id") == "auto-zayavki"]
+        self.assertEqual(1, len(rows))
+        self.assertEqual("срочно", rows[0]["flag"])
+        self.assertIn("нет задачи в db", rows[0]["text"])
+        zj.write_text(json.dumps({"checked": today + "T12:40:00+03:00", "items": [
+            {"got": "09.11 12:10", "state": "на контроле, срок 2026-11-10", "problems": []}]}), encoding="utf-8")
+        with patch.object(builder, "ZAYAVKI_JSON", str(zj)):
+            rows = [r for r in self.build()["summary"] if r.get("id") == "auto-zayavki"]
+        self.assertEqual("ok", rows[0]["flag"])
+        self.assertIn("на контроле у Лены 1", rows[0]["text"])
+        zj.write_text(json.dumps({"checked": "2026-01-01T12:00:00+03:00", "items": []}), encoding="utf-8")
+        with patch.object(builder, "ZAYAVKI_JSON", str(zj)):
+            self.assertEqual([], [r for r in self.build()["summary"] if r.get("id") == "auto-zayavki"])
+
     def test_personal_block_keeps_olga_steps(self):
         self.task("flat", cat="personal", waiting="я", kind="press", next="Ольга: оплатить счёт и нажать «Отправить»")
         self.task("svc", section="Личное", kind="service", waiting="Claude")
