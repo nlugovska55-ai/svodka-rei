@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-10T08:03:49.904Z",
+  "batchId": "2026-11-10T08-03-43-971Z-1z3u9mcf",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "ЗЭНКО ПЛАЗМА",
+      "taskId": "sf-olga-zenkoplazma-2026-11",
+      "taskTitle": "ЗЭНКО ПЛАЗМА: ИСО 9001 ССК.RU.A02733 — ИК/окончание с 12.11.2026",
+      "text": "Это был заказ подруги под тендер. Если будет надо, она придет сама",
+      "action": "",
+      "actionLabel": "Сообщение Claude",
+      "at": "2026-11-10T08:03:38.964Z",
+      "eid": "emwaelducal93gt1k"
+    }
+  ]
+}
