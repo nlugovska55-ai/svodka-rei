@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-10T08:14:14.579Z",
+  "batchId": "2026-11-10T08-14-08-841Z-autkxhax",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Процессный инжиниринг",
+      "taskId": "sf-olga-processnyyinzhin-2026-12",
+      "taskTitle": "Процессный инжиниринг: ИСО — ИК/окончание с 06.12.2026",
+      "text": "Больше не наш клиент",
+      "action": "",
+      "actionLabel": "Сообщение Claude",
+      "at": "2026-11-10T08:14:03.833Z",
+      "eid": "emwaeyrzttqf6rgxt"
+    }
+  ]
+}
