@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-10T08:04:59.953Z",
+  "batchId": "2026-11-10T08-04-54-235Z-kw5l5r63",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "ГЕА",
+      "taskId": "sf-olga-gea-2026-11",
+      "taskTitle": "ГЕА: ИСО — ИК/окончание с 17.11.2026",
+      "text": "",
+      "action": "done",
+      "actionLabel": "Я выполнила",
+      "at": "2026-11-10T08:04:49.231Z",
+      "eid": "emwaemw27fjs28e3i"
+    }
+  ]
+}
