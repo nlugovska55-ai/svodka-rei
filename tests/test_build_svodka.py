@@ -398,3 +398,24 @@ class GrafikTest(unittest.TestCase):
                 self.assertIsNone(builder.grafik())
                 p.write_text(json.dumps({"date": "2026-11-13"}), encoding="utf-8")
                 self.assertIsNone(builder.grafik())
+
+
+class NoCommentsTest(unittest.TestCase):
+    """13.11: выгрузка без comments не обнуляет appliedEvents и replies — берутся из прежней сводки."""
+
+    def test_keeps_previous(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            (d / "db" / "tasks").mkdir(parents=True)
+            (d / "db" / "tasks" / "t1.json").write_text(json.dumps({"id": "t1", "title": "x", "status": "open"}), encoding="utf-8")
+            (d / "summary.json").write_text("[]", encoding="utf-8")
+            out = d / "svodka.json"
+            out.write_text(json.dumps({"appliedEvents": ["e1", "e2"], "replies": [{"id": "r"}]}), encoding="utf-8")
+            argv = ["build_svodka.py", str(d / "db"), str(d / "summary.json"), str(out)]
+            with patch.object(sys, "argv", argv), patch.object(builder, "GRAFIK_PY", str(d / "net.py")), \
+                    contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()) as err:
+                builder.main()
+            got = json.loads(out.read_text(encoding="utf-8"))
+            self.assertEqual(got["appliedEvents"], ["e1", "e2"])
+            self.assertEqual(got["replies"], [{"id": "r"}])
+            self.assertIn("нет comments", err.getvalue())
