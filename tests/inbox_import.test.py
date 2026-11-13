@@ -173,6 +173,14 @@ json.dump(sorted(db), open(batch + ".applied.json", "w"))
 r = run("ack", repo, seen, batch, batch + ".applied.json")
 ok("Только текстовые комментарии: ack со списком id проходит", r.returncode == 0 and json.load(open(batch + ".manifest.json"))["taskDocs"] == [], r.stdout.strip() or r.stderr.strip())
 
+json.dump({"sentAt": "2026-10-29T10:00:00Z", "source": "telegram-gpt", "items": [{"client": "", "text": "идея для пульта", "at": "2026-10-29T10:00:00Z"}]},
+          open(os.path.join(repo, "inbox", "sixth-telegram-gpt.json"), "w"))
+sh(repo, "git", "add", "-A"); sh(repo, "git", "commit", "-qm", "tg"); sh(repo, "git", "update-ref", "refs/remotes/origin/inbox", "HEAD")
+run("prepare", repo, seen, batch, tdir)
+tg = [w["data"] for w in json.load(open(batch)) if w["data"].get("inboxFile", "").endswith("sixth-telegram-gpt.json")]
+ok("Сообщение бота GPT: источник подписан, задачу не меняет, ждёт разбора", len(tg) == 1 and tg[0]["source"] == "Telegram: бот GPT"
+   and tg[0]["status"] == "new" and json.load(open(batch + ".manifest.json"))["taskDocs"] == [], json.dumps(tg, ensure_ascii=False)[:120])
+
 sh(repo, "git", "update-ref", "-d", "refs/remotes/origin/inbox")
 r = run("prepare", repo, seen, batch)
 ok("Нет origin/inbox: импорт остановлен (код 2), не пустой inbox", r.returncode == 2 and "ошибка git" in r.stderr, r.stderr.strip()[:90])

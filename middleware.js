@@ -38,6 +38,8 @@ export default async function middleware(request) {
   }
   const good = await token(password);
   const url = new URL(request.url);
+  // Webhook Telegram проверяет свой секретный заголовок сам (api/tg.js)
+  if (url.pathname === '/api/tg' && request.method === 'POST') return;
 
   if (url.pathname === '/__login' && request.method === 'POST') {
     const form = await request.formData();

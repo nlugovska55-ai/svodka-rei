@@ -2,26 +2,7 @@
 // Оттуда их забирает Claude на разборе (10:00, 13:00, 18:00) и переносит в базу комментариев страницы задач.
 // Вход проверяет middleware.js (тот же пароль, что у страницы).
 // Нужна переменная Vercel GITHUB_TOKEN: fine-grained токен только на svodka-rei, Contents: Read and write.
-const REPO = 'nlugovska55-ai/svodka-rei';
-const BRANCH = 'inbox';
-const API = 'https://api.github.com/repos/' + REPO;
-
-async function gh(path, token, init = {}) {
-  const res = await fetch(API + path, {
-    ...init,
-    headers: { authorization: 'Bearer ' + token, accept: 'application/vnd.github+json', 'user-agent': 'svodka-rei', ...(init.headers || {}) },
-  });
-  return res;
-}
-
-async function ensureBranch(token) {
-  if ((await gh('/git/ref/heads/' + BRANCH, token)).ok) return;
-  const main = await gh('/git/ref/heads/main', token);
-  if (!main.ok) throw new Error('main ' + main.status);
-  const sha = (await main.json()).object.sha;
-  const made = await gh('/git/refs', token, { method: 'POST', body: JSON.stringify({ ref: 'refs/heads/' + BRANCH, sha }) });
-  if (!made.ok && made.status !== 422) throw new Error('branch ' + made.status);
-}
+import { gh, ensureBranch, BRANCH } from '../lib/inbox.js';
 
 // Имя файла партии: время + случайный хвост. Клиент присылает его как batchId и повторяет при сбое — файл один.
 const BATCH = /^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}-\d{3}Z(?:-[a-z0-9]{6,16})?$/;
