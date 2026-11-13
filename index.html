@@ -415,19 +415,20 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   .treb .tr{grid-template-columns:44px minmax(0,1fr)}
   .row:has(.abs) .who-t{display:none}.treb .tr>*:nth-child(n+3){grid-column:2/-1}
 }
+.hlink{font-size:14px;font-weight:600;color:var(--ok);text-decoration:none}.hlink:hover{text-decoration:underline}
 /* 13.11 перечень дня: счёт + только требующее внимания, остальное свёрнуто (Ольга: «похож на помойку») */
-.supd{font:700 26px/1.2 var(--f-disp);color:var(--ink);margin:2px 0 8px}.supd.late{color:var(--hot)}
+
 .grf{margin:0 0 12px}.grf.old{opacity:.7}.grf .gh{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline}.grf .gh h2{margin:0;padding:0}
 .grf .gc{font-size:15px;color:var(--muted)}.grf .gc b{color:var(--ink)}.grf .gc .bad{color:var(--hot);font-weight:600}
 .grf .gola{margin:8px 0 2px;padding:8px 12px;border-radius:8px;background:var(--warn-soft);color:var(--warn);font-size:15px}
 .grf .grw{display:grid;grid-template-columns:84px minmax(0,1fr);gap:2px 10px;padding:7px 0;border-top:1px solid var(--line);font-size:15px;align-items:baseline}
 .grf .grw .gt{color:var(--faint);font-variant-numeric:tabular-nums;font-size:13.5px}.grf .grw b{font-weight:600}
-.grf .grw em{font-style:normal;font-size:13.5px;font-weight:600;color:var(--hot);margin-left:4px}.grf .grw.olga em{color:var(--warn)}
+.grf .grw em{font-style:normal;font-size:13.5px;font-weight:600;color:var(--warn);margin-left:4px}.grf .grw.olga em{color:var(--warn)}
 .grf .grw.ok em,.grf .grw.wait em,.grf .grw.nolog em{color:var(--faint);font-weight:400}
 .grf .grw small{display:block;color:var(--muted);font-size:13.5px;overflow-wrap:anywhere}
 .grf .gmore{border-top:1px solid var(--line);padding-top:8px;margin-top:2px}.grf .gmore>summary{cursor:pointer;color:var(--accent,var(--ok));font-size:14.5px;list-style:none}
 .grf .gmore>summary::-webkit-details-marker{display:none}.grf .gmore[open]>summary{margin-bottom:4px}
-@media (max-width:560px){.supd{font-size:22px}.grf .grw{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:560px){.grf .grw{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -445,6 +446,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <button class="tab aux" role="tab" data-tab="money"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4.5" width="14" height="9" rx="2"/><circle cx="9" cy="9" r="2"/></svg><span class="lg">Прогноз денег</span><span class="sm">Деньги</span></button>
       <button class="tab aux" role="tab" data-tab="all"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 5h10M6 9h10M6 13h10"/><circle cx="2.5" cy="5" r=".6"/><circle cx="2.5" cy="9" r=".6"/><circle cx="2.5" cy="13" r=".6"/></svg><span class="lg">Все дела</span><span class="sm">Все</span></button>
     </nav>
+    <a class="hlink" href="#grafik">Перечень дня</a>
     <div class="fresh" id="fresh"><span class="dot" style="background:var(--faint)"></span>Загружаю данные…</div>
   </header>
   <main id="view"><div class="skel"></div></main>
@@ -724,7 +726,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   // 30.10 (Ольга): служебные дела для веток (памятки, разрешения экрана, открыть вкладку) и пароли на пульт тоже не выводим
   const isLoginAsk = (x) => LOGIN_RE.test(['title', 'short', 'text', 'next', 'detail'].map((k) => x[k] || '').join(' '));
   // ---------- разделы (30.10, схема Ольги): Сегодня · Мои клиенты · Клиенты Лены · Бухгалтерия · Другие ----------
-  const TABS = ['utro', 'my', 'lena', 'buh', 'other', 'kontrol', 'money', 'all'];
+  const TABS = ['utro', 'my', 'lena', 'buh', 'other', 'kontrol', 'money', 'all', 'grafik'];
   const SECN = {my: 'Мои клиенты', lena: 'Клиенты Лены', buh: 'Бухгалтерия', other: 'Другие'};
   const MYC = /логика|эйчэнэн|gea|геа|вкусвилл|виртекс|востряково|тамбов/i;
   const grpOf = (t) => t.section === 'Бухгалтерия' || t.cat === 'tax' ? 'buh' : t.section === 'Мои клиенты' ? 'my' : t.mgr === 'Лена' || t.section === 'Клиенты Лены' ? 'lena' : MYC.test(t.cl || t.client || '') ? 'my' : 'other';
@@ -995,8 +997,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const L = o.filter((t) => t.who === 'Лена'), C = o.filter((t) => t.who === 'Claude'), W = o.filter((t) => t.who === 'клиент' || t.who === 'эксперт');
     const oldest = W.reduce((mx, t) => { const s = parseRu(t.waitSince); return s ? Math.max(mx, Math.round((today - s) / MS)) : mx; }, 0);
     const near = (a) => { const x = a.filter((t) => t.dd !== null).sort(order)[0]; return x ? 'ближайшее: ' + x.short.slice(0, 40) + ' · ' + dueTxt(x) : 'сроков нет'; };
-    // 13.11 (Ольга: «похож на помойку»): строки «Проектов» старше 2 дней не показываем — в базе они остаются
-    const proj = (D.summary || []).filter((s) => s.section === 'Проекты' && (() => { const d = checkedDay(s.checked); return d && (Date.parse(FRESH.todayYmd) - Date.parse(d)) / 864e5 <= 2; })());
+    const proj = (D.summary || []).filter((s) => s.section === 'Проекты');
     return `<section class="sec" id="team"><div class="sh"><h2>Команда и ожидания</h2><span class="c">цифра открывает «Все дела» с тем же фильтром</span></div>
       <div class="team"><button data-go="all" data-who="Лена"><b>${L.length}</b>ведёт Лена<span>${esc(near(L))}</span></button><button data-go="all" data-who="Claude"><b>${C.length}</b>ведёт Claude<span>${esc(near(C))}</span></button>
       <button data-go="all" data-who="клиент"><b>${W.length}</b>ждём клиента<span>${oldest ? 'дольше всех ' + oldest + ' дн' : 'от нас ничего не нужно'}</span></button>${proj.length ? `<button data-bucket="proj" aria-expanded="${openB === 'proj'}"><b>${proj.length}</b>проекты<span>${proj.filter((p) => p.flag === 'warn' || p.flag === 'срочно').length} ждут вашего шага</span></button>` : ''}</div>
@@ -1151,28 +1152,23 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const niceCl = (c) => { const x = String(c || '').replace(/^gea$/i, 'ГЕА').replace(/(^|\s)(ооо|оао|ао|пао|зао|ип|ано)(?=\s|$)/gi, ' ').replace(/[«»"]/g, '').trim(); return x ? (x[0].toUpperCase() + x.slice(1)).replace(/(^|\s)([а-яё]{2,3})(?=\s|$)/gi, (m, a, b) => a + b.toUpperCase()) : ''; };
   const dueShort = (t) => t.dd === null ? 'без срока' : t.dd < 0 ? `просрочено ${-t.dd} дн` : t.dd === 0 ? 'сегодня' : t.dd === 1 ? 'завтра' : 'до ' + String(t.due || '').slice(0, 5);
   // 30.10 (Codex): свежесть — по времени охвата источников, а не по времени сборки; зелёного нет, пока охват не свежий
-  // 13.11 (Ольга: «хочу увидеть перечень с галочками каждое утро и каждый раз… что сделано, что нет»).
-  // Галочка только по журналу запусков; не сегодняшний перечень серым с пометкой.
-  function grafikHTML() {
+  // 13.11 (Ольга: «борды не для наших напоминаний текущих»): перечень — отдельная страница по ссылке в шапке,
+  // на первом экране его нет. Ольге — только состояние шага; технические подробности сбоев остаются в журнале.
+  function grafikPage() {
     const G = D.grafik;
-    if (!G || !(G.steps || []).length) return `<div class="sbox grf"><h2>Перечень дня</h2><div class="sempty">Перечень сегодня ещё не собирали.</div></div>`;
+    if (!G || !(G.steps || []).length) return `<section class="simple"><div class="sbox grf"><h2>Перечень дня</h2><div class="sempty">Перечень сегодня ещё не собирали.</div></div></section>`;
     const old = G.date !== FRESH.todayYmd, c = G.counts || {};
-    const ST = {wait: 'ещё не время', late: 'не сделано', fail: 'сбой', olga: 'ждёт вас', nolog: 'нет отметки'};
+    const ST = {ok: 'сделано', wait: 'ещё не время', late: 'не сделано', fail: 'не сделано', olga: 'ждёт вас', nolog: 'нет отметки'};
     const bad = G.steps.filter((x) => ['olga', 'late', 'fail'].includes(x.status)).sort((a, b) => (a.status === 'olga' ? 0 : 1) - (b.status === 'olga' ? 0 : 1));
     const rest = G.steps.filter((x) => !['olga', 'late', 'fail'].includes(x.status));
-    const row = (x) => `<div class="grw ${esc(x.status)}"><span class="gt">${esc(x.time)}</span><span><b>${esc(x.title)}</b>${ST[x.status] ? ` <em>${ST[x.status]}</em>` : ''}<small>${esc(x.note || '')}</small></span></div>`;
+    const okNote = (x) => { const m = /в (\d{1,2}:\d{2})/.exec(x.note || ''); return x.status === 'ok' && m ? 'в ' + m[1] : ''; };
+    const row = (x) => `<div class="grw ${esc(x.status)}"><span class="gt">${esc(x.time)}</span><span><b>${esc(x.title)}</b> <em>${ST[x.status] || ''}</em><small>${esc([x.owner, okNote(x)].filter(Boolean).join(' · '))}</small></span></div>`;
     const ola = (G.olga || []).length && !old ? `<div class="gola"><b>От вас:</b> ${esc(G.olga[0])}</div>` : '';
-    const head = old ? `Перечень за ${esc(G.date.slice(8, 10) + '.' + G.date.slice(5, 7))}, сегодня ещё не собран` : `Сделано <b>${c.ok || 0} из ${G.total}</b>${bad.length ? ` · <span class="bad">требуют внимания ${bad.length}</span>` : ' · всё в порядке'}`;
-    return `<div class="sbox grf${old ? ' old' : ''}" id="grafik"><div class="gh"><h2>Перечень дня</h2><span class="gc">${head}</span></div>${ola}
+    const head = old ? `Перечень за ${esc(G.date.slice(8, 10) + '.' + G.date.slice(5, 7))}, сегодня ещё не собран` : `Сделано <b>${c.ok || 0} из ${G.total}</b>${bad.length ? ` · в работе у команды ${bad.length}` : ' · всё по графику'} · обновлено ${esc(G.at || '')} МСК`;
+    return `<section class="simple"><div class="sday">Перечень дня</div><div class="sbox grf${old ? ' old' : ''}" id="grafik"><div class="gh"><span class="gc">${head}</span></div>${ola}
       ${bad.map(row).join('')}
-      <details class="gmore"><summary>${[c.ok ? 'сделано ' + c.ok : '', c.wait ? 'ещё не время ' + c.wait : '', c.nolog ? 'без отметки ' + c.nolog : ''].filter(Boolean).join(' · ') || 'остальные шаги'} — показать</summary>${rest.map(row).join('')}</details></div>`;
-  }
-  // 13.11: одно крупное время обновления на весь пульт — самое позднее из сборки и перечня
-  function updLine() {
-    const t = [D.updated, D.grafik && D.grafik.date === FRESH.todayYmd ? D.grafik.built : ''].filter(Boolean).map((x) => new Date(x)).filter((d) => !isNaN(d)).sort((a, b) => b - a)[0];
-    if (!t) return '';
-    const today = FRESH.dm(t) === FRESH.dm(now);
-    return `<div class="supd${today ? '' : ' late'}">Обновлено ${today ? '' : FRESH.dm(t) + ' '}${FRESH.hm(t)} МСК</div>`;
+      <details class="gmore"${bad.length ? '' : ' open'}><summary>${[c.ok ? 'сделано ' + c.ok : '', c.wait ? 'ещё не время ' + c.wait : '', c.nolog ? 'без отметки ' + c.nolog : ''].filter(Boolean).join(' · ') || 'остальные шаги'} — показать</summary>${rest.map(row).join('')}</details></div>
+      <nav class="slinks"><button class="link" data-go="utro">← На пульт</button></nav></section>`;
   }
   function ohvatLine() {
     const O = D.ohvat, V = D.vypiska, parts = [];
@@ -1276,7 +1272,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const paid = new Set([...BK.filter((x) => x.date >= addD(y, -7)).flatMap((x) => (x.inItems || []).map((i) => i.who)), ...vItems.filter((i) => i.date >= addD(y, -7)).map((i) => i.who)].map(ak));
     const top = [...wait.entries()].filter(([k]) => !paid.has(ak(k))).sort((a, b) => ((a[1].d && a[1].d <= y) ? 0 : 1) - ((b[1].d && b[1].d <= y) ? 0 : 1) || b[1].a - a[1].a).slice(0, 5), tot = top.reduce((x, [, w]) => x + w.a, 0);
     return `<section class="simple">
-      <div class="sday">${cap(dn)}</div>${updLine()}${grafikHTML()}${ohvatLine()}
+      <div class="sday">${cap(dn)}</div>${ohvatLine()}
       <div class="sgrid${olga.length < 3 ? ' few' : ''}">
       <div class="sbox s-do"><h2>Сегодня от Ольги <span class="h2n">${olga.length}</span></h2>${olga.length ? `<div class="sm-h">все дела, где ждут вас; сверено сегодня ${olga.filter(okR).length} из ${olga.length}</div>` : ''}${todo}</div>
       <div class="s-side"><div class="sbox s-money"><h2>Деньги</h2>${dayH()}${portal}</div>
@@ -1585,7 +1581,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     document.body.dataset.tab = tab;
     $$('.tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
     const y = scrollY;
-    $('#view').innerHTML = `<div class="wrap" style="max-width:none">${tab === 'utro' ? utro() : tab === 'kontrol' ? kontrol() : tab === 'money' ? moneyTab() : tab === 'buh' ? buhTab() : tab === 'lena' ? lenaTab() : SECN[tab] ? secTab(tab) : all()}</div>`;
+    $('#view').innerHTML = `<div class="wrap" style="max-width:none">${tab === 'utro' ? utro() : tab === 'grafik' ? grafikPage() : tab === 'kontrol' ? kontrol() : tab === 'money' ? moneyTab() : tab === 'buh' ? buhTab() : tab === 'lena' ? lenaTab() : SECN[tab] ? secTab(tab) : all()}</div>`;
     scrollTo(0, y);
     const qi = $('#q'); if (qi) qi.oninput = (e) => { q = e.target.value.toLowerCase().trim(); const p = e.target.selectionStart; render(); const n = $('#q'); n.focus(); n.setSelectionRange(p, p); };
     $$('.cbar').forEach((g) => { g.onmouseenter = () => { const tp = $('#tip'), r = g.getBoundingClientRect(), cr = tp.parentElement.getBoundingClientRect(); tp.textContent = g.dataset.tip; tp.style.left = (r.left - cr.left + r.width / 2) + 'px'; tp.style.top = (r.top - cr.top + 40) + 'px'; tp.style.opacity = 1; }; g.onmouseleave = () => { $('#tip').style.opacity = 0; }; });
