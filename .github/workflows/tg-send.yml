@@ -1,0 +1,34 @@
+# Сообщение Ольге в Telegram: сводки 9:30 и пт 18:00, «Нужно ваше нажатие», утренний перечень.
+# Запуск веткой Claude: GitHub Actions → tg-send → Run workflow (или API workflow_dispatch) с полями text, buttons, ref.
+# Секреты репозитория (Settings → Secrets and variables → Actions): TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID.
+name: tg-send
+on:
+  workflow_dispatch:
+    inputs:
+      text:
+        description: 'Текст сообщения (перенос строки: \n)'
+        required: true
+      buttons:
+        description: 'Кнопки через ; (например: Да;Нет;Позже)'
+        required: false
+        default: ''
+      ref:
+        description: 'id дела или вопроса для ответа кнопкой'
+        required: false
+        default: ''
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts
+      - name: Отправить
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TEXT: ${{ inputs.text }}
+          BUTTONS: ${{ inputs.buttons }}
+          REF: ${{ inputs.ref }}
+        run: node scripts/tg_send.mjs

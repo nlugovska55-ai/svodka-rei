@@ -29,6 +29,8 @@ button{font:inherit;padding:10px;border:0;border-radius:8px;background:#1f1e1b;c
 }
 
 export default async function middleware(request) {
+  // Webhook Telegram: свой секретный заголовок проверяет api/tg.js; настройка (GET ?setup=1) остаётся за паролем.
+  if (request.method === 'POST' && new URL(request.url).pathname === '/api/tg') return;
   const password = (process.env.DASH_PASSWORD || '').trim();
   if (!password) {
     return new Response('Пароль не задан: добавьте DASH_PASSWORD в настройках проекта Vercel.', {
