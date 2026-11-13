@@ -383,3 +383,18 @@ class BuilderAcceptance(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class GrafikTest(unittest.TestCase):
+    """13.11: перечень дня берётся из kontrol/grafik-dnya.json как есть; битый или пустой файл — блока нет."""
+
+    def test_grafik_passthrough_and_broken(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "grafik-dnya.json"
+            p.write_text(json.dumps({"date": "2026-11-13", "steps": [{"title": "Альфа", "status": "ok"}], "counts": {"ok": 1}, "total": 1}), encoding="utf-8")
+            with patch.object(builder, "GRAFIK_PY", str(Path(d) / "net.py")), patch.object(builder, "GRAFIK_JSON", str(p)):
+                self.assertEqual(builder.grafik()["steps"][0]["title"], "Альфа")
+                p.write_text("{битый", encoding="utf-8")
+                self.assertIsNone(builder.grafik())
+                p.write_text(json.dumps({"date": "2026-11-13"}), encoding="utf-8")
+                self.assertIsNone(builder.grafik())

@@ -415,6 +415,19 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   .treb .tr{grid-template-columns:44px minmax(0,1fr)}
   .row:has(.abs) .who-t{display:none}.treb .tr>*:nth-child(n+3){grid-column:2/-1}
 }
+/* 13.11 перечень дня с галочками: галочки только из журнала запусков (kontrol/grafik_dnya.py) */
+.grf{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0 14px}
+.grf>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.grf>summary::-webkit-details-marker{display:none}.grf>summary h2{margin:0;font-size:19px}
+.grf>summary::after{content:'▸';color:var(--muted)}.grf[open]>summary::after{content:'▾'}
+.grf .gc{font-size:14px;color:var(--muted)}.grf .gc b{color:var(--ink)}.grf .gc .bad{color:var(--hot);font-weight:600}
+.grf .gola{margin:10px 0 0;padding:8px 12px;border-radius:8px;background:var(--warn-soft);color:var(--warn);font-size:14.5px}
+.grf .gg{font:600 13px var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 2px}
+.grf .grw{display:grid;grid-template-columns:22px 86px minmax(0,1fr);gap:2px 8px;padding:5px 0;border-top:1px solid var(--line);font-size:14px;align-items:baseline}
+.grf .grw .gi{font-size:14px;line-height:1}.grf .grw .gt{color:var(--muted);font-variant-numeric:tabular-nums;font-size:13px}
+.grf .grw b{font-weight:600;color:var(--ink)}.grf .grw small{display:block;color:var(--faint);font-size:13px;overflow-wrap:anywhere}
+.grf .grw.late b,.grf .grw.fail b{color:var(--hot)}.grf .grw.olga b{color:var(--warn)}.grf .grw.wait{opacity:.75}
+@media (max-width:560px){.grf .grw{grid-template-columns:22px minmax(0,1fr)}.grf .grw>span:nth-child(n+2){grid-column:2}}
 </style>
 </head>
 <body>
@@ -1137,6 +1150,22 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const niceCl = (c) => { const x = String(c || '').replace(/^gea$/i, 'ГЕА').replace(/(^|\s)(ооо|оао|ао|пао|зао|ип|ано)(?=\s|$)/gi, ' ').replace(/[«»"]/g, '').trim(); return x ? (x[0].toUpperCase() + x.slice(1)).replace(/(^|\s)([а-яё]{2,3})(?=\s|$)/gi, (m, a, b) => a + b.toUpperCase()) : ''; };
   const dueShort = (t) => t.dd === null ? 'без срока' : t.dd < 0 ? `просрочено ${-t.dd} дн` : t.dd === 0 ? 'сегодня' : t.dd === 1 ? 'завтра' : 'до ' + String(t.due || '').slice(0, 5);
   // 30.10 (Codex): свежесть — по времени охвата источников, а не по времени сборки; зелёного нет, пока охват не свежий
+  // 13.11 (Ольга: «хочу увидеть перечень с галочками каждое утро и каждый раз… что сделано, что нет»).
+  // Галочка только по журналу запусков; не сегодняшний перечень серым с пометкой.
+  function grafikHTML() {
+    const G = D.grafik;
+    if (!G || !(G.steps || []).length) return `<details class="grf"><summary><h2>Перечень дня</h2><span class="gc">перечень ещё не собирали</span></summary></details>`;
+    const old = G.date !== FRESH.todayYmd, c = G.counts || {};
+    const IC = {ok: '✅', wait: '⏳', late: '❌', fail: '⚠️', olga: '🙋', nolog: '▫️'};
+    const ST = {ok: '', wait: 'ещё не время', late: 'не сделано', fail: 'сбой', olga: 'ждёт вас', nolog: 'нет отметки в журнале'};
+    const bad = (c.late || 0) + (c.fail || 0) + (c.olga || 0);
+    const cnt = `<span class="gc">${old ? 'перечень за ' + esc(G.date.slice(8, 10) + '.' + G.date.slice(5, 7)) + ', сегодня ещё не собран · ' : ''}сделано <b>${c.ok || 0} из ${G.total}</b>${c.late ? ` · <span class="bad">не сделано ${c.late}</span>` : ''}${c.fail ? ` · <span class="bad">сбой ${c.fail}</span>` : ''}${c.olga ? ` · <span class="bad">ждёт вас ${c.olga}</span>` : ''}${c.wait ? ' · ещё не время ' + c.wait : ''} · на ${esc(G.at || '')}</span>`;
+    let grp = '';
+    const rows = G.steps.map((x) => { const h = x.group !== grp ? `<div class="gg">${esc(x.group || '')}</div>` : ''; grp = x.group;
+      return h + `<div class="grw ${esc(x.status)}"><span class="gi" title="${esc(ST[x.status] || '')}">${IC[x.status] || '•'}</span><span class="gt">${esc(x.time)}</span><span><b>${esc(x.title)}</b>${ST[x.status] ? ' · ' + ST[x.status] : ''}<small>${esc(x.owner ? x.owner + ': ' : '')}${esc(x.note || '')}</small></span></div>`; }).join('');
+    const ola = (G.olga || []).length && !old ? `<div class="gola"><b>От вас:</b> ${esc(G.olga[0])}</div>` : '';
+    return `<details class="grf" id="grafik"${old ? '' : ' open'}${old ? ' style="opacity:.7"' : ''}><summary><h2>Перечень дня</h2>${cnt}</summary>${ola}${rows}</details>`;
+  }
   function ohvatLine() {
     const O = D.ohvat, V = D.vypiska, parts = [];
     // обход банка (ohvat) и время файла выписки — разные вещи: не пишем «Альфа» дважды с разным временем
@@ -1239,7 +1268,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const paid = new Set([...BK.filter((x) => x.date >= addD(y, -7)).flatMap((x) => (x.inItems || []).map((i) => i.who)), ...vItems.filter((i) => i.date >= addD(y, -7)).map((i) => i.who)].map(ak));
     const top = [...wait.entries()].filter(([k]) => !paid.has(ak(k))).sort((a, b) => ((a[1].d && a[1].d <= y) ? 0 : 1) - ((b[1].d && b[1].d <= y) ? 0 : 1) || b[1].a - a[1].a).slice(0, 5), tot = top.reduce((x, [, w]) => x + w.a, 0);
     return `<section class="simple">
-      <div class="sday">${cap(dn)}</div>${ohvatLine()}
+      <div class="sday">${cap(dn)}</div>${ohvatLine()}${grafikHTML()}
       <div class="sgrid${olga.length < 3 ? ' few' : ''}">
       <div class="sbox s-do"><h2>Сегодня от Ольги <span class="h2n">${olga.length}</span></h2>${olga.length ? `<div class="sm-h">все дела, где ждут вас; сверено сегодня ${olga.filter(okR).length} из ${olga.length}</div>` : ''}${todo}</div>
       <div class="s-side"><div class="sbox s-money"><h2>Деньги</h2>${dayH()}${portal}</div>
