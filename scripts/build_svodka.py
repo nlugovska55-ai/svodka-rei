@@ -1067,6 +1067,18 @@ def main():
         "appliedEvents": applied_events(db_dir),
         "replies": [r for r in comment_replies(db_dir) if not is_login_ask(r)],
     }
+    # 13.11 («6 Регламент»): выгрузка без папки comments молча обнуляла appliedEvents и replies (42 → 0).
+    # Нет comments — оставляем прежние списки из текущего файла и предупреждаем; пустой список из пустой выгрузки не пишем.
+    if not glob.glob(os.path.join(db_dir, "comments", "*.json")):
+        try:
+            with open(out, encoding="utf-8-sig") as fh:
+                prev = json.load(fh)
+        except (OSError, ValueError):
+            prev = {}
+        data["appliedEvents"] = prev.get("appliedEvents") or []
+        data["replies"] = prev.get("replies") or []
+        print("ВНИМАНИЕ: в выгрузке нет comments — appliedEvents и replies взяты из прежней сводки "
+              f"({len(data['appliedEvents'])} и {len(data['replies'])}); выгрузите comments вместе с tasks", file=sys.stderr)
     sp, bs, bp, bank = spisaniya(), buh_svodka(), buh_plan(), bank_oboroty()
     data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "bank": bank, "buh_sources": buh_sources(sp, bs, bp, bank)})
     data["garanty"] = garanty(tasks, bank)
