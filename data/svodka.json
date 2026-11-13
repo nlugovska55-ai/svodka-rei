@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-13T10:46:38+03:00",
+ "updated": "2026-11-13T10:47:26+03:00",
  "tasks": [
   {
    "id": "agora1211-zadvizhki-032",
@@ -3675,8 +3675,8 @@
    "section": "Автоматика",
    "client": "Утро и сводка",
    "flag": "ok",
-   "text": "Сводка выложена, последняя 03:00",
-   "checked": "2026-11-09T11:42:33+03:00",
+   "text": "Сводка выложена, последняя 10:46",
+   "checked": "2026-11-13T10:46:51+03:00",
    "link": "https://svodka-rei.vercel.app",
    "proof": "коммит data/svodka.json в main svodka-rei",
    "src": "kontrol/avtomatika-status.json"
@@ -3685,11 +3685,11 @@
    "id": "auto-pochta",
    "section": "Автоматика",
    "client": "Разбор почты",
-   "flag": "срочно",
-   "text": "Не прочитано вовремя: Точка",
-   "checked": "2026-11-09T11:42:33+03:00",
+   "flag": "ok",
+   "text": "Последний разбор 10:40",
+   "checked": "2026-11-13T10:46:51+03:00",
    "link": "",
-   "proof": "kontrol/pochta-ohvat-2026-11-09.md",
+   "proof": "obkhod/pochta-razbor-2026-11-13.md",
    "src": "kontrol/avtomatika-status.json"
   },
   {
@@ -3697,21 +3697,21 @@
    "section": "Автоматика",
    "client": "Поступления в портал",
    "flag": "ok",
-   "text": "Не разнесённых дольше 2 ч нет (проверка 11:41)",
-   "checked": "2026-11-09T11:42:33+03:00",
+   "text": "Не разнесённых дольше 2 ч нет (проверка 10:41)",
+   "checked": "2026-11-13T10:46:51+03:00",
    "link": "",
-   "proof": "kontrol/postupleniya-2026-11-09.md",
+   "proof": "kontrol/postupleniya-2026-11-13.md",
    "src": "kontrol/avtomatika-status.json"
   },
   {
    "id": "auto-buh",
    "section": "Автоматика",
    "client": "Бухгалтерия",
-   "flag": "ok",
-   "text": "Сводка прогона 10:07",
-   "checked": "2026-11-09T11:42:33+03:00",
+   "flag": "warn",
+   "text": "Сводки прогона за сегодня нет",
+   "checked": "2026-11-13T10:46:51+03:00",
    "link": "",
-   "proof": "kontrol/buh-svodka-2026-11-09.md",
+   "proof": "kontrol/buh-svodka-2026-11-12.md",
    "src": "kontrol/avtomatika-status.json"
   },
   {
@@ -3719,8 +3719,8 @@
    "section": "Автоматика",
    "client": "Контроль Лены",
    "flag": "ok",
-   "text": "Прогон записан: 09.11 11:10",
-   "checked": "2026-11-09T11:42:33+03:00",
+   "text": "Прогон записан: 13.11 10:50",
+   "checked": "2026-11-13T10:46:51+03:00",
    "link": "",
    "proof": "kontrol-leny.md",
    "src": "kontrol/avtomatika-status.json"
@@ -3729,22 +3729,22 @@
    "id": "auto-pinatel",
    "section": "Автоматика",
    "client": "Пинатель",
-   "flag": "warn",
-   "text": "Пинков 1 из 2, нет: 11:40",
-   "checked": "2026-11-09T11:42:33+03:00",
+   "flag": "ok",
+   "text": "Пинков 1 из 1",
+   "checked": "2026-11-13T10:46:51+03:00",
    "link": "",
-   "proof": "kontrol/pinok-2026-11-09-ЧЧММ.md",
+   "proof": "kontrol/pinok-2026-11-13-ЧЧММ.md",
    "src": "kontrol/avtomatika-status.json"
   },
   {
    "id": "auto-cikl",
    "section": "Автоматика",
    "client": "Цикл пульта",
-   "flag": "ok",
-   "text": "Проверка 10:41: проблем 0, на проверке 0",
-   "checked": "2026-11-09T11:42:33+03:00",
+   "flag": "warn",
+   "text": "Проверки за сегодня нет",
+   "checked": "2026-11-13T10:46:51+03:00",
    "link": "",
-   "proof": "kontrol/cikl-pulta-2026-11-09.md",
+   "proof": "kontrol/cikl_pulta.py",
    "src": "kontrol/avtomatika-status.json"
   },
   {
@@ -3753,20 +3753,20 @@
    "client": "Обход проектов",
    "flag": "ok",
    "text": "Обход 09:04",
-   "checked": "2026-11-09T11:42:33+03:00",
+   "checked": "2026-11-13T10:46:51+03:00",
    "link": "",
-   "proof": "obkhod/2026-11-09-proekty.md",
+   "proof": "obkhod/2026-11-13-proekty.md",
    "src": "kontrol/avtomatika-status.json"
   },
   {
    "id": "auto-zapusk",
    "section": "Автоматика",
    "client": "Журнал запусков",
-   "flag": "warn",
-   "text": "pochta: partial (Точка)",
-   "checked": "2026-11-09T11:42:33+03:00",
+   "flag": "ok",
+   "text": "Последние запуски ok: pochta 10:40",
+   "checked": "2026-11-13T10:46:51+03:00",
    "link": "",
-   "proof": "kontrol/runs/2026-11-09.jsonl",
+   "proof": "kontrol/runs/2026-11-13.jsonl",
    "src": "kontrol/avtomatika-status.json"
   },
   {
@@ -3775,7 +3775,7 @@
    "client": "ГЕА, Телеграм, LUGA",
    "flag": "warn",
    "text": "Не проверено: результаты лежат в своих проектах",
-   "checked": "2026-11-09T11:42:33+03:00",
+   "checked": "2026-11-13T10:46:51+03:00",
    "link": "",
    "proof": "файлы других проектов недоступны",
    "src": "kontrol/avtomatika-status.json"
@@ -9029,13 +9029,13 @@
  },
  "grafik": {
   "date": "2026-11-13",
-  "at": "10:46",
-  "built": "2026-11-13T10:46:41+03:00",
+  "at": "10:47",
+  "built": "2026-11-13T10:47:27+03:00",
   "weekday": "пт",
   "counts": {
    "ok": 22,
-   "wait": 11,
-   "late": 1,
+   "wait": 10,
+   "late": 2,
    "fail": 3,
    "olga": 0,
    "nolog": 0
@@ -9287,7 +9287,7 @@
     "time": "10:07",
     "title": "Бухгалтерия: обход и сверка банк ↔ портал ↔ 1С",
     "owner": "Бухгалтерия",
-    "status": "wait",
+    "status": "late",
     "note": "записи прогона нет",
     "olga": "",
     "group": "В течение дня",
