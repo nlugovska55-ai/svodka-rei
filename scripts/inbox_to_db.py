@@ -149,7 +149,7 @@ def prepare(repo, seen_path, out, tasks_dir=None):
                            "data": {"text": text, "taskId": x.get("taskId"), "taskTitle": x.get("taskTitle") or x.get("client"),
                                     "client": x.get("client"), "action": x.get("action") or "",
                                     "at": at.isoformat(), "atStr": at.strftime("%d.%m, %H:%M"),
-                                    "status": status, "appliedTo": applied, "source": "сайт svodka-rei", "inboxFile": name, "inboxBlob": blob,
+                                    "status": status, "appliedTo": applied, "source": "Telegram" if f.get("source") == "telegram" else "сайт svodka-rei", "inboxFile": name, "inboxBlob": blob,
                                     "eventId": x.get("eid") or "", "latest": latest,
                                     "supersededBy": "" if latest else (last[x["taskId"]][1].get("eid") or "")}})
         manifest.append({"name": name, "blob": blob, "docIds": ids})
