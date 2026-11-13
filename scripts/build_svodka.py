@@ -311,28 +311,44 @@ def income():
     return [{k: v.get(k) for k in keep} for v in p.values() if isinstance(v, dict) and v.get("payer")]
 
 
-def vypiska():
-    """Последняя сводная выписка (kontrol/vypiski/ГГГГ-ММ-ДД.md): поступления «ДД.ММ | п/п | плательщик | сумма | основание»."""
-    files = sorted(glob.glob(os.path.join(KONTROL_DIR, "vypiski", "????-??-??.md")))
-    if not files:
-        return None
-    asof = os.path.basename(files[-1])[:10]
-    year, items, sec = asof[:4], [], ""
-    with open(files[-1], encoding="utf-8-sig") as fh:
+def _vyp_items(path):
+    """Поступления из одного файла выписки: «ДД.ММ | п/п | плательщик | сумма | основание» в разделе «Поступления»."""
+    year, items, sec = os.path.basename(path)[:4], [], ""
+    with open(path, encoding="utf-8-sig") as fh:
         for line in fh:
             if line.startswith("## "):
                 sec = line[3:].strip().lower()
                 continue
-            m = re.match(r"^(\d\d)\.(\d\d)\s*\|\s*([^|]*)\|\s*([^|]+)\|\s*([\d\s ,]+)\|\s*(.*)$", line.strip())
+            m = re.match(r"^(\d\d)\.(\d\d)\s*\|\s*([^|]*)\|\s*([^|]+)\|\s*([\d\s ,]+)\|\s*(.*)$", line.strip())
             if not m or not sec.startswith("поступ"):
                 continue
-            amount = float(re.sub(r"[\s ]", "", m.group(5)).replace(",", ".") or 0)
+            amount = float(re.sub(r"[\s ]", "", m.group(5)).replace(",", ".") or 0)
             items.append({"date": f"{year}-{m.group(2)}-{m.group(1)}", "pp": m.group(3).strip(), "payer": m.group(4).strip(), "amount": amount, "basis": m.group(6).strip()})
+    return items
+
+
+def vypiska():
+    """Сводная выписка (kontrol/vypiski/ГГГГ-ММ-ДД.md). 13.11: дневные файлы по письмам банка короче полной выписки —
+    поступления собираем из всех файлов (без повторов), время охвата — по последнему файлу."""
+    files = sorted(glob.glob(os.path.join(KONTROL_DIR, "vypiski", "????-??-??.md")))
+    if not files:
+        return None
+    asof, items, seen, base = os.path.basename(files[-1])[:10], [], set(), ""
+    for f in files:
+        got = _vyp_items(f)
+        if got:
+            base = os.path.basename(f)[:10]
+        for x in got:
+            k = (x["date"], x["pp"], x["amount"])
+            if k not in seen:
+                seen.add(k)
+                items.append(x)
     # время охвата — когда «Бухгалтерия» последний раз обновила файл выписки (МСК)
     mt = datetime.fromtimestamp(os.path.getmtime(files[-1]), timezone(timedelta(hours=3)))
-    # Ольга 06.11: «Деньги» не обновлялись — файл выписки ведётся вручную. Дни после него добираем из разбора почты
-    # (уведомления банков, obkhod/pochta-razbor-ДАТА.md) с пометкой «по уведомлению, выпиской не подтверждено».
-    notif = bank_notifications(asof)
+    # Ольга 06.11: «Деньги» не обновлялись — файл выписки ведётся вручную. Дни после последней выписки с поступлениями
+    # добираем из разбора почты (уведомления банков) с пометкой «по уведомлению, выпиской не подтверждено».
+    have = {(x["date"], x["amount"]) for x in items}
+    notif = [x for x in bank_notifications(base or asof) if (x["date"], x["amount"]) not in have]
     return {"asOf": asof, "time": mt.strftime("%H:%M"), "fileDate": mt.strftime("%Y-%m-%d"), "src": "kontrol/vypiski/" + os.path.basename(files[-1]),
             "items": items + notif, "notifUpto": max((x["seen"] for x in notif), default="")}
 
@@ -450,8 +466,9 @@ def buh_svodka():
             if line.startswith("## "):
                 cur = {"title": line[3:].strip(), "lines": []}
                 sections.append(cur)
-            elif line.startswith("- ") and cur is not None:
-                cur["lines"].append(line[2:].strip())
+            elif line.strip() and cur is not None:
+                # 13.11: строки бывают и «- …», и «1) …», и абзацем — показываем все
+                cur["lines"].append(re.sub(r"^(?:[-*]|\d+[).])\s+", "", line.strip()))
     head = open(files[-1], encoding="utf-8-sig").readline().lstrip("# ").strip()
     return {"file": os.path.basename(files[-1]), "title": head, "sections": sections}
 
