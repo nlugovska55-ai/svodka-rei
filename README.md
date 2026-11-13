@@ -72,3 +72,10 @@
   Кнопки сайта → задача db (только последнее событие по задаче): «Я выполнила» (после подтверждения) → `status: "done"`; «Поручить Claude» → `status: "open"`, `waiting: "Claude"`, `delegated: <eid>` (дело не закрывается, его ведёт Claude); «Вернуть» → `status: "open"`, `waiting: ""`; ждём клиента → `status: "wait"`; на вечер → `evening: true`; горит → `prio: true`; отложить — только на сайте. Сообщение без действия (в т. ч. старые с action пусто) задачу не меняет и ждёт разбора со `status: "new"`.
 - Раздел «Бухгалтерия» на сайте: реестр списаний `svodka/spisaniya.json` (ведёт «Бухгалтерия»: kind plan/reference, paid + paidSrc), последняя `kontrol/buh-svodka-*.md`, дела Бухгалтерии из db. Обороты банка — из `svodka/bank-oboroty.json` (ведёт «Бухгалтерия» по прочитанным выпискам: account, date, open, in, out, close, inItems/outItems, src; вход + приход − расход должен равняться концу, иначе сборка остановится). Сайт показывает их только по охваченным счетам и дням, «не полный факт месяца»; нет файла — «Факт по банку не получен». Сроки дел со счётом/подписью — «срок контроля», не дата оплаты.
 - На сайте статусы видны в колонке «Статус»; фильтры «На вечер» и «Ждём клиента» на вкладке «Клиенты».
+
+## Telegram-бот
+
+- `api/tg.js` — webhook бота: команды `/gorit`, `/nuzhno`, `/dengi`, `/id`; любой текст и нажатие кнопки ложатся в ветку `inbox` (источник `telegram`) и разбираются в 10/13/18. Файлы бот не принимает.
+- Сообщение Ольге из ветки Claude: запустить workflow `tg-send` (GitHub Actions, `workflow_dispatch`) с полями `text`, `buttons` (через `;`), `ref` (id дела). Через MCP: `actions_run_trigger`, method `run_workflow`, workflow `tg-send.yml`, ref `main`.
+- Переменные Vercel: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_ALLOWED_IDS`. Секреты GitHub Actions: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`. После задания переменных — Redeploy и один раз открыть `/api/tg?setup=1`.
+- В бот не отправлять документы клиентов, договоры, акты, персональные данные: только короткие строки пульта.
