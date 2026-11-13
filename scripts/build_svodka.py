@@ -922,6 +922,32 @@ def automation(summary, gar):
     return [r for r in summary if r.get("section") != "Автоматика"] + rows
 
 
+GRAFIK_PY = os.environ.get("GRAFIK_PY", "/mnt/project-files/daily-control/kontrol/grafik_dnya.py")
+GRAFIK_JSON = os.environ.get("GRAFIK_JSON", "/mnt/project-files/daily-control/kontrol/grafik-dnya.json")
+
+
+def grafik():
+    """Перечень дня с галочками (Ольга 13.11: «перечень с галочками каждое утро и каждый раз»).
+    Галочки считает kontrol/grafik_dnya.py только по журналу запусков и файлам прогонов; здесь пересчёт на момент сборки
+    и перенос как есть. Нет файла или он не за сегодня — блок пишет «перечень сегодня не собирали»."""
+    if os.path.exists(GRAFIK_PY):
+        try:
+            import subprocess
+            subprocess.run([sys.executable, "-I", GRAFIK_PY, "--repo", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")],
+                           capture_output=True, timeout=60)
+        except (OSError, Exception):  # сбой пересчёта не ломает сборку: остаётся прежний файл
+            pass
+    got = None
+    try:
+        with open(GRAFIK_JSON, encoding="utf-8-sig") as fh:
+            got = json.load(fh)
+    except (ValueError, OSError):
+        return None
+    if not isinstance(got, dict) or not isinstance(got.get("steps"), list):
+        return None
+    return got
+
+
 # Правило Ольги (§14 п.8): просьбы войти, ввести ПИН, логин или пароль, пароли и служебные дела для веток на пульт не ставим, только в чат
 LOGIN_RE = re.compile(r"(^|[^а-яё])пин([^а-яё]|$)|alfa id|войдите|войти в|вход в (банк|альф|точк|личн|кабинет|диадок|почт)|разлогин|залогин|логин|авториз|пароль|сесси[яи] истекл|разрешить (экран|доступ)|«разрешить»|памятк|в ветку|переключить ветку|\.py(?![a-z])|проект\S* «промты»|список веток|открыть [^.;]{0,40} в (яндекс|chrome|хром)", re.I)
 
@@ -1054,6 +1080,7 @@ def main():
     data["summary"] = automation(summary, data["garanty"])
     data["accuracy"] = forecast_accuracy(data["garanty"])
     data["trebovaniya"] = trebovaniya(tasks, closed_ids)
+    data["grafik"] = grafik()
     atomic_json(out, data)
     print(f"tasks {len(tasks)}, summary {len(summary)}, lena_clients {len(data['lena_clients'])} -> {out}")
 
