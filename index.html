@@ -415,19 +415,19 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   .treb .tr{grid-template-columns:44px minmax(0,1fr)}
   .row:has(.abs) .who-t{display:none}.treb .tr>*:nth-child(n+3){grid-column:2/-1}
 }
-/* 13.11 перечень дня с галочками: галочки только из журнала запусков (kontrol/grafik_dnya.py) */
-.grf{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:10px 0 14px}
-.grf>summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
-.grf>summary::-webkit-details-marker{display:none}.grf>summary h2{margin:0;font-size:19px}
-.grf>summary::after{content:'▸';color:var(--muted)}.grf[open]>summary::after{content:'▾'}
-.grf .gc{font-size:14px;color:var(--muted)}.grf .gc b{color:var(--ink)}.grf .gc .bad{color:var(--hot);font-weight:600}
-.grf .gola{margin:10px 0 0;padding:8px 12px;border-radius:8px;background:var(--warn-soft);color:var(--warn);font-size:14.5px}
-.grf .gg{font:600 13px var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 2px}
-.grf .grw{display:grid;grid-template-columns:22px 86px minmax(0,1fr);gap:2px 8px;padding:5px 0;border-top:1px solid var(--line);font-size:14px;align-items:baseline}
-.grf .grw .gi{font-size:14px;line-height:1}.grf .grw .gt{color:var(--muted);font-variant-numeric:tabular-nums;font-size:13px}
-.grf .grw b{font-weight:600;color:var(--ink)}.grf .grw small{display:block;color:var(--faint);font-size:13px;overflow-wrap:anywhere}
-.grf .grw.late b,.grf .grw.fail b{color:var(--hot)}.grf .grw.olga b{color:var(--warn)}.grf .grw.wait{opacity:.75}
-@media (max-width:560px){.grf .grw{grid-template-columns:22px minmax(0,1fr)}.grf .grw>span:nth-child(n+2){grid-column:2}}
+/* 13.11 перечень дня: счёт + только требующее внимания, остальное свёрнуто (Ольга: «похож на помойку») */
+.supd{font:700 26px/1.2 var(--f-disp);color:var(--ink);margin:2px 0 8px}.supd.late{color:var(--hot)}
+.grf{margin:0 0 12px}.grf.old{opacity:.7}.grf .gh{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline}.grf .gh h2{margin:0;padding:0}
+.grf .gc{font-size:15px;color:var(--muted)}.grf .gc b{color:var(--ink)}.grf .gc .bad{color:var(--hot);font-weight:600}
+.grf .gola{margin:8px 0 2px;padding:8px 12px;border-radius:8px;background:var(--warn-soft);color:var(--warn);font-size:15px}
+.grf .grw{display:grid;grid-template-columns:84px minmax(0,1fr);gap:2px 10px;padding:7px 0;border-top:1px solid var(--line);font-size:15px;align-items:baseline}
+.grf .grw .gt{color:var(--faint);font-variant-numeric:tabular-nums;font-size:13.5px}.grf .grw b{font-weight:600}
+.grf .grw em{font-style:normal;font-size:13.5px;font-weight:600;color:var(--hot);margin-left:4px}.grf .grw.olga em{color:var(--warn)}
+.grf .grw.ok em,.grf .grw.wait em,.grf .grw.nolog em{color:var(--faint);font-weight:400}
+.grf .grw small{display:block;color:var(--muted);font-size:13.5px;overflow-wrap:anywhere}
+.grf .gmore{border-top:1px solid var(--line);padding-top:8px;margin-top:2px}.grf .gmore>summary{cursor:pointer;color:var(--accent,var(--ok));font-size:14.5px;list-style:none}
+.grf .gmore>summary::-webkit-details-marker{display:none}.grf .gmore[open]>summary{margin-bottom:4px}
+@media (max-width:560px){.supd{font-size:22px}.grf .grw{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -995,7 +995,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const L = o.filter((t) => t.who === 'Лена'), C = o.filter((t) => t.who === 'Claude'), W = o.filter((t) => t.who === 'клиент' || t.who === 'эксперт');
     const oldest = W.reduce((mx, t) => { const s = parseRu(t.waitSince); return s ? Math.max(mx, Math.round((today - s) / MS)) : mx; }, 0);
     const near = (a) => { const x = a.filter((t) => t.dd !== null).sort(order)[0]; return x ? 'ближайшее: ' + x.short.slice(0, 40) + ' · ' + dueTxt(x) : 'сроков нет'; };
-    const proj = (D.summary || []).filter((s) => s.section === 'Проекты');
+    // 13.11 (Ольга: «похож на помойку»): строки «Проектов» старше 2 дней не показываем — в базе они остаются
+    const proj = (D.summary || []).filter((s) => s.section === 'Проекты' && (() => { const d = checkedDay(s.checked); return d && (Date.parse(FRESH.todayYmd) - Date.parse(d)) / 864e5 <= 2; })());
     return `<section class="sec" id="team"><div class="sh"><h2>Команда и ожидания</h2><span class="c">цифра открывает «Все дела» с тем же фильтром</span></div>
       <div class="team"><button data-go="all" data-who="Лена"><b>${L.length}</b>ведёт Лена<span>${esc(near(L))}</span></button><button data-go="all" data-who="Claude"><b>${C.length}</b>ведёт Claude<span>${esc(near(C))}</span></button>
       <button data-go="all" data-who="клиент"><b>${W.length}</b>ждём клиента<span>${oldest ? 'дольше всех ' + oldest + ' дн' : 'от нас ничего не нужно'}</span></button>${proj.length ? `<button data-bucket="proj" aria-expanded="${openB === 'proj'}"><b>${proj.length}</b>проекты<span>${proj.filter((p) => p.flag === 'warn' || p.flag === 'срочно').length} ждут вашего шага</span></button>` : ''}</div>
@@ -1154,17 +1155,24 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   // Галочка только по журналу запусков; не сегодняшний перечень серым с пометкой.
   function grafikHTML() {
     const G = D.grafik;
-    if (!G || !(G.steps || []).length) return `<details class="grf"><summary><h2>Перечень дня</h2><span class="gc">перечень ещё не собирали</span></summary></details>`;
+    if (!G || !(G.steps || []).length) return `<div class="sbox grf"><h2>Перечень дня</h2><div class="sempty">Перечень сегодня ещё не собирали.</div></div>`;
     const old = G.date !== FRESH.todayYmd, c = G.counts || {};
-    const IC = {ok: '✅', wait: '⏳', late: '❌', fail: '⚠️', olga: '🙋', nolog: '▫️'};
-    const ST = {ok: '', wait: 'ещё не время', late: 'не сделано', fail: 'сбой', olga: 'ждёт вас', nolog: 'нет отметки в журнале'};
-    const bad = (c.late || 0) + (c.fail || 0) + (c.olga || 0);
-    const cnt = `<span class="gc">${old ? 'перечень за ' + esc(G.date.slice(8, 10) + '.' + G.date.slice(5, 7)) + ', сегодня ещё не собран · ' : ''}сделано <b>${c.ok || 0} из ${G.total}</b>${c.late ? ` · <span class="bad">не сделано ${c.late}</span>` : ''}${c.fail ? ` · <span class="bad">сбой ${c.fail}</span>` : ''}${c.olga ? ` · <span class="bad">ждёт вас ${c.olga}</span>` : ''}${c.wait ? ' · ещё не время ' + c.wait : ''} · обновлено ${esc(G.at || '')} МСК</span>`;
-    let grp = '';
-    const rows = G.steps.map((x) => { const h = x.group !== grp ? `<div class="gg">${esc(x.group || '')}</div>` : ''; grp = x.group;
-      return h + `<div class="grw ${esc(x.status)}"><span class="gi" title="${esc(ST[x.status] || '')}">${IC[x.status] || '•'}</span><span class="gt">${esc(x.time)}</span><span><b>${esc(x.title)}</b>${ST[x.status] ? ' · ' + ST[x.status] : ''}<small>${esc(x.owner ? x.owner + ': ' : '')}${esc(x.note || '')}</small></span></div>`; }).join('');
+    const ST = {wait: 'ещё не время', late: 'не сделано', fail: 'сбой', olga: 'ждёт вас', nolog: 'нет отметки'};
+    const bad = G.steps.filter((x) => ['olga', 'late', 'fail'].includes(x.status)).sort((a, b) => (a.status === 'olga' ? 0 : 1) - (b.status === 'olga' ? 0 : 1));
+    const rest = G.steps.filter((x) => !['olga', 'late', 'fail'].includes(x.status));
+    const row = (x) => `<div class="grw ${esc(x.status)}"><span class="gt">${esc(x.time)}</span><span><b>${esc(x.title)}</b>${ST[x.status] ? ` <em>${ST[x.status]}</em>` : ''}<small>${esc(x.note || '')}</small></span></div>`;
     const ola = (G.olga || []).length && !old ? `<div class="gola"><b>От вас:</b> ${esc(G.olga[0])}</div>` : '';
-    return `<details class="grf" id="grafik"${old ? '' : ' open'}${old ? ' style="opacity:.7"' : ''}><summary><h2>Перечень дня</h2>${cnt}</summary>${ola}${rows}</details>`;
+    const head = old ? `Перечень за ${esc(G.date.slice(8, 10) + '.' + G.date.slice(5, 7))}, сегодня ещё не собран` : `Сделано <b>${c.ok || 0} из ${G.total}</b>${bad.length ? ` · <span class="bad">требуют внимания ${bad.length}</span>` : ' · всё в порядке'}`;
+    return `<div class="sbox grf${old ? ' old' : ''}" id="grafik"><div class="gh"><h2>Перечень дня</h2><span class="gc">${head}</span></div>${ola}
+      ${bad.map(row).join('')}
+      <details class="gmore"><summary>${[c.ok ? 'сделано ' + c.ok : '', c.wait ? 'ещё не время ' + c.wait : '', c.nolog ? 'без отметки ' + c.nolog : ''].filter(Boolean).join(' · ') || 'остальные шаги'} — показать</summary>${rest.map(row).join('')}</details></div>`;
+  }
+  // 13.11: одно крупное время обновления на весь пульт — самое позднее из сборки и перечня
+  function updLine() {
+    const t = [D.updated, D.grafik && D.grafik.date === FRESH.todayYmd ? D.grafik.built : ''].filter(Boolean).map((x) => new Date(x)).filter((d) => !isNaN(d)).sort((a, b) => b - a)[0];
+    if (!t) return '';
+    const today = FRESH.dm(t) === FRESH.dm(now);
+    return `<div class="supd${today ? '' : ' late'}">Обновлено ${today ? '' : FRESH.dm(t) + ' '}${FRESH.hm(t)} МСК</div>`;
   }
   function ohvatLine() {
     const O = D.ohvat, V = D.vypiska, parts = [];
@@ -1268,7 +1276,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const paid = new Set([...BK.filter((x) => x.date >= addD(y, -7)).flatMap((x) => (x.inItems || []).map((i) => i.who)), ...vItems.filter((i) => i.date >= addD(y, -7)).map((i) => i.who)].map(ak));
     const top = [...wait.entries()].filter(([k]) => !paid.has(ak(k))).sort((a, b) => ((a[1].d && a[1].d <= y) ? 0 : 1) - ((b[1].d && b[1].d <= y) ? 0 : 1) || b[1].a - a[1].a).slice(0, 5), tot = top.reduce((x, [, w]) => x + w.a, 0);
     return `<section class="simple">
-      <div class="sday">${cap(dn)}</div>${ohvatLine()}${grafikHTML()}
+      <div class="sday">${cap(dn)}</div>${updLine()}${grafikHTML()}${ohvatLine()}
       <div class="sgrid${olga.length < 3 ? ' few' : ''}">
       <div class="sbox s-do"><h2>Сегодня от Ольги <span class="h2n">${olga.length}</span></h2>${olga.length ? `<div class="sm-h">все дела, где ждут вас; сверено сегодня ${olga.filter(okR).length} из ${olga.length}</div>` : ''}${todo}</div>
       <div class="s-side"><div class="sbox s-money"><h2>Деньги</h2>${dayH()}${portal}</div>
