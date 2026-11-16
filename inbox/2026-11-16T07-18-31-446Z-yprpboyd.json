@@ -1,0 +1,28 @@
+{
+  "sentAt": "2026-11-16T07:18:40.099Z",
+  "batchId": "2026-11-16T07-18-31-446Z-yprpboyd",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "ООО «Анк-Групп»",
+      "taskId": "edo1311-ank-grup",
+      "taskTitle": "Анк-Групп: добавить в ЭДО Диадок (просьба Лены 13.11 11:54)",
+      "text": "",
+      "action": "done",
+      "actionLabel": "Я выполнила",
+      "at": "2026-11-16T07:18:22.089Z",
+      "eid": "emwixm9hlflcbucz4"
+    },
+    {
+      "client": "Дельта-Сертификат",
+      "taskId": null,
+      "taskTitle": "Подписать платёжку на 12 000 в Альфе (импорт готов)",
+      "text": "",
+      "action": "done",
+      "actionLabel": "Я выполнила",
+      "at": "2026-11-16T07:18:26.431Z",
+      "eid": "emwixmcu7hqllohx9"
+    }
+  ]
+}
