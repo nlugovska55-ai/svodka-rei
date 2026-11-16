@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-16T08:08:26.570Z",
+  "batchId": "2026-11-16T08-08-17-889Z-d9m4xfe7",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "ТехноСервис",
+      "taskId": null,
+      "taskTitle": "Отправить вопросы Косивченко по обследованию опор (черновик в olga@)",
+      "text": "Почему пишешь? Я же отправила",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-11-16T08:08:12.882Z",
+      "eid": "emwized760c38obd8"
+    }
+  ]
+}
