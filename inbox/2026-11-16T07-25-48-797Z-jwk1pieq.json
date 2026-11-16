@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-16T07:25:57.336Z",
+  "batchId": "2026-11-16T07-25-48-797Z-jwk1pieq",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "СДЭК",
+      "taskId": "lar3",
+      "taskTitle": "СДЭК: лишний дебет 11 400,69 прошлых лет",
+      "text": "да, сделай плиззз.",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-11-16T07:25:43.789Z",
+      "eid": "emwixvqb1432p0eys"
+    }
+  ]
+}
