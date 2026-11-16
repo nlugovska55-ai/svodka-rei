@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-16T07:24:22.456Z",
+  "batchId": "2026-11-16T07-24-13-806Z-t4mhfsnw",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Прочее",
+      "taskId": "it1211-upd-0012",
+      "taskTitle": "Интернет Трэвел: 4 УПД в Диадоке закрывают заказы 0012 (7 499) и 0014 (10 091)",
+      "text": "разнеси.",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-11-16T07:24:08.795Z",
+      "eid": "emwixtp0b14113vl8"
+    }
+  ]
+}
