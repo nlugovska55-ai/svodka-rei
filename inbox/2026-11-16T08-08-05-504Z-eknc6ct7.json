@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-16T08:08:14.164Z",
+  "batchId": "2026-11-16T08-08-05-504Z-eknc6ct7",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Лично вам",
+      "taskId": "novost2311-da",
+      "taskTitle": "Новость недели 23.11 (замена документов): «да» Ольги на версию 4",
+      "text": "",
+      "action": "done",
+      "actionLabel": "Я выполнила",
+      "at": "2026-11-16T08:08:00.500Z",
+      "eid": "emwize3n86dmouhpx"
+    }
+  ]
+}
