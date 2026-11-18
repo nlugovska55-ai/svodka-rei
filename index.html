@@ -268,7 +268,7 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
 .sm-h{font-size:14px;color:var(--muted);margin-top:8px}
 .sl{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line);font-size:16px}
 .sl b{font-variant-numeric:tabular-nums;white-space:nowrap}.sl small{display:block;color:var(--muted);font-size:13.5px}
-.sm-h b{color:var(--ink)}.sl.sp.ok{color:var(--ok)}.sl.sp.warn span{color:var(--hot);font-weight:600}.sm-h .src{font-size:13.5px}.sl small.late{color:var(--hot);font-weight:600}body[data-tab=utro] .foot .keys{display:none}body[data-tab=utro] .tabs{display:none}.slinks{display:flex;gap:18px;justify-content:center;flex-wrap:wrap}.slinks .link{margin:0;font-size:15px}.dls{display:grid;gap:0}.dl{padding:10px 0;border-top:1px solid var(--line)}.dl-h{font-size:13.5px;color:var(--muted)}.dl-h .ok{color:var(--ok);font-weight:600}.dl-h small{color:var(--faint)}.dl-t{font-weight:600;margin:2px 0}.dl-t .late{color:var(--hot);font-size:13.5px}.dl-s{font-size:14px;color:var(--muted);overflow-wrap:anywhere}.smeta{display:block;font-size:13px;color:var(--faint);margin-top:2px}.stot{font-size:16px;margin-top:4px}.stot b{font-size:18px}.simple .st,.simple .sl span,.simple .sm-h,.simple .smore2{overflow-wrap:anywhere;min-width:0}.simple .sl b{white-space:normal}.smore2{text-align:left}.ssub+.rw.sr .row{border-top:0}.ssub{font:600 13.5px var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 0;padding-top:10px;border-top:1px solid var(--line)}body[data-tab=utro] #fresh .dot{background:var(--faint)!important}.sohv{font-size:14px;color:var(--muted);margin-top:-6px}.sweek summary{cursor:pointer;list-style:none}.sweek summary::-webkit-details-marker{display:none}.sweek summary::after{content:' ▸'}.sweek[open] summary::after{content:' ▾'}.h2n{font:600 17px var(--f-body);color:var(--muted);margin-left:6px}
+.sm-h b{color:var(--ink)}.sl.sp.ok{color:var(--ok)}.sl.sp.warn span{color:var(--hot);font-weight:600}.sm-h .src{font-size:13.5px}.sl small.late{color:var(--hot);font-weight:600}body[data-tab=utro] .foot .keys{display:none}.slinks{display:flex;gap:18px;justify-content:center;flex-wrap:wrap}.slinks .link{margin:0;font-size:15px}.dls{display:grid;gap:0}.dl{padding:10px 0;border-top:1px solid var(--line)}.dl-h{font-size:13.5px;color:var(--muted)}.dl-h .ok{color:var(--ok);font-weight:600}.dl-h small{color:var(--faint)}.dl-t{font-weight:600;margin:2px 0}.dl-t .late{color:var(--hot);font-size:13.5px}.dl-s{font-size:14px;color:var(--muted);overflow-wrap:anywhere}.smeta{display:block;font-size:13px;color:var(--faint);margin-top:2px}.stot{font-size:16px;margin-top:4px}.stot b{font-size:18px}.simple .st,.simple .sl span,.simple .sm-h,.simple .smore2{overflow-wrap:anywhere;min-width:0}.simple .sl b{white-space:normal}.smore2{text-align:left}.ssub+.rw.sr .row{border-top:0}.ssub{font:600 13.5px var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:14px 0 0;padding-top:10px;border-top:1px solid var(--line)}body[data-tab=utro] #fresh .dot{background:var(--faint)!important}.sohv{font-size:14px;color:var(--muted);margin-top:-6px}.sweek summary{cursor:pointer;list-style:none}.sweek summary::-webkit-details-marker{display:none}.sweek summary::after{content:' ▸'}.sweek[open] summary::after{content:' ▾'}.h2n{font:600 17px var(--f-body);color:var(--muted);margin-left:6px}
 .sl.sp{margin-top:10px;display:block}.sl.sp b{font-weight:600;display:block}
 .st em{display:block;font-style:normal;font-size:13.5px;font-weight:700;color:var(--brand);letter-spacing:.02em}.smore2{margin:10px 0 0;font-size:15px}
 .tab .lg{white-space:nowrap}
@@ -447,6 +447,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <button class="tab aux" role="tab" data-tab="all"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 5h10M6 9h10M6 13h10"/><circle cx="2.5" cy="5" r=".6"/><circle cx="2.5" cy="9" r=".6"/><circle cx="2.5" cy="13" r=".6"/></svg><span class="lg">Все дела</span><span class="sm">Все</span></button>
     </nav>
     <a class="hlink" href="#grafik">Перечень дня</a>
+    <a class="hlink" href="#garanty">Гаранты</a>
     <div class="fresh" id="fresh"><span class="dot" style="background:var(--faint)"></span>Загружаю данные…</div>
   </header>
   <main id="view"><div class="skel"></div></main>
@@ -727,6 +728,10 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const isLoginAsk = (x) => LOGIN_RE.test(['title', 'short', 'text', 'next', 'detail'].map((k) => x[k] || '').join(' '));
   // ---------- разделы (30.10, схема Ольги): Сегодня · Мои клиенты · Клиенты Лены · Бухгалтерия · Другие ----------
   const TABS = ['utro', 'my', 'lena', 'buh', 'other', 'kontrol', 'money', 'all', 'grafik'];
+  // адреса-входы, которые открывают раздел внутри вкладки: #garanty — реестр гарантов Лены на «Прогнозе денег»
+  const ALIAS = {garanty: ['money', 'garanty-all']};
+  const route = (h) => ALIAS[h] ? {t: ALIAS[h][0], a: ALIAS[h][1]} : TABS.includes(h) ? {t: h, a: ''} : null;
+  const toAnchor = (a) => { if (a) setTimeout(() => { const el = document.getElementById(a); if (el) el.scrollIntoView({block: 'start'}); }, 30); };
   const SECN = {my: 'Мои клиенты', lena: 'Клиенты Лены', buh: 'Бухгалтерия', other: 'Другие'};
   const MYC = /логика|эйчэнэн|gea|геа|вкусвилл|виртекс|востряково|тамбов/i;
   const grpOf = (t) => t.section === 'Бухгалтерия' || t.cat === 'tax' ? 'buh' : t.section === 'Мои клиенты' ? 'my' : t.mgr === 'Лена' || t.section === 'Клиенты Лены' ? 'lena' : MYC.test(t.cl || t.client || '') ? 'my' : 'other';
@@ -1509,6 +1514,13 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const dmY = (y) => y.slice(8, 10) + '.' + y.slice(5, 7);
   const addD = (y, n) => new Date(Date.parse(y + 'T12:00:00Z') + n * 864e5).toISOString().slice(0, 10);
   const taskYmd = (t) => { const d = parseRu(t.due); return d ? d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()) : ''; };
+  // диапазон суммы: массив [мин, макс] или строка из старых записей («≈44 220», «0–12 699»); только подпись, в итоги не входит
+  function rangeTxt(v) {
+    if (Array.isArray(v)) { const a = v.filter((x) => x !== null && x !== '' && isFinite(Number(x))); return a.length ? a.map((x) => Number(x).toLocaleString('ru-RU')).join('–') + ' ₽, по счёту' : ''; }
+    if (typeof v === 'string' && v.trim()) return esc(v.trim()) + (/₽|руб/i.test(v) ? '' : ' ₽') + ', по счёту';
+    if (typeof v === 'number' && isFinite(v)) return v.toLocaleString('ru-RU') + ' ₽, по счёту';
+    return '';
+  }
   function buhTab() {
     const SP = D.spisaniya, rowsSP = SP ? SP.rows : [], src = D.buh_sources, tY = FRESH.todayYmd, end = addD(tY, calN), month = tY.slice(0, 7);
     const buhT = T.filter((t) => isOpen(t) && !t.fromSummary && (t.section === 'Бухгалтерия' || t.cat === 'tax')).sort(order);
@@ -1516,7 +1528,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     // оплата: по выписке банка, подтверждено ФНС (поступило на ЕНС) или только со слов Ольги — три разных уровня
     const kindOf = (r) => r.kind === 'reference' ? ['ref', 'справочно'] : !r.paid ? ['pay', 'к оплате'] : r.bankConfirmed ? ['in', 'оплачено по выписке'] : r.confirmedBy ? ['in', 'подтверждено ' + r.confirmedBy] : ['ref', 'со слов Ольги, не подтверждено'];
     // null — сумма неизвестна (есть диапазон), 0 — действительно ноль (zeroMeans), иначе сумма
-    const amt = (r) => r.amount === null || r.amount === undefined ? (r.amountRange ? r.amountRange.map((x) => Number(x).toLocaleString('ru-RU')).join('–') + ' ₽, по счёту' : 'сумма неизвестна')
+    const amt = (r) => r.amount === null || r.amount === undefined ? (rangeTxt(r.amountRange) || 'сумма неизвестна')
       : Number(r.amount) === 0 ? (r.zeroMeans ? 'списания нет' : 'сумма не указана') : (r.kind === 'reference' ? '≈ ' : '') + rubX(r.amount);
     // календарь: списания из реестра «Бухгалтерии», ожидаемые поступления и сроки дел с датой; неоплаченное прошлое — сверху как просроченное
     const ev = [];
@@ -1535,6 +1547,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const conf = (r) => r.bankConfirmed || !!r.confirmedBy;
     const toPay = grp((r) => r.kind !== 'reference' && !r.paid), paidOk = grp((r) => r.kind !== 'reference' && r.paid && conf(r)), paid = grp((r) => r.kind !== 'reference' && r.paid && !conf(r)), ref = grp((r) => r.kind === 'reference');
     const sum = (a) => a.reduce((x, r) => x + (Number(r.amount) || 0), 0);
+    const noAmt = (a) => { const n = a.filter((r) => r.amount === null || r.amount === undefined).length; return n ? `, без точной суммы ещё ${plural(n, 'платёж', 'платежа', 'платежей')}, в итог не вошли` : ''; };
     const list = (a) => a.map((r) => { const [c, l] = kindOf(r); return `<div class="cd"><span class="dt">${dmY(r.date)}</span><span class="wt"><span class="kd ${c}">${l}</span>${esc(r.who)}: ${esc(r.what)}<small>${r.paidOn ? 'поступило ' + dmY(r.paidOn) + (r.basis ? ' (' + esc(r.basis) + ')' : '') + (r.plan ? ', план был ' + dmY(r.plan) : '') + ' · ' : ''}${esc(r.state || '')}${conf(r) && r.bankNote ? ' · ' + esc(r.bankNote) : ''}${r.paid && !conf(r) && r.paidSrc ? ' · ' + esc(r.paidSrc) : ''}${r.paid && !conf(r) && r.bankCheck ? ' · ' + esc(r.bankCheck) : ''}</small>${srcDet(r.src)}</span><span class="num">${amt(r)}</span></div>`; }).join('');
     const mPlan = grp((r) => r.kind !== 'reference' && r.date.slice(0, 7) === month), mOk = mPlan.filter((r) => r.paid && conf(r)), mPaid = mPlan.filter((r) => r.paid && !conf(r));
     const bs = D.buh_svodka, BP = D.buh_plan, bal = BP && BP.balance, BK = D.bank, bkM = BK ? BK.days.filter((x) => x.date.slice(0, 7) === month) : [];
@@ -1554,7 +1567,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
         : `<div><small>Остаток на счетах и прогноз</small><b style="color:var(--warn)">не считаю</b><small>${esc(bal && bal.why ? bal.why : 'без выписок банка остаток не выдумываем')}</small></div>`}</div></section>
     ${BK && BK.days.length ? `<section class="sec"><div class="sh"><h2>Банк: обороты по прочитанным выпискам</h2><span class="c">только эти счета и дни, не полный факт</span></div>${bankTable(BK.days)}</section>` : ''}
     <section class="sec"><div class="sh"><h2>Предстоящие списания</h2><span class="c">${SP ? 'реестр Бухгалтерии от ' + esc(SP.built) : 'реестр не получен'}</span></div>
-      <div class="rows" style="padding:6px 14px">${SP ? `${toPay.length ? `<div class="hint" style="padding:6px 0 0">К оплате · ${rubX(sum(toPay))}</div>${list(toPay)}` : '<div class="hint" style="padding:6px 0">К оплате в реестре ничего нет.</div>'}
+      <div class="rows" style="padding:6px 14px">${SP ? `${toPay.length ? `<div class="hint" style="padding:6px 0 0">К оплате · ${rubX(sum(toPay))}${noAmt(toPay)}</div>${list(toPay)}` : '<div class="hint" style="padding:6px 0">К оплате в реестре ничего нет.</div>'}
       ${paidOk.length ? `<div class="hint" style="padding:10px 0 0">Оплачено, подтверждено ФНС · ${rubX(sum(paidOk))}. Повторно не платить</div>${list(paidOk)}${SP.confirmedNote ? `<div class="hint" style="padding:4px 0">${esc(SP.confirmedNote)}</div>` : ''}` : ''}
       ${paid.length ? `<div class="hint" style="padding:10px 0 0">Со слов Ольги, банком и ФНС не подтверждено · ${rubX(sum(paid))}</div>${list(paid)}` : ''}
       ${ref.length ? `<div class="hint" style="padding:10px 0 0">Справочно, в итоги не входит</div>${list(ref)}` : ''}${SP.note ? `<div class="hint" style="padding:8px 0">${esc(SP.note)}</div>` : ''}` : '<div class="hint" style="color:var(--warn);padding:6px 0">Файл svodka/spisaniya.json не получен. Сумм не показываю.</div>'}</div></section>
@@ -1581,14 +1594,18 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     document.body.dataset.tab = tab;
     $$('.tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
     const y = scrollY;
-    $('#view').innerHTML = `<div class="wrap" style="max-width:none">${tab === 'utro' ? utro() : tab === 'grafik' ? grafikPage() : tab === 'kontrol' ? kontrol() : tab === 'money' ? moneyTab() : tab === 'buh' ? buhTab() : tab === 'lena' ? lenaTab() : SECN[tab] ? secTab(tab) : all()}</div>`;
+    let html;
+    try { html = tab === 'utro' ? utro() : tab === 'grafik' ? grafikPage() : tab === 'kontrol' ? kontrol() : tab === 'money' ? moneyTab() : tab === 'buh' ? buhTab() : tab === 'lena' ? lenaTab() : SECN[tab] ? secTab(tab) : all(); }
+    catch (e) { console.error(e); html = `<div class="empty"><b>Раздел не показан: ошибка в данных</b><span>${esc(String(e && e.message || e))}. Остальные разделы работают; напишите ветке «Дашборд».</span></div>`; }
+    $('#view').innerHTML = `<div class="wrap" style="max-width:none">${html}</div>`;
     scrollTo(0, y);
     const qi = $('#q'); if (qi) qi.oninput = (e) => { q = e.target.value.toLowerCase().trim(); const p = e.target.selectionStart; render(); const n = $('#q'); n.focus(); n.setSelectionRange(p, p); };
     $$('.cbar').forEach((g) => { g.onmouseenter = () => { const tp = $('#tip'), r = g.getBoundingClientRect(), cr = tp.parentElement.getBoundingClientRect(); tp.textContent = g.dataset.tip; tp.style.left = (r.left - cr.left + r.width / 2) + 'px'; tp.style.top = (r.top - cr.top + 40) + 'px'; tp.style.opacity = 1; }; g.onmouseleave = () => { $('#tip').style.opacity = 0; }; });
     swipes();
     const rs = $$('.rw .row'); if (cur >= rs.length) cur = rs.length - 1; if (cur >= 0 && rs[cur]) rs[cur].classList.add('cur');
   }
-  function go(t, keep) { if (t !== tab) sf = 'all'; tab = t; if (!keep) { mf = ''; openB = ''; } cur = -1; try { history.replaceState(null, '', '#' + t); } catch (e) {} render(); scrollTo(0, 0); }
+  // переход в раздел пишет запись в историю браузера, чтобы «Назад» возвращал в прошлый раздел; fromHash — переход уже по адресу
+  function go(t, keep, fromHash) { if (t !== tab) sf = 'all'; tab = t; if (!keep) { mf = ''; openB = ''; } cur = -1; if (!fromHash && location.hash.slice(1) !== t) { try { history.pushState(null, '', '#' + t); } catch (e) {} } render(); scrollTo(0, 0); }
 
   // ---------- карточка дела ----------
   let dTask = null;
@@ -1716,7 +1733,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     } else return;
     e.preventDefault(); $$('.row.cur').forEach((r) => r.classList.remove('cur')); const r = $('.row', rs[cur]); r.classList.add('cur'); r.scrollIntoView({block: 'nearest'});
   });
-  addEventListener('hashchange', () => { const h = location.hash.slice(1); if (TABS.includes(h) && h !== tab) go(h); });
+  const onHash = () => { const r = route(location.hash.slice(1) || 'utro'); if (!r) return; if (r.t !== tab) go(r.t, false, true); toAnchor(r.a); };
+  addEventListener('hashchange', onHash); addEventListener('popstate', onHash);
 
   // Отметки с других устройств: читаем ветку inbox за 48 ч, пока Claude их не внёс в базу
   let syncNote = '';
@@ -1760,8 +1778,9 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       if (refresh && busy()) { setTimeout(() => load(true), 30e3); return; }
       prep(data);
       await pull();
-      if (!refresh) { const h = location.hash.slice(1); tab = TABS.includes(h) ? h : 'utro'; }
-      render(); if (outbox.length || inflight) flush();
+      const r0 = refresh ? null : route(location.hash.slice(1));
+      if (!refresh) tab = r0 ? r0.t : 'utro';
+      render(); if (r0) toAnchor(r0.a); if (outbox.length || inflight) flush();
     } catch (e) {
       if (refresh && D) { $('#fresh').insertAdjacentHTML('beforeend', `<span class="sync" style="color:var(--warn)"> · обновить не удалось (${esc(e.message)}), показаны данные прошлой загрузки</span>`); return; }
       $('#view').innerHTML = `<div class="empty"><b>Данные не загрузились</b><span>${esc(e.message)}. Обновите страницу; если не помогло, напишите ветке «Утро и задачи».</span><button class="btn small" onclick="location.reload()">Обновить</button></div>`;
