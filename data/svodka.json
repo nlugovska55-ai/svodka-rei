@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-19T18:42:25+03:00",
+ "updated": "2026-11-19T20:37:49+03:00",
  "tasks": [
   {
    "id": "adtst1711-iso-prolong",
@@ -34,6 +34,10 @@
    "origin": "boroday@ 17.11 14:47 «Re: пролонгация ИСО»",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -77,6 +81,10 @@
    "origin": "ocenka@ 12.11 11:08 Юрий Николаевич (istandart) → Лене, вложение «СС на тип ЦОКП 032.docx» (разбор почты 12.11, стр. 40)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -122,6 +130,10 @@
    "origin": "",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -165,6 +177,10 @@
    "origin": "boroday@ 12.11 11:56 и 12:10 Волгапкин (ЧЗМЭК) → Лене (разбор почты 12.11, 12:09 и 12:39)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -208,6 +224,10 @@
    "origin": "ocenka@ 17.11 11:05 Айстандарт (Юрий Николаевич) «Fwd: в работу сс на тип компрессор Бородай ЧЗМЭК», вложение ЕАЭС RU СТ-CH.НК83.00652.pdf",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -251,6 +271,10 @@
    "origin": "olga@ 19.11 14:47 Лена «закрывающие чзмэк» (вложения прил. 5 и 6 docx); найдено Браузером 16:18 (пропуск разбора)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -294,6 +318,10 @@
    "origin": "ocenka@ 16.11 09:35 Оксененко (ЕЦС24) «Fwd: Fwd[2]: в работу конверсия Бородай», «ДД. На проверку»",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -337,6 +365,10 @@
    "origin": "Ольга отправила Лене 11.11 17:59 «RE: закрывающие квант» и «RE: RE: закрывающие Хозяйство Сочнев…» (сообщение Браузера через координатора 20:37)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -380,6 +412,10 @@
    "origin": "ocenka@ 18.11 ДЕЛЬТА счёт №346402",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -425,6 +461,10 @@
    "origin": "Браузер 19.11 11:18 (сверка 60 «Луг» после акта 345600)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -458,7 +498,7 @@
    "link": "",
    "orders": [],
    "short": "ЕЦС24: забрать оригиналы у Оксененко или организовать курьера",
-   "waiting": "",
+   "waiting": "Лена",
    "delegated": "",
    "urgency": "неделя",
    "steps": [],
@@ -468,6 +508,10 @@
    "origin": "ocenka@ 19.11 15:26 «Fwd: Заберите пжл оригиналы документов»; поручение Ольги 15:58 (через Браузер)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -511,6 +555,10 @@
    "origin": "boroday@ 17.11 11:12 ЭМ-КАБЕЛЬ (Белов)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -554,6 +602,10 @@
    "origin": "boroday@ 17.11 14:38 «Re: Test», вложение ЭР8000001_рев01_общий_чертеж_А3.pdf; Лена 14:40 переслала Буракшаевой (ИПБ)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -570,8 +622,8 @@
    "client": "",
    "title": "Фрозен Бек: пауза до 01.12, потом проект на экспертизу ФБУЗ и повторная подача в РПН",
    "detail": "28.10 Ольга после разговора с Подоприхиным: РПН МО ждёт подачи комплекта на экспертизу в ФБУЗ, потом снова подаём программу и план. План в frozen-bek.md.",
-   "next": "Ждать сообщения Подоприхина о результате; Ольге не напоминать.",
-   "lastMove": "18.11 15:47 Регламент: владелец — Проекты и клиенты (решение координатора 18.11), пауза до 01.12",
+   "next": "Протокол 637-Л забрать курьером → подпись клиента → повторная подача в РПН; следить по почте ежедневно, не ждать 01.12",
+   "lastMove": "18.11 13:40 Лена: накладная СДЭК за протоколом 637-Л (готов 17.11, Липатов 18.11 12:04 «прислать курьера»), переслана Подоприхину. Запись «без движения с 27.10» была неверной",
    "amount": null,
    "due": "01.12.2026",
    "mgr": "Лена",
@@ -598,8 +650,12 @@
    "thread": "5 Проекты и клиенты",
    "origin": "Ольга, чат 28.10 15:02 МСК",
    "proof": "",
-   "sourceCheckedAt": "2026-11-09T10:45:00+03:00",
-   "sourceEvidence": "obkhod/pochta-razbor-2026-11-06.md, obkhod/pochta-razbor-2026-11-09.md: упоминаний Фрозен Бек нет",
+   "sourceCheckedAt": "2026-11-19T19:15:00+03:00",
+   "equipment": "",
+   "shared": true,
+   "lead": "Ольга",
+   "stage": "ИИИ: протокол 637-Л готов — курьер и подпись клиента (сторона КЛИЕНТ)",
+   "sourceEvidence": "obkhod/sverka-del-olgi-2026-11-19.md п.5",
    "updatedAt": "",
    "invoice": "",
    "payment": "",
@@ -613,10 +669,10 @@
    "id": "gea2610",
    "section": "Мои клиенты",
    "client": "GEA",
-   "title": "GEA: продления — декларация 19662/26 (термопоилка) кончается 14.11, ещё 5 СС/ДС истекли без замены; решить, что предложить GEA",
-   "detail": "Срочно: ДС RU Д-DE.РА01.А.19662/26 (термопоилка, П30) до 14.11.2026. Истекли без замены (23.04–22.10): СС 02093/21 сепаратор (05.10), СС 02049/21 мешалка для навоза (17.06), СС 02051/21 скреперная установка (17.06), ДС 04715/24 CircoFlush 15 PE (01.09), ДС 30623/21 масло антикоррозионное (02.09). Если продукция ещё поставляется — предложить переоформление. График 2027 — отдельно gea-grafik-2027 (первое напоминание 23.11).",
-   "next": "Ждём выпуск СС (прил. 32) → сообщить ГЕА про нанесение знака ЕАС; 5 истёкших СС/ДС — предложение после графика 2027 (gea-grafik-2027, 23.11)",
-   "lastMove": "19.11 10:45 Проекты: СС на термопоилку (прил. 32) ещё не выпущен, новых писем ГЕА/Лазаревой нет (обход 9:03)",
+   "title": "ГЕА, термопоилка (прил. 32): СС ТР ТС 010 на партию — фото новой таблички у ОС, ждём протокол/СС от Лазаревой",
+   "detail": "Был СС КГ 03284 (Ольга 28.10); декларация по 353 истекла 14.11.2026, номера «19662» в почте нет. 5 истёкших СС/ДС ГЕА ведутся отдельно (gea-grafik-2027, lost-gea-202610) — из этой задачи убраны",
+   "next": "Ждём от Лазаревой выпуск СС (макет → согласовать с ГЕА) → после выдачи сообщить ГЕА про нанесение знака ЕАС",
+   "lastMove": "17.11 12:51 Ольга → Лазаревой FW с протоколом; 17.11 12:37 Лазарева: ОС принял маркировочную табличку. 16.11 15:47 Ольга → Лазаревой 4 фото новой таблички (ДС 353 закончилась 14.11)",
    "amount": null,
    "due": "19.11.2026",
    "mgr": "Ольга",
@@ -631,8 +687,8 @@
    "evening": 0,
    "link": "",
    "orders": [],
-   "short": "Получить фото шильда для СС на партию",
-   "waiting": "клиент",
+   "short": "Термопоилка: табличка у ОС, ждём СС",
+   "waiting": "ОС (Лазарева)",
    "delegated": "",
    "urgency": "неделя",
    "steps": [],
@@ -641,8 +697,12 @@
    "thread": "Проекты и клиенты",
    "origin": "Ольга, комментарий на сайте 27.10 к gea2610 «Какая ДС заканчивается?… Изучи вопрос»; обход ФСА 23.10",
    "proof": "",
-   "sourceCheckedAt": "",
-   "sourceEvidence": "",
+   "sourceCheckedAt": "2026-11-19T19:50:00+03:00",
+   "equipment": "Термопоилка",
+   "shared": false,
+   "lead": "",
+   "stage": "ТР ТС СС: документы полностью → протокол/согласование (сторона МЫ: ОС Лазаревой)",
+   "sourceEvidence": "obkhod/sverka-del-olgi-2026-11-19.md, раздел «Отправленные Ольги» (olga@ 11.11–19.11); первое перечитывание 15:49 пропустило «Отправленные» — исправлено",
    "updatedAt": "",
    "invoice": "",
    "payment": "",
@@ -685,6 +745,10 @@
    "origin": "Письмо Лены 17–18.11 (разбор Браузера 18.11 15:00); ИК пройден — Решение Лазаревой 17.11 14:39",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -728,6 +792,10 @@
    "origin": "ФСА: ИК, due.py 09.11.2026",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -771,6 +839,10 @@
    "origin": "ФСА: ИК, due.py 09.11.2026",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -814,6 +886,10 @@
    "origin": "ФСА: ИК, due.py 17.11.2026",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -857,49 +933,10 @@
    "origin": "ФСА: продления, due.py 02.11.2026",
    "proof": "",
    "sourceCheckedAt": "",
-   "sourceEvidence": "",
-   "updatedAt": "",
-   "invoice": "",
-   "payment": "",
-   "dedupe": "",
-   "cat": "client",
-   "kind": "",
-   "amountKind": "",
-   "amountNote": ""
-  },
-  {
-   "id": "ikgea-05926-2026",
-   "section": "Мои клиенты",
-   "client": "ГЕА Фарм Технолоджиз Рус",
-   "title": "ГЕА: плановый ИК по двум сертификатам (05926 до 12.12, 01680/23 — проверить ИК2)",
-   "detail": "05926 (Дозатор корма DairyFeed, ОС «Азия Сертификат»): выдан 13.12.2024, ИК1 акт 08.07.2025 (решение 02.09.2025); по соглашению с ОС от 08.07.2025 ИК2 до 12.12.2026. Реестр и план 2027 исправлены 11.11 (было ошибочно «июль–сентябрь 2027»). 01680/23 (Машины для животноводства, ОС «Институт стандартов и технологий»): выдан 19.12.2023, ИК1 13.11.2024 (решение); ИК2 (2-й год, до 18.12.2025) в папках не найден — проверяем статус в ФСА и документы ОС. Прил.: П11, П22.",
-   "next": "Ждём ответ ГЕА по новому СС на дозатор (потом цену называет Ольга). ISOCELL 01680/23 — только по команде Ольги; факт: ОС RA.RU.11АД65 приостановлен, ИК до 19.12.2026",
-   "lastMove": "18.11 16:11 Ольга отправила Хомутову и Явьяну письмо по 05926 (ИК невозможен, новый СС). ISOCELL: черновик 16:05 Ольга отклонила («чушь»), без её «да» не готовим",
-   "amount": null,
-   "due": "25.11.2026",
-   "mgr": "Ольга",
-   "owner": "Проекты и клиенты",
-   "added": "09.11.2026",
-   "money": "",
-   "pay": 0,
-   "wait": 0,
-   "expert": 0,
-   "waitSince": "",
-   "prio": 0,
-   "evening": 0,
-   "link": "",
-   "orders": [],
-   "short": "ИК ГЕА: два сертификата, предложить приложение",
-   "waiting": "Ольга (цена и номер приложения)",
-   "delegated": "emwc4s7pqbvgkalmc",
-   "urgency": "фон",
-   "steps": [],
-   "checked": "",
-   "src": "",
-   "thread": "Утро",
-   "origin": "ГЕА: ИК, due.py 09.11.2026",
-   "proof": "",
-   "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -943,6 +980,10 @@
    "origin": "ocenka@ 06.11: 11:46 Буракшаева (ИПБ) — адрес Рязань, ул. Пожалостина 44, каб. 009 в сертификат не пропишут; 11:51 Лена — площадки нет, склад в Химках, предлагает Набережные Челны, ул. Раиса Беляева 1 («не их площадка, но можно показать эксперту»). Источник: Браузер, передано Регламентом 12:32",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -961,7 +1002,7 @@
    "detail": "",
    "next": "Ждём оплату 58 000 (2394732) и 15 000 (2394735); Браузер следит за Альфой. Контроль 23.11.",
    "lastMove": "16.11 11:10 Контроль Лены: Браузер 11:05 — в портале заказ 2394732 «декларация тр тс 025», ИП Барсуков В. М., дог. 92/1, 58 000, оплат нет; рядом 2394735 «отказное письмо», дог. 93/1, 15 000. Заявка в работе у Лены.",
-   "amount": null,
+   "amount": 73000.0,
    "due": "23.11.2026",
    "mgr": "Лена",
    "owner": "Лена",
@@ -989,6 +1030,10 @@
    "origin": "boroday@ 12.11 15:40, разбор Браузера",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -997,7 +1042,7 @@
    "cat": "client",
    "kind": "",
    "amountKind": "",
-   "amountNote": ""
+   "amountNote": "58 000 (заказ 2394732, ДС ТР ТС 025, дог. 92/1) + 15 000 (2394735, отказное письмо, дог. 93/1); оплат нет"
   },
   {
    "id": "kl1311-gskb-30036-foto",
@@ -1032,6 +1077,10 @@
    "origin": "утренний разбор Браузера 13.11, передала ветка «Клиенты Лены» 09:40",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1075,6 +1124,10 @@
    "origin": "ocenka@ 29.10 10:14 (Истандарт отказал, Лена просит найти, кто может)",
    "proof": "",
    "sourceCheckedAt": "2026-11-02T10:40:00+03:00",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "pub.fsa.gov.ru, реестр выданных СС ТР ТС 010/2011 + «самосвал», 10 записей, чтение Браузером до 10:40: НА90 ОС ООО «ССП» (28.08.2026, ТОНАР 7507, действует), ЯД01 «Регионтест», ПБ98 ОС АНО ДПО «ИПБ», АЖ49 «Апекс-сертификация», НВ73 «Стройтехэксперт». Это выданные сертификаты, не текущая область аккредитации; дорожных самосвалов среди прочитанного нет. Файл Downloads\\Контроль\\выгрузки\\2026-11-02\\kvant-os-samosval-0211.md",
    "updatedAt": "",
    "invoice": "",
@@ -1118,55 +1171,16 @@
    "origin": "boroday@ 12.11 09:33 и 09:54 Лызлов (Купер) → Лене (разбор почты 12.11, стр. 18)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
    "payment": "",
    "dedupe": "",
    "cat": "lena",
-   "kind": "",
-   "amountKind": "",
-   "amountNote": ""
-  },
-  {
-   "id": "kv2110",
-   "section": "Клиенты Лены",
-   "client": "Квант",
-   "title": "Квант: ждём от клиента 2 ДС на 24 000 (Лена 26.10); запросы ТР 037/050",
-   "detail": "Лена 26.10 13:49: «Квант — ждёт от них 2 ДС на 24 000». В таблице гарантов: Квант 12 000 ×2. 12.10 пришло 5 000 по 1374-ЛЕ-ОТ (разъяснительное письмо) — отдельный счёт.",
-   "next": "Мешает: выпуск ДС за Леной, затем оплата клиента. Контроль 24.11.",
-   "lastMove": "17.11 15:10 Контроль Лены: КВАНТ поблагодарил за счёт по ДС ТР 037 (852.1); оплаты пока нет. Напоминаний Лене нет.",
-   "amount": 24000.0,
-   "due": "24.11.2026",
-   "mgr": "Лена",
-   "owner": "Лена",
-   "added": "21.10.2026",
-   "money": "ждём подпись",
-   "pay": 1,
-   "wait": 1,
-   "expert": 0,
-   "waitSince": "",
-   "prio": 0,
-   "evening": 0,
-   "link": "",
-   "orders": [],
-   "short": "Получить от клиента 2 ДС на 24 000",
-   "waiting": "клиент",
-   "delegated": "",
-   "urgency": "неделя",
-   "steps": [],
-   "checked": "30.10 11:03",
-   "src": "запись ветки «Лена» 30.10 11:03",
-   "thread": "Клиенты Лены",
-   "origin": "ocenka@",
-   "proof": "",
-   "sourceCheckedAt": "",
-   "sourceEvidence": "",
-   "updatedAt": "",
-   "invoice": "",
-   "payment": "",
-   "dedupe": "",
-   "cat": "client",
    "kind": "",
    "amountKind": "",
    "amountNote": ""
@@ -1204,6 +1218,10 @@
    "origin": "boroday@ 19.11 12:15 Лена «закрывающие квант»; Ольга напомнила 16:06 (второй раз)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1247,6 +1265,10 @@
    "origin": "Ольга 19.11 14:12 (главный чат): «Квант - надо как то очень корректно и дипломатично объяснить бух что она может оприходовать расходные акты в течении трех лет, и почему мы не можем отменять данный акт. Предложение повторно его выгрузить для подписания»",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1290,6 +1312,10 @@
    "origin": "Бухгалтерия 15.10: внесённые без проведения документы",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1333,6 +1359,10 @@
    "origin": "сверка поставщиков (сч. 60) 2026",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1378,6 +1408,10 @@
    "origin": "портал",
    "proof": "",
    "sourceCheckedAt": "2026-11-02T13:04:00+03:00",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "Альфа *7370, лента 30.10–02.11, чтение Браузером 13:04: 02.11 п/п 204 ООО «ЭР-МАШ» +600 000 «По счёту №1379/2 от 22.10.2026 в рамках Договора №1379 ЛЕ ТРТС от 22.10.2026, НДС не облагается»; портал: внесено 13:06, заказ 2394617",
    "updatedAt": "",
    "invoice": "",
@@ -1421,12 +1455,157 @@
    "origin": "olga@ 17.11 15:21 Лена «задание для клода»",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
    "payment": "",
    "dedupe": "",
    "cat": "",
+   "kind": "",
+   "amountKind": "",
+   "amountNote": ""
+  },
+  {
+   "id": "lena1911-pasport-inspektor6040z",
+   "section": "Прочее",
+   "client": "",
+   "title": "Лена 17:50 «задание для клода» — разработать паспорт на «Инспектор 60/40Z»",
+   "detail": "",
+   "next": "Браузер: текст письма и вложения → daily-control/lena-zadaniya/inspektor6040z/; дальше паспорт по навыку tehdoc-ru",
+   "lastMove": "19.11 18:47 Контроль Лены: заведено и взято.",
+   "amount": null,
+   "due": "20.11.2026",
+   "mgr": "Лена",
+   "owner": "Контроль Лены",
+   "added": "19.11.2026",
+   "money": "",
+   "pay": 0,
+   "wait": 0,
+   "expert": 0,
+   "waitSince": "",
+   "prio": 0,
+   "evening": 0,
+   "link": "",
+   "orders": [],
+   "short": "Лена «задание для клода»: паспорт Инспектор 60/40Z",
+   "waiting": "",
+   "delegated": "",
+   "urgency": "завтра",
+   "steps": [],
+   "checked": "",
+   "src": "",
+   "thread": "Контроль Лены",
+   "origin": "olga@ 19.11 17:50 Лена «задание для клода» (вечерний разбор Браузера)",
+   "proof": "",
+   "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
+   "sourceEvidence": "",
+   "updatedAt": "",
+   "invoice": "",
+   "payment": "",
+   "dedupe": "",
+   "cat": "lena",
+   "kind": "",
+   "amountKind": "",
+   "amountNote": ""
+  },
+  {
+   "id": "lena1911-schet400-oplata",
+   "section": "Прочее",
+   "client": "",
+   "title": "Лена 17:09 «Босс в оплату» — счёт №400: сверить поставщика/клиента, подготовить п/п и загрузить в Альфу на подпись Ольге",
+   "detail": "",
+   "next": "Бухгалтерия: кому и за что счёт 400, себестоимость какого заказа, есть ли оплата клиента → п/п → Браузер грузит в Альфу; Ольга подписывает",
+   "lastMove": "19.11 18:47 Контроль Лены: заведено и взято.",
+   "amount": null,
+   "due": "20.11.2026",
+   "mgr": "Лена",
+   "owner": "Бухгалтерия",
+   "added": "19.11.2026",
+   "money": "",
+   "pay": 0,
+   "wait": 0,
+   "expert": 0,
+   "waitSince": "",
+   "prio": 0,
+   "evening": 0,
+   "link": "",
+   "orders": [],
+   "short": "Лена «Босс в оплату»: счёт №400 — платёжка в Альфу",
+   "waiting": "",
+   "delegated": "",
+   "urgency": "завтра",
+   "steps": [],
+   "checked": "",
+   "src": "",
+   "thread": "Контроль Лены",
+   "origin": "olga@ 19.11 17:09 Лена «Босс в оплату» (вечерний разбор Браузера)",
+   "proof": "",
+   "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
+   "sourceEvidence": "",
+   "updatedAt": "",
+   "invoice": "",
+   "payment": "",
+   "dedupe": "",
+   "cat": "lena",
+   "kind": "",
+   "amountKind": "",
+   "amountNote": ""
+  },
+  {
+   "id": "lena1911-xlsx-akt155",
+   "section": "Прочее",
+   "client": "",
+   "title": "Лена 16:49 «пришли в икселе» — акт 155 (Квант, 24 000) в xlsx, черновик ответа в olga@",
+   "detail": "",
+   "next": "Браузер: xlsx акта 155 из 1С → черновик Лене ответом на 16:49 через шлюз; отправляет Ольга",
+   "lastMove": "19.11 18:47 Контроль Лены: заведено и взято.",
+   "amount": null,
+   "due": "19.11.2026",
+   "mgr": "Лена",
+   "owner": "Браузер",
+   "added": "19.11.2026",
+   "money": "",
+   "pay": 0,
+   "wait": 0,
+   "expert": 0,
+   "waitSince": "",
+   "prio": 0,
+   "evening": 0,
+   "link": "",
+   "orders": [],
+   "short": "Лене: xlsx акта 155 (Квант), срочно",
+   "waiting": "",
+   "delegated": "",
+   "urgency": "сегодня",
+   "steps": [],
+   "checked": "",
+   "src": "",
+   "thread": "Контроль Лены",
+   "origin": "olga@ 19.11 16:49 Лена «пришли в икселе» (вечерний разбор Браузера)",
+   "proof": "",
+   "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
+   "sourceEvidence": "",
+   "updatedAt": "",
+   "invoice": "",
+   "payment": "",
+   "dedupe": "",
+   "cat": "lena",
    "kind": "",
    "amountKind": "",
    "amountNote": ""
@@ -1464,6 +1643,10 @@
    "origin": "Ольга 06.11 11:55: «Туда же - надо разобраться со страховкой»",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1507,6 +1690,10 @@
    "origin": "Ольга 06.11 11:55 в чате проекта: «Поступили счета от Точки комфорта. Это моя квартира. внеси пожалуйста в мои личные задачи, сделай такой блок»",
    "proof": "",
    "sourceCheckedAt": "2026-11-06T12:30:00+03:00",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "Браузер 06.11 12:30: ЕПД октябрь (долг/оплачено кладовой) и чеки ОФД Такском в olga@",
    "updatedAt": "",
    "invoice": "",
@@ -1550,6 +1737,10 @@
    "origin": "",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1593,6 +1784,10 @@
    "origin": "реестр клиентов Лены 26.10",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1626,7 +1821,7 @@
    "link": "",
    "orders": [],
    "short": "Получить подписанные прил. 3–4 и оплату",
-   "waiting": "Лена",
+   "waiting": "клиент",
    "delegated": "",
    "urgency": "неделя",
    "steps": [],
@@ -1636,6 +1831,10 @@
    "origin": "письмо Лены 23.10 13:42 (гаранты)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1679,6 +1878,10 @@
    "origin": "ocenka@ 29.10 17:19 «оценить резервуар Севермаш»",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1722,6 +1925,10 @@
    "origin": "boroday@ 30.10 09:40/09:59 (ТР ТС 010/012)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1738,8 +1945,8 @@
    "client": "Логика молока",
    "title": "Логика молока, проект 26.51-ТХ: на листе 2 заменить название установки на «Система рентгеновского контроля FSCAN модель 6500D» (как в сертификате), лист с живой печатью отправить почтой",
    "detail": "",
-   "next": "Проекты: проверить ответ Вероники по проекту 26.51-ТХ и курьеру (организует она), сверить «Отправленные» по адресу для Подоприхина",
-   "lastMove": "19.11 14:31 Ольга отправила Веронике ответом в цепочке «Внесение изменений в проект» проект 26.51-ТХ на проверку (черновик через шлюз ПП-1911-1430-f6cf); по словам координатора, адрес тоже отправлен",
+   "next": "Ждём от Подоприхина цену правок и от Ракитянской адрес → лист 2 с живой печатью Почтой РФ напрямую",
+   "lastMove": "19.11 16:47 Ольга спросила Подоприхина про цену правок (до этого 11:56 Ракитянской «Сможем», запрос адреса)",
    "amount": null,
    "due": "20.11.2026",
    "mgr": "Ольга",
@@ -1755,7 +1962,7 @@
    "link": "",
    "orders": [],
    "short": "исправить лист 2 проекта 26.51-ТХ",
-   "waiting": "клиент",
+   "waiting": "Подоприхин",
    "delegated": "",
    "urgency": "неделя",
    "steps": [],
@@ -1764,8 +1971,12 @@
    "thread": "Проекты и клиенты",
    "origin": "Ракитянская, письмо в olga@ 19.11 10:37 «Внесение изменений в проект» (26.51-ТХ.PDF, Пример.jpg)",
    "proof": "Браузер 19.11 12:08",
-   "sourceCheckedAt": "",
-   "sourceEvidence": "",
+   "sourceCheckedAt": "2026-11-19T19:15:00+03:00",
+   "equipment": "Система рентгеновского контроля FSCAN 6500D",
+   "shared": false,
+   "lead": "",
+   "stage": "",
+   "sourceEvidence": "obkhod/sverka-del-olgi-2026-11-19.md п.4",
    "updatedAt": "",
    "invoice": "",
    "payment": "",
@@ -1808,6 +2019,10 @@
    "origin": "ФСА: продления",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1851,6 +2066,10 @@
    "origin": "boroday@",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1896,6 +2115,10 @@
    "origin": "boroday@",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1942,6 +2165,10 @@
    "origin": "boroday@",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -1985,6 +2212,10 @@
    "origin": "boroday@",
    "proof": "вопрос о номере счёта по прил. 19 — в письме Лене, отправлено Ольгой 26.10",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2002,7 +2233,7 @@
    "title": "GEA, прил. 35: ИК сертификата KG417/052.DE.02.14085 (доильные установки) — переслать Кате подписанные ГЕА документы, получить её счёт 45 000, сделать наш акт на 95 000",
    "detail": "Цепочка: 28.09 Катя (ОС «Аурум») уведомила об ИК, цена 45 000 → 05.10 ИК подтвердили, прил. 35 и счёт 657/48 ГЕА → 12.10 ГЕА подписали прил. 35, мы отправили Кате карту предприятия → 13.10 ГЕА оплатили 95 000 (п/п 43) → 14.10 Катя прислала на подпись акт ИК № 04628 и письмо «изменений нет» → 15.10 отправили ГЕА → 23.10 Хомутов вернул подписанные (акт — Фомина, письмо от 31.08 — Хомутов). Дальше: 1) черновик Кате ответом в её цепочку 14.10 14:57 «…ТР ТС 010, Охладитель молока» со сканом: нужны ли оригиналы, устроит ли дата письма 31.08 (раньше акта 15.09), прошу счёт на 45 000 (готовит Браузер, отправляет Ольга); 2) счёт Кати → платёжка на подпись (П3) → себестоимость; 3) наш акт ГЕА по прил. 35 в 1С (Бухгалтерия, поручено 26.10), ГЕА пока не отправлять; 4) Хомутову не отвечать (Ольга 26.10).",
    "next": "Не закрыто. По решению Ольги 29.10 напоминание Кате про счёт 45 000 не готовим; ждём счёт до конца года, Браузер ловит его на разборах почты. Придёт → платёжка на подпись Ольге и себестоимость",
-   "lastMove": "06.11 13:45 Проекты: письма 05–06.11 Кате (17:11) и Марку (12:35) — про щётки (shchetki2710), не про ИК 14085. Счёта Кати на 45 000 в разборах почты 05.11 и 06.11 нет; отчёт ГЕА 05.11: «ждём от Кати счёт за ИК 14085». Подписанные ГЕА документы Кате уже пересланы ранее (см. detail)",
+   "lastMove": "29.10 Явьян «всё ок», акт 133 (95 000) подписан ГЕА 30.10; последнее письмо Лазаревой 27.10 13:05 (решение и акт ИК № 4628, без счёта)",
    "amount": null,
    "due": "31.12.2026",
    "mgr": "Ольга",
@@ -2027,8 +2258,12 @@
    "thread": "Проекты и клиенты",
    "origin": "olga@: Хомутов 23.10 17:26 «RE: ИК на доильные установки, Приложение 35»",
    "proof": "",
-   "sourceCheckedAt": "",
-   "sourceEvidence": "",
+   "sourceCheckedAt": "2026-11-19T19:15:00+03:00",
+   "equipment": "Доильные установки",
+   "shared": false,
+   "lead": "",
+   "stage": "К: акт 133 подписан ГЕА 30.10; ждём счёт ОС 45 000 (сторона МЫ: ОС Лазаревой)",
+   "sourceEvidence": "obkhod/sverka-del-olgi-2026-11-19.md п.1 (olga@, ocenka@, TG): счёта на 45 000 нет",
    "updatedAt": "",
    "invoice": "",
    "payment": "",
@@ -2042,10 +2277,10 @@
    "id": "m14",
    "section": "Мои клиенты",
    "client": "ВкусВилл",
-   "title": "ВкусВилл (РЦ Домодедово, Fscan-6350G): замеры ФБУЗ и лицензия на ИИИ — ждём Подоприхина",
+   "title": "ВкусВилл (РЦ Домодедово), XAVIS FSCAN 6350G: лицензия на ИИИ под ключ — сейчас заявка в РПН у клиента",
    "detail": "Сделано: проект 26.61-ТХ (испр. 19.10), уведомление в Подольский ТО РПН 02.10, УПК 14.10, протокол ЛДУ 19.10, договор ФБУЗ № 00643/33 от 21.10 (100 % предоплата, платит ВкусВилл). Осталось: габариты в проекте, заявление на замеры, УПК «Эксплуатация ЛДУ», оплата ФБУЗ ВкусВиллом, медосвидетельствование, подача, СЭЗ и лицензия.",
-   "next": "13.11 утром Аглая (ВкусВилл) в Telegram просила исправленный проект от Подоприхина, п. 2.1 про пол; ждём его исправленный проект. Дальше замеры ФБУЗ и лицензия. Вопросы Подоприхина 28.10 с ответом («всё верно», Мытищи)",
-   "lastMove": "13.11 10:50 Утро: добавлена просьба Аглаи (исправленный проект, п. 2.1 про пол); от Подоприхина фактов нет, проверка почты у Браузера; контроль 17.11",
+   "next": "Отметка РПН о приёме (vv1311-26-61-tx) → оплата Подоприхину за рентген (Аглая) → замеры ФБУЗ, СЭЗ, лицензия",
+   "lastMove": "19.11 Аглая подаёт заявку 09/09а в Управление РПН по МО без проекта (РПН по телефону: проект не прикладывать, указать в сопроводительном); проект 26.61-ТХ (4) готов 18.11",
    "amount": null,
    "due": "17.11.2026",
    "mgr": "Ольга",
@@ -2070,8 +2305,12 @@
    "thread": "Утро",
    "origin": "vkusvill-podoprikhin-21-10.md (почта 01.09–21.10)",
    "proof": "",
-   "sourceCheckedAt": "2026-11-02T11:27:00+03:00",
-   "sourceEvidence": "4 ящика с 01.09, чтение Браузера 11:26–11:27: ВкусВилл — открытых вопросов нет: наше 28.10 17:34 (куда подавать), его ОТВЕТ 28.10 23:55 «всё верно, подаём и меняем всё на Мытищи», на бумаге; договор ИДК его 21.10 16:10. obkhod/2026-11-02-podoprikhin-povtor.md (прежняя формулировка «без ответа» была ошибкой)",
+   "sourceCheckedAt": "2026-11-19T16:22:00+03:00",
+   "equipment": "XAVIS FSCAN 6350G",
+   "shared": false,
+   "lead": "",
+   "stage": "ИИИ: заявка на поставку в РПН (сторона КЛИЕНТ); дальше замеры ФБУЗ, СЭЗ, лицензия",
+   "sourceEvidence": "TG Аглаи 19.11 (tg-aglaya-2026-11-19.md)",
    "updatedAt": "",
    "invoice": "",
    "payment": "",
@@ -2114,6 +2353,10 @@
    "origin": "boroday@",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2157,6 +2400,10 @@
    "origin": "ocenka@",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2200,6 +2447,10 @@
    "origin": "ocenka@",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2243,6 +2494,10 @@
    "origin": "boroday@",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2286,6 +2541,10 @@
    "origin": "boroday@",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2329,6 +2588,10 @@
    "origin": "Ольга 15.10, просьба Лене (Купер, счета 407, 408)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2372,6 +2635,10 @@
    "origin": "решение Ольги 30.10 через «Браузер»",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2415,55 +2682,16 @@
    "origin": "Ольга 18.11 15:35",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
    "payment": "",
    "dedupe": "",
    "cat": "edo",
-   "kind": "",
-   "amountKind": "",
-   "amountNote": ""
-  },
-  {
-   "id": "ol1811-ik-gea-pismo-khomutov-mark",
-   "section": "Мои клиенты",
-   "client": "",
-   "title": "ИК по сертификатам ГЕА не сделать: письмо Хомутову и Марку с объяснением (ОС, выдавший СС, закрыт)",
-   "detail": "",
-   "next": "Изучить тему досконально (РФ: СС закрытого ОС может передаваться, в КГ нет; раньше передавали, потом ОС закрывали и СС начали аннулировать; по практике про СС могут не вспомнить ещё 1–2 года); проверить, тот ли ОС по второму ИК; подготовить черновик в olga@ в цепочке ИК с подписью и вложениями, отправляет Ольга",
-   "lastMove": "18.11 15:40 Утро: поставлено по сообщению Ольги",
-   "amount": null,
-   "due": "19.11.2026",
-   "mgr": "Ольга",
-   "owner": "Браузер",
-   "added": "18.11.2026",
-   "money": "",
-   "pay": 0,
-   "wait": 0,
-   "expert": 0,
-   "waitSince": "",
-   "prio": 0,
-   "evening": 0,
-   "link": "",
-   "orders": [],
-   "short": "ГЕА: письмо Хомутову и Марку, что ИК не сделать",
-   "waiting": "",
-   "delegated": "",
-   "urgency": "",
-   "steps": [],
-   "checked": "",
-   "src": "",
-   "thread": "Браузер",
-   "origin": "Ольга 18.11 15:35",
-   "proof": "",
-   "sourceCheckedAt": "",
-   "sourceEvidence": "",
-   "updatedAt": "",
-   "invoice": "",
-   "payment": "",
-   "dedupe": "",
-   "cat": "client",
    "kind": "",
    "amountKind": "",
    "amountNote": ""
@@ -2503,6 +2731,10 @@
    "origin": "Портал",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2546,6 +2778,10 @@
    "origin": "Письмо Лены 30.10 11:01",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2589,6 +2825,10 @@
    "origin": "Письмо Лены 30.10 11:01",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2632,6 +2872,10 @@
    "origin": "письмо из разбора почты 05.11 (obkhod/pochta-razbor-2026-11-05.md, Браузер)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2675,6 +2919,10 @@
    "origin": "obkhod/pochta-razbor-2026-11-05.md стр. 25",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2718,6 +2966,10 @@
    "origin": "olga@ 26.10 14:57: акт сверки СервисКлауд № 11204",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2761,6 +3013,10 @@
    "origin": "письмо Лены olga@ 26.10 18:09",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2806,6 +3062,10 @@
    "origin": "«4 Задачи Лены» → Регламент 18.11 20:05; заказ http://95.84.156.117:3839/projects/orders/2393065/",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2849,6 +3109,10 @@
    "origin": "ФСА: продления, due.py 28.10",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2892,6 +3156,10 @@
    "origin": "ФСА: продления, due.py 17.11.2026",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2935,6 +3203,10 @@
    "origin": "ФСА: продления",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -2968,7 +3240,7 @@
    "link": "",
    "orders": [],
    "short": "Предложить переоформление 2 СС и ДС",
-   "waiting": "клиент",
+   "waiting": "Лена",
    "delegated": "",
    "urgency": "фон",
    "steps": [],
@@ -2978,6 +3250,10 @@
    "origin": "ФСА: продления",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3011,7 +3287,7 @@
    "link": "",
    "orders": [],
    "short": "Предложить переоформление 3 ДС",
-   "waiting": "клиент",
+   "waiting": "Лена",
    "delegated": "",
    "urgency": "фон",
    "steps": [],
@@ -3021,6 +3297,10 @@
    "origin": "ФСА: продления",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3064,6 +3344,10 @@
    "origin": "ФСА: продления, due.py 11.11.2026",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3107,6 +3391,10 @@
    "origin": "ФСА: продления, реестр 23.10; заведено веткой «Продления» 29.10",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3150,6 +3438,10 @@
    "origin": "ФСА: продления",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3166,7 +3458,7 @@
    "client": "Станке",
    "title": "Станке: кончается 1 ДС с 18.11.2026 — предложить переоформление",
    "detail": "Реестр ФСА 23.10.2026: кончается 1 ДС (Станки металлообрабатывающие). Предложить переоформление заранее, окончание с 18.11.2026. ДС ЕАЭС N RU Д-RU.РА02.В.73007/21 до 18.11.2026: Станки металлообрабатывающие Оценка выручки: потенциал 25 000 ₽, ожидаемо 12 500 ₽ (цены — типовая цена ДС; оценка, не счёт).",
-   "next": "Лена: предложить Станке переоформление",
+   "next": "Ждём решения клиента: Лена предложила 06.11; 17.11 Смирнов «директор не отвечает»; 19.11 13:34 вопрос про ТУ на компаунд — ответ за Леной",
    "lastMove": "19.11 15:55 Контроль Лены: boroday@ 17.11 17:06 Смирнов «директор не отвечает»; 19.11 13:34 Смирнов спрашивает про ТУ на компаунд с их ОКПО — ответа Лены нет.",
    "amount": null,
    "due": "18.11.2026",
@@ -3193,6 +3485,10 @@
    "origin": "ФСА: продления",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3236,6 +3532,10 @@
    "origin": "boroday@ 13.11 15:52 Напалков → Лене",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3279,6 +3579,10 @@
    "origin": "Seafile: ИК и сроки, due.py 09.11.2026",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3322,6 +3626,10 @@
    "origin": "Seafile: ИК и сроки, due.py 09.11.2026",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3365,6 +3673,10 @@
    "origin": "Seafile: ИК и сроки, due.py 11.11.2026",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3379,10 +3691,10 @@
    "id": "shchetki2710",
    "section": "Мои клиенты",
    "client": "ГЕА",
-   "title": "Щётки CowCleaner Duo (Катя Лазарева): оценка СС на партию, ОС КГ и ОС РФ — ждём от Кати данные, ОЧЕНЬ ВАЖНО",
-   "detail": "Включает gea0911-shchetki-khomutov (заявка и макет от Хомутова 09.11 10:46 получены).",
-   "next": "Ждём от Кати протокол/СС на партию или вопросы; Браузер ловит на разборах. Проверка 19.11",
-   "lastMove": "16.11 11:04 Ольга сама отправила Кате Лазаревой письмо с ДТ и фото щёток (в своей редакции; Браузер 13:45)",
+   "title": "ГЕА, щётки CowCleaner Duo: СС ТР ТС 010 на партию (1 шт., ДТ 10131010/121126/5405601) — протокол готов, у эксперта ОС, ждём СС",
+   "detail": "Цепочки: «ССТРТС010, Щетки, ГЕА / партия» (Лазарева) и «RE: 7314-5200-100 Щетки Duo» (Явьян, Хомутов). Партию не отменяли (запись lz2810 «партию отменила» 30.10 ошибочна): 29.10 АСП 05 АСП ИПБ 2026 подписан, 06.11 договор 26-072 и заявка, 09.11 макет заявки согласован, доверенность Хомутова № 9 от 19.08.2026",
+   "next": "Ждём согласование эксперта и макет СС от Лазаревой → согласовать макет с ГЕА (Хомутов) → СС в реестре → скан и оригинал ГЕА. Цена 180 000 + НДС (Лазарева 28.10); номер нашего приложения в письмах не указан — сверить",
+   "lastMove": "19.11 14:07 Лазарева (ocenka@ → Лене): протокол испытаний готов, 18.11 направлен эксперту. До этого: 17.11 акт отбора 1468 и направление в ИЛ, 19.11 12:00 Ольга → Лазаревой комплект",
    "amount": null,
    "due": "19.11.2026",
    "mgr": "Ольга",
@@ -3397,8 +3709,8 @@
    "evening": 0,
    "link": "",
    "orders": [],
-   "short": "",
-   "waiting": "Катя Лазарева (ОС)",
+   "short": "СС на партию щёток: ждём выпуск",
+   "waiting": "ОС (Лазарева, эксперт)",
    "delegated": "emw4v07p0r6f3as2p",
    "urgency": "",
    "steps": [],
@@ -3407,8 +3719,12 @@
    "thread": "Проекты и клиенты",
    "origin": "",
    "proof": "координатор: письмо Кате ушло 27.10 12:31; дальше ждём данные от Кати",
-   "sourceCheckedAt": "2026-10-30T21:18:00+03:00",
-   "sourceEvidence": "Outlook olga@: письмо Хомутова 30.10 18:00 + две страницы PDF Spr42118mos26103017580.pdf (РЭ от 01.07.2026 и паспорт CowCleaner Duo, подписи и печати); просмотр Codex 21:17–21:18",
+   "sourceCheckedAt": "2026-11-19T15:49:00+03:00",
+   "equipment": "Щётки CowCleaner Duo",
+   "shared": false,
+   "lead": "",
+   "stage": "ТР ТС СС: протокол → согласование экспертом (сторона МЫ: ОС Лазаревой)",
+   "sourceEvidence": "daily-control/gea/perechityvanie-2026-11-19.md (Браузер, olga@ и ocenka@ 23.10–19.11)",
    "updatedAt": "",
    "invoice": "",
    "payment": "",
@@ -3451,6 +3767,10 @@
    "origin": "Ольга, чат 05.11 14:45: «по сипнет провела сверку… заплатила, сколько мы им реально должны… Я его после 25 го обычно оплачиваю»",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3494,6 +3814,10 @@
    "origin": "Диадок 22.10: акты сверки Сипнет 619, 2551, 4465",
    "proof": "Файл импорта buh/platezhki/sipnet_887442_import.txt (12 698,98, НДС 2 289,98, ИНН 7728339602); сверка buh/sverki-2910.md",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3537,6 +3861,10 @@
    "origin": "boroday@ 12.11 10:58 Потапов (СПБ СХМ) → Лене; повтор 13.11 14:46",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3580,6 +3908,10 @@
    "origin": "Диадок 22.10: акт сверки СервисКлауд от 23.06",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3623,6 +3955,10 @@
    "origin": "boroday@ 17.11 09:02 СТРИМ (Сочи) «лицензирование ИИИ»",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3666,6 +4002,10 @@
    "origin": "сверка 3 кв. 15.10; ответ Лены 23.10 «буду искать»",
    "proof": "",
    "sourceCheckedAt": "2026-10-30T21:35:32+03:00",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "Outlook olga@ и boroday@ с 25.10: ответа Лены про остаток ИПБ 35 000 нет; «35 000» в «Просроченных задачах» относится к V2 Групп (КП на ТР ТС 020), не к ИПБ",
    "updatedAt": "",
    "invoice": "",
@@ -3709,6 +4049,10 @@
    "origin": "boroday@ 16.11 13:28 и 13:30 Талтынов «Re: ТУ»",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3725,10 +4069,10 @@
    "client": "Тамбовская индейка",
    "title": "Тамбовская индейка: решение по ИДК — подписать договор ФБУЗ в исходной форме или купить дозиметры из реестра СИ",
    "detail": "Застряло с 14.08.2026: ФБУЗ правки юристов Черкизово (п. 2.2.3/3.3) не принимает. Без ИДК нет экспертизы/СЭЗ (отказ РПН 09.02.2026). Ответственность Заказчика по п. 6.22.",
-   "next": "Ждём итог тендера и поставку дозиметров (~2 мес., до 05.01.2027). Клиенту не пишем, Ольгу не пинаем. 13.11 — тихая проверка почты на письма cherkizovo.com, дальше раз в 2 недели",
-   "lastMove": "06.11 13:45 ветка «Тамбовская индейка»: проверено по db (слово Ольги 29.10: задачу не трогать, у клиента тендер на дозиметры) и треду «Браузер» (новых писем от cherkizovo.com в отчётах нет). Напоминание клиенту отменено",
+   "next": "Ждём итог тендера и поставку дозиметров (до 05.01.2027). Клиенту не пишем, Ольгу не пинаем; тихая проверка почты cherkizovo.com раз в 2 недели",
+   "lastMove": "19.11 17:55 срок перенесён на 05.01.2027 по словам Ольги (zapusk.py due-move): дальние даты контакта — в конец списка",
    "amount": null,
-   "due": "13.11.2026",
+   "due": "05.01.2027",
    "mgr": "Ольга",
    "owner": "Ольга",
    "added": "27.10.2026",
@@ -3751,8 +4095,12 @@
    "thread": "Взять под контроль Тамбовскую индейку",
    "origin": "письма Аъламова и Подоприхина 14.08–17.09.2026 (olga@), письмо о ходе работ 27.10",
    "proof": "",
-   "sourceCheckedAt": "",
-   "sourceEvidence": "",
+   "sourceCheckedAt": "2026-11-19T19:15:00+03:00",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "ИИИ: ИДК — клиент закупает дозиметры (сторона КЛИЕНТ)",
+   "sourceEvidence": "obkhod/sverka-del-olgi-2026-11-19.md п.2: последнее письмо 27.10 23:33 Аъламов (дозиметры заказаны, тендер), с 06.11 писем нет",
    "updatedAt": "",
    "invoice": "",
    "payment": "",
@@ -3795,6 +4143,10 @@
    "origin": "расчёт УСН 21.10",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3838,6 +4190,10 @@
    "origin": "расчёт УСН 21.10",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3881,6 +4237,10 @@
    "origin": "расчёт УСН 21.10",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -3893,15 +4253,15 @@
   },
   {
    "id": "tehno1311-obsledovanie-opor",
-   "section": "Клиенты Лены",
+   "section": "Мои клиенты",
    "client": "ТехноСервис (Косивченко П. В., petr.kosivchenko@tech-srv.ru)",
    "title": "ТехноСервис: КП на обследование опор и фундаментов насосов и новую маршевую лестницу 0–12 м (КМ, КЖ), СПб",
    "detail": "",
-   "next": "Ольга отправляет напоминание → ответ клиента → задание Владимиру → КП с авансом",
-   "lastMove": "18.11 16:01 Браузер: черновик-напоминание Косивченко в olga@ (вопросы ушли 13.11 15:46, ответа нет)",
+   "next": "Ольга отправляет два черновика → КП Владимира → наше КП ТехноСервису с авансом, раздельно по ТЗ (срок клиента: обследование и КМ/КЖ до конца 2026)",
+   "lastMove": "19.11 19:53 два черновика Промтехзащите (mail@promtehsafe.ru, копия vb032@bk.ru) в olga@: запрос КП по ТЗ №1 (4 рамы под 3 новых конденсатора, 6 фундаментов насосов, КЖ), опция КМ усиления, ТЗ №2 лестница 12 м, ЭПБ документации в начале 2027; ответы Косивченко 12:05 и вложения",
    "amount": null,
    "due": "20.11.2026",
-   "mgr": "",
+   "mgr": "Ольга",
    "owner": "Проекты и клиенты",
    "added": "13.11.2026",
    "money": "",
@@ -3914,17 +4274,21 @@
    "link": "",
    "orders": [],
    "short": "ТехноСервис: разбор заявки",
-   "waiting": "клиент (ответ на вопросы)",
+   "waiting": "Ольга",
    "delegated": "",
    "urgency": "неделя",
    "steps": [],
    "checked": "",
-   "src": "olga@ 13.11 15:01 «Обследование опорных конструкций», вложения ТЗ №1, ТЗ №2, отчёт по геологии",
+   "src": "zayavki/tehnoservis-otvety-2026-11-19.md",
    "thread": "5 Проекты и клиенты",
    "origin": "письмо из разбора почты 13.11 (obkhod/pochta-razbor-2026-11-13.md, 15:08) и Ольга 15:17 «Запрос от Техно сервиса надо разобрать»",
    "proof": "post_message в ветке «Проекты и клиенты» 13.11 15:33 и 15:45; файлы daily-control/zayavki/tehnoservis-razbor.md, vorsino-tehnoproekt.md",
-   "sourceCheckedAt": "",
-   "sourceEvidence": "",
+   "sourceCheckedAt": "2026-11-19T19:53:00+03:00",
+   "equipment": "Испарительные конденсаторы RETECH FKS 2545-N-RSA",
+   "shared": false,
+   "lead": "",
+   "stage": "Н2: КП готовим (сторона МЫ)",
+   "sourceEvidence": "zayavki/tehnoservis-otvety-2026-11-19.md (ответ Косивченко 12:05); черновики Промтехзащите 19:53",
    "updatedAt": "",
    "invoice": "",
    "payment": "",
@@ -3941,7 +4305,7 @@
    "title": "Тендер Логики молока, МК «Шадринский» (СЭЗ и лицензия на ИИИ): ждём ответ",
    "detail": "Маташкова 13.10 прислала новое ТЗ (второй ИИИ), наше КП ушло 15.10. Ответа нет.",
    "next": "Ждём ответ клиента (Ольга 26.10: ждать месяц). 26.11: Браузеру проверить olga@ и ящик Лены по «Шадрин/Маташкова»; нет ответа → черновик напоминания в цепочку ТЗ 13.10",
-   "lastMove": "2026-11-06",
+   "lastMove": "15.10 12:21 Ольга: скорректированное КП Маташковой (ТЗ на СЭЗ ИИИ, два аппарата); дальше тишина 35 дней",
    "amount": null,
    "due": "26.11.2026",
    "mgr": "Ольга",
@@ -3966,8 +4330,12 @@
    "thread": "Логика молока: оплаты и аванс",
    "origin": "ТЗ Маташковой 13.10.2026 (МК «Шадринский»), КП 15.10; Ольга 26.10 комментарий с сайта",
    "proof": "",
-   "sourceCheckedAt": "",
-   "sourceEvidence": "",
+   "sourceCheckedAt": "2026-11-19T19:15:00+03:00",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "Н2: КП отправлено 15.10 (сторона КЛИЕНТ)",
+   "sourceEvidence": "obkhod/sverka-del-olgi-2026-11-19.md п.4",
    "updatedAt": "",
    "invoice": "",
    "payment": "",
@@ -4010,6 +4378,10 @@
    "origin": "boroday@ 13.11 16:23 Рыбина → Лене; 16:51 Лена из ocenka@ переслала вопрос в oborontest33@mail.ru",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -4055,6 +4427,10 @@
    "origin": "boroday@ 16.11 14:18 Полежаева → Лене",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -4098,6 +4474,10 @@
    "origin": "Graphify buhgalter, чат 22.10 19:31 п.4",
    "proof": "",
    "sourceCheckedAt": "2026-10-30T21:48:00+03:00",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "1С «Луг», просмотр ПК 21:47–21:48 (Бухгалтерия): 0000-000217 от 08.10 75 000 (сделка CB13009260005138) и 0000-000218 от 08.10 50 000 (CB13009260005237), оба проведены, Дт 51 (Альфа *7370) Кт 55.03, субконто 55.03 пустое. Скрины 1c-depozit-217-provodki-2147.jpg, 1c-depozit-218-provodki-2148.png; строка в obkhod/2026-10-30-15-id-brauzer-rezultat.md",
    "updatedAt": "",
    "invoice": "",
@@ -4141,6 +4521,10 @@
    "origin": "сверка 43 клиентов Лены, чат 22.10 19:36",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -4184,6 +4568,10 @@
    "origin": "сверка 43 клиентов Лены, чат 22.10 19:36",
    "proof": "",
    "sourceCheckedAt": "2026-11-02T12:50:00+03:00",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "1С «Пон», журнал реализации (выгрузка pon-realizaciya.xlsx 02.11): акта 59 Ферингера в 2026 нет, нумерация 2026 до 44; ОСВ 62 «Пон» (pon-osv62.xlsx): ЗАВОД ФЕРИНГЕР И К Кт 10 000 на начало и конец 2026 без движений → акт 59 из 2025, прошлый период, Лариса в квартальной пачке",
    "updatedAt": "",
    "invoice": "",
@@ -4227,6 +4615,10 @@
    "origin": "§25 акт сверки ВкусВилла U0000098959 от 11.11 (Браузер 17:10)",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -4243,8 +4635,8 @@
    "client": "",
    "title": "ВкусВилл, проект 26.61-ТХ: Подоприхин дорабатывает гл. III (пп. 3.2–3.4) и норматив 1,0/2,5 мкЗв/ч, потом проект Аглае",
    "detail": "",
-   "next": "Ждём от Аглаи отметку РПН о приёме (Управление РПН по МО, Мытищи); ежедневно TG Аглаи и почта ВкусВилла (§43)",
-   "lastMove": "18.11 21:18 Аглая в TG: «Супер, спасибо большое, забираю» — комплект в РПН (проект (4), 09 без наших сумм, 09а) получен",
+   "next": "Ждём от Аглаи отметку РПН о приёме заявки (Управление РПН по МО, Мытищи); ежедневно TG Аглаи и почта ВкусВилла (§43)",
+   "lastMove": "19.11 17:55 Ольга: письмо Аглае (абзац для сопровода + инструкция Подоприхина по обучению с ЛК слушателей) нашла и отправила сама",
    "amount": null,
    "due": "19.11.2026",
    "mgr": "",
@@ -4269,8 +4661,12 @@
    "thread": "Проекты и клиенты",
    "origin": "Ольга, чат 13.11 18:26 «Проект от Подоприхина исправленный? Какой ответ написать Аглае по п. 2.1»",
    "proof": "Браузер: TG Аглаи 18.11 21:18",
-   "sourceCheckedAt": "",
-   "sourceEvidence": "",
+   "sourceCheckedAt": "2026-11-19T16:22:00+03:00",
+   "equipment": "XAVIS FSCAN 6350G",
+   "shared": false,
+   "lead": "",
+   "stage": "ИИИ: заявка 09/09а в Управление РПН по МО (сторона КЛИЕНТ/ВЕДОМСТВО)",
+   "sourceEvidence": "TG Аглаи 19.11 до 16:24 (zayavki/vkusvill/2026-11-18/tg-aglaya-2026-11-19.md); Ольга 17:55 «письмо… отправила»",
    "updatedAt": "",
    "invoice": "",
    "payment": "",
@@ -4312,8 +4708,12 @@
    "thread": "",
    "origin": "Ольга 16.11 21:19 и 21:21 (чат)",
    "proof": "",
-   "sourceCheckedAt": "",
-   "sourceEvidence": "",
+   "sourceCheckedAt": "2026-11-19T16:22:00+03:00",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "Н2: КП отправлено (сторона КЛИЕНТ)",
+   "sourceEvidence": "TG 17.11 10:32 ответ, 10:40 два КП (zayavki/vkusvill/2026-11-18/tg-aglaya.md стр. 35–36); Ольга пульт 19.11 12:18",
    "updatedAt": "",
    "invoice": "",
    "payment": "",
@@ -4356,6 +4756,10 @@
    "origin": "проведение выписок по §47, 19.11",
    "proof": "",
    "sourceCheckedAt": "",
+   "equipment": "",
+   "shared": false,
+   "lead": "",
+   "stage": "",
    "sourceEvidence": "",
    "updatedAt": "",
    "invoice": "",
@@ -4365,6 +4769,338 @@
    "kind": "",
    "amountKind": "",
    "amountNote": ""
+  }
+ ],
+ "closed_my": [
+  {
+   "id": "pl3010-vostr-fbuz",
+   "client": "Ольга",
+   "title": "Востряково-2: решить, передавать ли письмо на возврат 29 343,44 в ФБУЗ",
+   "short": "Ответить Востряково-2 по «везти самим?» и решить по передаче в ФБУЗ",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "30.10.2026"
+  },
+  {
+   "id": "vv2910-podoprikhin",
+   "client": "ВкусВилл",
+   "title": "ВкусВилл: ответ Подоприхину «Re: RE: Проект Вкус» (заявление в Управление РПН, Мытищи, на бумаге)",
+   "short": "Отправить ответ эксперту по заявлению",
+   "equipment": "",
+   "status": "handled",
+   "closeReason": "",
+   "paid": false,
+   "at": "29.10.2026"
+  },
+  {
+   "id": "pochta2810-kovaleva-sert",
+   "client": "GEA",
+   "title": "Ковалёва (ГЕА, 13:21): не открывает сертификат KG 417/032.DE.02.03284 (термопоилки), просит ссылку; ответ про шильд не ушёл",
+   "short": "",
+   "equipment": "",
+   "status": "closed",
+   "closeReason": "",
+   "paid": false,
+   "at": "28.10.2026 16:36"
+  },
+  {
+   "id": "tambov2710-pismo",
+   "client": "Ольга",
+   "title": "Тамбовская индейка: отправить письмо о ходе работ (ИИИ, договор 1206-ЛУГ-ЛИ/22)",
+   "short": "",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "28.10 «Браузер»: проверено в Отправленных"
+  },
+  {
+   "id": "g2110b",
+   "client": "GEA",
+   "title": "GEA: Ковалева просит акт сверки за 01.01–30.09.2026",
+   "short": "",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "27.10.2026"
+  },
+  {
+   "id": "pochta2710-4",
+   "client": "Браузер",
+   "title": "ГЕА: Катя просит доверенность на Хомутова (подписал уведомление) — ТР ТС 010 Охладитель молока; запросить у ГЕА и переслать Кате",
+   "short": "",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "27.10.2026"
+  },
+  {
+   "id": "pp2710-malyshkin",
+   "client": "Малышкин",
+   "title": "Малышкин: оплата по просьбе Ларисы от ООО РЭИ — загрузить файл в Альфу и подписать",
+   "short": "",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "27.10.2026"
+  },
+  {
+   "id": "d1603",
+   "client": "ВкусВилл",
+   "title": "Проверить актуальность: ВкусВилл: ответить Подоприхину, хватит ли удостоверений для ФБУЗ",
+   "short": "",
+   "equipment": "",
+   "status": "handled",
+   "closeReason": "",
+   "paid": false,
+   "at": "26.10.2026"
+  },
+  {
+   "id": "gea-grafik-2027",
+   "client": "GEA",
+   "title": "GEA: график продлений до конца 2027 — 12 СС/ДС, первое окончание 23.01.2027",
+   "short": "",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "26.10.2026"
+  },
+  {
+   "id": "gea-ik35",
+   "client": "ГЕА Фарм Технолоджиз Рус",
+   "title": "ГЕА прил. 35 (ИК KG417/052.DE.02.14085): наш акт в 1С «Луг» без проведения",
+   "short": "",
+   "equipment": "",
+   "status": "closed",
+   "closeReason": "",
+   "paid": false,
+   "at": "26.10.2026"
+  },
+  {
+   "id": "lost-gea-202610",
+   "client": "GEA",
+   "title": "GEA: 5 СС/ДС истекли за полгода, замены в реестре нет — уточнить, нужно ли переоформить",
+   "short": "",
+   "equipment": "",
+   "status": "handled",
+   "closeReason": "",
+   "paid": false,
+   "at": "26.10.2026"
+  },
+  {
+   "id": "u2210d",
+   "client": "Подоприхин",
+   "title": "Подоприхин: посмотреть «Договор.doc» и передать оригиналы по Востряково-2",
+   "short": "",
+   "equipment": "",
+   "status": "handled",
+   "closeReason": "",
+   "paid": false,
+   "at": "26.10.2026"
+  },
+  {
+   "id": "up2610-14",
+   "client": "Логика молока",
+   "title": "Логика молока: отбивка Почты России — найти и записать, что вернулось",
+   "short": "",
+   "equipment": "",
+   "status": "handled",
+   "closeReason": "",
+   "paid": false,
+   "at": "26.10.2026"
+  },
+  {
+   "id": "up2610-28",
+   "client": "ГСКБ",
+   "title": "ГСКБ: команда Ольги дана 23.10 — довести себестоимость командировки (дубль, закрыто)",
+   "short": "",
+   "equipment": "",
+   "status": "closed",
+   "closeReason": "",
+   "paid": false,
+   "at": "26.10.2026"
+  },
+  {
+   "id": "virtex2610-iii",
+   "client": "Ольга",
+   "title": "Виртекс: создать ветку в проекте ИИИ (вставить готовый текст в чат проекта ИИИ)",
+   "short": "",
+   "equipment": "",
+   "status": "closed",
+   "closeReason": "",
+   "paid": false,
+   "at": "26.10.2026"
+  },
+  {
+   "id": "virtex2610-lic",
+   "client": "Виртекс",
+   "title": "Виртекс: до подачи на лицензию ИИИ закрыть пробелы (аренда в Росреестре, дипломы, МЧД, нужна ли лицензия)",
+   "short": "",
+   "equipment": "",
+   "status": "closed",
+   "closeReason": "",
+   "paid": false,
+   "at": "26.10.2026"
+  },
+  {
+   "id": "g2110a",
+   "client": "GEA",
+   "title": "GEA: ответить Явьяну по прил. 35 (дата «август» опечатка? подписант Фомина М. И. или Александр)",
+   "short": "",
+   "equipment": "",
+   "status": "handled",
+   "closeReason": "",
+   "paid": false,
+   "at": "22.10.2026"
+  },
+  {
+   "id": "u2210a",
+   "client": "Востряково-2 (ВкусВилл)",
+   "title": "Востряково-2: 82 000 пришли 22.10 (п/п 5431), последняя оплата по договору 1313-ЛУГ-ЛИ, внести на портал",
+   "short": "",
+   "equipment": "",
+   "status": "handled",
+   "closeReason": "",
+   "paid": false,
+   "at": "22.10.2026"
+  },
+  {
+   "id": "m05",
+   "client": "GEA",
+   "title": "Выставить счёт GEA по приложению 35 (ИК на доильные установки)",
+   "short": "",
+   "equipment": "",
+   "status": "handled",
+   "closeReason": "",
+   "paid": false,
+   "at": "21.10.2026"
+  },
+  {
+   "id": "m13",
+   "client": "GEA",
+   "title": "GEA, термопоилки (прил. 32): ответить Ковалевой про табличку, фото и болт",
+   "short": "",
+   "equipment": "",
+   "status": "closed",
+   "closeReason": "",
+   "paid": false,
+   "at": "21.10.2026"
+  },
+  {
+   "id": "m16",
+   "client": "Логика молока",
+   "title": "Логика молока (Лабинский): ответить на заявку о КП на проект размещения ИИИ",
+   "short": "",
+   "equipment": "",
+   "status": "closed",
+   "closeReason": "",
+   "paid": false,
+   "at": "21.10.2026"
+  },
+  {
+   "id": "virtex2610",
+   "client": "Виртекс",
+   "title": "Виртекс, дог. 1295: после экспертного заключения ФБУЗ выставить счёт 1295/3 на 175 500 (сейчас долга нет)",
+   "short": "Выставить счёт 1295/3 после заключения",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "2026-11-16T13:45:00+03:00"
+  },
+  {
+   "id": "ikgea-01680-2026",
+   "client": "ГЕА Фарм Технолоджиз Рус",
+   "title": "ГЕА: плановый ИК СС ЕАЭС RU С-CA.АЖ06.В.01680/23 (Машины для животноводства:) — до 19.12.2026",
+   "short": "ИК ГЕА",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "2026-11-11T15:20:00+03:00"
+  },
+  {
+   "id": "sf-olga-processnyyinzhin-2026-12",
+   "client": "Процессный инжиниринг",
+   "title": "Процессный инжиниринг: ИСО — ИК/окончание с 06.12.2026",
+   "short": "ИК/продление (Seafile)",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "2026-11-11T15:15:00+03:00"
+  },
+  {
+   "id": "sf-olga-zenkoplazma-2026-11",
+   "client": "ЗЭНКО ПЛАЗМА",
+   "title": "ЗЭНКО ПЛАЗМА: ИСО 9001 ССК.RU.A02733 — ИК/окончание с 12.11.2026",
+   "short": "ИК/продление (Seafile)",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "2026-11-11T15:15:00+03:00"
+  },
+  {
+   "id": "podoprikhin0611-pasport",
+   "client": "Подоприхин",
+   "title": "ВкусВилл: Подоприхин просит паспорт на аппарат (проект 26.61-ТХ)",
+   "short": "Паспорт на аппарат для Подоприхина",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "2026-11-09T13:15:00+03:00"
+  },
+  {
+   "id": "up2610-17",
+   "client": "Бухгалтерия",
+   "title": "1С «Луг»: пять работ сделаны, а актов нет — список и акты",
+   "short": "Закрыть актами 5 сделанных работ",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "2026-11-06T11:40:00+03:00"
+  },
+  {
+   "id": "pochta2710-1",
+   "client": "Ольга",
+   "title": "Виртекс: Подоприхин — СЭЗ подаём через Госуслуги, заключение на проект размещения не нужно; сообщить Чебаковой",
+   "short": "Отправить Чебаковой черновик про подачу СЭЗ",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "2026-11-05T10:15:00+03:00"
+  },
+  {
+   "id": "edo4",
+   "client": "Логика молока (Тихорецкий)",
+   "title": "Логика молока: 190 000 получены и разнесены",
+   "short": "Логика молока 190 000 — разнесено",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "2026-11-05"
+  },
+  {
+   "id": "pay0511-51",
+   "client": "АНО",
+   "title": "ИПБ: оплата 294 000 за ЭР-МАШ",
+   "short": "ИПБ 294 000 — оплачено",
+   "equipment": "",
+   "status": "done",
+   "closeReason": "",
+   "paid": false,
+   "at": "2026-11-05"
   }
  ],
  "summary": [
@@ -4561,10 +5297,10 @@
    "id": "auto-pisma",
    "section": "Автоматика",
    "client": "",
-   "checked": "2026-11-19T18:41:33+03:00",
+   "checked": "2026-11-19T20:33:27+03:00",
    "src": "kontrol/pochta-ohvat-2026-11-19.md",
-   "flag": "ok",
-   "text": "Письма: у каждого разобранного письма есть задача или причина «не требует»"
+   "flag": "срочно",
+   "text": "Письма без реакции: 4 — БРАК: письмо Лены «закрыть» без задачи в db за 30 мин: - olga@ 16:48 Ольга → Лена «RE: закрывающие квант»: акт 155 проведён и; БРАК: письмо Лены «закрыть» без задачи в db за 30 мин: - olga@ 16:49 Лена → Ольга «Re: закрывающие квант»: «пришли в икселе»,; ссылка на задачу, которой нет в db: pay1911-schet400-lena: - olga@ 17:09 Лена → Ольга «Fwd: Re: счет», «Босс в оплату»: счёт пост"
   }
  ],
  "lena_clients": [
@@ -4583,7 +5319,7 @@
    "services": "ТР ТС 010 машины, ТР ТС 004 низковольтное, ТР ТС 020 ЭМС, ТР ТС 032 давление",
    "open": 7,
    "wait": 0,
-   "todo": "Контроль ответа Лены: акты № 144 (Квант, 30 000) и № 131 (КФХ Сочнев) отправлены 11.11 17:59; Квант: Истандарт отказал в СС ТР ТС 010 по схеме 5д на самосвал — Лена просит найти ОС; Квант: ждём от клиента 2 ДС на 24 000 (Лена 26.10); запросы ТР 037/050",
+   "todo": "Контроль ответа Лены: акты № 144 (Квант, 30 000) и № 131 (КФХ Сочнев) отправлены 11.11 17:59; Квант: Истандарт отказал в СС ТР ТС 010 по схеме 5д на самосвал — Лена просит найти ОС; Квант: Лена «закрывающие квант» по счёту-оферте 1382-ЛЕ-ДС — акт в 1С «Луг», черновик в Диадок, письмо Лене",
    "due": "13.11.2026"
   },
   {
@@ -5937,6 +6673,21 @@
      "16:22 ЧЗМЭК 1240 прил. 5/6 (Лена «закрой» 14:47): оплаты 15 000 и 25 000 от 26.08 есть; акт 0000-000136 от 28.10 на 55 000 (прил. 5+6+7) уже проведён — новый не делаем; Браузер сверяет строки и статус Диадока. Для Ларисы: зачёт авансов 2025 вместо платежей 2026.",
      "16:29 ЧЗМЭК: по правилу Ольги 16:27 (акты по новым запросам Лены — на следующий день, кроме «нужен для оплаты») перенесено на утро 20.11; Браузеру отбой.",
      "16:31 §49 принят: плановая задача «акты Лены за прошлый день» 11:53 МСК, обход обновлён (§47 выписки с проведением, §49 акты)."
+    ]
+   },
+   {
+    "title": "18:07",
+    "lines": [
+     "(выполнено 18:50, задержка — разбор замечаний Ольги к пульту)",
+     "Отметок, разведённых на Бухгалтерию, нет.",
+     "Приоритеты: zp1911-vedomost-48285 ждёт Ларису; ctl1111 (акт 144 Квант) и акт 155 Квант — черновики в Диадоке ждут подписи Ольги; gskb1811 — PDF 152 в Seafile ждёт фразы; ЧЗМЭК 1240 прил. 5/6 перенесён на 20.11 (§49), акт 136 от 28.10 уже покрывает прил. 5–7.",
+     "Пульт: svodka/vklady.json (вклады 1 080 000; *2514 600 000 — вывод «под себестоимость ЭР-Маш»), rashody-mesyac.json (с 28.10), строка Утешевой 6 000 в spisaniya снята (долга нет); дубль строки Альфы 19.11 в bank-oboroty удалён.",
+     "Сверка: новых операций после 14:01 нет в файлах; Альфа 130 169,44, Точка 39 291,03 = 1С 51. Браузеру: аннулирование акта сверки № 1 ГЕА Фарм (черновик, подпись Ольги) и выгрузка карточек 51 за 01.08–19.11.",
+     "18:48 Лена 17:09 «Босс в оплату», счёт № 400 (lena1911-schet400-oplata, срок 20.11): ждём от Браузера счёт (поставщик, сумма), затем сверка заказа/оплаты клиента и п/п в черновики Альфы.",
+     "18:55 Счёт 400 Айстандарт 52 080 (НДС 5 %): п/п подготовлен buh/platezhki/pp-aistandart-schet400-2026-11-20.md; 4 ДС — вывод УКС 1051 прил. 8–11 (оплачены 28.10), 3 «СС на тип» — раскладку спросить у Лены.",
+     "19:00 rashody-mesyac.json: 319 строк 01.08–19.11 из карточек 51 (Браузер 18:55), обороты сходятся (авг −315,98 комиссия 01.08).",
+     "19:05 Ольга: под себестоимость лежат 180 000 (*2775), 600 000 *2514 — не ЭР-Маш. vklady.json исправлен.",
+     "20:00 По шторму пульта (P1 14–17) поправлено: подотчёт (Бородай 47 156,85/8 482,90 и др.) kind=podotchet; Утешева 26.10 — одна п/п 509 на 12 000 (в 1С 4 строки по актам июль–сент + аванс), склеено; ЗП сводно датирована последней выплатой месяца; Дельта 550 в spisaniya — reference/skip."
     ]
    }
   ]
@@ -8425,7 +9176,7 @@
      "src": "срок контроля дела «Получить подписанные прил. 3–4 и оплату»"
     },
     "next": "Мешает: ждём клиента. Контроль 24.11 по разбору почты; напоминаний нет (§28 п.4).",
-    "owner": "Лена",
+    "owner": "клиент",
     "contract": "1376",
     "pril": "2"
    },
@@ -8471,7 +9222,7 @@
      "src": "срок контроля дела «Получить подписанные прил. 3–4 и оплату»"
     },
     "next": "Мешает: ждём клиента. Контроль 24.11 по разбору почты; напоминаний нет (§28 п.4).",
-    "owner": "Лена",
+    "owner": "клиент",
     "contract": "1376",
     "pril": "3"
    },
@@ -8517,7 +9268,7 @@
      "src": "срок контроля дела «Получить подписанные прил. 3–4 и оплату»"
     },
     "next": "Мешает: ждём клиента. Контроль 24.11 по разбору почты; напоминаний нет (§28 п.4).",
-    "owner": "Лена",
+    "owner": "клиент",
     "contract": "1376",
     "pril": "4"
    },
@@ -9315,18 +10066,12 @@
     "src": "выписка Альфа РЭИ *7370 за 01–30.10.2026, п/п 2851 от 12.10 (файл 1С, vypiski-oktyabr-30-10.md); заказ портала 2394597",
     "checked": "2026-10-30",
     "taskIds": [
-     "kv2110",
      "sf-lena-2026-12"
     ],
     "linkBy": "сумма или договор",
-    "hint": {
-     "date": "2026-11-24",
-     "task": "kv2110",
-     "short": "Получить от клиента 2 ДС на 24 000",
-     "src": "срок контроля дела «Получить от клиента 2 ДС на 24 000»"
-    },
-    "next": "Мешает: выпуск ДС за Леной, затем оплата клиента. Контроль 24.11.",
-    "owner": "клиент",
+    "hint": null,
+    "next": "Лена: сверить с сертификатом в папке и предложить клиенту ИК или переоформление",
+    "owner": "Лена",
     "contract": "1374",
     "pril": "",
     "portal": {
@@ -10119,2058 +10864,6 @@
   },
   "note": "Ведёт «Бухгалтерия» по выпискам (§34). Счета разных лиц не складываются. Обновляется в сверке дня."
  },
- "platezhi": {
-  "accepted": "02.11.2026 Ольга («Со всем согласна»)",
-  "file": "platezhi-do-ng-2026.json",
-  "total": 392595,
-  "months": [
-   {
-    "ym": "2026-11",
-    "total": 160655,
-    "rows": [
-     {
-      "period": "Начало месяца, до 7-го",
-      "category": "zp",
-      "item": "Зарплата, аванс",
-      "note": "уже проведён Ольгой",
-      "amount": 0,
-      "approx": false
-     },
-     {
-      "period": "Начало месяца, до 7-го",
-      "category": "svc",
-      "item": "СДЭК, доставка за октябрь",
-      "note": "~05.11",
-      "amount": 6250,
-      "approx": true
-     },
-     {
-      "period": "Начало месяца, до 7-го",
-      "category": "ip",
-      "item": "Точка, тариф ИП",
-      "note": "списывается сама",
-      "amount": 4200,
-      "approx": true
-     },
-     {
-      "period": "В течение месяца",
-      "category": "svc",
-      "item": "Руслан (счета Грушко Т.В.), IT за октябрь",
-      "note": "35 000 в месяц, месяцем позже",
-      "amount": 35000,
-      "approx": false
-     },
-     {
-      "period": "В течение месяца",
-      "category": "rent",
-      "item": "ИП Утешева, аренда за октябрь и ноябрь",
-      "note": "не платим: закрыто переплатой от 26.10",
-      "amount": 0,
-      "approx": false
-     },
-     {
-      "period": "В течение месяца",
-      "category": "svc",
-      "item": "Софт-трейд, АДВАНСДОКС",
-      "note": "по счёту",
-      "amount": 10000,
-      "approx": true
-     },
-     {
-      "period": "В течение месяца",
-      "category": "zp",
-      "item": "Зарплата, вторая ведомость",
-      "note": "~20.11",
-      "amount": 48285,
-      "approx": true
-     },
-     {
-      "period": "Конец месяца, до 28-го",
-      "category": "zp",
-      "item": "ЕНП: НДФЛ и взносы за октябрь",
-      "note": "до 28.11",
-      "amount": 44000,
-      "approx": true
-     },
-     {
-      "period": "Конец месяца, до 28-го",
-      "category": "zp",
-      "item": "СФР, от несчастных случаев",
-      "note": "до 28.11",
-      "amount": 220,
-      "approx": true
-     },
-     {
-      "period": "Конец месяца, до 28-го",
-      "category": "svc",
-      "item": "Сипнет, телефония",
-      "note": "~28.11",
-      "amount": 12700,
-      "approx": true
-     }
-    ],
-    "note": ""
-   },
-   {
-    "ym": "2026-12",
-    "total": 231940,
-    "rows": [
-     {
-      "period": "Начало месяца, до 7-го",
-      "category": "zp",
-      "item": "Зарплата, первая ведомость",
-      "note": "~05.12",
-      "amount": 48285,
-      "approx": true
-     },
-     {
-      "period": "Начало месяца, до 7-го",
-      "category": "svc",
-      "item": "Лариса (ИП Четвергова), за ноябрь",
-      "note": "до 05.12",
-      "amount": 20000,
-      "approx": false
-     },
-     {
-      "period": "Начало месяца, до 7-го",
-      "category": "svc",
-      "item": "СДЭК, доставка за ноябрь",
-      "note": "~05.12",
-      "amount": 6250,
-      "approx": true
-     },
-     {
-      "period": "Начало месяца, до 7-го",
-      "category": "ip",
-      "item": "Точка, тариф ИП",
-      "note": "списывается сама",
-      "amount": 4200,
-      "approx": true
-     },
-     {
-      "period": "В течение месяца",
-      "category": "svc",
-      "item": "Руслан (Грушко Т.В.), IT за ноябрь",
-      "note": "за декабрь платим в январе",
-      "amount": 35000,
-      "approx": false
-     },
-     {
-      "period": "В течение месяца",
-      "category": "rent",
-      "item": "ИП Утешева, аренда за декабрь",
-      "note": "3 000 в месяц; с этим платежом сальдо на 01.01 = 0",
-      "amount": 3000,
-      "approx": false
-     },
-     {
-      "period": "В течение месяца",
-      "category": "svc",
-      "item": "Софт-трейд, АДВАНСДОКС",
-      "note": "по счёту",
-      "amount": 10000,
-      "approx": true
-     },
-     {
-      "period": "В течение месяца",
-      "category": "zp",
-      "item": "Зарплата, вторая ведомость",
-      "note": "~22.12; если декабрьскую доплату выдадите до НГ, ещё ≈ 48 285",
-      "amount": 48285,
-      "approx": true
-     },
-     {
-      "period": "Конец месяца, до 28-го",
-      "category": "ip",
-      "item": "ИП Пономаренко, фиксированные взносы за 2026",
-      "note": "57 390 спишутся 28.12 с остатка ЕНС: туда вернули 176 103, списанные 10.08",
-      "amount": 0,
-      "approx": false
-     },
-     {
-      "period": "Конец месяца, до 28-го",
-      "category": "zp",
-      "item": "ЕНП: НДФЛ и взносы за ноябрь, НДФЛ за декабрь",
-      "note": "до 28.12",
-      "amount": 44000,
-      "approx": true
-     },
-     {
-      "period": "Конец месяца, до 28-го",
-      "category": "zp",
-      "item": "СФР, от несчастных случаев",
-      "note": "до 28.12",
-      "amount": 220,
-      "approx": true
-     },
-     {
-      "period": "Конец месяца, до 28-го",
-      "category": "svc",
-      "item": "Сипнет, телефония",
-      "note": "~28.12",
-      "amount": 12700,
-      "approx": true
-     }
-    ],
-    "note": ""
-   }
-  ],
-  "excluded": [
-   "подрядчики (в приходе)",
-   "переводы РЭИ→ИП Пономаренко (доход ИП)",
-   "ГлавУпДК (транзит, не расход)",
-   "ЗП Лены (% от прихода)"
-  ],
-  "personal": [
-   {
-    "item": "Ипотечная страховка Альфа-Банка (жизнь+квартира)",
-    "due": "10.12.2026",
-    "amount": 61000,
-    "alt": 40000,
-    "note": "вне итога"
-   }
-  ]
- },
- "garanty_changes": {
-  "date": "2026-11-19",
-  "since": "2026-11-18T09:14+03:00",
-  "until": "2026-11-19T09:14+03:00",
-  "items": [
-   {
-    "id": "G-0228",
-    "client": "ооо вниир промэлектро",
-    "amount": 5000.0,
-    "stage": "Обсуждаем",
-    "text": "новая строка: дстр тс, 5 000 ₽, Прогноз"
-   },
-   {
-    "id": "G-0229",
-    "client": "ооо завож ферингер",
-    "amount": 5000.0,
-    "stage": "Обсуждаем",
-    "text": "новая строка: перевыпуск дс тр тс, 5 000 ₽, Прогноз"
-   },
-   {
-    "id": "G-0178",
-    "client": "ооо квант",
-    "amount": 12000.0,
-    "stage": "Гарант",
-    "text": "Договор: 1382 ле дс (правка в таблице)"
-   },
-   {
-    "id": "G-0179",
-    "client": "ооо квант",
-    "amount": 12000.0,
-    "stage": "Гарант",
-    "text": "Договор: 1382 ле дс (правка в таблице)"
-   },
-   {
-    "id": "G-0226",
-    "client": "ооо квант",
-    "amount": 12000.0,
-    "stage": "Гарант",
-    "text": "новая строка: дс тр тс 010, 12 000 ₽, Гарант"
-   },
-   {
-    "id": "G-0227",
-    "client": "ооо квант",
-    "amount": 12000.0,
-    "stage": "Гарант",
-    "text": "новая строка: дс тр тс, 12 000 ₽, Гарант"
-   },
-   {
-    "id": "G-0184",
-    "client": "ооо электростнадртприбор",
-    "amount": 100000.0,
-    "stage": "Пришло по Лене",
-    "text": "Этап: Гарант → Оплачено (отметил менеджер) (правка в таблице)"
-   },
-   {
-    "id": "G-0225",
-    "client": "фирма теплостройпроект с",
-    "amount": 380000.0,
-    "stage": "Пришло по Лене",
-    "text": "оплата 380 000 по выписке Альфа *7370 за 16.11 (п/п 766, Теплостройпроект-С) — внесена в «Банк»"
-   }
-  ],
-  "other": []
- },
- "ozhidaem": {
-  "month": "2026-11",
-  "garanty": {
-   "firms": [
-    {
-     "client": "ооо укс групп",
-     "amount": 100000.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "G-0223",
-       "what": "сс гс р · 1051 ле гост прил 12",
-       "amount": 50000.0,
-       "paid": 0.0,
-       "status": "менеджер отметил оплату, по выписке нет",
-       "src": "лист Лены, Google «Реестр», стр. 46, ввод в таблице",
-       "due": null
-      },
-      {
-       "id": "G-0224",
-       "what": "сс гост р · 1051 ле гост прил 13",
-       "amount": 50000.0,
-       "paid": 0.0,
-       "status": "менеджер отметил оплату, по выписке нет",
-       "src": "лист Лены, Google «Реестр», стр. 47, ввод в таблице",
-       "due": null
-      }
-     ],
-     "marked": 100000.0,
-     "remain": 100000.0
-    },
-    {
-     "client": "ооо квант",
-     "amount": 78000.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "G-0178",
-       "what": "дс тр тс · 1382 ле дс",
-       "amount": 12000.0,
-       "paid": 0.0,
-       "status": "менеджер отметил оплату, по выписке нет",
-       "src": "лист Лены, октябрь 2026.xlsx, стр. 3",
-       "due": null
-      },
-      {
-       "id": "G-0179",
-       "what": "дс тр тс · 1382 ле дс",
-       "amount": 12000.0,
-       "paid": 0.0,
-       "status": "менеджер отметил оплату, по выписке нет",
-       "src": "лист Лены, октябрь 2026.xlsx, стр. 4",
-       "due": null
-      },
-      {
-       "id": "G-0212",
-       "what": "дс тр тс · 1380 ле дс",
-       "amount": 30000.0,
-       "paid": 0.0,
-       "status": "менеджер отметил оплату, по выписке нет",
-       "src": "лист Лены, Google «Реестр», стр. 9, ввод в таблице",
-       "due": null
-      },
-      {
-       "id": "G-0226",
-       "what": "дс тр тс 010",
-       "amount": 12000.0,
-       "paid": 0.0,
-       "status": "ждём",
-       "src": "лист Лены, Google «Реестр», стр. 49, ввод в таблице",
-       "due": null
-      },
-      {
-       "id": "G-0227",
-       "what": "дс тр тс",
-       "amount": 12000.0,
-       "paid": 0.0,
-       "status": "ждём",
-       "src": "лист Лены, Google «Реестр», стр. 50, ввод в таблице",
-       "due": null
-      }
-     ],
-     "marked": 54000.0,
-     "remain": 78000.0
-    },
-    {
-     "client": "ооо агора",
-     "amount": 30000.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "G-0220",
-       "what": "дс тр тс 032 · 684 ле тртс прил 7",
-       "amount": 30000.0,
-       "paid": 0.0,
-       "status": "менеджер отметил оплату, по выписке нет",
-       "src": "лист Лены, Google «Реестр», стр. 17, ввод в таблице",
-       "due": null
-      }
-     ],
-     "marked": 30000.0,
-     "remain": 30000.0
-    },
-    {
-     "client": "ооо витс групп",
-     "amount": 20000.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "G-0170",
-       "what": "дс тртс · 1334 ле исо",
-       "amount": 20000.0,
-       "paid": 0.0,
-       "status": "ждём",
-       "src": "лист Лены, сентябрь 2026.xlsx, стр. 12",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 20000.0
-    },
-    {
-     "client": "ооо завод ферингер",
-     "amount": 40000.0,
-     "paid": 20000.0,
-     "rows": [
-      {
-       "id": "G-0218",
-       "what": "дс тр тс · 457 ле пс прил 15",
-       "amount": 20000.0,
-       "paid": 0.0,
-       "status": "ждём",
-       "src": "лист Лены, Google «Реестр», стр. 15, ввод в таблице",
-       "due": null
-      },
-      {
-       "id": "G-0219",
-       "what": "дс тр тс · 457 ле пс прил 16",
-       "amount": 20000.0,
-       "paid": 20000.0,
-       "status": "пришло 06.11 по уведомлению банка, выпиской не подтверждено",
-       "src": "лист Лены, Google «Реестр», стр. 16, ввод в таблице",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 20000.0
-    },
-    {
-     "client": "ооо геоэлектроника сервис",
-     "amount": 10000.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "G-0217",
-       "what": "дстртс · 1140 ле тртс прил 14",
-       "amount": 10000.0,
-       "paid": 0.0,
-       "status": "ждём",
-       "src": "лист Лены, Google «Реестр», стр. 14, ввод в таблице",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 10000.0
-    },
-    {
-     "client": "ооо электростнадртприбор",
-     "amount": 100000.0,
-     "paid": 100000.0,
-     "rows": [
-      {
-       "id": "G-0184",
-       "what": "сс сил 2 · 689 ле сенйс прил 19",
-       "amount": 100000.0,
-       "paid": 100000.0,
-       "status": "пришло по выписке",
-       "src": "лист Лены, октябрь 2026.xlsx, стр. 9",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 0.0
-    },
-    {
-     "client": "ооо спб схм",
-     "amount": 32000.0,
-     "paid": 32000.0,
-     "rows": [
-      {
-       "id": "G-0195",
-       "what": "отрицательное решение · 1248 ЛЕ ДС прил 9",
-       "amount": 32000.0,
-       "paid": 32000.0,
-       "status": "пришло 06.11 по уведомлению банка, выпиской не подтверждено",
-       "src": "лист Лены, октябрь 2026.xlsx, стр. 20",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 0.0
-    },
-    {
-     "client": "ооо эрмаш",
-     "amount": 600000.0,
-     "paid": 600000.0,
-     "rows": [
-      {
-       "id": "G-0199",
-       "what": "сс тр тс 012 · 1379 ЛЕ ТРТС прил 2",
-       "amount": 600000.0,
-       "paid": 600000.0,
-       "status": "пришло по выписке",
-       "src": "лист Лены, октябрь 2026.xlsx, стр. 24",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 0.0
-    },
-    {
-     "client": "ооо купер",
-     "amount": 65000.0,
-     "paid": 65000.0,
-     "rows": [
-      {
-       "id": "G-0213",
-       "what": "добрик пожарный · 824 ле гост прил 48",
-       "amount": 65000.0,
-       "paid": 65000.0,
-       "status": "пришло 09.11 по уведомлению банка, выпиской не подтверждено",
-       "src": "лист Лены, Google «Реестр», стр. 10, ввод в таблице",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 0.0
-    },
-    {
-     "client": "ип барсуков виктор",
-     "amount": 15000.0,
-     "paid": 15000.0,
-     "rows": [
-      {
-       "id": "G-0215",
-       "what": "отказное · 93/1",
-       "amount": 15000.0,
-       "paid": 15000.0,
-       "status": "пришло по выписке",
-       "src": "лист Лены, Google «Реестр», стр. 12, ввод в таблице",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 0.0
-    },
-    {
-     "client": "ооо азс спецсервис",
-     "amount": 8000.0,
-     "paid": 8000.0,
-     "rows": [
-      {
-       "id": "G-0216",
-       "what": "дс тр тс · 91/1",
-       "amount": 8000.0,
-       "paid": 8000.0,
-       "status": "пришло по выписке",
-       "src": "лист Лены, Google «Реестр», стр. 13, ввод в таблице",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 0.0
-    },
-    {
-     "client": "фирма теплостройпроект с",
-     "amount": 380000.0,
-     "paid": 380000.0,
-     "rows": [
-      {
-       "id": "G-0225",
-       "what": "сс тр тс 032 · 1368 ле тртс прил 2",
-       "amount": 380000.0,
-       "paid": 380000.0,
-       "status": "пришло по выписке",
-       "src": "лист Лены, Google «Реестр», стр. 48, ввод в таблице",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 0.0
-    }
-   ],
-   "total": {
-    "amount": 1478000.0,
-    "paid": 1220000.0,
-    "remain": 258000.0,
-    "marked": 184000.0,
-    "firms": 13
-   }
-  },
-  "prognoz": {
-   "firms": [
-    {
-     "client": "Эр-Маш",
-     "amount": 600000.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "len2310ermash",
-       "what": "Получить остаток 600 000 по итогу работы",
-       "amount": 600000.0,
-       "paid": 0.0,
-       "status": "дело в db, ждём оплату",
-       "src": "db tasks len2310ermash",
-       "due": "23.11.2026"
-      }
-     ],
-     "marked": 0.0,
-     "remain": 600000.0
-    },
-    {
-     "client": "эм кабель",
-     "amount": 435000.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "pr-emkabel-202611",
-       "what": "продление: 3 док., первое окончание 08.11.2026",
-       "amount": 180000.0,
-       "paid": 0.0,
-       "status": "оценка 50% от 360 000",
-       "src": "прогноз продлений ФСА (ветка «Продления»)",
-       "due": "08.11.2026"
-      },
-      {
-       "id": "emk1711-akt128-podpisan",
-       "what": "Эм-кабель: подписанный акт 128 (255 000) — в папку клиента и отметка в",
-       "amount": 255000.0,
-       "paid": 0.0,
-       "status": "дело в db, ждём оплату",
-       "src": "db tasks emk1711-akt128-podpisan",
-       "due": "18.11.2026"
-      }
-     ],
-     "marked": 0.0,
-     "remain": 435000.0
-    },
-    {
-     "client": "Электронстандарт-прибор",
-     "amount": 100000.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "m07",
-       "what": "Получить оплату 100 000 по прил. 19",
-       "amount": 100000.0,
-       "paid": 0.0,
-       "status": "дело в db, ждём оплату",
-       "src": "db tasks m07",
-       "due": "24.11.2026"
-      }
-     ],
-     "marked": 0.0,
-     "remain": 100000.0
-    },
-    {
-     "client": "Спецстрой",
-     "amount": 40000.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "m01",
-       "what": "Выставить счёт на пролонгацию декларации",
-       "amount": 40000.0,
-       "paid": 0.0,
-       "status": "дело в db, ждём оплату",
-       "src": "db tasks m01",
-       "due": "24.11.2026"
-      }
-     ],
-     "marked": 0.0,
-     "remain": 40000.0
-    },
-    {
-     "client": "ип барсуков виктор",
-     "amount": 29000.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "G-0214",
-       "what": "дс тр тс · 92/1",
-       "amount": 29000.0,
-       "paid": 0.0,
-       "status": "ждём",
-       "src": "лист Лены, прогноз",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 29000.0
-    },
-    {
-     "client": "ооо морепласт",
-     "amount": 24000.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "G-0192",
-       "what": "сс гост р · 1376 ле тртс прил 3",
-       "amount": 12000.0,
-       "paid": 0.0,
-       "status": "ждём",
-       "src": "лист Лены, прогноз",
-       "due": null
-      },
-      {
-       "id": "G-0193",
-       "what": "сс готср · 1376 ле тртс прил 4",
-       "amount": 12000.0,
-       "paid": 0.0,
-       "status": "ждём",
-       "src": "лист Лены, прогноз",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 24000.0
-    },
-    {
-     "client": "ао по севермаш",
-     "amount": 20000.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "G-0222",
-       "what": "дс тр тс 010 · 941 ле дстртс прил 29",
-       "amount": 20000.0,
-       "paid": 0.0,
-       "status": "ждём",
-       "src": "лист Лены, прогноз",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 20000.0
-    },
-    {
-     "client": "криосервис",
-     "amount": 12500.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "pr-krioservis-202611",
-       "what": "продление: 1 док., первое окончание 18.11.2026",
-       "amount": 12500.0,
-       "paid": 0.0,
-       "status": "оценка 50% от 25 000",
-       "src": "прогноз продлений ФСА (ветка «Продления»)",
-       "due": "18.11.2026"
-      }
-     ],
-     "marked": 0.0,
-     "remain": 12500.0
-    },
-    {
-     "client": "Станке",
-     "amount": 12500.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "pr-stanke-202611",
-       "what": "продление: 1 док., первое окончание 18.11.2026",
-       "amount": 12500.0,
-       "paid": 0.0,
-       "status": "оценка 50% от 25 000",
-       "src": "прогноз продлений ФСА (ветка «Продления»)",
-       "due": "18.11.2026"
-      }
-     ],
-     "marked": 0.0,
-     "remain": 12500.0
-    },
-    {
-     "client": "ооо вниир промэлектро",
-     "amount": 5000.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "G-0228",
-       "what": "дстр тс",
-       "amount": 5000.0,
-       "paid": 0.0,
-       "status": "ждём",
-       "src": "лист Лены, прогноз",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 5000.0
-    },
-    {
-     "client": "ооо завож ферингер",
-     "amount": 5000.0,
-     "paid": 0.0,
-     "rows": [
-      {
-       "id": "G-0229",
-       "what": "перевыпуск дс тр тс",
-       "amount": 5000.0,
-       "paid": 0.0,
-       "status": "ждём",
-       "src": "лист Лены, прогноз",
-       "due": null
-      }
-     ],
-     "marked": 0.0,
-     "remain": 5000.0
-    }
-   ],
-   "total": {
-    "amount": 1283000.0,
-    "paid": 0.0,
-    "remain": 1283000.0,
-    "marked": 0.0,
-    "firms": 11
-   }
-  },
-  "rule": "Оплата засчитывается только по выписке. Отметка менеджера «Оплачено» без выписки остаётся в «ждём». Прогноз продлений — оценка 50%.",
-  "sources": {
-   "garanty": "2026-11-19T15:12:43+03:00",
-   "plan": "/mnt/project-files/daily-control/prodleniya/plan.json"
-  }
- },
- "income": [
-  {
-   "payer": "В2-ЛАБ",
-   "amount": 200000.0,
-   "bank": "Альфа",
-   "seen": "2026-10-29T15:38:00+03:00",
-   "status": "vneseno",
-   "done": "2026-10-30T16:14:49+03:00",
-   "order": "2394649,2394652"
-  },
-  {
-   "payer": "АО «ВИСТ ГРУПП»",
-   "amount": 40000.0,
-   "bank": "Альфа",
-   "seen": "2026-10-29T16:36:00+03:00",
-   "status": "vneseno",
-   "done": "2026-10-30T16:09:15+03:00",
-   "order": "2394349"
-  },
-  {
-   "payer": "Востряково-2",
-   "amount": 82000.0,
-   "bank": "Альфа",
-   "seen": "2026-10-22T12:00:00+03:00",
-   "status": "skip",
-   "done": null,
-   "order": null
-  },
-  {
-   "payer": "УКС ГРУП",
-   "amount": 200000.0,
-   "bank": "Альфа",
-   "seen": "2026-10-30T16:44:43+03:00",
-   "status": "vneseno",
-   "done": "2026-10-30T18:44:34+03:00",
-   "order": "2394637,2394640,2394643,2394646"
-  },
-  {
-   "payer": "Клинмаркет",
-   "amount": 60000.0,
-   "bank": "Альфа",
-   "seen": "2026-10-30T16:44:43+03:00",
-   "status": "vneseno",
-   "done": "2026-10-30T18:44:34+03:00",
-   "order": "2394663"
-  },
-  {
-   "payer": "ООО ЭР-МАШ",
-   "amount": 600000.0,
-   "bank": "Альфа",
-   "seen": "2026-11-02T13:02:46+03:00",
-   "status": "vneseno",
-   "done": "2026-11-02T13:05:03+03:00",
-   "order": "2394617"
-  },
-  {
-   "payer": "ООО АЗС СПЕЦСЕРВИС",
-   "amount": 8000.0,
-   "bank": "Точка",
-   "seen": "2026-11-02T14:36:18+03:00",
-   "status": "vneseno",
-   "done": "2026-11-02T14:38:31+03:00",
-   "order": "2394740"
-  },
-  {
-   "payer": "ИП Барсуков В.М.",
-   "amount": 15000.0,
-   "bank": "Точка",
-   "seen": "2026-11-02T14:36:18+03:00",
-   "status": "vneseno",
-   "done": "2026-11-02T14:38:31+03:00",
-   "order": "2394735"
-  },
-  {
-   "payer": "ООО УКС ГРУП (сч. 1051/13 от 12.11, прил. 12, 13)",
-   "amount": 100000.0,
-   "bank": "Альфа",
-   "seen": "2026-11-13T14:11:04+03:00",
-   "status": "vneseno",
-   "done": "2026-11-13T14:12:45+03:00",
-   "order": "2394866,2394869"
-  },
-  {
-   "payer": "АО Логика молока (дог. 1333-ЛУГ-ПР, док 104 от 27.08)",
-   "amount": 190000.0,
-   "bank": "Альфа",
-   "seen": "2026-11-13T14:11:04+03:00",
-   "status": "skip",
-   "done": null,
-   "order": null
-  },
-  {
-   "payer": "ООО ТЕПЛОСТРОЙПРОЕКТ-С",
-   "amount": 380000.0,
-   "bank": "Альфа",
-   "seen": "2026-11-16T13:45:29+03:00",
-   "status": "vneseno",
-   "done": "2026-11-16T14:04:08+03:00",
-   "order": "2394884"
-  },
-  {
-   "payer": "АО ВИРТЕКС (вероятно финал по счёту 1295/3)",
-   "amount": 175500.0,
-   "bank": "Альфа",
-   "seen": "2026-11-16T13:45:29+03:00",
-   "status": "skip",
-   "done": null,
-   "order": null
-  },
-  {
-   "payer": "АО ЭЛЕКТРОНСТАНДАРТ-ПРИБОР (вероятно заказ 2394660, СС SIL 2)",
-   "amount": 100000.0,
-   "bank": "Альфа",
-   "seen": "2026-11-18T15:36:48+03:00",
-   "status": "vneseno",
-   "done": "2026-11-18T15:49:13+03:00",
-   "order": "2394660"
-  }
- ],
- "vypiska": {
-  "asOf": "2026-11-19",
-  "time": "11:47",
-  "fileDate": "2026-11-19",
-  "src": "kontrol/vypiski/2026-11-19.md",
-  "items": [
-   {
-    "date": "2026-10-07",
-    "pp": "1501",
-    "payer": "Конверсия-Нефть",
-    "amount": 150000.0,
-    "basis": "сч. 523/18, прил. 18"
-   },
-   {
-    "date": "2026-10-07",
-    "pp": "1500",
-    "payer": "Конверсия-Нефть",
-    "amount": 15000.0,
-    "basis": "сч. 523/17, прил. 17"
-   },
-   {
-    "date": "2026-10-07",
-    "pp": "1502",
-    "payer": "Конверсия-Нефть",
-    "amount": 150000.0,
-    "basis": "сч. 523/19, прил. 19"
-   },
-   {
-    "date": "2026-10-08",
-    "pp": "590306",
-    "payer": "РЭИ (возврат депозита)",
-    "amount": 50000.0,
-    "basis": "депозит CB13009260005237"
-   },
-   {
-    "date": "2026-10-08",
-    "pp": "590407",
-    "payer": "РЭИ (возврат депозита)",
-    "amount": 75000.0,
-    "basis": "депозит CB13009260005138"
-   },
-   {
-    "date": "2026-10-08",
-    "pp": "590307",
-    "payer": "Альфа-Банк",
-    "amount": 113.75,
-    "basis": "проценты по депозиту"
-   },
-   {
-    "date": "2026-10-08",
-    "pp": "590408",
-    "payer": "Альфа-Банк",
-    "amount": 170.63,
-    "basis": "проценты по депозиту"
-   },
-   {
-    "date": "2026-10-09",
-    "pp": "19263",
-    "payer": "ЧЗМЭК",
-    "amount": 15000.0,
-    "basis": "сч. 1240/7, прил. 7"
-   },
-   {
-    "date": "2026-10-12",
-    "pp": "2851",
-    "payer": "Квант",
-    "amount": 5000.0,
-    "basis": "оферта 1374-ЛЕ-ОТ от 09.10"
-   },
-   {
-    "date": "2026-10-13",
-    "pp": "43",
-    "payer": "ГЕА Фарм Технолоджиз Рус",
-    "amount": 95000.0,
-    "basis": "сч. 657/48 от 05.10"
-   },
-   {
-    "date": "2026-10-14",
-    "pp": "2928",
-    "payer": "Электронстандарт-Прибор",
-    "amount": 100000.0,
-    "basis": "сч. 689/18 от 17.08, дог. 689-ЛЕ-СЕЙС"
-   },
-   {
-    "date": "2026-10-15",
-    "pp": "5520",
-    "payer": "Уфагидромаш",
-    "amount": 21799.0,
-    "basis": "сч. 1375/1, прил. 2"
-   },
-   {
-    "date": "2026-10-15",
-    "pp": "3900",
-    "payer": "СПБ СХМ",
-    "amount": 30000.0,
-    "basis": "сч. 1248/8, прил. 8"
-   },
-   {
-    "date": "2026-10-16",
-    "pp": "306",
-    "payer": "Белинвестбанк за ОАО ГСКБ (УНП 200244964)",
-    "amount": 107000.0,
-    "basis": "дог. 1307-ЛЕ-ТРТС, сертификация"
-   },
-   {
-    "date": "2026-10-16",
-    "pp": "5538",
-    "payer": "Уфагидромаш",
-    "amount": 74201.0,
-    "basis": "сч. 1375/1, прил. 2"
-   },
-   {
-    "date": "2026-10-16",
-    "pp": "994",
-    "payer": "Мореплас(т)",
-    "amount": 15000.0,
-    "basis": "сч. 1376/1 от 15.10"
-   },
-   {
-    "date": "2026-10-20",
-    "pp": "1144",
-    "payer": "АНК-Групп",
-    "amount": 32000.0,
-    "basis": "оферта 1377-ЛЕ-ДС от 19.10"
-   },
-   {
-    "date": "2026-10-21",
-    "pp": "54",
-    "payer": "КФХ ИП Сочнев В.Ю.",
-    "amount": 10000.0,
-    "basis": "оферта 1378-ЛЕ-ГОСТ от 20.10"
-   },
-   {
-    "date": "2026-10-21",
-    "pp": "5629",
-    "payer": "Уфагидромаш",
-    "amount": 24000.0,
-    "basis": "оферта 1375-ЛЕ-ДС, прил. 3"
-   },
-   {
-    "date": "2026-10-22",
-    "pp": "5431",
-    "payer": "Востряково-2",
-    "amount": 82000.0,
-    "basis": "сч. 1313/2, финальная оплата по дог. 1313-ЛУГ-ЛИ"
-   },
-   {
-    "date": "2026-10-23",
-    "pp": "309",
-    "payer": "Белинвестбанк за ОАО ГСКБ",
-    "amount": 180000.0,
-    "basis": "дог. 1307-ЛЕ-ТРТС, ИК"
-   },
-   {
-    "date": "2026-10-26",
-    "pp": "4866",
-    "payer": "УКС ГРУП",
-    "amount": 200000.0,
-    "basis": "сч. 1051/8, прил. 8–11"
-   },
-   {
-    "date": "2026-10-26",
-    "pp": "323",
-    "payer": "Медиавизор",
-    "amount": 10000.0,
-    "basis": "сч. 274/35, прил. 35"
-   },
-   {
-    "date": "2026-10-28",
-    "pp": "164",
-    "payer": "Клинмаркет",
-    "amount": 60000.0,
-    "basis": "сч. 1201/10, прил. 10"
-   },
-   {
-    "date": "2026-10-29",
-    "pp": "2293",
-    "payer": "ВИСТ ГРУПП",
-    "amount": 40000.0,
-    "basis": "сч. 1369-ЛЕ-ДС от 11.09"
-   },
-   {
-    "date": "2026-10-29",
-    "pp": "241",
-    "payer": "В2-ЛАБ",
-    "amount": 200000.0,
-    "basis": "сч. 901/13, прил. 13 и 14"
-   },
-   {
-    "date": "2026-11-02",
-    "pp": "204",
-    "payer": "ЭР-МАШ",
-    "amount": 600000.0,
-    "basis": "сч. 1379/2 от 22.10, дог. 1379-ЛЕ-ТРТС (Альфа)"
-   },
-   {
-    "date": "2026-11-02",
-    "pp": "546",
-    "payer": "АЗС Спецсервис",
-    "amount": 8000.0,
-    "basis": "счёт-оферта 91/1 (Точка ИП)"
-   },
-   {
-    "date": "2026-11-02",
-    "pp": "293",
-    "payer": "ИП Барсуков",
-    "amount": 15000.0,
-    "basis": "счёт-оферта 93/1 от 02.11 (Точка ИП)"
-   },
-   {
-    "date": "2026-11-06",
-    "pp": "",
-    "payer": "Ферингер",
-    "amount": 20000.0,
-    "basis": "прил. 16",
-    "notif": true,
-    "bank": "Альфа",
-    "seen": "2026-11-06 09:02",
-    "src": "obkhod/pochta-razbor-2026-11-06.md"
-   },
-   {
-    "date": "2026-11-06",
-    "pp": "4178",
-    "payer": "ООО СПБ СХМ",
-    "amount": 32000.0,
-    "basis": "",
-    "notif": true,
-    "bank": "Альфа",
-    "seen": "2026-11-06 12:46",
-    "src": "obkhod/pochta-razbor-2026-11-06.md"
-   },
-   {
-    "date": "2026-11-09",
-    "pp": "3780",
-    "payer": "Купер",
-    "amount": 65000.0,
-    "basis": "прил. 48",
-    "notif": true,
-    "bank": "Альфа",
-    "seen": "2026-11-09 14:44",
-    "src": "obkhod/pochta-razbor-2026-11-09.md"
-   },
-   {
-    "date": "2026-11-16",
-    "pp": "766",
-    "payer": "Теплостройпроект-С",
-    "amount": 380000.0,
-    "basis": "",
-    "notif": true,
-    "bank": "Альфа",
-    "seen": "2026-11-16 12:00",
-    "src": "obkhod/pochta-razbor-2026-11-16.md"
-   },
-   {
-    "date": "2026-11-16",
-    "pp": "5902",
-    "payer": "Виртекс",
-    "amount": 175500.0,
-    "basis": "",
-    "notif": true,
-    "bank": "Альфа",
-    "seen": "2026-11-16",
-    "src": "obkhod/pochta-razbor-2026-11-16.md"
-   },
-   {
-    "date": "2026-11-17",
-    "pp": "3237",
-    "payer": "АО ЭЛЕКТРОНСТАНДАРТ-ПРИБОР",
-    "amount": 100000.0,
-    "basis": "",
-    "notif": true,
-    "bank": "Альфа",
-    "seen": "2026-11-17 16:33",
-    "src": "obkhod/pochta-razbor-2026-11-18.md"
-   }
-  ],
-  "notifUpto": "2026-11-17 16:33"
- },
- "ohvat": {
-  "file": "kontrol/runs/2026-11-19.jsonl",
-  "date": "2026-11-19",
-  "fromJournal": true,
-  "parts": [
-   {
-    "src": "olga@",
-    "time": "16:38",
-    "at": "2026-11-19T16:38:27+03:00",
-    "run": "pochta-20261119-163759-d50c",
-    "items": 0
-   },
-   {
-    "src": "boroday@",
-    "time": "16:38",
-    "at": "2026-11-19T16:38:27+03:00",
-    "run": "pochta-20261119-163759-d50c",
-    "items": 0
-   },
-   {
-    "src": "ocenka@",
-    "time": "16:38",
-    "at": "2026-11-19T16:38:27+03:00",
-    "run": "pochta-20261119-163759-d50c",
-    "items": 0
-   },
-   {
-    "src": "info@",
-    "time": "16:38",
-    "at": "2026-11-19T16:38:27+03:00",
-    "run": "pochta-20261119-163759-d50c",
-    "items": 0
-   }
-  ]
- },
- "banki": {
-  "date": "2026-11-19",
-  "built": "2026-11-19T18:42:28+03:00",
-  "banks": [
-   {
-    "bank": "Альфа",
-    "lastOk": {
-     "upto": "2026-11-19 11:50",
-     "at": "2026-11-19T11:47:24+03:00",
-     "items": 4,
-     "run": "signal-20261119-092458-aa9a",
-     "src": "kontrol/runs/2026-11-19.jsonl"
-    },
-    "block": null,
-    "statement": {
-     "asOf": "2026-11-19",
-     "time": "11:47",
-     "fileDate": "2026-11-19",
-     "src": "kontrol/vypiski/2026-11-19.md",
-     "lastDay": "2026-11-19",
-     "dayIn": 0.0,
-     "daySrc": "файл выписки Альфы 18–19.11, уведомление 13:02 (Браузер 13:59)",
-     "account": "Альфа РЭИ *7370"
-    },
-    "notif": {
-     "last": {
-      "date": "2026-11-17",
-      "seen": "2026-11-17 16:33",
-      "payer": "АО ЭЛЕКТРОНСТАНДАРТ-ПРИБОР",
-      "amount": 100000.0,
-      "src": "obkhod/pochta-razbor-2026-11-18.md"
-     },
-     "today": [],
-     "checkedUpto": "2026-11-19 10:37",
-     "checkSrc": "журнал запусков: Браузер:почта"
-    },
-    "portal": {
-     "pending": [],
-     "lastDone": "2026-11-18T15:49:13+03:00",
-     "checkedUpto": "2026-11-19 11:30",
-     "src": "kontrol/runs/income.json"
-    }
-   },
-   {
-    "bank": "Точка",
-    "lastOk": {
-     "upto": "2026-11-19 11:50",
-     "at": "2026-11-19T11:47:24+03:00",
-     "items": 4,
-     "run": "signal-20261119-092458-aa9a",
-     "src": "kontrol/runs/2026-11-19.jsonl"
-    },
-    "block": null,
-    "statement": {
-     "lastDay": "2026-11-19",
-     "dayIn": 0.0,
-     "daySrc": "11:50 экран Точка, после 18.11 13:10 операций нет",
-     "account": "Точка *3698"
-    },
-    "notif": {
-     "last": null,
-     "today": [],
-     "checkedUpto": "2026-11-19 10:37",
-     "checkSrc": "журнал запусков: Браузер:почта"
-    },
-    "portal": {
-     "pending": [],
-     "lastDone": "2026-11-02T14:38:31+03:00",
-     "checkedUpto": "2026-11-19 11:30",
-     "src": "kontrol/runs/income.json"
-    }
-   }
-  ]
- },
- "accuracy": {
-  "weeks": [],
-  "first": "2026-10-26",
-  "firstPartial": true,
-  "savedAt": "2026-10-29T20:55+03:00"
- },
- "trebovaniya": {
-  "built": "29.10.2026 21:00 МСК, по матрице docs/audit-pulta-2026-10-29.md §6",
-  "rows": [
-   {
-    "id": "R01",
-    "text": "Один рабочий пульт вместо 12 таблиц",
-    "source": "Ольга 28.10",
-    "taskId": "pult2610",
-    "task": "closed",
-    "check": {
-     "how": "PR #7 и #8 слиты, Codex принял",
-     "status": "pass",
-     "at": "2026-10-29"
-    },
-    "gap": "",
-    "owner": "Утро"
-   },
-   {
-    "id": "R02",
-    "text": "Стиль rus-ei",
-    "source": "бриф 29.10",
-    "taskId": "pult2610",
-    "task": "closed",
-    "check": {
-     "how": "PR #8 слит, Codex принял",
-     "status": "pass",
-     "at": "2026-10-29"
-    },
-    "gap": "",
-    "owner": "Утро"
-   },
-   {
-    "id": "R03",
-    "text": "Ольге не больше 5 пунктов, только проверенное сегодня",
-    "source": "§14, 28.10",
-    "taskId": "pult2610",
-    "task": "closed",
-    "check": {
-     "how": "tests/acceptance.mjs: «не больше 5», «непроверенные не попадают»",
-     "status": "pass",
-     "at": "2026-10-29"
-    },
-    "gap": "большинство дел без даты сверки",
-    "owner": "Утро"
-   },
-   {
-    "id": "R04",
-    "text": "Отметки и поручения с пульта доводятся до итога",
-    "source": "§16",
-    "taskId": "",
-    "task": "none",
-    "check": {
-     "how": "tests/skvoznoy.mjs 9/9, kontrol/cikl_pulta.py",
-     "status": "pass",
-     "at": "2026-10-29"
-    },
-    "gap": "дела в базе нет",
-    "owner": "Регламент"
-   },
-   {
-    "id": "R05",
-    "text": "Ответы на отметки видны на пульте",
-    "source": "§16",
-    "taskId": "pult2610",
-    "task": "closed",
-    "check": {
-     "how": "tests/acceptance.mjs: «Ответы Claude: три стадии»",
-     "status": "pass",
-     "at": "2026-10-29"
-    },
-    "gap": "",
-    "owner": "Утро"
-   },
-   {
-    "id": "R06",
-    "text": "Не переспрашивать решённое (fakty)",
-    "source": "22.10",
-    "taskId": "",
-    "task": "none",
-    "check": {
-     "how": "ручная сверка с fakty.md",
-     "status": "manual",
-     "at": ""
-    },
-    "gap": "автоматической проверки нет",
-    "owner": "Утро"
-   },
-   {
-    "id": "R07",
-    "text": "Платёжки: один проверенный файл в Загрузках, правильный формат",
-    "source": "29.10",
-    "taskId": "",
-    "task": "none",
-    "check": {
-     "how": "",
-     "status": "none",
-     "at": ""
-    },
-    "gap": "проверки формата и места нет",
-    "owner": "Бухгалтерия"
-   },
-   {
-    "id": "R08",
-    "text": "Диадок грузим сами, Ольга только подписывает",
-    "source": "27.10",
-    "taskId": "",
-    "task": "none",
-    "check": {
-     "how": "",
-     "status": "none",
-     "at": ""
-    },
-    "gap": "ограничение Браузера не снято",
-    "owner": "Браузер"
-   },
-   {
-    "id": "R09",
-    "text": "Просрочку отрабатывать, а не снимать сроки",
-    "source": "§10",
-    "taskId": "",
-    "task": "none",
-    "check": {
-     "how": "",
-     "status": "none",
-     "at": ""
-    },
-    "gap": "в пинателе нет проверки сдвига срока без lastMove",
-    "owner": "Регламент"
-   },
-   {
-    "id": "R10",
-    "text": "Деньги только с источником; банк отдельно от «со слов»",
-    "source": "26.10",
-    "taskId": "",
-    "task": "none",
-    "check": {
-     "how": "tests/acceptance.mjs: «Деньги без сегодняшней сверки помечены», «Списания … раздельно»",
-     "status": "pass",
-     "at": "2026-10-29"
-    },
-    "gap": "src есть не у всех дел",
-    "owner": "Бухгалтерия"
-   },
-   {
-    "id": "R11",
-    "text": "Бухгалтерия на пульте: план, сверки, Лариса",
-    "source": "28.10",
-    "taskId": "lar1",
-    "task": "open",
-    "check": {
-     "how": "tests/acceptance.mjs: раздел «Бухгалтерия»",
-     "status": "pass",
-     "at": "2026-10-29"
-    },
-    "gap": "часть дел без срока",
-    "owner": "Бухгалтерия"
-   },
-   {
-    "id": "R12",
-    "text": "Гаранты и оплаты Лены — постоянный реестр, удобный менеджеру",
-    "source": "29.10",
-    "taskId": "garanty2610",
-    "task": "closed",
-    "check": {
-     "how": "tests/test_reestr_google.py 10/10, tests/test_reestr_garanty.py",
-     "status": "pass",
-     "at": "2026-10-29"
-    },
-    "gap": "дата перехода и доступ Лене — за Ольгой",
-    "owner": "Утро"
-   },
-   {
-    "id": "R13",
-    "text": "Зарплата Лены считается, но закрыта",
-    "source": "29.10",
-    "taskId": "",
-    "task": "none",
-    "check": {
-     "how": "права файла: только владелец",
-     "status": "pass",
-     "at": "2026-10-29"
-    },
-    "gap": "ставки не согласованы",
-    "owner": "Ольга"
-   },
-   {
-    "id": "R14",
-    "text": "Свежесть автоматики видна, «запуск ≠ выполнено»",
-    "source": "§14, 28.10",
-    "taskId": "pult2610",
-    "task": "closed",
-    "check": {
-     "how": "tests/acceptance.mjs: «Автоматика: вчерашний статус без зелёного»",
-     "status": "pass",
-     "at": "2026-10-29"
-    },
-    "gap": "статусы обновляются не каждый день",
-    "owner": "Регламент"
-   },
-   {
-    "id": "R15",
-    "text": "Выгрузки для пульта к 9:30",
-    "source": "26.10",
-    "taskId": "",
-    "task": "none",
-    "check": {
-     "how": "строка «Автоматика»",
-     "status": "manual",
-     "at": ""
-    },
-    "gap": "за 29.10 не проверено",
-    "owner": "Браузер"
-   },
-   {
-    "id": "R16",
-    "text": "Ссылка на портал у каждого заказа",
-    "source": "29.10",
-    "taskId": "pult2610",
-    "task": "closed",
-    "check": {
-     "how": "tests/test_build_svodka.py: portal_orders",
-     "status": "pass",
-     "at": "2026-10-29"
-    },
-    "gap": "",
-    "owner": "Утро"
-   },
-   {
-    "id": "R17",
-    "text": "Клиенты Ольги и Лены разделены",
-    "source": "22.10",
-    "taskId": "",
-    "task": "none",
-    "check": {
-     "how": "поле mgr в задачах",
-     "status": "manual",
-     "at": ""
-    },
-    "gap": "",
-    "owner": "Утро"
-   },
-   {
-    "id": "R18",
-    "text": "Контроль Лены: закрытие только с proof",
-    "source": "26.10",
-    "taskId": "",
-    "task": "none",
-    "check": {
-     "how": "kontrol_leny.py 11/16",
-     "status": "manual",
-     "at": ""
-    },
-    "gap": "proof есть у немногих дел",
-    "owner": "Контроль Лены"
-   },
-   {
-    "id": "R19",
-    "text": "Telegram-боты Claude/GPT",
-    "source": "28.10",
-    "taskId": "",
-    "task": "none",
-    "check": {
-     "how": "",
-     "status": "none",
-     "at": ""
-    },
-    "gap": "ждёт токен от Ольги",
-    "owner": "Ольга"
-   },
-   {
-    "id": "R20",
-    "text": "Приоритеты уровнями",
-    "source": "27.10",
-    "taskId": "",
-    "task": "none",
-    "check": {
-     "how": "",
-     "status": "none",
-     "at": ""
-    },
-    "gap": "PR #5 без решения",
-    "owner": "Утро"
-   },
-   {
-    "id": "R21",
-    "text": "Письма не отправляем, Лене без указания не пишем",
-    "source": "правила",
-    "taskId": "",
-    "task": "none",
-    "check": {
-     "how": "аудит 29.10: нарушений нет",
-     "status": "manual",
-     "at": "2026-10-29"
-    },
-    "gap": "",
-    "owner": "все ветки"
-   }
-  ]
- },
- "grafik": {
-  "date": "2026-11-19",
-  "at": "18:42",
-  "built": "2026-11-19T18:42:36+03:00",
-  "weekday": "чт",
-  "counts": {
-   "ok": 37,
-   "wait": 1,
-   "late": 0,
-   "fail": 2,
-   "olga": 1,
-   "nolog": 0
-  },
-  "total": 41,
-  "olga": [
-   "Jivo: под каким аккаунтом входить (12.11 были видны 62 диалога) и какой ящик на yandex.ru получает письма Jivo; пароль вводите вы"
-  ],
-  "steps": [
-   {
-    "time": "9:24",
-    "title": "Запуск утра: «Доброе утро» или расписание 9:24",
-    "owner": "Утро",
-    "status": "ok",
-    "note": "запущено в 09:24",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": "signal-20261119-092458-aa9a"
-   },
-   {
-    "time": "9:24",
-    "title": "ПК на связи (Remote Control)",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "проверено 12:12",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": ""
-   },
-   {
-    "time": "9:24",
-    "title": "Chrome запущен на ПК",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "проверено 12:12",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": ""
-   },
-   {
-    "time": "9:24",
-    "title": "Расширение Claude подключено к аккаунту",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "проверено 12:12",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": ""
-   },
-   {
-    "time": "9:24",
-    "title": "Разрешение на управление (Chrome, Telegram)",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "проверено 12:12 (Chrome, Telegram)",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": ""
-   },
-   {
-    "time": "9:24",
-    "title": "Входы: Outlook, банки, 1С, Диадок и др.",
-    "owner": "Браузер",
-    "status": "olga",
-    "note": "не прошло: Альфа, Jivo, Точка; 10:45 вкладка Точка ID в Chrome (отчёт исполнителя)",
-    "olga": "Jivo: под каким аккаунтом входить (12.11 были видны 62 диалога) и какой ящик на yandex.ru получает письма Jivo; пароль вводите вы",
-    "group": "Утро (§32)",
-    "proof": ""
-   },
-   {
-    "time": "до 10:40",
-    "title": "Альфа-Банк: выписка за вчера и сегодня",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "в 11:47, до 11:50, 4 шт.",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": "Браузер:Альфа"
-   },
-   {
-    "time": "до 10:40",
-    "title": "Точка: выписка (в первые 15 мин после входа)",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "в 11:47, до 11:50, 4 шт.",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": "Браузер:Точка"
-   },
-   {
-    "time": "до 10:40",
-    "title": "Почта olga@, ocenka@, info@ с прошлого раза",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "в 10:41, до 10:37, 19 шт.",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": "Браузер:почта"
-   },
-   {
-    "time": "до 10:40",
-    "title": "Письма Лены (boroday@) и клиентов Лене",
-    "owner": "Задачи Лены",
-    "status": "ok",
-    "note": "в 10:42, до 17:38, 3 шт.",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": "Лена:почта"
-   },
-   {
-    "time": "до 10:40",
-    "title": "Telegram: Лариса и рабочие чаты",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "в 10:41, до 10:37, 1 шт.",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": "Браузер:Telegram"
-   },
-   {
-    "time": "до 10:40",
-    "title": "1С «Луг»/«Пон» одним заходом: выписки загрузить и провести, задачи (§47)",
-    "owner": "Бухгалтерия",
-    "status": "ok",
-    "note": "в 13:59, до 13:58, 8 шт.",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": "Бухгалтерия:1С"
-   },
-   {
-    "time": "до 10:40",
-    "title": "Деньги на пульте: итоги месяца, план, списания по выпискам",
-    "owner": "Бухгалтерия",
-    "status": "ok",
-    "note": "в 11:46, до 11:47, 4 шт.",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": "Бухгалтерия:деньги"
-   },
-   {
-    "time": "10:00",
-    "title": "Jivo: обращения с сайта, первая проверка после утреннего блока (§47)",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "в 10:41, до 10:37, 0 шт.",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": "Браузер:Jivo"
-   },
-   {
-    "time": "до 10:40",
-    "title": "Диадок: входящие и черновики",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "в 10:41, до 10:37, 5 шт.",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": "Браузер:Диадок"
-   },
-   {
-    "time": "до 10:40",
-    "title": "Портал: оплаты по открытым долгам",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "в 11:41, до 11:30, 3 шт.",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": "Браузер:портал"
-   },
-   {
-    "time": "до 10:40",
-    "title": "Утренние выгрузки для пульта",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "в 11:41, до 11:30, 6 шт.",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": "Браузер:выгрузки"
-   },
-   {
-    "time": "до 10:40",
-    "title": "Отметки Ольги с пульта разведены по веткам",
-    "owner": "Утро",
-    "status": "ok",
-    "note": "в 09:25, до 09:25, 402 шт.",
-    "olga": "",
-    "group": "Утро (§32)",
-    "proof": "Утро:цикл"
-   },
-   {
-    "time": "9:03",
-    "title": "Обход проектов (rus-ei, ГЕА, ИИИ, LUGA)",
-    "owner": "Проекты и клиенты",
-    "status": "ok",
-    "note": "файл обхода 10:42",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "9:03",
-    "title": "ВкусВилл: Telegram Аглаи и почта ВкусВилла (§43)",
-    "owner": "Проекты и клиенты",
-    "status": "ok",
-    "note": "строка в обходе проектов: - ВкусВилл (§43): TG Аглаи — 18.11 21:18 «Супер, спасибо большое, забираю»: комп",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "9:07–18:37",
-    "title": "Разбор почты и уведомлений банков каждые 30 мин",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "прогонов 16: полных 4, неполных 12; последний 16:38",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "9:07–18:37",
-    "title": "Почта olga@: прочитана с прошлого раза",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "в 16:38, до 16:38, новых 0",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "9:07–18:37",
-    "title": "Почта boroday@: прочитана с прошлого раза",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "в 16:38, до 16:38, новых 0",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "9:07–18:37",
-    "title": "Почта ocenka@: прочитана с прошлого раза",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "в 16:38, до 16:38, новых 0",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "9:07–18:37",
-    "title": "Почта info@: прочитана с прошлого раза",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "в 16:38, до 16:38, новых 0",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "9:12",
-    "title": "Гаранты Лены: синхронизация таблицы",
-    "owner": "Гаранты",
-    "status": "ok",
-    "note": "в 09:13",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "10:07",
-    "title": "Бухгалтерия: обход и сверка банк ↔ портал ↔ 1С",
-    "owner": "Бухгалтерия",
-    "status": "ok",
-    "note": "записано в сводке Бухгалтерии",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "10:40–18:40",
-    "title": "Пинатель: движение задач каждый час",
-    "owner": "Регламент",
-    "status": "fail",
-    "note": "сделано 7 из 8 прошедших; пропущены 12:40, 17:40",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "11:00",
-    "title": "Контроль задач Лены",
-    "owner": "Задачи Лены",
-    "status": "ok",
-    "note": "прогон 11:10",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "12:00",
-    "title": "Выписки Альфы и Точки за день в Seafile (Клиент-банк\\2026)",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "отмечено 14:14: 13:55 Seafile\\Клиент-банк\\2026\\Альфа|Точка: Выписка_40702810402860007370_18.11.2026–19.11.2026.txt, ",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "12:00",
-    "title": "Платёжки по поступившим счетам — в «Черновики» банка",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "отмечено 14:14: 14:15 поступивших счетов на оплату с 13:45 нет, платёжки не требовались",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "12:53",
-    "title": "Пульт: дневная сборка",
-    "owner": "Утро",
-    "status": "ok",
-    "note": "сборка 13:44",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "13:07",
-    "title": "Бухгалтерия: обход и сверка банк ↔ портал ↔ 1С",
-    "owner": "Бухгалтерия",
-    "status": "ok",
-    "note": "записано в сводке Бухгалтерии",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "15:00",
-    "title": "Jivo: вторая проверка за день",
-    "owner": "Браузер",
-    "status": "fail",
-    "note": "14:20: 14:20 app.jivosite.com: баннер пробный период истёк, Входящие не грузятся; нужен вход в рабочий акка",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "15:12",
-    "title": "Гаранты Лены: синхронизация таблицы",
-    "owner": "Гаранты",
-    "status": "ok",
-    "note": "в 15:13",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "16:00",
-    "title": "Контроль задач Лены",
-    "owner": "Задачи Лены",
-    "status": "ok",
-    "note": "прогон 13:45",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "16:53",
-    "title": "Пульт: дневная сборка",
-    "owner": "Утро",
-    "status": "ok",
-    "note": "сборка 16:47",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "18:07",
-    "title": "Бухгалтерия: обход и сверка банк ↔ портал ↔ 1С",
-    "owner": "Бухгалтерия",
-    "status": "wait",
-    "note": "записи прогона нет",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "весь день",
-    "title": "Поступления внесены в портал в тот же день (§19)",
-    "owner": "Браузер",
-    "status": "ok",
-    "note": "проверка 18:41: всё внесено",
-    "olga": "",
-    "group": "В течение дня",
-    "proof": ""
-   },
-   {
-    "time": "9:30",
-    "title": "Сводка Ольге в главный чат",
-    "owner": "Сводки",
-    "status": "ok",
-    "note": "отмечено 09:40: 09:41 сводка 19.11 отправлена Ольге в ветку и передана координатору для главного чата",
-    "olga": "",
-    "group": "Ольге в чат",
-    "proof": ""
-   },
-   {
-    "time": "18:07",
-    "title": "Сверка дня Ольге одной строкой",
-    "owner": "Бухгалтерия",
-    "status": "ok",
-    "note": "файл сверки 14:00",
-    "olga": "",
-    "group": "Ольге в чат",
-    "proof": ""
-   }
-  ],
-  "src": "kontrol/runs/2026-11-19.jsonl + файлы прогонов"
- },
  "vklady": {
   "asOf": "19.11.2026 19:05 МСК",
   "src": "выписки Альфы *7370 (назначения «Размещение во Вклад по Сделке …»), портал-оплаты; Бухгалтерия",
@@ -12209,8 +10902,16 @@
   ],
   "note": "Срок возврата в выписке не указан; прошлые вклады возвращались через 7–8 дней (02.11→09.11, 30.09→08.10). Вклад 02.11 (600 000) возвращён 09.11 с процентами 1 164,49."
  },
+ "shared_clients": [
+  {
+   "name": "Фрозен Бек",
+   "match": "фрозен\\s*бек|frozen\\s*bek",
+   "since": "2026-11-19",
+   "src": "Ольга 19.11 20:33: «Фрозен бек мы ведем с Леной вдвоем»"
+  }
+ ],
  "rashody": {
-  "asOf": "19.11.2026 20:00 МСК",
+  "asOf": "19.11.2026 20:35 МСК",
   "coverage": "полностью 01.08–19.11.2026; Луг без п/п 0000-000516 48 285 (не проведена, ждём Ларису)",
   "months": {
    "2026-08": {
@@ -16005,5 +14706,2057 @@
    "Прочее"
   ],
   "src": "svodka/rashody-mesyac.json + svodka/spisaniya.json"
+ },
+ "platezhi": {
+  "accepted": "02.11.2026 Ольга («Со всем согласна»)",
+  "file": "platezhi-do-ng-2026.json",
+  "total": 392595,
+  "months": [
+   {
+    "ym": "2026-11",
+    "total": 160655,
+    "rows": [
+     {
+      "period": "Начало месяца, до 7-го",
+      "category": "zp",
+      "item": "Зарплата, аванс",
+      "note": "уже проведён Ольгой",
+      "amount": 0,
+      "approx": false
+     },
+     {
+      "period": "Начало месяца, до 7-го",
+      "category": "svc",
+      "item": "СДЭК, доставка за октябрь",
+      "note": "~05.11",
+      "amount": 6250,
+      "approx": true
+     },
+     {
+      "period": "Начало месяца, до 7-го",
+      "category": "ip",
+      "item": "Точка, тариф ИП",
+      "note": "списывается сама",
+      "amount": 4200,
+      "approx": true
+     },
+     {
+      "period": "В течение месяца",
+      "category": "svc",
+      "item": "Руслан (счета Грушко Т.В.), IT за октябрь",
+      "note": "35 000 в месяц, месяцем позже",
+      "amount": 35000,
+      "approx": false
+     },
+     {
+      "period": "В течение месяца",
+      "category": "rent",
+      "item": "ИП Утешева, аренда за октябрь и ноябрь",
+      "note": "не платим: закрыто переплатой от 26.10",
+      "amount": 0,
+      "approx": false
+     },
+     {
+      "period": "В течение месяца",
+      "category": "svc",
+      "item": "Софт-трейд, АДВАНСДОКС",
+      "note": "по счёту",
+      "amount": 10000,
+      "approx": true
+     },
+     {
+      "period": "В течение месяца",
+      "category": "zp",
+      "item": "Зарплата, вторая ведомость",
+      "note": "~20.11",
+      "amount": 48285,
+      "approx": true
+     },
+     {
+      "period": "Конец месяца, до 28-го",
+      "category": "zp",
+      "item": "ЕНП: НДФЛ и взносы за октябрь",
+      "note": "до 28.11",
+      "amount": 44000,
+      "approx": true
+     },
+     {
+      "period": "Конец месяца, до 28-го",
+      "category": "zp",
+      "item": "СФР, от несчастных случаев",
+      "note": "до 28.11",
+      "amount": 220,
+      "approx": true
+     },
+     {
+      "period": "Конец месяца, до 28-го",
+      "category": "svc",
+      "item": "Сипнет, телефония",
+      "note": "~28.11",
+      "amount": 12700,
+      "approx": true
+     }
+    ],
+    "note": ""
+   },
+   {
+    "ym": "2026-12",
+    "total": 231940,
+    "rows": [
+     {
+      "period": "Начало месяца, до 7-го",
+      "category": "zp",
+      "item": "Зарплата, первая ведомость",
+      "note": "~05.12",
+      "amount": 48285,
+      "approx": true
+     },
+     {
+      "period": "Начало месяца, до 7-го",
+      "category": "svc",
+      "item": "Лариса (ИП Четвергова), за ноябрь",
+      "note": "до 05.12",
+      "amount": 20000,
+      "approx": false
+     },
+     {
+      "period": "Начало месяца, до 7-го",
+      "category": "svc",
+      "item": "СДЭК, доставка за ноябрь",
+      "note": "~05.12",
+      "amount": 6250,
+      "approx": true
+     },
+     {
+      "period": "Начало месяца, до 7-го",
+      "category": "ip",
+      "item": "Точка, тариф ИП",
+      "note": "списывается сама",
+      "amount": 4200,
+      "approx": true
+     },
+     {
+      "period": "В течение месяца",
+      "category": "svc",
+      "item": "Руслан (Грушко Т.В.), IT за ноябрь",
+      "note": "за декабрь платим в январе",
+      "amount": 35000,
+      "approx": false
+     },
+     {
+      "period": "В течение месяца",
+      "category": "rent",
+      "item": "ИП Утешева, аренда за декабрь",
+      "note": "3 000 в месяц; с этим платежом сальдо на 01.01 = 0",
+      "amount": 3000,
+      "approx": false
+     },
+     {
+      "period": "В течение месяца",
+      "category": "svc",
+      "item": "Софт-трейд, АДВАНСДОКС",
+      "note": "по счёту",
+      "amount": 10000,
+      "approx": true
+     },
+     {
+      "period": "В течение месяца",
+      "category": "zp",
+      "item": "Зарплата, вторая ведомость",
+      "note": "~22.12; если декабрьскую доплату выдадите до НГ, ещё ≈ 48 285",
+      "amount": 48285,
+      "approx": true
+     },
+     {
+      "period": "Конец месяца, до 28-го",
+      "category": "ip",
+      "item": "ИП Пономаренко, фиксированные взносы за 2026",
+      "note": "57 390 спишутся 28.12 с остатка ЕНС: туда вернули 176 103, списанные 10.08",
+      "amount": 0,
+      "approx": false
+     },
+     {
+      "period": "Конец месяца, до 28-го",
+      "category": "zp",
+      "item": "ЕНП: НДФЛ и взносы за ноябрь, НДФЛ за декабрь",
+      "note": "до 28.12",
+      "amount": 44000,
+      "approx": true
+     },
+     {
+      "period": "Конец месяца, до 28-го",
+      "category": "zp",
+      "item": "СФР, от несчастных случаев",
+      "note": "до 28.12",
+      "amount": 220,
+      "approx": true
+     },
+     {
+      "period": "Конец месяца, до 28-го",
+      "category": "svc",
+      "item": "Сипнет, телефония",
+      "note": "~28.12",
+      "amount": 12700,
+      "approx": true
+     }
+    ],
+    "note": ""
+   }
+  ],
+  "excluded": [
+   "подрядчики (в приходе)",
+   "переводы РЭИ→ИП Пономаренко (доход ИП)",
+   "ГлавУпДК (транзит, не расход)",
+   "ЗП Лены (% от прихода)"
+  ],
+  "personal": [
+   {
+    "item": "Ипотечная страховка Альфа-Банка (жизнь+квартира)",
+    "due": "10.12.2026",
+    "amount": 61000,
+    "alt": 40000,
+    "note": "вне итога"
+   }
+  ]
+ },
+ "garanty_changes": {
+  "date": "2026-11-19",
+  "since": "2026-11-18T09:14+03:00",
+  "until": "2026-11-19T09:14+03:00",
+  "items": [
+   {
+    "id": "G-0228",
+    "client": "ооо вниир промэлектро",
+    "amount": 5000.0,
+    "stage": "Обсуждаем",
+    "text": "новая строка: дстр тс, 5 000 ₽, Прогноз"
+   },
+   {
+    "id": "G-0229",
+    "client": "ооо завож ферингер",
+    "amount": 5000.0,
+    "stage": "Обсуждаем",
+    "text": "новая строка: перевыпуск дс тр тс, 5 000 ₽, Прогноз"
+   },
+   {
+    "id": "G-0178",
+    "client": "ооо квант",
+    "amount": 12000.0,
+    "stage": "Гарант",
+    "text": "Договор: 1382 ле дс (правка в таблице)"
+   },
+   {
+    "id": "G-0179",
+    "client": "ооо квант",
+    "amount": 12000.0,
+    "stage": "Гарант",
+    "text": "Договор: 1382 ле дс (правка в таблице)"
+   },
+   {
+    "id": "G-0226",
+    "client": "ооо квант",
+    "amount": 12000.0,
+    "stage": "Гарант",
+    "text": "новая строка: дс тр тс 010, 12 000 ₽, Гарант"
+   },
+   {
+    "id": "G-0227",
+    "client": "ооо квант",
+    "amount": 12000.0,
+    "stage": "Гарант",
+    "text": "новая строка: дс тр тс, 12 000 ₽, Гарант"
+   },
+   {
+    "id": "G-0184",
+    "client": "ооо электростнадртприбор",
+    "amount": 100000.0,
+    "stage": "Пришло по Лене",
+    "text": "Этап: Гарант → Оплачено (отметил менеджер) (правка в таблице)"
+   },
+   {
+    "id": "G-0225",
+    "client": "фирма теплостройпроект с",
+    "amount": 380000.0,
+    "stage": "Пришло по Лене",
+    "text": "оплата 380 000 по выписке Альфа *7370 за 16.11 (п/п 766, Теплостройпроект-С) — внесена в «Банк»"
+   }
+  ],
+  "other": []
+ },
+ "ozhidaem": {
+  "month": "2026-11",
+  "garanty": {
+   "firms": [
+    {
+     "client": "ооо укс групп",
+     "amount": 100000.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "G-0223",
+       "what": "сс гс р · 1051 ле гост прил 12",
+       "amount": 50000.0,
+       "paid": 0.0,
+       "status": "менеджер отметил оплату, по выписке нет",
+       "src": "лист Лены, Google «Реестр», стр. 46, ввод в таблице",
+       "due": null
+      },
+      {
+       "id": "G-0224",
+       "what": "сс гост р · 1051 ле гост прил 13",
+       "amount": 50000.0,
+       "paid": 0.0,
+       "status": "менеджер отметил оплату, по выписке нет",
+       "src": "лист Лены, Google «Реестр», стр. 47, ввод в таблице",
+       "due": null
+      }
+     ],
+     "marked": 100000.0,
+     "remain": 100000.0
+    },
+    {
+     "client": "ооо квант",
+     "amount": 78000.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "G-0178",
+       "what": "дс тр тс · 1382 ле дс",
+       "amount": 12000.0,
+       "paid": 0.0,
+       "status": "менеджер отметил оплату, по выписке нет",
+       "src": "лист Лены, октябрь 2026.xlsx, стр. 3",
+       "due": null
+      },
+      {
+       "id": "G-0179",
+       "what": "дс тр тс · 1382 ле дс",
+       "amount": 12000.0,
+       "paid": 0.0,
+       "status": "менеджер отметил оплату, по выписке нет",
+       "src": "лист Лены, октябрь 2026.xlsx, стр. 4",
+       "due": null
+      },
+      {
+       "id": "G-0212",
+       "what": "дс тр тс · 1380 ле дс",
+       "amount": 30000.0,
+       "paid": 0.0,
+       "status": "менеджер отметил оплату, по выписке нет",
+       "src": "лист Лены, Google «Реестр», стр. 9, ввод в таблице",
+       "due": null
+      },
+      {
+       "id": "G-0226",
+       "what": "дс тр тс 010",
+       "amount": 12000.0,
+       "paid": 0.0,
+       "status": "ждём",
+       "src": "лист Лены, Google «Реестр», стр. 49, ввод в таблице",
+       "due": null
+      },
+      {
+       "id": "G-0227",
+       "what": "дс тр тс",
+       "amount": 12000.0,
+       "paid": 0.0,
+       "status": "ждём",
+       "src": "лист Лены, Google «Реестр», стр. 50, ввод в таблице",
+       "due": null
+      }
+     ],
+     "marked": 54000.0,
+     "remain": 78000.0
+    },
+    {
+     "client": "ооо агора",
+     "amount": 30000.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "G-0220",
+       "what": "дс тр тс 032 · 684 ле тртс прил 7",
+       "amount": 30000.0,
+       "paid": 0.0,
+       "status": "менеджер отметил оплату, по выписке нет",
+       "src": "лист Лены, Google «Реестр», стр. 17, ввод в таблице",
+       "due": null
+      }
+     ],
+     "marked": 30000.0,
+     "remain": 30000.0
+    },
+    {
+     "client": "ооо витс групп",
+     "amount": 20000.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "G-0170",
+       "what": "дс тртс · 1334 ле исо",
+       "amount": 20000.0,
+       "paid": 0.0,
+       "status": "ждём",
+       "src": "лист Лены, сентябрь 2026.xlsx, стр. 12",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 20000.0
+    },
+    {
+     "client": "ооо завод ферингер",
+     "amount": 40000.0,
+     "paid": 20000.0,
+     "rows": [
+      {
+       "id": "G-0218",
+       "what": "дс тр тс · 457 ле пс прил 15",
+       "amount": 20000.0,
+       "paid": 0.0,
+       "status": "ждём",
+       "src": "лист Лены, Google «Реестр», стр. 15, ввод в таблице",
+       "due": null
+      },
+      {
+       "id": "G-0219",
+       "what": "дс тр тс · 457 ле пс прил 16",
+       "amount": 20000.0,
+       "paid": 20000.0,
+       "status": "пришло 06.11 по уведомлению банка, выпиской не подтверждено",
+       "src": "лист Лены, Google «Реестр», стр. 16, ввод в таблице",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 20000.0
+    },
+    {
+     "client": "ооо геоэлектроника сервис",
+     "amount": 10000.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "G-0217",
+       "what": "дстртс · 1140 ле тртс прил 14",
+       "amount": 10000.0,
+       "paid": 0.0,
+       "status": "ждём",
+       "src": "лист Лены, Google «Реестр», стр. 14, ввод в таблице",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 10000.0
+    },
+    {
+     "client": "ооо электростнадртприбор",
+     "amount": 100000.0,
+     "paid": 100000.0,
+     "rows": [
+      {
+       "id": "G-0184",
+       "what": "сс сил 2 · 689 ле сенйс прил 19",
+       "amount": 100000.0,
+       "paid": 100000.0,
+       "status": "пришло по выписке",
+       "src": "лист Лены, октябрь 2026.xlsx, стр. 9",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 0.0
+    },
+    {
+     "client": "ооо спб схм",
+     "amount": 32000.0,
+     "paid": 32000.0,
+     "rows": [
+      {
+       "id": "G-0195",
+       "what": "отрицательное решение · 1248 ЛЕ ДС прил 9",
+       "amount": 32000.0,
+       "paid": 32000.0,
+       "status": "пришло 06.11 по уведомлению банка, выпиской не подтверждено",
+       "src": "лист Лены, октябрь 2026.xlsx, стр. 20",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 0.0
+    },
+    {
+     "client": "ооо эрмаш",
+     "amount": 600000.0,
+     "paid": 600000.0,
+     "rows": [
+      {
+       "id": "G-0199",
+       "what": "сс тр тс 012 · 1379 ЛЕ ТРТС прил 2",
+       "amount": 600000.0,
+       "paid": 600000.0,
+       "status": "пришло по выписке",
+       "src": "лист Лены, октябрь 2026.xlsx, стр. 24",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 0.0
+    },
+    {
+     "client": "ооо купер",
+     "amount": 65000.0,
+     "paid": 65000.0,
+     "rows": [
+      {
+       "id": "G-0213",
+       "what": "добрик пожарный · 824 ле гост прил 48",
+       "amount": 65000.0,
+       "paid": 65000.0,
+       "status": "пришло 09.11 по уведомлению банка, выпиской не подтверждено",
+       "src": "лист Лены, Google «Реестр», стр. 10, ввод в таблице",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 0.0
+    },
+    {
+     "client": "ип барсуков виктор",
+     "amount": 15000.0,
+     "paid": 15000.0,
+     "rows": [
+      {
+       "id": "G-0215",
+       "what": "отказное · 93/1",
+       "amount": 15000.0,
+       "paid": 15000.0,
+       "status": "пришло по выписке",
+       "src": "лист Лены, Google «Реестр», стр. 12, ввод в таблице",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 0.0
+    },
+    {
+     "client": "ооо азс спецсервис",
+     "amount": 8000.0,
+     "paid": 8000.0,
+     "rows": [
+      {
+       "id": "G-0216",
+       "what": "дс тр тс · 91/1",
+       "amount": 8000.0,
+       "paid": 8000.0,
+       "status": "пришло по выписке",
+       "src": "лист Лены, Google «Реестр», стр. 13, ввод в таблице",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 0.0
+    },
+    {
+     "client": "фирма теплостройпроект с",
+     "amount": 380000.0,
+     "paid": 380000.0,
+     "rows": [
+      {
+       "id": "G-0225",
+       "what": "сс тр тс 032 · 1368 ле тртс прил 2",
+       "amount": 380000.0,
+       "paid": 380000.0,
+       "status": "пришло по выписке",
+       "src": "лист Лены, Google «Реестр», стр. 48, ввод в таблице",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 0.0
+    }
+   ],
+   "total": {
+    "amount": 1478000.0,
+    "paid": 1220000.0,
+    "remain": 258000.0,
+    "marked": 184000.0,
+    "firms": 13
+   }
+  },
+  "prognoz": {
+   "firms": [
+    {
+     "client": "Эр-Маш",
+     "amount": 600000.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "len2310ermash",
+       "what": "Получить остаток 600 000 по итогу работы",
+       "amount": 600000.0,
+       "paid": 0.0,
+       "status": "дело в db, ждём оплату",
+       "src": "db tasks len2310ermash",
+       "due": "23.11.2026"
+      }
+     ],
+     "marked": 0.0,
+     "remain": 600000.0
+    },
+    {
+     "client": "эм кабель",
+     "amount": 435000.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "pr-emkabel-202611",
+       "what": "продление: 3 док., первое окончание 08.11.2026",
+       "amount": 180000.0,
+       "paid": 0.0,
+       "status": "оценка 50% от 360 000",
+       "src": "прогноз продлений ФСА (ветка «Продления»)",
+       "due": "08.11.2026"
+      },
+      {
+       "id": "emk1711-akt128-podpisan",
+       "what": "Эм-кабель: подписанный акт 128 (255 000) — в папку клиента и отметка в",
+       "amount": 255000.0,
+       "paid": 0.0,
+       "status": "дело в db, ждём оплату",
+       "src": "db tasks emk1711-akt128-podpisan",
+       "due": "18.11.2026"
+      }
+     ],
+     "marked": 0.0,
+     "remain": 435000.0
+    },
+    {
+     "client": "Электронстандарт-прибор",
+     "amount": 100000.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "m07",
+       "what": "Получить оплату 100 000 по прил. 19",
+       "amount": 100000.0,
+       "paid": 0.0,
+       "status": "дело в db, ждём оплату",
+       "src": "db tasks m07",
+       "due": "24.11.2026"
+      }
+     ],
+     "marked": 0.0,
+     "remain": 100000.0
+    },
+    {
+     "client": "Спецстрой",
+     "amount": 40000.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "m01",
+       "what": "Выставить счёт на пролонгацию декларации",
+       "amount": 40000.0,
+       "paid": 0.0,
+       "status": "дело в db, ждём оплату",
+       "src": "db tasks m01",
+       "due": "24.11.2026"
+      }
+     ],
+     "marked": 0.0,
+     "remain": 40000.0
+    },
+    {
+     "client": "ип барсуков виктор",
+     "amount": 29000.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "G-0214",
+       "what": "дс тр тс · 92/1",
+       "amount": 29000.0,
+       "paid": 0.0,
+       "status": "ждём",
+       "src": "лист Лены, прогноз",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 29000.0
+    },
+    {
+     "client": "ооо морепласт",
+     "amount": 24000.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "G-0192",
+       "what": "сс гост р · 1376 ле тртс прил 3",
+       "amount": 12000.0,
+       "paid": 0.0,
+       "status": "ждём",
+       "src": "лист Лены, прогноз",
+       "due": null
+      },
+      {
+       "id": "G-0193",
+       "what": "сс готср · 1376 ле тртс прил 4",
+       "amount": 12000.0,
+       "paid": 0.0,
+       "status": "ждём",
+       "src": "лист Лены, прогноз",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 24000.0
+    },
+    {
+     "client": "ао по севермаш",
+     "amount": 20000.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "G-0222",
+       "what": "дс тр тс 010 · 941 ле дстртс прил 29",
+       "amount": 20000.0,
+       "paid": 0.0,
+       "status": "ждём",
+       "src": "лист Лены, прогноз",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 20000.0
+    },
+    {
+     "client": "криосервис",
+     "amount": 12500.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "pr-krioservis-202611",
+       "what": "продление: 1 док., первое окончание 18.11.2026",
+       "amount": 12500.0,
+       "paid": 0.0,
+       "status": "оценка 50% от 25 000",
+       "src": "прогноз продлений ФСА (ветка «Продления»)",
+       "due": "18.11.2026"
+      }
+     ],
+     "marked": 0.0,
+     "remain": 12500.0
+    },
+    {
+     "client": "Станке",
+     "amount": 12500.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "pr-stanke-202611",
+       "what": "продление: 1 док., первое окончание 18.11.2026",
+       "amount": 12500.0,
+       "paid": 0.0,
+       "status": "оценка 50% от 25 000",
+       "src": "прогноз продлений ФСА (ветка «Продления»)",
+       "due": "18.11.2026"
+      }
+     ],
+     "marked": 0.0,
+     "remain": 12500.0
+    },
+    {
+     "client": "ооо вниир промэлектро",
+     "amount": 5000.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "G-0228",
+       "what": "дстр тс",
+       "amount": 5000.0,
+       "paid": 0.0,
+       "status": "ждём",
+       "src": "лист Лены, прогноз",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 5000.0
+    },
+    {
+     "client": "ооо завож ферингер",
+     "amount": 5000.0,
+     "paid": 0.0,
+     "rows": [
+      {
+       "id": "G-0229",
+       "what": "перевыпуск дс тр тс",
+       "amount": 5000.0,
+       "paid": 0.0,
+       "status": "ждём",
+       "src": "лист Лены, прогноз",
+       "due": null
+      }
+     ],
+     "marked": 0.0,
+     "remain": 5000.0
+    }
+   ],
+   "total": {
+    "amount": 1283000.0,
+    "paid": 0.0,
+    "remain": 1283000.0,
+    "marked": 0.0,
+    "firms": 11
+   }
+  },
+  "rule": "Оплата засчитывается только по выписке. Отметка менеджера «Оплачено» без выписки остаётся в «ждём». Прогноз продлений — оценка 50%.",
+  "sources": {
+   "garanty": "2026-11-19T15:12:43+03:00",
+   "plan": "/mnt/project-files/daily-control/prodleniya/plan.json"
+  }
+ },
+ "income": [
+  {
+   "payer": "В2-ЛАБ",
+   "amount": 200000.0,
+   "bank": "Альфа",
+   "seen": "2026-10-29T15:38:00+03:00",
+   "status": "vneseno",
+   "done": "2026-10-30T16:14:49+03:00",
+   "order": "2394649,2394652"
+  },
+  {
+   "payer": "АО «ВИСТ ГРУПП»",
+   "amount": 40000.0,
+   "bank": "Альфа",
+   "seen": "2026-10-29T16:36:00+03:00",
+   "status": "vneseno",
+   "done": "2026-10-30T16:09:15+03:00",
+   "order": "2394349"
+  },
+  {
+   "payer": "Востряково-2",
+   "amount": 82000.0,
+   "bank": "Альфа",
+   "seen": "2026-10-22T12:00:00+03:00",
+   "status": "skip",
+   "done": null,
+   "order": null
+  },
+  {
+   "payer": "УКС ГРУП",
+   "amount": 200000.0,
+   "bank": "Альфа",
+   "seen": "2026-10-30T16:44:43+03:00",
+   "status": "vneseno",
+   "done": "2026-10-30T18:44:34+03:00",
+   "order": "2394637,2394640,2394643,2394646"
+  },
+  {
+   "payer": "Клинмаркет",
+   "amount": 60000.0,
+   "bank": "Альфа",
+   "seen": "2026-10-30T16:44:43+03:00",
+   "status": "vneseno",
+   "done": "2026-10-30T18:44:34+03:00",
+   "order": "2394663"
+  },
+  {
+   "payer": "ООО ЭР-МАШ",
+   "amount": 600000.0,
+   "bank": "Альфа",
+   "seen": "2026-11-02T13:02:46+03:00",
+   "status": "vneseno",
+   "done": "2026-11-02T13:05:03+03:00",
+   "order": "2394617"
+  },
+  {
+   "payer": "ООО АЗС СПЕЦСЕРВИС",
+   "amount": 8000.0,
+   "bank": "Точка",
+   "seen": "2026-11-02T14:36:18+03:00",
+   "status": "vneseno",
+   "done": "2026-11-02T14:38:31+03:00",
+   "order": "2394740"
+  },
+  {
+   "payer": "ИП Барсуков В.М.",
+   "amount": 15000.0,
+   "bank": "Точка",
+   "seen": "2026-11-02T14:36:18+03:00",
+   "status": "vneseno",
+   "done": "2026-11-02T14:38:31+03:00",
+   "order": "2394735"
+  },
+  {
+   "payer": "ООО УКС ГРУП (сч. 1051/13 от 12.11, прил. 12, 13)",
+   "amount": 100000.0,
+   "bank": "Альфа",
+   "seen": "2026-11-13T14:11:04+03:00",
+   "status": "vneseno",
+   "done": "2026-11-13T14:12:45+03:00",
+   "order": "2394866,2394869"
+  },
+  {
+   "payer": "АО Логика молока (дог. 1333-ЛУГ-ПР, док 104 от 27.08)",
+   "amount": 190000.0,
+   "bank": "Альфа",
+   "seen": "2026-11-13T14:11:04+03:00",
+   "status": "skip",
+   "done": null,
+   "order": null
+  },
+  {
+   "payer": "ООО ТЕПЛОСТРОЙПРОЕКТ-С",
+   "amount": 380000.0,
+   "bank": "Альфа",
+   "seen": "2026-11-16T13:45:29+03:00",
+   "status": "vneseno",
+   "done": "2026-11-16T14:04:08+03:00",
+   "order": "2394884"
+  },
+  {
+   "payer": "АО ВИРТЕКС (вероятно финал по счёту 1295/3)",
+   "amount": 175500.0,
+   "bank": "Альфа",
+   "seen": "2026-11-16T13:45:29+03:00",
+   "status": "skip",
+   "done": null,
+   "order": null
+  },
+  {
+   "payer": "АО ЭЛЕКТРОНСТАНДАРТ-ПРИБОР (вероятно заказ 2394660, СС SIL 2)",
+   "amount": 100000.0,
+   "bank": "Альфа",
+   "seen": "2026-11-18T15:36:48+03:00",
+   "status": "vneseno",
+   "done": "2026-11-18T15:49:13+03:00",
+   "order": "2394660"
+  }
+ ],
+ "vypiska": {
+  "asOf": "2026-11-19",
+  "time": "11:47",
+  "fileDate": "2026-11-19",
+  "src": "kontrol/vypiski/2026-11-19.md",
+  "items": [
+   {
+    "date": "2026-10-07",
+    "pp": "1501",
+    "payer": "Конверсия-Нефть",
+    "amount": 150000.0,
+    "basis": "сч. 523/18, прил. 18"
+   },
+   {
+    "date": "2026-10-07",
+    "pp": "1500",
+    "payer": "Конверсия-Нефть",
+    "amount": 15000.0,
+    "basis": "сч. 523/17, прил. 17"
+   },
+   {
+    "date": "2026-10-07",
+    "pp": "1502",
+    "payer": "Конверсия-Нефть",
+    "amount": 150000.0,
+    "basis": "сч. 523/19, прил. 19"
+   },
+   {
+    "date": "2026-10-08",
+    "pp": "590306",
+    "payer": "РЭИ (возврат депозита)",
+    "amount": 50000.0,
+    "basis": "депозит CB13009260005237"
+   },
+   {
+    "date": "2026-10-08",
+    "pp": "590407",
+    "payer": "РЭИ (возврат депозита)",
+    "amount": 75000.0,
+    "basis": "депозит CB13009260005138"
+   },
+   {
+    "date": "2026-10-08",
+    "pp": "590307",
+    "payer": "Альфа-Банк",
+    "amount": 113.75,
+    "basis": "проценты по депозиту"
+   },
+   {
+    "date": "2026-10-08",
+    "pp": "590408",
+    "payer": "Альфа-Банк",
+    "amount": 170.63,
+    "basis": "проценты по депозиту"
+   },
+   {
+    "date": "2026-10-09",
+    "pp": "19263",
+    "payer": "ЧЗМЭК",
+    "amount": 15000.0,
+    "basis": "сч. 1240/7, прил. 7"
+   },
+   {
+    "date": "2026-10-12",
+    "pp": "2851",
+    "payer": "Квант",
+    "amount": 5000.0,
+    "basis": "оферта 1374-ЛЕ-ОТ от 09.10"
+   },
+   {
+    "date": "2026-10-13",
+    "pp": "43",
+    "payer": "ГЕА Фарм Технолоджиз Рус",
+    "amount": 95000.0,
+    "basis": "сч. 657/48 от 05.10"
+   },
+   {
+    "date": "2026-10-14",
+    "pp": "2928",
+    "payer": "Электронстандарт-Прибор",
+    "amount": 100000.0,
+    "basis": "сч. 689/18 от 17.08, дог. 689-ЛЕ-СЕЙС"
+   },
+   {
+    "date": "2026-10-15",
+    "pp": "5520",
+    "payer": "Уфагидромаш",
+    "amount": 21799.0,
+    "basis": "сч. 1375/1, прил. 2"
+   },
+   {
+    "date": "2026-10-15",
+    "pp": "3900",
+    "payer": "СПБ СХМ",
+    "amount": 30000.0,
+    "basis": "сч. 1248/8, прил. 8"
+   },
+   {
+    "date": "2026-10-16",
+    "pp": "306",
+    "payer": "Белинвестбанк за ОАО ГСКБ (УНП 200244964)",
+    "amount": 107000.0,
+    "basis": "дог. 1307-ЛЕ-ТРТС, сертификация"
+   },
+   {
+    "date": "2026-10-16",
+    "pp": "5538",
+    "payer": "Уфагидромаш",
+    "amount": 74201.0,
+    "basis": "сч. 1375/1, прил. 2"
+   },
+   {
+    "date": "2026-10-16",
+    "pp": "994",
+    "payer": "Мореплас(т)",
+    "amount": 15000.0,
+    "basis": "сч. 1376/1 от 15.10"
+   },
+   {
+    "date": "2026-10-20",
+    "pp": "1144",
+    "payer": "АНК-Групп",
+    "amount": 32000.0,
+    "basis": "оферта 1377-ЛЕ-ДС от 19.10"
+   },
+   {
+    "date": "2026-10-21",
+    "pp": "54",
+    "payer": "КФХ ИП Сочнев В.Ю.",
+    "amount": 10000.0,
+    "basis": "оферта 1378-ЛЕ-ГОСТ от 20.10"
+   },
+   {
+    "date": "2026-10-21",
+    "pp": "5629",
+    "payer": "Уфагидромаш",
+    "amount": 24000.0,
+    "basis": "оферта 1375-ЛЕ-ДС, прил. 3"
+   },
+   {
+    "date": "2026-10-22",
+    "pp": "5431",
+    "payer": "Востряково-2",
+    "amount": 82000.0,
+    "basis": "сч. 1313/2, финальная оплата по дог. 1313-ЛУГ-ЛИ"
+   },
+   {
+    "date": "2026-10-23",
+    "pp": "309",
+    "payer": "Белинвестбанк за ОАО ГСКБ",
+    "amount": 180000.0,
+    "basis": "дог. 1307-ЛЕ-ТРТС, ИК"
+   },
+   {
+    "date": "2026-10-26",
+    "pp": "4866",
+    "payer": "УКС ГРУП",
+    "amount": 200000.0,
+    "basis": "сч. 1051/8, прил. 8–11"
+   },
+   {
+    "date": "2026-10-26",
+    "pp": "323",
+    "payer": "Медиавизор",
+    "amount": 10000.0,
+    "basis": "сч. 274/35, прил. 35"
+   },
+   {
+    "date": "2026-10-28",
+    "pp": "164",
+    "payer": "Клинмаркет",
+    "amount": 60000.0,
+    "basis": "сч. 1201/10, прил. 10"
+   },
+   {
+    "date": "2026-10-29",
+    "pp": "2293",
+    "payer": "ВИСТ ГРУПП",
+    "amount": 40000.0,
+    "basis": "сч. 1369-ЛЕ-ДС от 11.09"
+   },
+   {
+    "date": "2026-10-29",
+    "pp": "241",
+    "payer": "В2-ЛАБ",
+    "amount": 200000.0,
+    "basis": "сч. 901/13, прил. 13 и 14"
+   },
+   {
+    "date": "2026-11-02",
+    "pp": "204",
+    "payer": "ЭР-МАШ",
+    "amount": 600000.0,
+    "basis": "сч. 1379/2 от 22.10, дог. 1379-ЛЕ-ТРТС (Альфа)"
+   },
+   {
+    "date": "2026-11-02",
+    "pp": "546",
+    "payer": "АЗС Спецсервис",
+    "amount": 8000.0,
+    "basis": "счёт-оферта 91/1 (Точка ИП)"
+   },
+   {
+    "date": "2026-11-02",
+    "pp": "293",
+    "payer": "ИП Барсуков",
+    "amount": 15000.0,
+    "basis": "счёт-оферта 93/1 от 02.11 (Точка ИП)"
+   },
+   {
+    "date": "2026-11-06",
+    "pp": "",
+    "payer": "Ферингер",
+    "amount": 20000.0,
+    "basis": "прил. 16",
+    "notif": true,
+    "bank": "Альфа",
+    "seen": "2026-11-06 09:02",
+    "src": "obkhod/pochta-razbor-2026-11-06.md"
+   },
+   {
+    "date": "2026-11-06",
+    "pp": "4178",
+    "payer": "ООО СПБ СХМ",
+    "amount": 32000.0,
+    "basis": "",
+    "notif": true,
+    "bank": "Альфа",
+    "seen": "2026-11-06 12:46",
+    "src": "obkhod/pochta-razbor-2026-11-06.md"
+   },
+   {
+    "date": "2026-11-09",
+    "pp": "3780",
+    "payer": "Купер",
+    "amount": 65000.0,
+    "basis": "прил. 48",
+    "notif": true,
+    "bank": "Альфа",
+    "seen": "2026-11-09 14:44",
+    "src": "obkhod/pochta-razbor-2026-11-09.md"
+   },
+   {
+    "date": "2026-11-16",
+    "pp": "766",
+    "payer": "Теплостройпроект-С",
+    "amount": 380000.0,
+    "basis": "",
+    "notif": true,
+    "bank": "Альфа",
+    "seen": "2026-11-16 12:00",
+    "src": "obkhod/pochta-razbor-2026-11-16.md"
+   },
+   {
+    "date": "2026-11-16",
+    "pp": "5902",
+    "payer": "Виртекс",
+    "amount": 175500.0,
+    "basis": "",
+    "notif": true,
+    "bank": "Альфа",
+    "seen": "2026-11-16",
+    "src": "obkhod/pochta-razbor-2026-11-16.md"
+   },
+   {
+    "date": "2026-11-17",
+    "pp": "3237",
+    "payer": "АО ЭЛЕКТРОНСТАНДАРТ-ПРИБОР",
+    "amount": 100000.0,
+    "basis": "",
+    "notif": true,
+    "bank": "Альфа",
+    "seen": "2026-11-17 16:33",
+    "src": "obkhod/pochta-razbor-2026-11-18.md"
+   }
+  ],
+  "notifUpto": "2026-11-17 16:33"
+ },
+ "ohvat": {
+  "file": "kontrol/runs/2026-11-19.jsonl",
+  "date": "2026-11-19",
+  "fromJournal": true,
+  "parts": [
+   {
+    "src": "olga@",
+    "time": "18:44",
+    "at": "2026-11-19T18:44:57+03:00",
+    "run": "pochta-20261119-184221-c5ac",
+    "items": 4
+   },
+   {
+    "src": "boroday@",
+    "time": "18:44",
+    "at": "2026-11-19T18:44:57+03:00",
+    "run": "pochta-20261119-184221-c5ac",
+    "items": 4
+   },
+   {
+    "src": "ocenka@",
+    "time": "18:44",
+    "at": "2026-11-19T18:44:57+03:00",
+    "run": "pochta-20261119-184221-c5ac",
+    "items": 4
+   },
+   {
+    "src": "info@",
+    "time": "18:44",
+    "at": "2026-11-19T18:44:57+03:00",
+    "run": "pochta-20261119-184221-c5ac",
+    "items": 1
+   }
+  ]
+ },
+ "banki": {
+  "date": "2026-11-19",
+  "built": "2026-11-19T20:37:50+03:00",
+  "banks": [
+   {
+    "bank": "Альфа",
+    "lastOk": {
+     "upto": "2026-11-19 11:50",
+     "at": "2026-11-19T11:47:24+03:00",
+     "items": 4,
+     "run": "signal-20261119-092458-aa9a",
+     "src": "kontrol/runs/2026-11-19.jsonl"
+    },
+    "block": null,
+    "statement": {
+     "asOf": "2026-11-19",
+     "time": "11:47",
+     "fileDate": "2026-11-19",
+     "src": "kontrol/vypiski/2026-11-19.md",
+     "lastDay": "2026-11-19",
+     "dayIn": 0.0,
+     "daySrc": "файл выписки Альфы 18–19.11, уведомление 13:02 (Браузер 13:59)",
+     "account": "Альфа РЭИ *7370"
+    },
+    "notif": {
+     "last": {
+      "date": "2026-11-17",
+      "seen": "2026-11-17 16:33",
+      "payer": "АО ЭЛЕКТРОНСТАНДАРТ-ПРИБОР",
+      "amount": 100000.0,
+      "src": "obkhod/pochta-razbor-2026-11-18.md"
+     },
+     "today": [],
+     "checkedUpto": "2026-11-19 10:37",
+     "checkSrc": "журнал запусков: Браузер:почта"
+    },
+    "portal": {
+     "pending": [],
+     "lastDone": "2026-11-18T15:49:13+03:00",
+     "checkedUpto": "2026-11-19 11:30",
+     "src": "kontrol/runs/income.json"
+    }
+   },
+   {
+    "bank": "Точка",
+    "lastOk": {
+     "upto": "2026-11-19 11:50",
+     "at": "2026-11-19T11:47:24+03:00",
+     "items": 4,
+     "run": "signal-20261119-092458-aa9a",
+     "src": "kontrol/runs/2026-11-19.jsonl"
+    },
+    "block": null,
+    "statement": {
+     "lastDay": "2026-11-19",
+     "dayIn": 0.0,
+     "daySrc": "11:50 экран Точка, после 18.11 13:10 операций нет",
+     "account": "Точка *3698"
+    },
+    "notif": {
+     "last": null,
+     "today": [],
+     "checkedUpto": "2026-11-19 10:37",
+     "checkSrc": "журнал запусков: Браузер:почта"
+    },
+    "portal": {
+     "pending": [],
+     "lastDone": "2026-11-02T14:38:31+03:00",
+     "checkedUpto": "2026-11-19 11:30",
+     "src": "kontrol/runs/income.json"
+    }
+   }
+  ]
+ },
+ "accuracy": {
+  "weeks": [],
+  "first": "2026-10-26",
+  "firstPartial": true,
+  "savedAt": "2026-10-29T20:55+03:00"
+ },
+ "trebovaniya": {
+  "built": "29.10.2026 21:00 МСК, по матрице docs/audit-pulta-2026-10-29.md §6",
+  "rows": [
+   {
+    "id": "R01",
+    "text": "Один рабочий пульт вместо 12 таблиц",
+    "source": "Ольга 28.10",
+    "taskId": "pult2610",
+    "task": "closed",
+    "check": {
+     "how": "PR #7 и #8 слиты, Codex принял",
+     "status": "pass",
+     "at": "2026-10-29"
+    },
+    "gap": "",
+    "owner": "Утро"
+   },
+   {
+    "id": "R02",
+    "text": "Стиль rus-ei",
+    "source": "бриф 29.10",
+    "taskId": "pult2610",
+    "task": "closed",
+    "check": {
+     "how": "PR #8 слит, Codex принял",
+     "status": "pass",
+     "at": "2026-10-29"
+    },
+    "gap": "",
+    "owner": "Утро"
+   },
+   {
+    "id": "R03",
+    "text": "Ольге не больше 5 пунктов, только проверенное сегодня",
+    "source": "§14, 28.10",
+    "taskId": "pult2610",
+    "task": "closed",
+    "check": {
+     "how": "tests/acceptance.mjs: «не больше 5», «непроверенные не попадают»",
+     "status": "pass",
+     "at": "2026-10-29"
+    },
+    "gap": "большинство дел без даты сверки",
+    "owner": "Утро"
+   },
+   {
+    "id": "R04",
+    "text": "Отметки и поручения с пульта доводятся до итога",
+    "source": "§16",
+    "taskId": "",
+    "task": "none",
+    "check": {
+     "how": "tests/skvoznoy.mjs 9/9, kontrol/cikl_pulta.py",
+     "status": "pass",
+     "at": "2026-10-29"
+    },
+    "gap": "дела в базе нет",
+    "owner": "Регламент"
+   },
+   {
+    "id": "R05",
+    "text": "Ответы на отметки видны на пульте",
+    "source": "§16",
+    "taskId": "pult2610",
+    "task": "closed",
+    "check": {
+     "how": "tests/acceptance.mjs: «Ответы Claude: три стадии»",
+     "status": "pass",
+     "at": "2026-10-29"
+    },
+    "gap": "",
+    "owner": "Утро"
+   },
+   {
+    "id": "R06",
+    "text": "Не переспрашивать решённое (fakty)",
+    "source": "22.10",
+    "taskId": "",
+    "task": "none",
+    "check": {
+     "how": "ручная сверка с fakty.md",
+     "status": "manual",
+     "at": ""
+    },
+    "gap": "автоматической проверки нет",
+    "owner": "Утро"
+   },
+   {
+    "id": "R07",
+    "text": "Платёжки: один проверенный файл в Загрузках, правильный формат",
+    "source": "29.10",
+    "taskId": "",
+    "task": "none",
+    "check": {
+     "how": "",
+     "status": "none",
+     "at": ""
+    },
+    "gap": "проверки формата и места нет",
+    "owner": "Бухгалтерия"
+   },
+   {
+    "id": "R08",
+    "text": "Диадок грузим сами, Ольга только подписывает",
+    "source": "27.10",
+    "taskId": "",
+    "task": "none",
+    "check": {
+     "how": "",
+     "status": "none",
+     "at": ""
+    },
+    "gap": "ограничение Браузера не снято",
+    "owner": "Браузер"
+   },
+   {
+    "id": "R09",
+    "text": "Просрочку отрабатывать, а не снимать сроки",
+    "source": "§10",
+    "taskId": "",
+    "task": "none",
+    "check": {
+     "how": "",
+     "status": "none",
+     "at": ""
+    },
+    "gap": "в пинателе нет проверки сдвига срока без lastMove",
+    "owner": "Регламент"
+   },
+   {
+    "id": "R10",
+    "text": "Деньги только с источником; банк отдельно от «со слов»",
+    "source": "26.10",
+    "taskId": "",
+    "task": "none",
+    "check": {
+     "how": "tests/acceptance.mjs: «Деньги без сегодняшней сверки помечены», «Списания … раздельно»",
+     "status": "pass",
+     "at": "2026-10-29"
+    },
+    "gap": "src есть не у всех дел",
+    "owner": "Бухгалтерия"
+   },
+   {
+    "id": "R11",
+    "text": "Бухгалтерия на пульте: план, сверки, Лариса",
+    "source": "28.10",
+    "taskId": "lar1",
+    "task": "open",
+    "check": {
+     "how": "tests/acceptance.mjs: раздел «Бухгалтерия»",
+     "status": "pass",
+     "at": "2026-10-29"
+    },
+    "gap": "часть дел без срока",
+    "owner": "Бухгалтерия"
+   },
+   {
+    "id": "R12",
+    "text": "Гаранты и оплаты Лены — постоянный реестр, удобный менеджеру",
+    "source": "29.10",
+    "taskId": "garanty2610",
+    "task": "closed",
+    "check": {
+     "how": "tests/test_reestr_google.py 10/10, tests/test_reestr_garanty.py",
+     "status": "pass",
+     "at": "2026-10-29"
+    },
+    "gap": "дата перехода и доступ Лене — за Ольгой",
+    "owner": "Утро"
+   },
+   {
+    "id": "R13",
+    "text": "Зарплата Лены считается, но закрыта",
+    "source": "29.10",
+    "taskId": "",
+    "task": "none",
+    "check": {
+     "how": "права файла: только владелец",
+     "status": "pass",
+     "at": "2026-10-29"
+    },
+    "gap": "ставки не согласованы",
+    "owner": "Ольга"
+   },
+   {
+    "id": "R14",
+    "text": "Свежесть автоматики видна, «запуск ≠ выполнено»",
+    "source": "§14, 28.10",
+    "taskId": "pult2610",
+    "task": "closed",
+    "check": {
+     "how": "tests/acceptance.mjs: «Автоматика: вчерашний статус без зелёного»",
+     "status": "pass",
+     "at": "2026-10-29"
+    },
+    "gap": "статусы обновляются не каждый день",
+    "owner": "Регламент"
+   },
+   {
+    "id": "R15",
+    "text": "Выгрузки для пульта к 9:30",
+    "source": "26.10",
+    "taskId": "",
+    "task": "none",
+    "check": {
+     "how": "строка «Автоматика»",
+     "status": "manual",
+     "at": ""
+    },
+    "gap": "за 29.10 не проверено",
+    "owner": "Браузер"
+   },
+   {
+    "id": "R16",
+    "text": "Ссылка на портал у каждого заказа",
+    "source": "29.10",
+    "taskId": "pult2610",
+    "task": "closed",
+    "check": {
+     "how": "tests/test_build_svodka.py: portal_orders",
+     "status": "pass",
+     "at": "2026-10-29"
+    },
+    "gap": "",
+    "owner": "Утро"
+   },
+   {
+    "id": "R17",
+    "text": "Клиенты Ольги и Лены разделены",
+    "source": "22.10",
+    "taskId": "",
+    "task": "none",
+    "check": {
+     "how": "поле mgr в задачах",
+     "status": "manual",
+     "at": ""
+    },
+    "gap": "",
+    "owner": "Утро"
+   },
+   {
+    "id": "R18",
+    "text": "Контроль Лены: закрытие только с proof",
+    "source": "26.10",
+    "taskId": "",
+    "task": "none",
+    "check": {
+     "how": "kontrol_leny.py 11/16",
+     "status": "manual",
+     "at": ""
+    },
+    "gap": "proof есть у немногих дел",
+    "owner": "Контроль Лены"
+   },
+   {
+    "id": "R19",
+    "text": "Telegram-боты Claude/GPT",
+    "source": "28.10",
+    "taskId": "",
+    "task": "none",
+    "check": {
+     "how": "",
+     "status": "none",
+     "at": ""
+    },
+    "gap": "ждёт токен от Ольги",
+    "owner": "Ольга"
+   },
+   {
+    "id": "R20",
+    "text": "Приоритеты уровнями",
+    "source": "27.10",
+    "taskId": "",
+    "task": "none",
+    "check": {
+     "how": "",
+     "status": "none",
+     "at": ""
+    },
+    "gap": "PR #5 без решения",
+    "owner": "Утро"
+   },
+   {
+    "id": "R21",
+    "text": "Письма не отправляем, Лене без указания не пишем",
+    "source": "правила",
+    "taskId": "",
+    "task": "none",
+    "check": {
+     "how": "аудит 29.10: нарушений нет",
+     "status": "manual",
+     "at": "2026-10-29"
+    },
+    "gap": "",
+    "owner": "все ветки"
+   }
+  ]
+ },
+ "grafik": {
+  "date": "2026-11-19",
+  "at": "20:37",
+  "built": "2026-11-19T20:37:50+03:00",
+  "weekday": "чт",
+  "counts": {
+   "ok": 38,
+   "wait": 0,
+   "late": 0,
+   "fail": 2,
+   "olga": 1,
+   "nolog": 0
+  },
+  "total": 41,
+  "olga": [
+   "Jivo: под каким аккаунтом входить (12.11 были видны 62 диалога) и какой ящик на yandex.ru получает письма Jivo; пароль вводите вы"
+  ],
+  "steps": [
+   {
+    "time": "9:24",
+    "title": "Запуск утра: «Доброе утро» или расписание 9:24",
+    "owner": "Утро",
+    "status": "ok",
+    "note": "запущено в 09:24",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": "signal-20261119-092458-aa9a"
+   },
+   {
+    "time": "9:24",
+    "title": "ПК на связи (Remote Control)",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "проверено 12:12",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": ""
+   },
+   {
+    "time": "9:24",
+    "title": "Chrome запущен на ПК",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "проверено 12:12",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": ""
+   },
+   {
+    "time": "9:24",
+    "title": "Расширение Claude подключено к аккаунту",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "проверено 12:12",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": ""
+   },
+   {
+    "time": "9:24",
+    "title": "Разрешение на управление (Chrome, Telegram)",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "проверено 12:12 (Chrome, Telegram)",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": ""
+   },
+   {
+    "time": "9:24",
+    "title": "Входы: Outlook, банки, 1С, Диадок и др.",
+    "owner": "Браузер",
+    "status": "olga",
+    "note": "не прошло: Альфа, Jivo, Точка; 10:45 вкладка Точка ID в Chrome (отчёт исполнителя)",
+    "olga": "Jivo: под каким аккаунтом входить (12.11 были видны 62 диалога) и какой ящик на yandex.ru получает письма Jivo; пароль вводите вы",
+    "group": "Утро (§32)",
+    "proof": ""
+   },
+   {
+    "time": "до 10:40",
+    "title": "Альфа-Банк: выписка за вчера и сегодня",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "в 11:47, до 11:50, 4 шт.",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": "Браузер:Альфа"
+   },
+   {
+    "time": "до 10:40",
+    "title": "Точка: выписка (в первые 15 мин после входа)",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "в 11:47, до 11:50, 4 шт.",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": "Браузер:Точка"
+   },
+   {
+    "time": "до 10:40",
+    "title": "Почта olga@, ocenka@, info@ и «Отправленные» Ольги (почта и TG) с прошлого раза",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "в 10:41, до 10:37, 19 шт.",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": "Браузер:почта"
+   },
+   {
+    "time": "до 10:40",
+    "title": "Письма Лены (boroday@) и клиентов Лене",
+    "owner": "Задачи Лены",
+    "status": "ok",
+    "note": "в 10:42, до 17:38, 3 шт.",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": "Лена:почта"
+   },
+   {
+    "time": "до 10:40",
+    "title": "Telegram: Лариса и рабочие чаты",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "в 10:41, до 10:37, 1 шт.",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": "Браузер:Telegram"
+   },
+   {
+    "time": "до 10:40",
+    "title": "1С «Луг»/«Пон» одним заходом: выписки загрузить и провести, задачи (§47)",
+    "owner": "Бухгалтерия",
+    "status": "ok",
+    "note": "в 13:59, до 13:58, 8 шт.",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": "Бухгалтерия:1С"
+   },
+   {
+    "time": "до 10:40",
+    "title": "Деньги на пульте: итоги месяца, план, списания по выпискам",
+    "owner": "Бухгалтерия",
+    "status": "ok",
+    "note": "в 11:46, до 11:47, 4 шт.",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": "Бухгалтерия:деньги"
+   },
+   {
+    "time": "10:00",
+    "title": "Jivo: обращения с сайта, первая проверка после утреннего блока (§47)",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "в 10:41, до 10:37, 0 шт.",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": "Браузер:Jivo"
+   },
+   {
+    "time": "до 10:40",
+    "title": "Диадок: входящие и черновики",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "в 10:41, до 10:37, 5 шт.",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": "Браузер:Диадок"
+   },
+   {
+    "time": "до 10:40",
+    "title": "Портал: оплаты по открытым долгам",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "в 11:41, до 11:30, 3 шт.",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": "Браузер:портал"
+   },
+   {
+    "time": "до 10:40",
+    "title": "Утренние выгрузки для пульта",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "в 11:41, до 11:30, 6 шт.",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": "Браузер:выгрузки"
+   },
+   {
+    "time": "до 10:40",
+    "title": "Отметки Ольги с пульта разведены по веткам",
+    "owner": "Утро",
+    "status": "ok",
+    "note": "в 09:25, до 09:25, 402 шт.",
+    "olga": "",
+    "group": "Утро (§32)",
+    "proof": "Утро:цикл"
+   },
+   {
+    "time": "9:03",
+    "title": "Обход проектов (rus-ei, ГЕА, ИИИ, LUGA)",
+    "owner": "Проекты и клиенты",
+    "status": "ok",
+    "note": "файл обхода 10:42",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "9:03",
+    "title": "ВкусВилл: Telegram Аглаи и почта ВкусВилла (§43)",
+    "owner": "Проекты и клиенты",
+    "status": "ok",
+    "note": "строка в обходе проектов: - ВкусВилл (§43): TG Аглаи — 18.11 21:18 «Супер, спасибо большое, забираю»: комп",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "9:07–18:37",
+    "title": "Разбор почты и уведомлений банков каждые 30 мин",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "прогонов 17: полных 5, неполных 12; последний 18:44",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "9:07–18:37",
+    "title": "Почта olga@: прочитана с прошлого раза",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "в 18:44, до 18:44, новых 4",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "9:07–18:37",
+    "title": "Почта boroday@: прочитана с прошлого раза",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "в 18:44, до 18:44, новых 4",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "9:07–18:37",
+    "title": "Почта ocenka@: прочитана с прошлого раза",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "в 18:44, до 18:44, новых 4",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "9:07–18:37",
+    "title": "Почта info@: прочитана с прошлого раза",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "в 18:44, до 18:44, новых 1",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "9:12",
+    "title": "Гаранты Лены: синхронизация таблицы",
+    "owner": "Гаранты",
+    "status": "ok",
+    "note": "в 09:13",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "10:07",
+    "title": "Бухгалтерия: обход и сверка банк ↔ портал ↔ 1С",
+    "owner": "Бухгалтерия",
+    "status": "ok",
+    "note": "записано в сводке Бухгалтерии",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "10:40–18:40",
+    "title": "Пинатель: движение задач каждый час",
+    "owner": "Регламент",
+    "status": "fail",
+    "note": "сделано 7 из 9 прошедших; пропущены 12:40, 17:40",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "11:00",
+    "title": "Контроль задач Лены",
+    "owner": "Задачи Лены",
+    "status": "ok",
+    "note": "прогон 11:10",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "12:00",
+    "title": "Выписки Альфы и Точки за день в Seafile (Клиент-банк\\2026)",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "отмечено 14:14: 13:55 Seafile\\Клиент-банк\\2026\\Альфа|Точка: Выписка_40702810402860007370_18.11.2026–19.11.2026.txt, ",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "12:00",
+    "title": "Платёжки по поступившим счетам — в «Черновики» банка",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "отмечено 14:14: 14:15 поступивших счетов на оплату с 13:45 нет, платёжки не требовались",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "12:53",
+    "title": "Пульт: дневная сборка",
+    "owner": "Утро",
+    "status": "ok",
+    "note": "сборка 13:44",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "13:07",
+    "title": "Бухгалтерия: обход и сверка банк ↔ портал ↔ 1С",
+    "owner": "Бухгалтерия",
+    "status": "ok",
+    "note": "записано в сводке Бухгалтерии",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "15:00",
+    "title": "Jivo: вторая проверка за день",
+    "owner": "Браузер",
+    "status": "fail",
+    "note": "14:20: 14:20 app.jivosite.com: баннер пробный период истёк, Входящие не грузятся; нужен вход в рабочий акка",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "15:12",
+    "title": "Гаранты Лены: синхронизация таблицы",
+    "owner": "Гаранты",
+    "status": "ok",
+    "note": "в 15:13",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "16:00",
+    "title": "Контроль задач Лены",
+    "owner": "Задачи Лены",
+    "status": "ok",
+    "note": "прогон 13:45",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "16:53",
+    "title": "Пульт: дневная сборка",
+    "owner": "Утро",
+    "status": "ok",
+    "note": "сборка 16:47",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "18:07",
+    "title": "Бухгалтерия: обход и сверка банк ↔ портал ↔ 1С",
+    "owner": "Бухгалтерия",
+    "status": "ok",
+    "note": "записано в сводке Бухгалтерии",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "весь день",
+    "title": "Поступления внесены в портал в тот же день (§19)",
+    "owner": "Браузер",
+    "status": "ok",
+    "note": "проверка 18:41: всё внесено",
+    "olga": "",
+    "group": "В течение дня",
+    "proof": ""
+   },
+   {
+    "time": "9:30",
+    "title": "Сводка Ольге в главный чат",
+    "owner": "Сводки",
+    "status": "ok",
+    "note": "отмечено 09:40: 09:41 сводка 19.11 отправлена Ольге в ветку и передана координатору для главного чата",
+    "olga": "",
+    "group": "Ольге в чат",
+    "proof": ""
+   },
+   {
+    "time": "18:07",
+    "title": "Сверка дня Ольге одной строкой",
+    "owner": "Бухгалтерия",
+    "status": "ok",
+    "note": "файл сверки 14:00",
+    "olga": "",
+    "group": "Ольге в чат",
+    "proof": ""
+   }
+  ],
+  "src": "kontrol/runs/2026-11-19.jsonl + файлы прогонов"
  }
 }

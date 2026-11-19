@@ -1336,6 +1336,8 @@ def main():
             # updatedAt — когда правили карточку (редакция не делает дело сверенным)
             "sourceCheckedAt": t.get("sourceCheckedAt") or "",
             "equipment": t.get("equipment") or "",  # 19.11: оборудование в названии работы, как в теме письма
+            "shared": bool(t.get("shared")), "lead": t.get("lead") or "",
+            "stage": t.get("stage") or "",  # этап по §48  # 19.11: общий клиент Ольги и Лены
             "sourceEvidence": t.get("sourceEvidence") or "",
             "updatedAt": t.get("updatedAt") or "",
             # Деньги: одна операция только по явному id; без него одинаковые суммы — «возможный дубль»
@@ -1389,6 +1391,9 @@ def main():
     data["garanty"] = garanty(tasks, bank)
     data["bank_month"] = bank_month()
     data["vklady"] = vklady()
+    # 19.11 (Ольга): общие клиенты Ольги и Лены — справочник, а не ручной section в каждой задаче
+    obsh = os.path.join(os.path.dirname(SPISANIYA_JSON), "klienty-obshchie.json")
+    data["shared_clients"] = json.load(open(obsh, encoding="utf-8-sig")).get("clients", []) if os.path.exists(obsh) else []
     data["rashody"] = rashody(sp, data["bank_month"], vk=data["vklady"])
     data["platezhi"] = platezhi()
     data["garanty_changes"] = garanty_changes()
