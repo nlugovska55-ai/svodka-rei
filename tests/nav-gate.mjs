@@ -17,16 +17,17 @@ const mi = args.indexOf('--mutate'), MUTATE = mi >= 0 ? args.splice(mi, 2)[1] : 
 const ROOT = path.resolve(args[0] || path.join(path.dirname(new URL(import.meta.url).pathname), '..'));
 
 // Обязательные разделы. phone: false — на телефоне пункт по замыслу убран из нижней панели (30.10), раздел открывается ссылками.
+// 19.11 (Ольга, «свежий взгляд» п.5): в меню 5 пунктов; Клиенты Лены, Гаранты, Прогноз и Другие — переключателем внутри пункта (sub: родитель)
 export const REQUIRED = [
   {tab: 'utro', label: 'Сегодня', phone: true},
-  {tab: 'my', label: 'Мои клиенты', phone: true},
-  {tab: 'lena', label: 'Клиенты Лены', phone: true},
-  {tab: 'buh', label: 'Бухгалтерия', phone: true, must: /Бухгалтер|К оплате|Налог|1С/},
-  {tab: 'garanty', label: 'Гаранты', phone: true, must: /гарант|таблиц[аы] Лены/i},
-  {tab: 'other', label: 'Другие', phone: true},
+  {tab: 'my', label: 'Клиенты', phone: true},
+  {tab: 'lena', label: 'Клиенты Лены', phone: true, sub: 'my'},
+  {tab: 'buh', label: 'Деньги', phone: true, must: /Бухгалтер|К оплате|Налог|1С/},
+  {tab: 'garanty', label: 'Гаранты', phone: true, sub: 'buh', must: /гарант|таблиц[аы] Лены/i},
+  {tab: 'money', label: 'Прогноз денег', phone: true, sub: 'buh'},
+  {tab: 'all', label: 'Все дела', phone: true},
+  {tab: 'other', label: 'Другие', phone: true, sub: 'all'},
   {tab: 'kontrol', label: 'Контроль', phone: false},
-  {tab: 'money', label: 'Прогноз денег', phone: false},
-  {tab: 'all', label: 'Все дела', phone: false},
   {tab: 'grafik', label: 'Перечень дня', phone: true, link: true},
 ];
 
@@ -64,8 +65,8 @@ const fails = [], log = [];
 const check = (vp, name, ok, fact) => { const s = `${ok ? 'PASS' : 'FAIL'} [${vp}] ${name} — ${fact}`; log.push(s); console.log(s); if (!ok) fails.push(s); };
 
 // Пункт виден на экране: есть, ненулевой размер, в пределах окна, не прозрачный/не скрытый, точка в центре — сам пункт
-const visible = (p, it) => p.evaluate(({tab, link}) => {
-  const el = document.querySelector(link ? `a.hlink[href="#${tab}"]` : `nav.tabs .tab[data-tab="${tab}"]`);
+const visible = (p, it) => p.evaluate(({tab, link, sub}) => {
+  const el = document.querySelector(link ? `a.hlink[href="#${tab}"]` : sub ? `nav.subnav .subt[data-tab="${tab}"]` : `nav.tabs .tab[data-tab="${tab}"]`);
   if (!el) return 'нет в разметке';
   const r = el.getBoundingClientRect();
   if (r.width < 4 || r.height < 4) return `нулевой размер ${Math.round(r.width)}×${Math.round(r.height)}`;
@@ -96,14 +97,15 @@ for (const [vp, size] of [['ПК 1440', {width: 1440, height: 900}], ['теле�
   await ctx.route((u) => !u.href.startsWith(URL0), (r) => r.abort());
   const p = await ctx.newPage(), errs = []; p.on('pageerror', (e) => errs.push(e.message));
   await p.goto(URL0, {waitUntil: 'domcontentloaded'}); await p.waitForFunction(() => document.body.dataset.tab, null, {timeout: 15000}).catch(() => {});
-  for (const it of req) { const v = await visible(p, it); check(vp, `«${it.label}» виден на главной`, !v, v || 'виден'); }
+  for (const it of req.filter((x) => !x.sub)) { const v = await visible(p, it); check(vp, `«${it.label}» виден на главной`, !v, v || 'виден'); }
   for (const it of req) {
-    const sel = it.link ? `a.hlink[href="#${it.tab}"]` : `nav.tabs .tab[data-tab="${it.tab}"]`;
-    await p.goto(URL0 + '#utro', {waitUntil: 'domcontentloaded'}); await p.waitForTimeout(250);
+    const sel = it.link ? `a.hlink[href="#${it.tab}"]` : it.sub ? `nav.subnav .subt[data-tab="${it.tab}"]` : `nav.tabs .tab[data-tab="${it.tab}"]`;
+    await p.goto(URL0 + '#' + (it.sub || 'utro'), {waitUntil: 'domcontentloaded'}); await p.waitForTimeout(250);
+    if (it.sub) { const v = await visible(p, it); check(vp, `«${it.label}» виден в переключателе раздела`, !v, v || 'виден'); }
     try { await p.click(sel, {timeout: 3000}); } catch (e) { check(vp, `«${it.label}»: переход из меню`, false, 'не нажимается: ' + e.message.split('\n')[0]); continue; }
     await p.waitForTimeout(350);
     let o = await opened(p, it); check(vp, `«${it.label}»: переход из меню`, !o, o || 'раздел открыт, есть содержимое');
-    const mv = (await Promise.all(req.map(async (x) => [x.label, await visible(p, x)]))).filter(([, r]) => r);
+    const mv = (await Promise.all(req.filter((x) => !x.sub).map(async (x) => [x.label, await visible(p, x)]))).filter(([, r]) => r);
     check(vp, `«${it.label}»: меню видно после перехода`, !mv.length, mv.length ? mv.map(([l, r]) => l + ': ' + r).join('; ') : 'все пункты видны');
     await p.reload({waitUntil: 'domcontentloaded'}); await p.waitForTimeout(600);
     o = await opened(p, it); check(vp, `«${it.label}»: после обновления страницы`, !o, o || 'тот же раздел с содержимым');
@@ -123,7 +125,7 @@ for (const [vp, size] of [['ПК 1440', {width: 1440, height: 900}], ['теле�
     // 19.11 (Шторм A1): «ждём денег» одной подписью на Клиентах Лены, Гарантах, Контроле и Бухгалтерии
     const labels = [];
     for (const t of ['lena', 'garanty', 'kontrol', 'buh']) { await p.goto(URL0 + '#' + t, {waitUntil: 'domcontentloaded'}); await p.waitForTimeout(400);
-      labels.push(await p.evaluate(() => (/гарант [\d\s\u00a0]+₽ · обсуждаем [\d\s\u00a0]+₽ · по делам [\d\s\u00a0]+₽/.exec(document.body.innerText) || [''])[0])); }
+      labels.push(await p.evaluate(() => (/Ждём денег: [\d\s ]+₽, из них подтверждено клиентом [\d\s ]+₽(?: · ещё по делам, не в таблице Лены: [\d\s ]+₽)?/.exec(document.body.innerText) || [''])[0])); }
     check(vp, '«Ждём денег» одинаково на 4 вкладках', labels.every((l) => l && l === labels[0]), labels.join(' | ') || 'подписи нет');
   }
   check(vp, 'ошибок JavaScript нет', !errs.length, errs.length ? errs.slice(0, 3).join(' | ') : 'нет');
