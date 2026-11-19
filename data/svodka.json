@@ -11135,21 +11135,18 @@
  },
  "banki": {
   "date": "2026-11-19",
-  "built": "2026-11-19T10:51:57+03:00",
+  "built": "2026-11-19T13:41:23+03:00",
   "banks": [
    {
     "bank": "Альфа",
     "lastOk": {
-     "upto": "2026-11-18 15:55",
-     "at": "2026-11-18T15:55:44+03:00",
-     "items": 7,
-     "run": "signal-20261118-150200-e83c",
-     "src": "kontrol/runs/2026-11-18.jsonl"
+     "upto": "2026-11-19 11:50",
+     "at": "2026-11-19T11:47:24+03:00",
+     "items": 4,
+     "run": "signal-20261119-092458-aa9a",
+     "src": "kontrol/runs/2026-11-19.jsonl"
     },
-    "block": {
-     "at": "2026-11-19T10:41:48+03:00",
-     "reason": "страница входа Альфа-Бизнес, нужен ПИН/код"
-    },
+    "block": null,
     "statement": {
      "asOf": "2026-11-18",
      "time": "15:55",
@@ -11175,23 +11172,20 @@
     "portal": {
      "pending": [],
      "lastDone": "2026-11-18T15:49:13+03:00",
-     "checkedUpto": "2026-11-18 15:55",
+     "checkedUpto": "2026-11-19 11:30",
      "src": "kontrol/runs/income.json"
     }
    },
    {
     "bank": "Точка",
     "lastOk": {
-     "upto": "2026-11-18 15:55",
-     "at": "2026-11-18T15:55:44+03:00",
+     "upto": "2026-11-19 11:50",
+     "at": "2026-11-19T11:47:24+03:00",
      "items": 4,
-     "run": "signal-20261118-150200-e83c",
-     "src": "kontrol/runs/2026-11-18.jsonl"
+     "run": "signal-20261119-092458-aa9a",
+     "src": "kontrol/runs/2026-11-19.jsonl"
     },
-    "block": {
-     "at": "2026-11-19T10:45:45+03:00",
-     "reason": "страница входа Точка, нужен код быстрого входа"
-    },
+    "block": null,
     "statement": null,
     "notif": {
      "last": null,
@@ -11202,7 +11196,7 @@
     "portal": {
      "pending": [],
      "lastDone": "2026-11-02T14:38:31+03:00",
-     "checkedUpto": "2026-11-18 15:55",
+     "checkedUpto": "2026-11-19 11:30",
      "src": "kontrol/runs/income.json"
     }
    }
