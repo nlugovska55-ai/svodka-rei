@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-19T09:19:07.342Z",
+  "batchId": "2026-11-19T09-19-04-267Z-g4jeyrbj",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Лично вам",
+      "taskId": "vv1611-veshki",
+      "taskTitle": "ВкусВилл: Вёшки — два КП и ответы Аглае (голосовые 16.11)",
+      "text": "КП уже отправлены. Ничего смысла нет менять",
+      "action": "",
+      "actionLabel": "Сообщение Claude",
+      "at": "2026-11-19T09:18:59.256Z",
+      "eid": "emwnc8xq00qp8cd9t"
+    }
+  ]
+}
