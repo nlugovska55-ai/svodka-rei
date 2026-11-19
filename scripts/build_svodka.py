@@ -435,6 +435,93 @@ def ohvat_journal():
     return {"file": "kontrol/runs/" + os.path.basename(files[-1]), "date": os.path.basename(files[-1])[:10], "fromJournal": True, "parts": parts}
 
 
+# сверка банка — шаг утра «Браузер:Альфа|Точка» (выписка); «Альфа|Точка» прогона почты — уведомления банка, это не сверка
+BANKI = [("Альфа", ("Браузер:Альфа",), "Альфа", "alfa"), ("Точка", ("Браузер:Точка",), "Точка", "tochka")]
+
+
+def _runs_events(days=14):
+    """События журнала запусков за последние дни (kontrol/runs/ДАТА.jsonl), без отозванных запусков."""
+    files = sorted(glob.glob(os.path.join(KONTROL_DIR, "runs", "????-??-??.jsonl")))[-days:]
+    revoked = set()
+    rv = os.path.join(KONTROL_DIR, "runs", "revoked.json")
+    if os.path.exists(rv):
+        with open(rv, encoding="utf-8-sig") as fh:
+            revoked = {r.get("run") for r in (json.load(fh).get("runs") or [])}
+    out = []
+    for f in files:
+        with open(f, encoding="utf-8-sig") as fh:
+            for line in fh:
+                try:
+                    e = json.loads(line)
+                except ValueError:
+                    continue
+                if e.get("run") not in revoked:
+                    out.append(e)
+    return out
+
+
+def banki(vyp=None, bank=None, inc=None, now=None):
+    """19.11 (Ольга, приёмка пульта): по каждому банку три факта раздельно — выписка, уведомление банка, сверка с порталом —
+    и последняя УСПЕШНАЯ сверка из журнала (source Браузер:Альфа|Точка ok). «Поступлений нет» пульт ставит только при
+    успешной сверке за сегодня; иначе «Поступления за сегодня не сверены». Сбой доступа после неё — отдельной строкой."""
+    now = now or datetime.now(MSK)
+    today = now.strftime("%Y-%m-%d")
+    ev = _runs_events()
+    if not ev:
+        return None
+    vyp = vyp if vyp is not None else vypiska()
+    bank = bank if bank is not None else bank_oboroty()
+    inc = inc if inc is not None else (income() or [])
+    fin = {e.get("run"): set(e.get("ok") or []) for e in ev if e.get("event") == "finished"}
+    # чтение засчитываем, только если завершение запуска его не отвергло (брошенный запуск ok: [] — не сверка)
+    ev = [e for e in ev if not (e.get("event") == "source" and e.get("status") == "ok" and e.get("run") in fin and e.get("source") not in fin[e.get("run")])]
+    last_src = {}
+    for e in ev:
+        if e.get("event") == "source" and e.get("status") == "ok" and e.get("upto"):
+            last_src[e.get("source")] = {"upto": str(e["upto"]), "at": str(e.get("at") or e.get("ts") or ""), "items": e.get("items"), "run": e.get("run", "")}
+    out = []
+    for name, srcs, nsrc, site in BANKI:
+        ok, err = None, None
+        for e in ev:
+            ts = str(e.get("at") or e.get("ts") or "")
+            if e.get("event") == "source" and e.get("source") in srcs:
+                if e.get("status") == "ok" and e.get("upto"):
+                    ok = {"upto": str(e["upto"]), "at": ts, "items": e.get("items"), "run": e.get("run", ""), "src": "kontrol/runs/" + ts[:10] + ".jsonl"}
+                    err = None
+                elif e.get("status") != "ok":
+                    err = {"at": ts, "reason": str(e.get("reason") or e.get("why") or "ошибка чтения")[:160]}
+            elif e.get("event") == "conn-check" and e.get("site") == site:
+                if e.get("status") == "fail":
+                    err = {"at": ts, "reason": str(e.get("seen") or e.get("source") or "нет входа")[:160]}
+                elif ok and ts > ok["at"]:
+                    err = None
+        if err and ok and err["at"] < ok["at"]:
+            err = None
+        st = None
+        if vyp and name == "Альфа":
+            st = {"asOf": vyp.get("asOf"), "time": vyp.get("time"), "fileDate": vyp.get("fileDate"), "src": vyp.get("src")}
+        days = [d for d in ((bank or {}).get("days") or []) if name.lower() in str(d.get("account", "")).lower()]
+        if days:
+            d = days[-1]
+            st = {**(st or {}), "lastDay": d.get("date"), "dayIn": d.get("in"), "daySrc": d.get("src"), "account": d.get("account")}
+        notes = [x for x in ((vyp or {}).get("items") or []) if x.get("notif") and x.get("bank") == name]
+        notes.sort(key=lambda x: (x.get("seen") or x.get("date") or ""))
+        mail = last_src.get("Браузер:почта")
+        notif = {"last": ({k: notes[-1].get(k) for k in ("date", "seen", "payer", "amount", "src")} if notes else None),
+                 "today": [{k: x.get(k) for k in ("payer", "amount", "seen")} for x in notes if x.get("date") == today],
+                 # уведомления приходят в olga@: проверены до самого позднего чтения — прогон почты («Альфа»/«Точка») или шаг утра «Браузер:почта»
+                 **max(([{"checkedUpto": v["upto"], "checkSrc": "журнал запусков: " + k}] for k, v in ((nsrc, last_src.get(nsrc)), ("Браузер:почта", mail)) if v),
+                       key=lambda x: x[0]["checkedUpto"], default=[{"checkedUpto": None, "checkSrc": ""}])[0]}
+        rows = [r for r in inc if (r.get("bank") or "") == name]
+        portal = last_src.get("Браузер:портал")
+        pend = [r for r in rows if r.get("status") not in ("vneseno", "skip")]
+        done = max((str(r.get("done") or "") for r in rows), default="") or None
+        out.append({"bank": name, "lastOk": ok, "block": err, "statement": st, "notif": notif,
+                    "portal": {"pending": [{"payer": r.get("payer"), "amount": r.get("amount"), "seen": r.get("seen")} for r in pend],
+                               "lastDone": done, "checkedUpto": portal and portal["upto"], "src": "kontrol/runs/income.json"}})
+    return {"date": today, "built": now.strftime("%Y-%m-%dT%H:%M:%S+03:00"), "banks": out}
+
+
 def ohvat():
     """Время охвата источников из последней сверки дел «Утра» (obkhod/ДАТА-sverka-del-ЧЧММ.md, строка «Охват источников: …»)."""
     files = sorted(glob.glob(os.path.join(os.path.dirname(KONTROL_DIR), "obkhod", "*-sverka-del-*.md")))
@@ -1106,6 +1193,7 @@ def main():
     data["income"] = income()
     data["vypiska"] = vypiska()
     data["ohvat"] = ohvat_journal() or ohvat()
+    data["banki"] = banki(data["vypiska"], bank, data["income"])
     data["summary"] = automation(summary, data["garanty"])
     data["accuracy"] = forecast_accuracy(data["garanty"])
     data["trebovaniya"] = trebovaniya(tasks, closed_ids)

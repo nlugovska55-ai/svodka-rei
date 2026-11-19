@@ -415,6 +415,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   .treb .tr{grid-template-columns:44px minmax(0,1fr)}
   .row:has(.abs) .who-t{display:none}.treb .tr>*:nth-child(n+3){grid-column:2/-1}
 }
+.bks{display:grid;gap:10px;margin:4px 0 10px}.bk{border:1px solid var(--line);border-radius:8px;padding:8px 10px}.bk-h{font-weight:600}.bk-h.warn{color:var(--hot)}.bk-h.ok{color:var(--ok)}.bk-r{font-size:13.5px;color:var(--muted)}.bk-r small,.bk-f small{display:block;color:var(--faint);font-size:12.5px;overflow-wrap:anywhere}.bk-blk{color:var(--hot)}.bk-f{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;margin:6px 0 0;font-size:13.5px}.bk-f dt{color:var(--muted)}.bk-f dd{margin:0;overflow-wrap:anywhere}
 .hlink{font-size:14px;font-weight:600;color:var(--ok);text-decoration:none}.hlink:hover{text-decoration:underline}
 /* 13.11 перечень дня: счёт + только требующее внимания, остальное свёрнуто (Ольга: «похож на помойку») */
 
@@ -440,6 +441,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <button class="tab" role="tab" data-tab="my"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="9" cy="6" r="3"/><path d="M3 16c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg><span class="lg">Мои клиенты</span><span class="sm">Мои</span></button>
       <button class="tab" role="tab" data-tab="lena"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="12.5" cy="7" r="2"/><path d="M2 15.5c.6-2.4 2.4-3.6 4.5-3.6s3.9 1.2 4.5 3.6M12 11.8c1.8 0 3.3 1 3.9 3"/></svg><span class="lg">Клиенты Лены</span><span class="sm">Лены</span></button>
       <button class="tab" role="tab" data-tab="buh"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2.5" y="3.5" width="13" height="12" rx="2"/><path d="M2.5 7.5h13M6 2v3M12 2v3"/></svg><span class="lg">Бухгалтерия</span><span class="sm">Бухгалт.</span></button>
+      <button class="tab" role="tab" data-tab="garanty"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 2l6 2.5v4c0 3.6-2.6 6.4-6 7.5-3.4-1.1-6-3.9-6-7.5v-4z"/><path d="M6.3 9l2 2 3.5-3.6"/></svg><span class="lg">Гаранты</span><span class="sm">Гаранты</span></button>
       <button class="tab" role="tab" data-tab="other"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="2.5" y="2.5" width="5" height="5" rx="1"/><rect x="10.5" y="2.5" width="5" height="5" rx="1"/><rect x="2.5" y="10.5" width="5" height="5" rx="1"/><rect x="10.5" y="10.5" width="5" height="5" rx="1"/></svg><span class="lg">Другие</span><span class="sm">Другие</span></button>
       <span class="sep" aria-hidden="true"></span>
       <button class="tab aux" role="tab" data-tab="kontrol"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 9.5l3.5 3.5L15 4.5"/></svg><span class="lg">Контроль</span><span class="sm">Контроль</span></button>
@@ -447,7 +449,6 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <button class="tab aux" role="tab" data-tab="all"><svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 5h10M6 9h10M6 13h10"/><circle cx="2.5" cy="5" r=".6"/><circle cx="2.5" cy="9" r=".6"/><circle cx="2.5" cy="13" r=".6"/></svg><span class="lg">Все дела</span><span class="sm">Все</span></button>
     </nav>
     <a class="hlink" href="#grafik">Перечень дня</a>
-    <a class="hlink" href="#garanty">Гаранты</a>
     <div class="fresh" id="fresh"><span class="dot" style="background:var(--faint)"></span>Загружаю данные…</div>
   </header>
   <main id="view"><div class="skel"></div></main>
@@ -727,9 +728,9 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   // 30.10 (Ольга): служебные дела для веток (памятки, разрешения экрана, открыть вкладку) и пароли на пульт тоже не выводим
   const isLoginAsk = (x) => LOGIN_RE.test(['title', 'short', 'text', 'next', 'detail'].map((k) => x[k] || '').join(' '));
   // ---------- разделы (30.10, схема Ольги): Сегодня · Мои клиенты · Клиенты Лены · Бухгалтерия · Другие ----------
-  const TABS = ['utro', 'my', 'lena', 'buh', 'other', 'kontrol', 'money', 'all', 'grafik'];
-  // адреса-входы, которые открывают раздел внутри вкладки: #garanty — реестр гарантов Лены на «Прогнозе денег»
-  const ALIAS = {garanty: ['money', 'garanty-all']};
+  const TABS = ['utro', 'my', 'lena', 'buh', 'garanty', 'other', 'kontrol', 'money', 'all', 'grafik'];
+  // адреса-входы, которые открывают раздел внутри вкладки (19.11: «Гаранты» — свой раздел меню, не алиас)
+  const ALIAS = {};
   const route = (h) => ALIAS[h] ? {t: ALIAS[h][0], a: ALIAS[h][1]} : TABS.includes(h) ? {t: h, a: ''} : null;
   const toAnchor = (a) => { if (a) setTimeout(() => { const el = document.getElementById(a); if (el) el.scrollIntoView({block: 'start'}); }, 30); };
   const SECN = {my: 'Мои клиенты', lena: 'Клиенты Лены', buh: 'Бухгалтерия', other: 'Другие'};
@@ -953,6 +954,8 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <dt>Доступ Лены</dt><dd>${acc.status === 'granted' ? 'выдан: ' + esc(acc.note || '') : esc(acc.note || 'не выдан: ждём её почту, доступ будет адресный, только к полям ввода')}</dd></dl>
       ${full ? '' : `<div class="rows glines">${top.slice(0, 3).map((r) => garLine(G, r)).join('')}</div>`}</div></section>`;
   }
+  // Раздел «Гаранты» (19.11, Ольга: обязательный пункт меню): таблица Лены и полный реестр гарантов
+  function garantyTab() { return lenaCard(true) + garMoney(); }
   function garMoney() {
     const G = D.garanty;
     if (!G || !G.connected) return '';
@@ -1170,7 +1173,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const row = (x) => `<div class="grw ${esc(x.status)}"><span class="gt">${esc(x.time)}</span><span><b>${esc(x.title)}</b> <em>${ST[x.status] || ''}</em><small>${esc([x.owner, okNote(x)].filter(Boolean).join(' · '))}</small></span></div>`;
     const ola = (G.olga || []).length && !old ? `<div class="gola"><b>От вас:</b> ${esc(G.olga[0])}</div>` : '';
     const head = old ? `Перечень за ${esc(G.date.slice(8, 10) + '.' + G.date.slice(5, 7))}, сегодня ещё не собран` : `Сделано <b>${c.ok || 0} из ${G.total}</b>${bad.length ? ` · в работе у команды ${bad.length}` : ' · всё по графику'} · обновлено ${esc(G.at || '')} МСК`;
-    return `<section class="simple"><div class="sday">Перечень дня</div><div class="sbox grf${old ? ' old' : ''}" id="grafik"><div class="gh"><span class="gc">${head}</span></div>${ola}
+    return `<section class="simple"><div class="sday">Перечень дня</div><div class="sbox grf${old ? ' old' : ''}" id="grafik-box"><div class="gh"><span class="gc">${head}</span></div>${ola}
       ${bad.map(row).join('')}
       <details class="gmore"${bad.length ? '' : ' open'}><summary>${[c.ok ? 'сделано ' + c.ok : '', c.wait ? 'ещё не время ' + c.wait : '', c.nolog ? 'без отметки ' + c.nolog : ''].filter(Boolean).join(' · ') || 'остальные шаги'} — показать</summary>${rest.map(row).join('')}</details></div>
       <nav class="slinks"><button class="link" data-go="utro">← На пульт</button></nav></section>`;
@@ -1242,7 +1245,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const archH = archL.length ? `<details class="sbox s-arch"><summary><h2>Архив <span class="h2n">${archL.length}</span></h2><span class="sm-h">закрытые и без движения больше 14 дней</span></summary>${lim('arch', archL, 20).map(rowT).join('')}${moreBtn('arch', archL, 20)}</details>` : '';
     // Деньги: пришло по банку вчера и сегодня, только от клиентов
     const BK = (D.bank && D.bank.days) || [], prev = addD(y, -1 - (new Date(y + 'T12:00:00Z').getUTCDay() === 1 ? 2 : 0));
-    const INC = Array.isArray(D.income) ? D.income : null, key = (x) => niceCl(x).toLowerCase().replace(/[^а-яёa-z0-9]/g, '');
+    const INC = Array.isArray(D.income) ? D.income : null, key = (x) => niceCl(String(x || '').replace(/\(.*?\)/g, '')).toLowerCase().replace(/[^а-яёa-z0-9]/g, '');
     const incOf = (who, a) => INC && INC.find((r) => Math.round(+r.amount) === Math.round(a) && key(r.payer) === key(who));
     const day = (d) => BK.filter((x) => x.date === d).flatMap((x) => (x.inItems || []).filter((i) => !FROM_REI.test(i.who || '')).map((i) => ({who: niceCl(i.who), a: +i.amount || 0})));
     const sum = (it) => it.reduce((x, i) => x + i.a, 0);
@@ -1259,7 +1262,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const asOf = VP ? VP.asOf : lastD;
     const dayH = () => !asOf ? '<div class="sempty">Выписок за последние дни нет.</div>'
       : `<div class="stot">С ${dmY(fromD)} пришло <b>${num(sum(itL))}</b></div><div class="sm-h">по выписке Альфы РЭИ${VP && VP.time && VP.fileDate ? `, файл обновлён ${dmY(VP.fileDate)} в ${VP.time}` : ` от ${dmY(asOf)}`}${VP && VP.notifUpto ? `; после него — по уведомлениям банков до ${dmY(VP.notifUpto.slice(0, 10))} ${VP.notifUpto.slice(11)}` : ''}${alfaRead && VP && VP.fileDate === FRESH.todayYmd && alfaRead.time > VP.time ? ` · Альфу читали позже, до ${alfaRead.time}${alfaRead.items === 0 ? ': новых операций нет' : alfaRead.items > 0 ? `: новых операций ${alfaRead.items}, в файл ещё не внесены` : ''}` : ''}</div>` + (itL.length ? itL.map((i) => { const r = incOf(i.who, i.a); return `<div class="sl"><span>${esc(i.who)}<small>${dmY(i.date)}${i.notif ? ` · уведомление ${esc(i.bank)}, выпиской не подтверждено` : ''}${r ? (r.status === 'vneseno' ? ' · в портале ✓' : r.status === 'skip' ? ' · в портал не вносим' : ' · ещё не в портале') : ''}</small></span><b>+${num(i.a)}</b></div>`; }).join('') : '<div class="sempty">поступлений нет</div>')
-      + (!itL.some((i) => i.date === y) ? `<div class="sm-h">За ${dmY(y)} поступлений в ней нет</div>` : '');
+      ;  // 19.11 (Ольга): «за сегодня поступлений нет» — только по успешной сверке за сегодня, это пишет блок банков ниже
     // «не разнесено» — из реестра поступлений (kontrol/runs/income.json), а не по тексту дел
     const notIn = INC ? INC.filter((r) => !['vneseno', 'skip'].includes(r.status)) : null;
     // поступления по выписке, которых нет в реестре внесения, — не ставим «всё внесено»
@@ -1280,7 +1283,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <div class="sday">${cap(dn)}</div>${ohvatLine()}
       <div class="sgrid${olga.length < 3 ? ' few' : ''}">
       <div class="sbox s-do"><h2>Сегодня от Ольги <span class="h2n">${olga.length}</span></h2>${olga.length ? `<div class="sm-h">все дела, где ждут вас; сверено сегодня ${olga.filter(okR).length} из ${olga.length}</div>` : ''}${todo}</div>
-      <div class="s-side"><div class="sbox s-money"><h2>Деньги</h2>${dayH()}${portal}</div>
+      <div class="s-side"><div class="sbox s-money"><h2>Деньги</h2>${bankiHTML(vItems)}${dayH()}${portal}</div>
       <div class="sbox s-wait"><h2>Ждём оплату${tot ? ` <span class="h2n">${num(tot)}</span>` : ''}</h2>${top.length ? top.map(([k, w]) => `<div class="sl"><span>${esc(k)}<small${w.d && w.d <= y ? ' class="late"' : ''}>${w.d ? (w.d <= y ? 'контроль сегодня' : 'контроль ' + dmY(w.d)) + ' · ' : ''}${w.src}${w.why ? ': ' + esc(w.why.replace(/^получить оплату /i, '').replace(/^по акту/i, 'акт')) : ''}</small></span><b>${num(w.a)}</b></div>`).join('') : `<div class="sempty">Сверенных сегодня ожиданий оплаты нет. Все ожидания — в <button class="link" data-go="money" style="margin:0">«Прогноз денег»</button>.</div>`}</div></div>
       </div>
       ${lichH}${openH}${archH}
@@ -1589,13 +1592,46 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   }
 
   let cur = -1;
+  // ---------- банки: последняя успешная сверка и три факта раздельно (19.11, Ольга, приёмка пульта) ----------
+  // «Поступлений нет» — только после успешной сверки за сегодня (source Браузер:Альфа|Точка ok в журнале запусков).
+  // Нет сверки за сегодня — «Поступления за сегодня не сверены» и дата/время последней успешной. Данные — D.banki (build_svodka.banki).
+  const ymdHm = (v) => { const m = /^(\d{4}-\d\d-\d\d)[T ](\d\d:\d\d)/.exec(String(v || '')); return m ? {d: m[1], t: m[2]} : null; };
+  const whenTxt = (v) => { const x = ymdHm(v); return x ? (x.d === FRESH.todayYmd ? 'сегодня ' : dmY(x.d) + ' ') + x.t : 'нет данных'; };
+  function bankiData(vItems) {
+    if (D.banki && Array.isArray(D.banki.banks)) return D.banki.banks;
+    // старая сборка без D.banki: о сверке знаем только время файла выписки Альфы — это и считаем последней сверкой
+    const V = D.vypiska;
+    return V ? [{bank: 'Альфа', lastOk: V.fileDate ? {upto: V.fileDate + ' ' + (V.time || '00:00'), src: V.src} : null, statement: {asOf: V.asOf, time: V.time, fileDate: V.fileDate, src: V.src}, notif: null, portal: null, fallback: true}] : [];
+  }
+  function bankState(b, vItems) {
+    const y = FRESH.todayYmd, ok = b.lastOk && ymdHm(b.lastOk.upto);
+    if (!ok || ok.d !== y) return {cls: 'warn', head: 'Поступления за сегодня не сверены', sub: `последняя успешная сверка: ${b.lastOk ? whenTxt(b.lastOk.upto) : 'нет в журнале'}`};
+    const inToday = (vItems || []).filter((i) => i.bank === b.bank && i.date === y && !i.notif);
+    if (inToday.length) return {cls: 'ok', head: `За ${dmY(y)} пришло ${num(inToday.reduce((x, i) => x + i.a, 0))}`, sub: `сверено сегодня ${ok.t}`};
+    if (b.bank !== 'Альфа' && b.lastOk.items > 0) return {cls: 'ok', head: `Сверено сегодня ${ok.t}: операций ${b.lastOk.items}`, sub: 'суммы — в выписке'};
+    return {cls: 'ok', head: `Поступлений за ${dmY(y)} нет`, sub: `сверено сегодня ${ok.t}`};
+  }
+  function bankiHTML(vItems) {
+    const B = bankiData(vItems);
+    if (!B.length) return '<div class="bk"><div class="bk-h warn" data-bank-status="none">Поступления за сегодня не сверены</div><div class="bk-r">данных о сверке банков в сборке нет</div></div>';
+    return `<div class="bks" id="banki">${B.map((b) => {
+      const s = bankState(b, vItems), st = b.statement, n = b.notif, p = b.portal;
+      const stm = !st ? 'выписка этого банка на пульт не загружается' : `по ${st.lastDay || st.asOf ? dmY(st.lastDay || st.asOf) : '?'}${st.fileDate ? `, файл обновлён ${whenTxt(st.fileDate + ' ' + (st.time || ''))}` : ''}${st.dayIn != null ? `; за ${dmY(st.lastDay)} поступило ${num(+st.dayIn || 0)}` : ''}<small>${esc(st.daySrc || st.src || '')}</small>`;
+      const ntf = !n ? 'нет данных в сборке' : `${n.today && n.today.length ? `за ${dmY(FRESH.todayYmd)}: ${n.today.map((x) => esc(niceCl(x.payer)) + ' ' + num(+x.amount)).join(', ')} — выпиской не подтверждено` : n.checkedUpto && ymdHm(n.checkedUpto).d === FRESH.todayYmd ? `за ${dmY(FRESH.todayYmd)} уведомлений о поступлении нет` : 'за сегодня почту не проверяли'}${n.last ? `; последнее ${dmY(n.last.date)}: ${esc(niceCl(n.last.payer))} ${num(+n.last.amount)}` : ''}<small>проверено до ${whenTxt(n.checkedUpto)} · ${esc(n.checkSrc || '')}</small>`;
+      const prt = !p ? 'нет данных в сборке' : `${p.pending && p.pending.length ? `не внесено: ${p.pending.map((x) => esc(niceCl(x.payer)) + ' ' + num(+x.amount)).join(', ')}` : 'в реестре поступлений невнесённых нет'}${p.lastDone ? `; последнее внесение ${whenTxt(p.lastDone)}` : ''}<small>портал прочитан до ${whenTxt(p.checkedUpto)} · ${esc(p.src || '')}</small>`;
+      return `<div class="bk" data-bank="${esc(b.bank)}"><div class="bk-h ${s.cls}" data-bank-status="${s.cls === 'ok' ? 'checked' : 'unchecked'}"><b>${esc(b.bank)}</b> · ${s.head}</div>
+        <div class="bk-r">${s.sub}${b.lastOk && b.lastOk.src ? ` <small>${esc(b.lastOk.src)}</small>` : ''}</div>
+        ${b.block && s.cls === 'warn' ? `<div class="bk-r bk-blk">нет доступа с ${whenTxt(b.block.at)}: ${esc(b.block.reason)}</div>` : ''}
+        <dl class="bk-f"><dt>Выписка</dt><dd>${stm}</dd><dt>Уведомление банка</dt><dd>${ntf}</dd><dt>Сверка с порталом</dt><dd>${prt}</dd></dl></div>`;
+    }).join('')}</div>`;
+  }
   function render() {
     if (!D) return;
     document.body.dataset.tab = tab;
     $$('.tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
     const y = scrollY;
     let html;
-    try { html = tab === 'utro' ? utro() : tab === 'grafik' ? grafikPage() : tab === 'kontrol' ? kontrol() : tab === 'money' ? moneyTab() : tab === 'buh' ? buhTab() : tab === 'lena' ? lenaTab() : SECN[tab] ? secTab(tab) : all(); }
+    try { html = tab === 'utro' ? utro() : tab === 'grafik' ? grafikPage() : tab === 'kontrol' ? kontrol() : tab === 'money' ? moneyTab() : tab === 'buh' ? buhTab() : tab === 'garanty' ? garantyTab() : tab === 'lena' ? lenaTab() : SECN[tab] ? secTab(tab) : all(); }
     catch (e) { console.error(e); html = `<div class="empty"><b>Раздел не показан: ошибка в данных</b><span>${esc(String(e && e.message || e))}. Остальные разделы работают; напишите ветке «Дашборд».</span></div>`; }
     $('#view').innerHTML = `<div class="wrap" style="max-width:none">${html}</div>`;
     scrollTo(0, y);
