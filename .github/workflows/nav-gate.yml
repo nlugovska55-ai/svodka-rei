@@ -1,0 +1,19 @@
+# Та же обязательная проверка навигации, что в сборке Vercel (npm run build), — с журналом, видным в GitHub.
+name: nav-gate
+on:
+  push:
+    branches-ignore: [inbox]
+  pull_request:
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build
+      - if: always()
+        run: cat tests/nav-gate-last.json || true

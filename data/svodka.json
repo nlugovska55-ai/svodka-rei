@@ -11167,5 +11167,79 @@
    }
   ],
   "src": "kontrol/runs/2026-11-19.jsonl + файлы прогонов"
+ },
+ "banki": {
+  "date": "2026-11-19",
+  "built": "2026-11-19T13:42:46+03:00",
+  "banks": [
+   {
+    "bank": "Альфа",
+    "lastOk": {
+     "upto": "2026-11-19 11:50",
+     "at": "2026-11-19T11:47:24+03:00",
+     "items": 4,
+     "run": "signal-20261119-092458-aa9a",
+     "src": "kontrol/runs/2026-11-19.jsonl"
+    },
+    "block": null,
+    "statement": {
+     "asOf": "2026-11-19",
+     "time": "11:47",
+     "fileDate": "2026-11-19",
+     "src": "kontrol/vypiski/2026-11-19.md",
+     "lastDay": "2026-11-19",
+     "dayIn": 24000.0,
+     "daySrc": "11:50 экран Альфа-Бизнес, п/п 3340, 58, комиссия",
+     "account": "Альфа *7370"
+    },
+    "notif": {
+     "last": {
+      "date": "2026-11-17",
+      "seen": "2026-11-17 16:33",
+      "payer": "АО ЭЛЕКТРОНСТАНДАРТ-ПРИБОР",
+      "amount": 100000.0,
+      "src": "obkhod/pochta-razbor-2026-11-18.md"
+     },
+     "today": [],
+     "checkedUpto": "2026-11-19 10:37",
+     "checkSrc": "журнал запусков: Браузер:почта"
+    },
+    "portal": {
+     "pending": [],
+     "lastDone": "2026-11-18T15:49:13+03:00",
+     "checkedUpto": "2026-11-19 11:30",
+     "src": "kontrol/runs/income.json"
+    }
+   },
+   {
+    "bank": "Точка",
+    "lastOk": {
+     "upto": "2026-11-19 11:50",
+     "at": "2026-11-19T11:47:24+03:00",
+     "items": 4,
+     "run": "signal-20261119-092458-aa9a",
+     "src": "kontrol/runs/2026-11-19.jsonl"
+    },
+    "block": null,
+    "statement": {
+     "lastDay": "2026-11-19",
+     "dayIn": 0.0,
+     "daySrc": "11:50 экран Точка, после 18.11 13:10 операций нет",
+     "account": "Точка *3698"
+    },
+    "notif": {
+     "last": null,
+     "today": [],
+     "checkedUpto": "2026-11-19 10:37",
+     "checkSrc": "журнал запусков: Браузер:почта"
+    },
+    "portal": {
+     "pending": [],
+     "lastDone": "2026-11-02T14:38:31+03:00",
+     "checkedUpto": "2026-11-19 11:30",
+     "src": "kontrol/runs/income.json"
+    }
+   }
+  ]
  }
 }

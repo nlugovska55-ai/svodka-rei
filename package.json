@@ -1,1 +1,17 @@
-{"name": "svodka-rei", "private": true, "version": "1.0.0", "type": "module"}
+{
+  "name": "svodka-rei",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "gate": "node tests/nav-gate.mjs",
+    "build": "node tests/nav-gate.mjs && node scripts/make_public.mjs"
+  },
+  "devDependencies": {
+    "@sparticuz/chromium": "143.0.4",
+    "playwright-core": "1.57.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

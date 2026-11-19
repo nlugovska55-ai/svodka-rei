@@ -1,1 +1,4 @@
 __pycache__/
+node_modules/
+public/
+tests/nav-gate-last.json
