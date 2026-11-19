@@ -642,7 +642,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const lim = (key, a, n) => EXP.has(key) ? a : a.slice(0, n);
   const moreBtn = (key, a, n, f = DEL) => a.length > n ? `<button class="more" data-more="${key}">${EXP.has(key) ? 'Свернуть' : 'Показать остальные ' + plural(a.length - n, ...f)}</button>` : '';
   const srcDet = (txt, label = 'источник') => txt ? ` <details class="src"><summary>${label}</summary><div>${esc(txt)}</div></details>` : '';
-  const num = (a) => Math.round(a).toLocaleString('ru-RU') + ' ₽';
+  const num = (a) => Math.round(a).toLocaleString('ru-RU') + '\u00a0₽';
 
   // ---------- действия: сразу в ветку inbox, с отменой ----------
   const LABEL = {reopen: 'Вернуть в работу', done: 'Я выполнила', claude: 'Поручено Claude', later: 'Отложить до завтра', eve: 'На вечер', prio: 'Горит', wait: 'Ждём клиента', ai: 'Сообщение Claude'};
@@ -1358,7 +1358,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     // 19.11: оплата есть в сводной ведомости портала (garanty.portalCheck.paid) — значит внесена, даже если реестр внесения её не знает
     const PP = (D.garanty && D.garanty.portalCheck && D.garanty.portalCheck.paid) || [];
     const incOf = (who, a) => (INC && INC.find((r) => Math.round(+r.amount) === Math.round(a) && key(r.payer) === key(who)))
-      || PP.find((r) => Math.round(+r.amount) === Math.round(a) && (key(r.client).includes(key(who)) || key(who).includes(key(r.client))));
+      || ((p) => p ? {...p, status: 'vneseno'} : null)(PP.find((r) => Math.round(+r.amount) === Math.round(a) && (key(r.client).includes(key(who)) || key(who).includes(key(r.client)))));
     const day = (d) => BK.filter((x) => x.date === d).flatMap((x) => (x.inItems || []).filter((i) => !FROM_REI.test(i.who || '')).map((i) => ({who: niceCl(i.who), a: +i.amount || 0})));
     const sum = (it) => it.reduce((x, i) => x + i.a, 0);
     // 30.10 (Ольга): деньги на первом экране — только по выписке. Источник — сводная выписка kontrol/vypiski (ведёт «Бухгалтерия»);
@@ -1383,7 +1383,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     // «не разнесено» — из реестра поступлений (kontrol/runs/income.json), а не по тексту дел
     const notIn = INC ? INC.filter((r) => !['vneseno', 'skip'].includes(r.status)) : null;
     // поступления по выписке, которых нет в реестре внесения, — не ставим «всё внесено»
-    const miss = INC ? itL.filter((i) => !incOf(i.who, i.a)) : [];
+    const miss = INC ? itL.filter((i) => { const r = incOf(i.who, i.a); return !r || !['vneseno', 'skip'].includes(r.status); }) : [];
     const portal = notIn === null ? '<div class="sl sp"><span>Внесение в портал: данных нет</span></div>'
       : notIn.length ? `<div class="sl sp"><span>Внесение в портал не подтверждено: ${notIn.length} · вносит помощник</span><b>${esc(notIn.map((r) => niceCl(r.payer) + ' ' + num(+r.amount)).join(', '))}</b></div>`
       : miss.length ? `<div class="sl sp"><span>Внесение в портал не сверено: ${miss.map((i) => `<span style="white-space:nowrap">${esc(i.who + ' ' + num(i.a))}</span>`).join(', ')}</span></div>`
@@ -1630,7 +1630,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       ${advS ? `<div class="sub">Получено авансом без актов: <b class="num">${full(advS)}</b> (${plural(adv.length, 'запись', 'записи', 'записей')}). Нужны акты, иначе это долг перед клиентом.</div>` : ''}</section>`;
   }
   // ---------- Бухгалтерия: план ≠ факт ≠ справочно; чего нет в данных — пишем, что не получено ----------
-  const rubX = (a) => Number(a).toLocaleString('ru-RU', {maximumFractionDigits: 2}) + ' ₽';
+  const rubX = (a) => Number(a).toLocaleString('ru-RU', {maximumFractionDigits: 2}) + '\u00a0₽';
   const dmY = (y) => y.slice(8, 10) + '.' + y.slice(5, 7);
   const addD = (y, n) => new Date(Date.parse(y + 'T12:00:00Z') + n * 864e5).toISOString().slice(0, 10);
   const taskYmd = (t) => { const d = parseRu(t.due); return d ? d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()) : ''; };
@@ -1678,9 +1678,9 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const asOf = BM ? esc(BM.asOf || '') : '';
     const money = `<section class="sec"><div class="sh"><h2>Деньги сейчас</h2><span class="c">${BM ? 'по выпискам на ' + asOf : 'выписок за месяц нет'}</span></div>
       <div class="pf">
-      <div><small>Свободно у РЭИ</small><b>${free !== null ? rubX(free) : 'не считаю'}</b><small>${free !== null ? `счёт + вклады${resvSum ? ' − отложено под себестоимость' : ''}` : 'нет выписки или вкладов'}</small></div>
-      <div><small>Счёт Альфа РЭИ *7370</small><b>${alfa ? rubX(alfa.close) : 'нет данных'}</b><small>${alfa ? 'остаток на ' + asOf : ''}</small></div>
-      <div><small>Вклады РЭИ</small><b>${VK ? rubX(VK.total) : 'нет данных'}</b><small>${VK ? VK.rows.map((r) => `${esc(r.account)} ${rubX(r.amount)} с ${dmY(r.since)}`).join(' · ') : 'файл svodka/vklady.json не получен'}</small></div>
+      <div><small>На счёте РЭИ сейчас</small><b>${alfa ? rubX(alfa.close) : 'нет данных'}</b><small>${alfa ? 'Альфа *7370, можно тратить сегодня' : ''}</small></div>
+      <div><small>Всего свободных с вкладами</small><b>${free !== null ? rubX(free) : 'не считаю'}</b><small>${free !== null ? `счёт + вклады${resvSum ? ' − отложено под себестоимость' : ''}; вклады доступны после возврата` : 'нет выписки или вкладов'}</small></div>
+      <div><small>Вклады РЭИ</small><b>${VK ? rubX(VK.total) : 'нет данных'}</b><small>${VK ? VK.rows.map((r) => `${esc(r.account)} ${rubX(r.amount)}, возврат ${r.until ? dmY(r.until) : 'около ' + dmY(addD(r.since, 8))}`).join(' · ') : 'файл svodka/vklady.json не получен'}</small></div>
       ${resv.length ? `<div class="pf-w"><small>Отложено под себестоимость</small><b>${rubX(resvSum)}</b><small>${resv.map((r) => `${esc(r.account)}: ${esc(r.reserved)}`).join("; ")}</small></div>` : ''}
       <div><small>Точка ИП *3698</small><b>${tochka ? rubX(tochka.close) : 'нет данных'}</b><small>отдельно от РЭИ</small></div></div>
       ${VK && VK.note ? `<div class="hint" style="padding-top:6px">${esc(VK.note)}</div>` : ''}</section>`;

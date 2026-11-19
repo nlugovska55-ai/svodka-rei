@@ -207,7 +207,12 @@ def spisaniya():
                      # кем подтверждена оплата: ensConfirmed (выписка ФНС «Операции ЕНП») или явное confirmedBy; слова Ольги — не подтверждение
                      "confirmedBy": r.get("confirmedBy") or ("ФНС" if r.get("paid") and r.get("ensConfirmed") else ""),
                      "paidOn": iso_date(r.get("ensDate") or r.get("paidOn")), "plan": iso_date(r.get("planDate") or r.get("plan")),
-                     "basis": r.get("ensBasis") or "", "bankNote": r.get("bankNote") or "", "bankCheck": r.get("bankCheck") or ""})
+                     "basis": r.get("ensBasis") or "", "bankNote": r.get("bankNote") or "", "bankCheck": r.get("bankCheck") or "",
+                     "superseded": bool(r.get("superseded"))})
+        # 19.11 (Шторм п.17): Ольга решила не платить — не обязательное списание и не просрочка, а «отложено решением Ольги»
+        x = rows[-1]
+        if not x["paid"] and x["kind"] != "reference" and re.search(r"не платим|отложен", x["state"], re.I):
+            x["kind"], x["state"] = "reference", "отложено решением Ольги: " + x["state"]
     rows.sort(key=lambda r: r["date"])
     return {"built": p.get("built", ""), "note": p.get("note", ""), "confirmedNote": p.get("confirmed_note", ""), "rows": rows}
 
@@ -366,9 +371,15 @@ def rashody(sp=None, bm=None, today=None, vk=None):
     if not rows:
         return None
     months, orgs = {}, {}
-    KIND = {"vklad": ("Свои вклады", False), "vnutr": ("Переводы ИП Пономаренко", False), "zp": ("Зарплата", True)}
+    KIND = {"vklad": ("Свои вклады", False), "vnutr": ("Переводы ИП Пономаренко", False), "zp": ("Зарплата", True), "podotchet": ("Подотчёт, наличные, переводы Ольге", False)}
+    today_s = today or datetime.now(timezone(timedelta(hours=3))).date().isoformat()
     for r in rows:
+        if r["date"] > today_s:  # сводная строка за месяц (например ЗП) не может стоять будущим числом
+            r["basis"] = (r.get("basis") or "") + f" · за месяц, дата в файле {r['date'][8:10]}.{r['date'][5:7]}"
+            r["date"] = today_s
         name, exp = KIND.get(r.get("kind")) or statya(r["who"] + " " + r.get("basis", ""))
+        if re.search(r"командир|подотч[её]т.*(поездк|команд)", r["who"] + " " + r.get("basis", ""), re.I):
+            name, exp = "Командировки", True
         if "Точка" in r.get("account", "") and name in ("Подотчёт, наличные, переводы Ольге", "Прочее") and re.search(r"3081|наличн|снят|P2P|Луговск|карт", r["who"] + " " + r.get("basis", ""), re.I):
             name, exp = "Личные изъятия ИП (Точка)", False
         r["statya"], r["expense"] = name, exp
