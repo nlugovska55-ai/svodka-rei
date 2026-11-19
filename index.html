@@ -1141,10 +1141,18 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const OZ = new Map(((D.ozhidaem && D.ozhidaem.garanty.firms) || []).flatMap((f) => f.rows).filter((r) => /^пришло \d/.test(r.status || '')).map((r) => [r.id, r.status]));
     const gWait = G.filter((r) => Number(r.remain) > 0 && !OZ.has(r.id)), gAsk = G.filter((r) => !(Number(r.remain) > 0) && (r.flags || []).includes('вопрос'));
     const C = new Map(), add = (name, k, x) => { const key = fkey(name) || name; if (!C.has(key)) C.set(key, {name: niceCl(name), tasks: [], gar: [], ask: [], paid: []}); C.get(key)[k].push(x); };
-    live.forEach((t) => add(t.cl || t.client || t.short, 'tasks', t));
+    // клиент дела: поле client, а если там служебное («Лена», «Прочее», пусто) — начало заголовка до двоеточия
+    const BAD = /^(лена|прочее|клиенты лены|браузер|бухгалтерия|)$/i;
+    const clName = (t) => { const c = String(t.client || '').trim(); if (!BAD.test(c)) return String(t.cl || c).replace(/\s*\([^)]*@[^)]*\)/, ''); const m = /^([^:—]{2,40}?)(?:\s*\([^)]*\))?\s*[:—]/.exec(String(t.title || '')); return m ? m[1].trim() : (t.cl && !BAD.test(t.cl) ? t.cl : 'Без клиента'); };
+    live.forEach((t) => add(clName(t), 'tasks', t));
     gWait.forEach((r) => add(r.client, 'gar', r));
     gAsk.forEach((r) => add(r.client, 'ask', r));
-    const turn = (t) => /^лен/i.test(t.who || '') ? 'lena' : t.who === 'клиент' || t.who === 'эксперт' ? 'client' : 'us';
+    // 19.11 (Ольга): «ход за Леной / за клиентом» — сначала по живому шагу (next: «Мешает: … за Леной», «ждём клиента»), иначе по полю waiting;
+    // если шаг и поле расходятся — строка помечается «ход сверить», список уходит ветке «4 Задачи Лены»
+    const turnW = (t) => /^лен/i.test(t.who || '') ? 'lena' : /^(клиент|эксперт)/i.test(t.who || '') ? 'client' : 'us';
+    const turnN = (t) => { const n = String(t.next || ''); if (/клиентом\/Леной|Леной\/клиент|Леной и клиент/i.test(n)) return ''; return /за Леной|^Лена:|Лена предлага|Лена решает|работа Лены/i.test(n) ? 'lena' : /ждём (клиента|оплат|данные клиента|решени[ея] клиента|«да» клиента|ответа|подписанн)|за клиентом/i.test(n) ? 'client' : ''; };
+    const turn = (t) => turnN(t) || turnW(t);
+    const turnOff = (t) => { const n = turnN(t); return n && n !== turnW(t); };
     const cards = [...C.values()].map((c) => {
       const money = c.gar.reduce((s, r) => s + Number(r.remain), 0), mv = c.tasks.map(lastMv).filter(Boolean).sort().pop() || '';
       const late = c.tasks.some((t) => t.dd !== null && t.dd < 0), idle = mv ? daysAgo(mv) : null;
@@ -1152,24 +1160,34 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     });
     const FL = [['all', 'Все', () => true], ['lena', 'Ход за Леной', (c) => c.lena > 0], ['client', 'Ждём клиента', (c) => c.client > 0], ['money', 'Ждём денег', (c) => c.money > 0], ['idle', 'Без движения 7+ дн', (c) => c.idle !== null && c.idle >= 7]];
     if (!FL.some((f) => f[0] === lf)) lf = 'all';
-    const shown = cards.filter(FL.find((f) => f[0] === lf)[2]).sort((a, b) => (b.late - a.late) || (b.money - a.money) || (b.lena - a.lena) || a.name.localeCompare(b.name, 'ru'));
+    // топ-клиент Лены: ждём от него 50 000 ₽ и больше, или у него 2+ дела, или просрочка; остальные — списком внизу
+    const isTop = (c) => c.money + c.tasks.reduce((x, t) => x + (t.a || 0), 0) >= 50000 || c.tasks.length + c.gar.length >= 2;
+    const offN = live.filter(turnOff).length;
+    const shownAll = cards.filter(FL.find((f) => f[0] === lf)[2]).sort((a, b) => (b.late - a.late) || (b.money - a.money) || (b.lena - a.lena) || a.name.localeCompare(b.name, 'ru'));
+    const wt = (c) => c.money + c.tasks.reduce((x, t) => x + (t.a || 0), 0);
+    const shown = shownAll.filter(isTop).sort((a, b) => (wt(b) - wt(a)) || ((b.tasks.length + b.gar.length) - (a.tasks.length + a.gar.length))), small = shownAll.filter((c) => !isTop(c));
+    const smallHTML = () => small.length ? `<section class="sec"><div class="sh"><h2>Мелкие работы: ${small.length}</h2><span class="c">один клиент — одна строка</span></div><div class="rows" style="padding:4px 14px">${small.map((c) => { const t = c.tasks[0], r = c.gar[0] || c.ask[0];
+        return t ? `<div class="cd rw" data-id="${esc(t.id)}" data-open style="cursor:pointer"><span class="dt">${t.dd !== null && t.dd !== undefined ? esc(dueShort(t)) : '—'}</span><span class="wt"><b>${esc(c.name)}</b> · ${esc(t.short || t.title)}<small>${esc(turnTxt(t))}${turnOff(t) ? ' · ход сверить' : ''} · движение ${esc(mvTxt(lastMv(t)))}</small></span><span class="num">${c.money ? num(c.money) : t.a ? num(t.a) : ''}</span></div>`
+          : `<div class="cd"><span class="dt">—</span><span class="wt"><b>${esc(c.name)}</b> · ${esc(r ? [r.service, r.doc].filter(Boolean).join(' · ') || r.id : '')}<small>таблица Лены</small></span><span class="num">${c.money ? num(c.money) : ''}</span></div>`; }).join('')}</div></section>` : '';
     const tot = cards.reduce((s, c) => s + c.money, 0);
-    const turnTxt = (t) => turn(t) === 'lena' ? 'ход за Леной' : turn(t) === 'client' ? 'ждём ' + t.who + 'а' : 'делаем мы: ' + whoTxt(t);
+    const turnTxt = (t) => turn(t) === 'lena' ? 'ход за Леной' : turn(t) === 'client' ? (t.who === 'эксперт' ? 'ждём эксперта' : 'ход за клиентом') : 'делаем мы: ' + whoTxt(t);
     const mvTxt = (d) => { const n = daysAgo(d); return d ? (n === 0 ? 'сегодня' : n === 1 ? 'вчера' : dmY(d) + (n >= 7 ? ` · ${n} дн без движения` : '')) : 'движения нет'; };
     const tRow = (t) => `<div class="lc-r" data-id="${esc(t.id)}"><button class="st" data-open><b>${esc(t.short || t.title)}</b>${t.a ? ` <span class="num">${num(t.a)}</span>` : ''}
-      <small>${esc(turnTxt(t))} · срок ${esc(dueShort(t))}${t.dd !== null && t.dd < 0 ? ' <span class="late">просрочено</span>' : ''} · движение ${esc(mvTxt(lastMv(t)))}</small>
+      <small>${esc(turnTxt(t))}${turnOff(t) ? ' <span class="pill p-warn">ход сверить</span>' : ''} · срок ${esc(dueShort(t))}${t.dd !== null && t.dd < 0 ? ' <span class="late">просрочено</span>' : ''} · движение ${esc(mvTxt(lastMv(t)))}</small>
       ${t.next ? `<small class="lc-n">Шаг: ${esc(cutS(String(t.next), 160))}</small>` : ''}</button></div>`;
     const gRow = (r) => `<div class="lc-r g"><span><b>${esc([r.service, r.doc].filter(Boolean).join(' · ') || r.id)}</b> <span class="num">${num(Number(r.remain))}</span>
       <small>таблица Лены, ${esc(r.id)} · ${r.stageReg === 'Обсуждаем' ? 'прогноз' : r.stageReg === 'Пришло по Лене' ? 'менеджер отметил «Оплачено», по выписке нет' : 'гарант, ждём оплату'} · за ${esc((r.month || '').slice(5, 7) + '.' + (r.month || '').slice(0, 4))}</small></span></div>`;
     const card = (c) => `<div class="lc"><div class="lc-h"><b>${esc(c.name)}</b><span class="lc-m">${c.money ? 'ждём ' + num(c.money) : ''}</span></div>
       <div class="lc-s">${[c.tasks.length ? plural(c.tasks.length, 'дело', 'дела', 'дел') : '', c.lena ? `ход за Леной: ${c.lena}` : '', c.client ? `ждём клиента: ${c.client}` : '', `последнее движение: ${mvTxt(c.mv)}`].filter(Boolean).join(' · ')}</div>
-      ${c.paid.map((r) => `<div class="lc-r g"><span><b>${esc([r.service, r.doc].filter(Boolean).join(' · ') || r.id)}</b> <span class="num">✓ ${num(Number(r.amount))}</span><small>${esc(r.id)} · ${esc(OZ.get(r.id))}</small></span></div>`).join('')}${c.gar.map(gRow).join('')}${c.tasks.sort(byDue2).map(tRow).join('')}${c.ask.length ? `<div class="lc-q">Вопрос в таблице Лены: ${c.ask.map((r) => esc(r.id + (r.doc ? ' (' + r.doc + ')' : ''))).join(', ')}</div>` : ''}</div>`;
+      ${c.paid.map((r) => `<div class="lc-r g"><span><b>${esc([r.service, r.doc].filter(Boolean).join(' · ') || r.id)}</b> <span class="num">✓ ${num(Number(r.amount))}</span><small>${esc(r.id)} · ${esc(OZ.get(r.id))}</small></span></div>`).join('')}${(() => { const W = [...c.gar.map((r) => ({h: gRow(r), a: Number(r.remain) || 0, d: -1})), ...c.tasks.map((t) => ({h: tRow(t), a: t.a || 0, d: t.dd ?? 999}))].sort((p, q) => (q.a - p.a) || (p.d - q.d));
+        return W.slice(0, 3).map((w) => w.h).join('') + (W.length > 3 ? `<details class="lc-more"><summary class="hint">ещё ${plural(W.length - 3, 'работа', 'работы', 'работ')}</summary>${W.slice(3).map((w) => w.h).join('')}</details>` : ''); })()}${c.ask.length ? `<div class="lc-q">Вопрос в таблице Лены: ${c.ask.map((r) => esc(r.id + (r.doc ? ' (' + r.doc + ')' : ''))).join(', ')}</div>` : ''}</div>`;
     G.filter((r) => OZ.has(r.id)).forEach((r) => add(r.client, 'paid', r));
     const list = (L, k) => L.length ? `<details class="sec lc-x"><summary><b>${k} · ${L.length}</b></summary>${L.map(({t, why}) => `<div class="lc-r"><b>${esc(niceCl(t.cl || t.client))}: ${esc(t.short || t.title)}</b><small>${esc(why)}</small></div>`).join('')}</details>` : '';
     return `<section class="sec lena-top"><div class="sh"><h2>Клиенты Лены</h2><span class="c">${plural(cards.length, 'клиент', 'клиента', 'клиентов')} в работе · ждём денег ${num(tot)}</span></div>
       <div class="hint">Зачем блок: по каждому клиенту Лены видно, что в работе, сколько денег ждём и за кем следующий шаг. Деньги — строки таблицы Лены, оплата засчитывается только по выписке. Дела — из db, их сверяет ветка «Клиенты Лены». Убранное («не наш» по словам Лены, без движения больше 14 дней) — внизу.</div>
       <div class="tools">${FL.map(([k, l, f]) => `<button class="chip" data-lf="${k}" aria-pressed="${lf === k}">${l} · ${cards.filter(f).length}</button>`).join('')}</div></section>
-      <div class="lcs">${shown.length ? shown.map(card).join('') : '<div class="empty"><b>По этому фильтру клиентов нет</b></div>'}</div>
+      ${offN ? `<div class="hint" style="padding:0 0 8px;color:var(--warn)">У ${plural(offN, 'дела', 'дел', 'дел')} шаг и отметка «за кем ход» расходятся — помечены «ход сверить», передано ветке «Задачи Лены».</div>` : ''}
+      <div class="lcs">${shown.length ? shown.map(card).join('') : '<div class="empty"><b>Крупных клиентов по этому фильтру нет</b></div>'}</div>${smallHTML()}
       ${list(gone, 'Убрано: Лена сказала «не наш» или «не делаем»')}${list(old, 'Устарело: без движения больше 14 дней')}`;
   }
   const byDue2 = (a, b) => (a.dd ?? 999) - (b.dd ?? 999);
@@ -1661,7 +1679,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       <div><small>Свободно у РЭИ</small><b>${free !== null ? rubX(free) : 'не считаю'}</b><small>${free !== null ? `счёт + вклады${resvSum ? ' − отложено под себестоимость' : ''}` : 'нет выписки или вкладов'}</small></div>
       <div><small>Счёт Альфа РЭИ *7370</small><b>${alfa ? rubX(alfa.close) : 'нет данных'}</b><small>${alfa ? 'остаток на ' + asOf : ''}</small></div>
       <div><small>Вклады РЭИ</small><b>${VK ? rubX(VK.total) : 'нет данных'}</b><small>${VK ? VK.rows.map((r) => `${esc(r.account)} ${rubX(r.amount)} с ${dmY(r.since)}`).join(' · ') : 'файл svodka/vklady.json не получен'}</small></div>
-      ${resv.length ? `<div class="pf-w"><small>Отложено под себестоимость</small><b>${rubX(resvSum)}</b><small>${resv.map((r) => `${esc(r.account)}: ${esc(r.reserved)}`).join('; ')}. Вывод Бухгалтерии, подтвердите</small></div>` : ''}
+      ${resv.length ? `<div class="pf-w"><small>Отложено под себестоимость</small><b>${rubX(resvSum)}</b><small>${resv.map((r) => `${esc(r.account)}: ${esc(r.reserved)}`).join("; ")}</small></div>` : ''}
       <div><small>Точка ИП *3698</small><b>${tochka ? rubX(tochka.close) : 'нет данных'}</b><small>отдельно от РЭИ</small></div></div>
       ${VK && VK.note ? `<div class="hint" style="padding-top:6px">${esc(VK.note)}</div>` : ''}</section>`;
     // ---- куда ушли деньги ----
