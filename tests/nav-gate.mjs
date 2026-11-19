@@ -112,6 +112,20 @@ for (const [vp, size] of [['ПК 1440', {width: 1440, height: 900}], ['теле�
     o = await opened(p2, it); check(vp, `«${it.label}»: прямая ссылка #${it.tab}`, !o, o || 'открывается');
     await p2.close();
   }
+  // 19.11 (Ольга, Шторм п.3): дело, сверенное с источником за 3 дня, не помечается «не сверено»
+  if (!phone) {
+    const SV = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'svodka.json'), 'utf8'));
+    const today = (SV.updated || '').slice(0, 10), d3 = new Date(Date.parse(today) - 3 * 864e5).toISOString().slice(0, 10);
+    const freshIds = (SV.tasks || []).filter((t) => t.section === 'Мои клиенты' && String(t.sourceCheckedAt || '').slice(0, 10) >= d3).map((t) => t.id);
+    await p.goto(URL0 + '#my', {waitUntil: 'domcontentloaded'}); await p.waitForTimeout(500);
+    const bad = await p.evaluate((ids) => ids.filter((id) => [...document.querySelectorAll(`[data-id="${id}"]`)].some((el) => /не сверено|сверено \d+ дн назад/.test(el.textContent))), freshIds);
+    check(vp, `«Мои клиенты»: сверенные дела без метки «не сверено» (${freshIds.length})`, !bad.length, bad.length ? 'с меткой: ' + bad.join(', ') : 'верно');
+    // 19.11 (Шторм A1): «ждём денег» одной подписью на Клиентах Лены, Гарантах, Контроле и Бухгалтерии
+    const labels = [];
+    for (const t of ['lena', 'garanty', 'kontrol', 'buh']) { await p.goto(URL0 + '#' + t, {waitUntil: 'domcontentloaded'}); await p.waitForTimeout(400);
+      labels.push(await p.evaluate(() => (/гарант [\d\s\u00a0]+₽ · обсуждаем [\d\s\u00a0]+₽ · по делам [\d\s\u00a0]+₽/.exec(document.body.innerText) || [''])[0])); }
+    check(vp, '«Ждём денег» одинаково на 4 вкладках', labels.every((l) => l && l === labels[0]), labels.join(' | ') || 'подписи нет');
+  }
   check(vp, 'ошибок JavaScript нет', !errs.length, errs.length ? errs.slice(0, 3).join(' | ') : 'нет');
   await ctx.close(); await browser.close();
 }

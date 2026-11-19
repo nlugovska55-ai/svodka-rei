@@ -164,6 +164,8 @@ SPISANIYA_JSON = "/mnt/project-files/daily-control/svodka/spisaniya.json"
 BUH_PLAN_JSON = "/mnt/project-files/daily-control/svodka/buh-plan.json"
 BANK_JSON = "/mnt/project-files/daily-control/svodka/bank-oboroty.json"
 BANK_MONTH_JSON = "/mnt/project-files/daily-control/svodka/bank-mesyac.json"
+RASHODY_JSON = "/mnt/project-files/daily-control/svodka/rashody-mesyac.json"
+VKLADY_JSON = "/mnt/project-files/daily-control/svodka/vklady.json"
 INCOME_JSON = "/mnt/project-files/daily-control/kontrol/runs/income.json"
 KONTROL_DIR = "/mnt/project-files/daily-control/kontrol"
 BUH_PLANS = {
@@ -205,7 +207,12 @@ def spisaniya():
                      # кем подтверждена оплата: ensConfirmed (выписка ФНС «Операции ЕНП») или явное confirmedBy; слова Ольги — не подтверждение
                      "confirmedBy": r.get("confirmedBy") or ("ФНС" if r.get("paid") and r.get("ensConfirmed") else ""),
                      "paidOn": iso_date(r.get("ensDate") or r.get("paidOn")), "plan": iso_date(r.get("planDate") or r.get("plan")),
-                     "basis": r.get("ensBasis") or "", "bankNote": r.get("bankNote") or "", "bankCheck": r.get("bankCheck") or ""})
+                     "basis": r.get("ensBasis") or "", "bankNote": r.get("bankNote") or "", "bankCheck": r.get("bankCheck") or "",
+                     "superseded": bool(r.get("superseded"))})
+        # 19.11 (Шторм п.17): Ольга решила не платить — не обязательное списание и не просрочка, а «отложено решением Ольги»
+        x = rows[-1]
+        if not x["paid"] and x["kind"] != "reference" and re.search(r"не платим|отложен", x["state"], re.I):
+            x["kind"], x["state"] = "reference", "отложено решением Ольги: " + x["state"]
     rows.sort(key=lambda r: r["date"])
     return {"built": p.get("built", ""), "note": p.get("note", ""), "confirmedNote": p.get("confirmed_note", ""), "rows": rows}
 
@@ -299,6 +306,112 @@ def bank_month():
         p = json.load(fh)
     accs = [a for a in p.get("accounts", []) if a.get("account") and isinstance(a.get("in"), (int, float))]
     return {**p, "accounts": accs} if accs else None
+
+
+# 19.11 (Ольга): куда ушли деньги — статьи расходов за месяц и за три месяца. Не расходы (свои вклады,
+# переводы ИП и Ольге, наличные) считаются отдельно и в диаграмму не входят.
+STATYI = [
+    ("Свои вклады", False, r"вклад|депозит"),
+    ("Переводы ИП Пономаренко", False, r"^ИП Пономаренко$|^Пономаренко$"),
+    ("Подотчёт, наличные, переводы Ольге", False, r"подотч|Луговск|наличн|\*3081|P2P|^списание$"),
+    ("Налоги и взносы", True, r"ЕНП|налог|НДФЛ|ФНС|СФР|взнос"),
+    ("Зарплата", True, r"^ЗП|зарплат|отпускн|Бородай"),
+    ("Подрядчики и эксперты", True, r"ИПБ|Подоприхин|АП-Риал|Дельта|Малышкин|АЙСТАНДАРТ|Айстандарт|эксперт|ГЕРЦ|МУЦ|Оксененко|СТРОЙКОНСАЛТ"),
+    ("Связь, IT и софт", True, r"СИПНЕТ|Сипнет|SIPNET|Грушко|сисадмин|АДВАНСДОКС|Контур|СОФТ-ТРЕЙД|РЕГАРД"),
+    ("Аренда", True, r"Утешева|аренд|ГЛАВУПДК"),
+    ("Бухуслуги", True, r"Лариса|Четвергова|бухуслуг"),
+    ("Доставка", True, r"СДЭК|Ольховский|доставк|ДПД|DPD"),
+    ("Командировки", True, r"Интернет Трэвел|Ozon Travel|билет|гостиниц"),
+    ("Комиссии банка", True, r"комисси|услуги банков"),
+]
+
+
+def statya(text):
+    for name, exp, rx in STATYI:
+        if re.search(rx, text or "", re.I):
+            return name, exp
+    return "Прочее", True
+
+
+def _ymd(v):
+    v = str(v or "")
+    m = re.match(r"^(\d\d)\.(\d\d)\.(\d{4})", v)
+    return f"{m.group(3)}-{m.group(2)}-{m.group(1)}" if m else v[:10]
+
+
+def rashody(sp=None, bm=None, today=None, vk=None):
+    """Расходы по статьям: строки Бухгалтерии (rashody-mesyac.json) + оплаченные строки реестра списаний,
+    которых в них нет (та же сумма в том же месяце = одна оплата). Нет ни того, ни другого — None."""
+    rows = []
+    if os.path.exists(RASHODY_JSON):
+        with open(RASHODY_JSON, encoding="utf-8-sig") as fh:
+            p = json.load(fh)
+        for r in p.get("rows", []):
+            if isinstance(r.get("amount"), (int, float)) and r.get("date"):
+                rows.append({"date": r["date"], "who": r.get("who", ""), "amount": float(r["amount"]), "account": r.get("account", ""), "basis": r.get("basis", ""), "kind": r.get("kind") or "", "src": "выписка"})
+        cov = p.get("coverage", "")
+    else:
+        p, cov = {}, ""
+    have = {(r["date"][:7], round(r["amount"], 2)) for r in rows}
+    for r in (sp or {}).get("rows", []):
+        if r.get("kind") == "reference" or not r.get("paid") or r.get("superseded") or not isinstance(r.get("amount"), (int, float)):
+            continue
+        d = _ymd(r.get("paidOn") or r.get("date"))
+        k = (d[:7], round(float(r["amount"]), 2))
+        if k in have:
+            continue
+        have.add(k)
+        who = r.get("what", "") if r.get("who") in ("РЭИ", "", None) else f"{r.get('who')}: {r.get('what', '')}"
+        rows.append({"date": d, "who": who, "amount": float(r["amount"]), "account": "", "basis": "реестр списаний" + (", по выписке" if r.get("bankConfirmed") else ""), "src": "реестр"})
+    for r in (vk or {}).get("rows", []):
+        k = ((r.get("since") or "")[:7], round(float(r["amount"]), 2))
+        if r.get("since") and k not in have:
+            have.add(k)
+            rows.append({"date": r["since"], "who": f"свой вклад {r.get('account', '')}", "amount": float(r["amount"]), "account": "Альфа РЭИ *7370", "basis": r.get("deal", ""), "src": "вклады"})
+    if not rows:
+        return None
+    months, orgs = {}, {}
+    KIND = {"vklad": ("Свои вклады", False), "vnutr": ("Переводы ИП Пономаренко", False), "zp": ("Зарплата", True), "podotchet": ("Подотчёт, наличные, переводы Ольге", False)}
+    today_s = today or datetime.now(timezone(timedelta(hours=3))).date().isoformat()
+    for r in rows:
+        if r["date"] > today_s:  # сводная строка за месяц (например ЗП) не может стоять будущим числом
+            r["basis"] = (r.get("basis") or "") + f" · за месяц, дата в файле {r['date'][8:10]}.{r['date'][5:7]}"
+            r["date"] = today_s
+        name, exp = KIND.get(r.get("kind")) or statya(r["who"] + " " + r.get("basis", ""))
+        if re.search(r"командир|подотч[её]т.*(поездк|команд)", r["who"] + " " + r.get("basis", ""), re.I):
+            name, exp = "Командировки", True
+        if "Точка" in r.get("account", "") and name in ("Подотчёт, наличные, переводы Ольге", "Прочее") and re.search(r"3081|наличн|снят|P2P|Луговск|карт", r["who"] + " " + r.get("basis", ""), re.I):
+            name, exp = "Личные изъятия ИП (Точка)", False
+        r["statya"], r["expense"] = name, exp
+        r["org"] = "ИП" if "Точка" in r.get("account", "") else "РЭИ"
+        mo = orgs.setdefault(r["org"], {}).setdefault(r["date"][:7], {"exp": 0.0, "non": 0.0, "by": {}})
+        mo["exp" if exp else "non"] += r["amount"]
+        mo["by"][name] = round(mo["by"].get(name, 0) + r["amount"], 2)
+        m = months.setdefault(r["date"][:7], {"exp": 0.0, "non": 0.0, "by": {}})
+        m["exp" if exp else "non"] += r["amount"]
+        m["by"][name] = round(m["by"].get(name, 0) + r["amount"], 2)
+    for m in list(months.values()) + [x for o in orgs.values() for x in o.values()]:
+        m["exp"], m["non"] = round(m["exp"], 2), round(m["non"], 2)
+    # сколько списано по выпискам за текущий месяц и сколько из этого ещё не разнесено по статьям
+    gap = None
+    if bm and bm.get("accounts"):
+        cur = (today or datetime.now(timezone(timedelta(hours=3))).date().isoformat())[:7]
+        out = round(sum(a.get("out") or 0 for a in bm["accounts"]), 2)
+        known = round(months.get(cur, {}).get("exp", 0) + months.get(cur, {}).get("non", 0), 2)
+        gap = {"month": cur, "period": bm.get("period", ""), "out": out, "known": known, "rest": round(out - known, 2)}
+    rows.sort(key=lambda r: r["date"], reverse=True)
+    return {"asOf": p.get("asOf", ""), "coverage": cov, "months": months, "orgs": orgs, "rows": rows, "gap": gap,
+            "statyi": [n for n, e, _ in STATYI if e] + ["Прочее"], "src": "svodka/rashody-mesyac.json + svodka/spisaniya.json"}
+
+
+def vklady():
+    """Вклады РЭИ (ведёт «Бухгалтерия»): счёт, сумма, с какого дня, под что отложено; нет файла — None."""
+    if not os.path.exists(VKLADY_JSON):
+        return None
+    with open(VKLADY_JSON, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    rows = [r for r in p.get("rows", []) if isinstance(r.get("amount"), (int, float))]
+    return {**p, "rows": rows, "total": round(sum(r["amount"] for r in rows), 2)} if rows else None
 
 
 def income():
@@ -806,6 +919,15 @@ def garanty(tasks, bank):
     acc = os.path.join(GARANTY_DIR, "access.json")  # доступ Лены к таблице: пишем только после решения Ольги
     access = json.load(open(acc, encoding="utf-8-sig")) if os.path.exists(acc) else {}
     pcheck = portal_check(rows)
+    # 19.11: оплаты, подтверждённые сверкой по порталу или выписке вне месяца строки (перенос аванса между заказами и т.п.):
+    # svodka/garanty-oplacheno.json {"G-0222": {"proof": "...", "by": "..."}} — строка гасится с доказательством
+    gok = os.path.join(os.path.dirname(SPISANIYA_JSON), "garanty-oplacheno.json")
+    if os.path.exists(gok):
+        with open(gok, encoding="utf-8-sig") as fh:
+            okmap = json.load(fh)
+        for r in rows:
+            if r.get("id") in okmap and isinstance(okmap[r["id"]], dict):
+                r["remain"], r["status"], r["proof"] = 0, "оплачено (сверка)", okmap[r["id"]].get("proof", "")
     return {"connected": True, "portalCheck": pcheck, "live": bool((snap.get("source") or {}).get("live")), "status": st, "access": access, "importedAt": snap.get("importedAt", ""), "source": snap.get("source", {}),
             "format": snap.get("format", ""), "months": snap.get("months", {}),
             "bankCovered": sorted({(d["account"], d["date"]) for d in (bank or {}).get("days", [])}), "rows": rows}
@@ -1158,10 +1280,15 @@ def main():
     parser.add_argument("--allow-at-limit", action="store_true", help="Все страницы tasks выгружены и полнота проверена")
     args = parser.parse_args()
     db_dir, summary_path, out = args.db_dir, args.summary_path, args.out
-    tasks, closed_ids = [], set()
+    tasks, closed_ids, closed_my = [], set(), []
     for t in read_export(db_dir, args.allow_at_limit):
         if t["status"] not in ACTIVE_STATUSES:
             closed_ids.add(t["id"])
+            # 19.11 (Ольга): закрытые работы её клиентов — видно, чем закончилось (в т.ч. «закрыто без оплаты»)
+            if section_of(t) == "Мои клиенты":
+                closed_my.append({"id": t["id"], "client": t.get("who") or "", "title": t.get("title") or "", "short": (t.get("short") or "").strip()[:70],
+                                  "equipment": t.get("equipment") or "", "status": t["status"], "closeReason": t.get("closeReason") or "",
+                                  "paid": bool(t.get("paid")), "at": t.get("closedAt") or t.get("updatedAt") or t.get("lastMove") or ""})
             continue
         if PON.search(str(t.get("who") or "")):
             continue  # дела самого ИП Пономаренко (налоги, справки) на пульт не идут; поступления ему от клиентов — в банке
@@ -1208,6 +1335,9 @@ def main():
             # sourceCheckedAt — ISO с часовым поясом, когда первичку прочитали; sourceEvidence — журнал/ссылка на это чтение;
             # updatedAt — когда правили карточку (редакция не делает дело сверенным)
             "sourceCheckedAt": t.get("sourceCheckedAt") or "",
+            "equipment": t.get("equipment") or "",  # 19.11: оборудование в названии работы, как в теме письма
+            "shared": bool(t.get("shared")), "lead": t.get("lead") or "",
+            "stage": t.get("stage") or "",  # этап по §48  # 19.11: общий клиент Ольги и Лены
             "sourceEvidence": t.get("sourceEvidence") or "",
             "updatedAt": t.get("updatedAt") or "",
             # Деньги: одна операция только по явному id; без него одинаковые суммы — «возможный дубль»
@@ -1236,6 +1366,7 @@ def main():
     data = {
         "updated": datetime.now(MSK).strftime("%Y-%m-%dT%H:%M:%S+03:00"),
         "tasks": tasks,
+        "closed_my": sorted(closed_my, key=lambda x: str(x["at"]), reverse=True)[:30],
         "summary": summary,
         "lena_clients": lena_clients(tasks),
         "lena_excluded": lena_excluded(),
@@ -1259,6 +1390,11 @@ def main():
     data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "bank": bank, "buh_sources": buh_sources(sp, bs, bp, bank)})
     data["garanty"] = garanty(tasks, bank)
     data["bank_month"] = bank_month()
+    data["vklady"] = vklady()
+    # 19.11 (Ольга): общие клиенты Ольги и Лены — справочник, а не ручной section в каждой задаче
+    obsh = os.path.join(os.path.dirname(SPISANIYA_JSON), "klienty-obshchie.json")
+    data["shared_clients"] = json.load(open(obsh, encoding="utf-8-sig")).get("clients", []) if os.path.exists(obsh) else []
+    data["rashody"] = rashody(sp, data["bank_month"], vk=data["vklady"])
     data["platezhi"] = platezhi()
     data["garanty_changes"] = garanty_changes()
     data["ozhidaem"] = ozhidaem(data["garanty"], tasks, vyp=vypiska())
