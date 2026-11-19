@@ -51,7 +51,8 @@ const URL0 = `http://127.0.0.1:${server.address().port}/`;
 async function launch() {
   try {
     const sp = (await import('@sparticuz/chromium')).default, {chromium} = await import('playwright-core');
-    return await chromium.launch({executablePath: await sp.executablePath(), args: sp.args, headless: true});
+    // --single-process: закрытие контекста гасит весь браузер (сборка 19.11 упала на newPage) — без него
+    return await chromium.launch({executablePath: await sp.executablePath(), args: sp.args.filter((x) => !/^--(single-process|no-zygote)$/.test(x)), headless: true});
   } catch (e) {
     console.log('@sparticuz/chromium не запустился: ' + (e && e.stack || e) + ' | node ' + process.version + ' | VERCEL=' + (process.env.VERCEL || ''));
     const {chromium} = require('playwright');  // локально; в сборке Vercel его нет — тогда проверка падает и выпуск блокируется
@@ -87,8 +88,8 @@ const opened = (p, it) => p.evaluate(({tab, must}) => {
   return '';
 }, {tab: it.tab, must: it.must ? [it.must.source, it.must.flags] : null});
 
-const browser = await launch();
 for (const [vp, size] of [['ПК 1440', {width: 1440, height: 900}], ['телефон 390', {width: 390, height: 844}]]) {
+  const browser = await launch();  // свой браузер на каждый экран
   const phone = size.width < 820, req = REQUIRED.filter((x) => !phone || x.phone);
   const ctx = await browser.newContext({viewport: size, isMobile: phone, hasTouch: phone});
   const p = await ctx.newPage(), errs = []; p.on('pageerror', (e) => errs.push(e.message));
@@ -110,9 +111,9 @@ for (const [vp, size] of [['ПК 1440', {width: 1440, height: 900}], ['теле�
     await p2.close();
   }
   check(vp, 'ошибок JavaScript нет', !errs.length, errs.length ? errs.slice(0, 3).join(' | ') : 'нет');
-  await ctx.close();
+  await ctx.close(); await browser.close();
 }
-await browser.close(); server.close();
+server.close();
 const out = {at: new Date().toISOString(), mutate: MUTATE || null, passed: log.length - fails.length, failed: fails.length, fails};
 try { fs.writeFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), 'nav-gate-last.json'), JSON.stringify({...out, log}, null, 1)); } catch (e) {}
 console.log(fails.length ? `\nПРОВЕРКА НАВИГАЦИИ НЕ ПРОЙДЕНА: ${fails.length} из ${log.length}. Выпуск заблокирован.` : `\nПроверка навигации пройдена: ${log.length} из ${log.length}.`);
