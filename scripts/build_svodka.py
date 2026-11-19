@@ -310,13 +310,14 @@ STATYI = [
     ("Переводы ИП Пономаренко", False, r"^ИП Пономаренко$|^Пономаренко$"),
     ("Подотчёт, наличные, переводы Ольге", False, r"подотч|Луговск|наличн|\*3081|P2P|^списание$"),
     ("Налоги и взносы", True, r"ЕНП|налог|НДФЛ|ФНС|СФР|взнос"),
-    ("Зарплата", True, r"^ЗП|зарплат|отпускн"),
-    ("Подрядчики и эксперты", True, r"ИПБ|Подоприхин|АП-Риал|Дельта|Малышкин|АЙСТАНДАРТ|Айстандарт|эксперт"),
-    ("Связь и IT", True, r"СИПНЕТ|Сипнет|SIPNET|Грушко|сисадмин|АДВАНСДОКС"),
-    ("Аренда", True, r"Утешева|аренд"),
+    ("Зарплата", True, r"^ЗП|зарплат|отпускн|Бородай"),
+    ("Подрядчики и эксперты", True, r"ИПБ|Подоприхин|АП-Риал|Дельта|Малышкин|АЙСТАНДАРТ|Айстандарт|эксперт|ГЕРЦ|МУЦ|Оксененко|СТРОЙКОНСАЛТ"),
+    ("Связь, IT и софт", True, r"СИПНЕТ|Сипнет|SIPNET|Грушко|сисадмин|АДВАНСДОКС|Контур|СОФТ-ТРЕЙД|РЕГАРД"),
+    ("Аренда", True, r"Утешева|аренд|ГЛАВУПДК"),
     ("Бухуслуги", True, r"Лариса|Четвергова|бухуслуг"),
-    ("Доставка", True, r"СДЭК|Ольховский|доставк"),
-    ("Комиссии банка", True, r"комисси"),
+    ("Доставка", True, r"СДЭК|Ольховский|доставк|ДПД|DPD"),
+    ("Командировки", True, r"Интернет Трэвел|Ozon Travel|билет|гостиниц"),
+    ("Комиссии банка", True, r"комисси|услуги банков"),
 ]
 
 
@@ -342,7 +343,7 @@ def rashody(sp=None, bm=None, today=None, vk=None):
             p = json.load(fh)
         for r in p.get("rows", []):
             if isinstance(r.get("amount"), (int, float)) and r.get("date"):
-                rows.append({"date": r["date"], "who": r.get("who", ""), "amount": float(r["amount"]), "account": r.get("account", ""), "basis": r.get("basis", ""), "src": "выписка"})
+                rows.append({"date": r["date"], "who": r.get("who", ""), "amount": float(r["amount"]), "account": r.get("account", ""), "basis": r.get("basis", ""), "kind": r.get("kind") or "", "src": "выписка"})
         cov = p.get("coverage", "")
     else:
         p, cov = {}, ""
@@ -364,14 +365,21 @@ def rashody(sp=None, bm=None, today=None, vk=None):
             rows.append({"date": r["since"], "who": f"свой вклад {r.get('account', '')}", "amount": float(r["amount"]), "account": "Альфа РЭИ *7370", "basis": r.get("deal", ""), "src": "вклады"})
     if not rows:
         return None
-    months = {}
+    months, orgs = {}, {}
+    KIND = {"vklad": ("Свои вклады", False), "vnutr": ("Переводы ИП Пономаренко", False), "zp": ("Зарплата", True)}
     for r in rows:
-        name, exp = statya(r["who"])
+        name, exp = KIND.get(r.get("kind")) or statya(r["who"] + " " + r.get("basis", ""))
+        if "Точка" in r.get("account", "") and name in ("Подотчёт, наличные, переводы Ольге", "Прочее") and re.search(r"3081|наличн|снят|P2P|Луговск|карт", r["who"] + " " + r.get("basis", ""), re.I):
+            name, exp = "Личные изъятия ИП (Точка)", False
         r["statya"], r["expense"] = name, exp
+        r["org"] = "ИП" if "Точка" in r.get("account", "") else "РЭИ"
+        mo = orgs.setdefault(r["org"], {}).setdefault(r["date"][:7], {"exp": 0.0, "non": 0.0, "by": {}})
+        mo["exp" if exp else "non"] += r["amount"]
+        mo["by"][name] = round(mo["by"].get(name, 0) + r["amount"], 2)
         m = months.setdefault(r["date"][:7], {"exp": 0.0, "non": 0.0, "by": {}})
         m["exp" if exp else "non"] += r["amount"]
         m["by"][name] = round(m["by"].get(name, 0) + r["amount"], 2)
-    for m in months.values():
+    for m in list(months.values()) + [x for o in orgs.values() for x in o.values()]:
         m["exp"], m["non"] = round(m["exp"], 2), round(m["non"], 2)
     # сколько списано по выпискам за текущий месяц и сколько из этого ещё не разнесено по статьям
     gap = None
@@ -381,7 +389,7 @@ def rashody(sp=None, bm=None, today=None, vk=None):
         known = round(months.get(cur, {}).get("exp", 0) + months.get(cur, {}).get("non", 0), 2)
         gap = {"month": cur, "period": bm.get("period", ""), "out": out, "known": known, "rest": round(out - known, 2)}
     rows.sort(key=lambda r: r["date"], reverse=True)
-    return {"asOf": p.get("asOf", ""), "coverage": cov, "months": months, "rows": rows, "gap": gap,
+    return {"asOf": p.get("asOf", ""), "coverage": cov, "months": months, "orgs": orgs, "rows": rows, "gap": gap,
             "statyi": [n for n, e, _ in STATYI if e] + ["Прочее"], "src": "svodka/rashody-mesyac.json + svodka/spisaniya.json"}
 
 
@@ -1252,10 +1260,15 @@ def main():
     parser.add_argument("--allow-at-limit", action="store_true", help="Все страницы tasks выгружены и полнота проверена")
     args = parser.parse_args()
     db_dir, summary_path, out = args.db_dir, args.summary_path, args.out
-    tasks, closed_ids = [], set()
+    tasks, closed_ids, closed_my = [], set(), []
     for t in read_export(db_dir, args.allow_at_limit):
         if t["status"] not in ACTIVE_STATUSES:
             closed_ids.add(t["id"])
+            # 19.11 (Ольга): закрытые работы её клиентов — видно, чем закончилось (в т.ч. «закрыто без оплаты»)
+            if section_of(t) == "Мои клиенты":
+                closed_my.append({"id": t["id"], "client": t.get("who") or "", "title": t.get("title") or "", "short": (t.get("short") or "").strip()[:70],
+                                  "equipment": t.get("equipment") or "", "status": t["status"], "closeReason": t.get("closeReason") or "",
+                                  "paid": bool(t.get("paid")), "at": t.get("closedAt") or t.get("updatedAt") or t.get("lastMove") or ""})
             continue
         if PON.search(str(t.get("who") or "")):
             continue  # дела самого ИП Пономаренко (налоги, справки) на пульт не идут; поступления ему от клиентов — в банке
@@ -1302,6 +1315,7 @@ def main():
             # sourceCheckedAt — ISO с часовым поясом, когда первичку прочитали; sourceEvidence — журнал/ссылка на это чтение;
             # updatedAt — когда правили карточку (редакция не делает дело сверенным)
             "sourceCheckedAt": t.get("sourceCheckedAt") or "",
+            "equipment": t.get("equipment") or "",  # 19.11: оборудование в названии работы, как в теме письма
             "sourceEvidence": t.get("sourceEvidence") or "",
             "updatedAt": t.get("updatedAt") or "",
             # Деньги: одна операция только по явному id; без него одинаковые суммы — «возможный дубль»
@@ -1330,6 +1344,7 @@ def main():
     data = {
         "updated": datetime.now(MSK).strftime("%Y-%m-%dT%H:%M:%S+03:00"),
         "tasks": tasks,
+        "closed_my": sorted(closed_my, key=lambda x: str(x["at"]), reverse=True)[:30],
         "summary": summary,
         "lena_clients": lena_clients(tasks),
         "lena_excluded": lena_excluded(),

@@ -1191,15 +1191,22 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       return we ? (lm ? `без движения ${lm} дн` : 'нужно взять в работу') : `клиент молчит ${lm || 0} дн — напомнить`; };
     const CAN = [[/gea|геа/i, 'ГЕА'], [/вкусвилл|вёшки|аглая/i, 'ВкусВилл'], [/логика молока|эйч/i, 'Логика молока'], [/тамбов/i, 'Тамбовская индейка'], [/виртекс/i, 'Виртекс'], [/востряково/i, 'Востряково-2']];
     const clOf = (t) => { const hit = CAN.find(([re]) => re.test(String(t.client || '') + ' ' + String(t.title || '') + ' ' + String(t.short || ''))); return hit ? hit[1] : niceCl(t.client) || 'Без клиента'; };
+    // 19.11 (Ольга): актуальность — когда работу последний раз сверяли с источником (почта, портал); старше 3 дней — на перепроверку
+    const chkAge = (t) => { const d = ymdOf(t.sourceCheckedAt); return d ? daysAgo(d) : null; };
+    const fresh = (t) => { const n = chkAge(t); return n === null ? '<span class="pill p-warn">не сверено</span>' : n > 3 ? `<span class="pill p-warn">сверено ${n} дн назад</span>` : ''; };
+    const staleN = L.filter((t) => { const n = chkAge(t); return n === null || n > 3; }).length;
+    const CL = (D.closed_my || []).filter((x) => { const d = ymdOf(x.at); return d && daysAgo(d) <= 14; });
+    const closedHTML = CL.length ? `<section class="sec my"><details class="rows" style="padding:8px 14px"><summary><b>Закрыто за 2 недели: ${CL.length}</b> <span class="hint">чем закончилось</span></summary>${CL.map((x) => { const np = x.status === 'cancelled' || x.status === 'canceled' || /без оплаты/i.test(x.closeReason); return `<div class="cd"><span class="dt">${dmY(ymdOf(x.at))}</span><span class="wt"><span class="kd ${np ? 'ref' : 'in'}">${np ? 'закрыто без оплаты' : x.paid ? 'оплачено, закрыто' : 'закрыто'}</span><b>${esc(clOf(x))}</b> · ${x.equipment ? esc(x.equipment) + ': ' : ''}${esc(x.short || x.title)}${x.closeReason ? `<small>${esc(x.closeReason)}</small>` : ''}</span><span class="num"></span></div>`; }).join('')}</details></section>` : '';
     const R = L.map((t) => ({t, a: attn(t), s: side(t)}));
     const hot = R.filter((x) => x.a <= y).sort((p, q) => (p.s === 'we' ? 0 : 1) - (q.s === 'we' ? 0 : 1) || p.a.localeCompare(q.a));
-    const row = ({t, a, s}, showCl) => { const [pc, pt] = SIDE[s]; return `<div class="rw sr" data-id="${esc(t.id)}"><div class="row"><button class="st" data-open><b>${showCl ? esc(clOf(t)) + ' — ' : ''}${esc(t.short || t.title)}</b><span><span class="pill ${pc}">${pt}</span> ${a <= y ? `<span class="pill p-warn">${esc(why(t))}</span>` : `<span class="hint">внимание ${dmY(a)}</span>`} <span class="hint">этап: ${esc(t.stage || 'не указан')}${t.expert ? ' · делает эксперт' : ''}</span></span>${t.next ? `<small class="smeta">Шаг: ${esc(String(t.next).slice(0, 160))}</small>` : ''}</button></div></div>`; };
+    const row = ({t, a, s}, showCl) => { const [pc, pt] = SIDE[s]; return `<div class="rw sr" data-id="${esc(t.id)}"><div class="row"><button class="st" data-open><b>${showCl ? esc(clOf(t)) + ' — ' : ''}${t.equipment ? esc(t.equipment) + ': ' : ''}${esc(String(t.short || t.title).replace(new RegExp('^' + clOf(t).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*[:—-]\\s*', 'i'), ''))}</b><span><span class="pill ${pc}">${pt}</span> ${fresh(t)} ${a <= y ? `<span class="pill p-warn">${esc(why(t))}</span>` : `<span class="hint">внимание ${dmY(a)}</span>`} <span class="hint">этап: ${esc(t.stage || 'не указан')}${t.expert ? ' · делает эксперт' : ''}</span></span>${t.next ? `<small class="smeta">Шаг: ${esc(String(t.next).slice(0, 160))}</small>` : ''}</button></div></div>`; };
     const byCl = new Map(); R.forEach((x) => { const k = clOf(x.t); if (!byCl.has(k)) byCl.set(k, []); byCl.get(k).push(x); });
     const cls = [...byCl.entries()].map(([k, a]) => [k, a.sort((p, q) => (p.s === 'we' ? 0 : 1) - (q.s === 'we' ? 0 : 1) || p.a.localeCompare(q.a)), a.reduce((m, x) => x.a < m ? x.a : m, '9999')]).sort((p, q) => p[2].localeCompare(q[2]));
     return `<section class="sec my"><div class="sh"><h2>Требуют внимания: ${hot.length}</h2><span class="c">сначала работы на нашей стороне; клик — карточка с историей</span></div>
       <div class="rows">${hot.length ? hot.map((x) => row(x, true)).join('') : '<div class="empty"><b>Сейчас ничего не горит</b><span>ближайшие даты — в списке ниже</span></div>'}</div></section>
-      <section class="sec my"><div class="sh"><h2>Мои клиенты: ${cls.length}</h2><span class="c">${plural(L.length, 'работа', 'работы', 'работ')}; порядок — по ближайшему дню внимания</span></div>
-      ${cls.map(([k, a, d]) => `<div class="rows"><div class="gsub"><b>${esc(k)}</b> · ${d <= y ? 'внимание сегодня' : 'внимание ' + dmY(d)} · на нашей стороне ${a.filter((x) => x.s === 'we').length} из ${a.length}</div>${a.map((x) => row(x, false)).join('')}</div>`).join('') || '<div class="empty"><b>Работ нет</b></div>'}</section>`;
+      <section class="sec my"><div class="sh"><h2>Мои клиенты: ${cls.length}</h2><span class="c">${plural(L.length, 'работа', 'работы', 'работ')}; порядок — по ближайшему дню внимания, дальние в конце</span></div>
+      ${staleN ? `<div class="hint" style="padding:0 0 8px;color:var(--warn)">Не сверено с почтой и порталом за 3 дня: ${staleN} из ${L.length}. Такие работы помечены и уходят на перепроверку, старое не выдаётся за актуальное.</div>` : ''}
+      ${cls.map(([k, a, d]) => `<div class="rows"><div class="gsub"><b>${esc(k)}</b> · ${d <= y ? 'внимание сегодня' : 'внимание ' + (d.slice(0, 4) !== y.slice(0, 4) ? dmY(d) + '.' + d.slice(0, 4) : dmY(d))} · на нашей стороне ${a.filter((x) => x.s === 'we').length} из ${a.length}</div>${a.map((x) => row(x, false)).join('')}</div>`).join('') || '<div class="empty"><b>Работ нет</b></div>'}</section>${closedHTML}`;
   }
   function secTab(k) {
     const all0 = T.filter((t) => isOpen(t) && grpOf(t) === k).sort(byUrg);
@@ -1631,6 +1638,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const a = Object.entries(by).filter(([, v]) => v > 0).sort((x, y) => y[1] - x[1]), max = a.length ? a[0][1] : 1, tot = a.reduce((s, x) => s + x[1], 0);
     return `<figure class="bars"><figcaption><b>${title}</b><span class="num">${rubX(Math.round(tot))}</span></figcaption>${a.length ? a.map(([k, v]) => `<div class="br" title="${esc(k)}: ${rubX(v)}, ${Math.round(v / tot * 100)}%"><span class="bl">${esc(k)}</span><span class="bt"><i style="width:${Math.max(2, v / max * 100).toFixed(1)}%"></i></span><span class="bv">${rubX(Math.round(v))}</span></div>`).join('') : '<div class="hint">данных нет</div>'}${note ? `<small class="hint">${note}</small>` : ''}</figure>`;
   }
+  let buhOrg = 'РЭИ';
   function buhTab() {
     const SP = D.spisaniya, rowsSP = SP ? SP.rows.filter((r) => !r.superseded) : [], src = D.buh_sources, tY = FRESH.todayYmd, end = addD(tY, calN), month = tY.slice(0, 7);
     const buhT = T.filter((t) => isOpen(t) && !t.fromSummary && (t.section === 'Бухгалтерия' || t.cat === 'tax')).sort(order);
@@ -1661,16 +1669,17 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     let spent = '';
     if (R) {
       const ms = [2, 1, 0].map((k) => { const d = new Date(Date.parse(month + '-15T12:00:00Z')); d.setUTCMonth(d.getUTCMonth() - k); return d.toISOString().slice(0, 7); });
-      const cur = R.months[month] || {exp: 0, non: 0, by: {}}, isExp = (k) => R.statyi.includes(k);
+      const OM = (R.orgs && R.orgs[buhOrg]) || R.months;
+      const cur = OM[month] || {exp: 0, non: 0, by: {}}, isExp = (k) => R.statyi.includes(k);
       const pick = (by, f) => Object.fromEntries(Object.entries(by || {}).filter(([k]) => f(k)));
-      const three = {}; ms.forEach((m) => Object.entries(pick((R.months[m] || {}).by, isExp)).forEach(([k, v]) => { three[k] = (three[k] || 0) + v; }));
-      const have = ms.filter((m) => R.months[m]).map(monN), miss = ms.filter((m) => !R.months[m]).map(monN);
+      const three = {}; ms.forEach((m) => Object.entries(pick((OM[m] || {}).by, isExp)).forEach(([k, v]) => { three[k] = (three[k] || 0) + v; }));
+      const have = ms.filter((m) => OM[m]).map(monN), miss = ms.filter((m) => !OM[m]).map(monN);
       const non = pick(cur.by, (k) => !isExp(k)), G = R.gap;
-      spent = `<section class="sec"><div class="sh"><h2>Куда ушли деньги</h2><span class="c">только оплаты, найденные в выписках и реестре</span></div>
-        <div class="bars2">${barsHTML(pick(cur.by, isExp), 'Расходы за ' + monN(month), '')}${barsHTML(three, 'За три месяца: ' + ms.map(monN).join(', '), miss.length ? `нет данных за ${miss.join(', ')}${have.length ? '; ' + have.join(', ') + ' — частично' : ''}` : '')}</div>
+      spent = `<section class="sec"><div class="sh"><h2>Куда ушли деньги</h2><span class="c">${R.coverage ? esc(R.coverage) : 'по выпискам'}</span><span style="display:flex;gap:6px;margin-left:auto">${[['РЭИ', 'РЭИ (Альфа)'], ['ИП', 'ИП (Точка)']].map(([k, l]) => `<button class="chip" data-borg="${k}" aria-pressed="${buhOrg === k}">${l}</button>`).join('')}</span></div>
+        <div class="bars2">${barsHTML(pick(cur.by, isExp), 'Расходы за ' + monN(month), '')}${barsHTML(three, 'За три месяца: ' + ms.map(monN).join(', '), miss.length ? `нет данных за ${miss.join(', ')}` : '')}</div>
         ${Object.keys(non).length ? `<div class="hint" style="padding-top:8px">Не расходы, в диаграмму не входят: ${Object.entries(non).map(([k, v]) => `${esc(k)} ${rubX(v)}`).join(' · ')}.</div>` : ''}
         ${G && G.rest > 1 ? `<div class="hint" style="padding-top:4px;color:var(--warn)">По выпискам за ${esc(G.period)} списано ${rubX(G.out)}, по статьям разнесено ${rubX(G.known)}, ещё ${rubX(G.rest)} не разнесено. Бухгалтерия дополнит из карточки 51.</div>` : ''}
-        <details style="padding-top:6px"><summary class="hint">Все оплаты по статьям (${R.rows.length})</summary><div class="rows" style="padding:4px 14px">${R.rows.map((r) => `<div class="cd"><span class="dt">${dmY(r.date)}</span><span class="wt"><span class="kd ${r.expense ? 'task' : 'ref'}">${esc(r.statya)}</span>${esc(r.who)}<small>${esc(r.account || '')}${r.basis ? ' · ' + esc(r.basis) : ''}</small></span><span class="num">${rubX(r.amount)}</span></div>`).join('')}</div></details></section>`;
+        <details style="padding-top:6px"><summary class="hint">Все оплаты ${buhOrg === 'ИП' ? 'ИП' : 'РЭИ'} за ${monN(month)} по статьям</summary><div class="rows" style="padding:4px 14px">${R.rows.filter((r) => (r.org || 'РЭИ') === buhOrg && r.date.slice(0, 7) === month).map((r) => `<div class="cd"><span class="dt">${dmY(r.date)}</span><span class="wt"><span class="kd ${r.expense ? 'task' : 'ref'}">${esc(r.statya)}</span>${esc(r.who)}<small>${esc(r.account || '')}${r.basis ? ' · ' + esc(r.basis) : ''}</small></span><span class="num">${rubX(r.amount)}</span></div>`).join('')}</div></details></section>`;
     } else spent = '<section class="sec"><div class="sh"><h2>Куда ушли деньги</h2></div><div class="hint" style="color:var(--warn)">Файл svodka/rashody-mesyac.json не получен.</div></section>';
     // ---- календарь ----
     const ev = [];
@@ -1849,6 +1858,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     else if (d.act === 'claude' && t) delegate(t);
     else if (d.undo) undoJournal(d.undo);
     else if (d.cal) { calN = +d.cal; render(); }
+    else if (d.borg) { buhOrg = d.borg; render(); }
     else if (d.more) { EXP.has(d.more) ? EXP.delete(d.more) : EXP.add(d.more); render(); }
     else if (d.sf) { sf = d.sf; render(); }
     else if (d.lf) { lf = d.lf; render(); }
