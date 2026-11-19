@@ -677,6 +677,7 @@ def garanty_changes():
 
 
 PORTAL_OPLATY = os.environ.get("PORTAL_OPLATY", "/mnt/project-files/daily-control/svodka/portal-oplaty.json")
+PORTAL_SVODNAYA_MD = os.environ.get("PORTAL_SVODNAYA_MD", "/mnt/project-files/daily-control/svodka/portal-svodnaya.md")
 
 
 def contract_of(text):
@@ -702,9 +703,15 @@ def prev_month(m):
 def portal_check(rows):
     """19.11 (Ольга): гаранты должны всегда сходиться со сводной ведомостью портала. Оплата из портала гасит «ждём» по строке
     (договор + приложение; одна п/п на несколько строк — по сумме). Оплаты Лены (ЕБ) без строки в реестре — список расхождений."""
-    if not os.path.exists(PORTAL_OPLATY):
+    md = PORTAL_SVODNAYA_MD
+    if os.path.exists(md) and (not os.path.exists(PORTAL_OPLATY) or os.path.getmtime(md) > os.path.getmtime(PORTAL_OPLATY)):
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from portal_oplaty import parse  # снимок Браузера свежее json — разбираем его сами, без ручного шага
+        po = parse(open(md, encoding="utf-8").read())
+    elif os.path.exists(PORTAL_OPLATY):
+        po = json.load(open(PORTAL_OPLATY, encoding="utf-8-sig"))
+    else:
         return None
-    po = json.load(open(PORTAL_OPLATY, encoding="utf-8-sig"))
     pays = [dict(x, i=i) for i, x in enumerate(po.get("rows", []))]
     for r in rows:
         r["contract"], r["pril"] = contract_of(r.get("doc"))
