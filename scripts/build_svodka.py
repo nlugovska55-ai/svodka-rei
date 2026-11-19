@@ -1337,7 +1337,8 @@ def main():
             "sourceCheckedAt": t.get("sourceCheckedAt") or "",
             "equipment": t.get("equipment") or "",  # 19.11: оборудование в названии работы, как в теме письма
             "shared": bool(t.get("shared")), "lead": t.get("lead") or "",
-            "stage": t.get("stage") or "",  # этап по §48  # 19.11: общий клиент Ольги и Лены
+            "stage": t.get("stage") or "",  # этап по §48
+            "side": t.get("side") or "",  # МЫ | ОС | КЛИЕНТ | ВЕДОМСТВО — сторона хода (ветка «Проекты»)  # 19.11: общий клиент Ольги и Лены
             "sourceEvidence": t.get("sourceEvidence") or "",
             "updatedAt": t.get("updatedAt") or "",
             # Деньги: одна операция только по явному id; без него одинаковые суммы — «возможный дубль»

@@ -1216,15 +1216,20 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const y = FRESH.todayYmd, L = T.filter((t) => isOpen(t) && (grpOf(t) === 'my' || isShared(t)) && !personal(t));
     const ymdOf = (v) => { const x = String(v || ''); let r = /^(\d{4})-(\d{2})-(\d{2})/.exec(x); if (r) return r[0]; r = /(\d{2})\.(\d{2})(?:\.(\d{4}))?/.exec(x); return r ? (r[3] || FRESH.year) + '-' + r[2] + '-' + r[1] : ''; };
     const lastMv = (t) => [t.updatedAt, t.lastMove, t.sourceCheckedAt, t.checked, t.added].map(ymdOf).filter(Boolean).sort().pop() || '';
-    const side = (t) => { const w = String(t.who || '') + ' ' + String(t.waiting || ''); return /ФСА|РПН|Роспотреб|Ростехнадзор|ведомств/i.test(w + ' ' + (t.next || '').slice(0, 60)) ? 'ved' : /клиент/i.test(w) || (t.wait && !t.expert) ? 'cl' : 'we'; };
-    const SIDE = {we: ['p-hot', 'на нашей стороне'], cl: ['p-wait', 'у клиента'], ved: ['p-wait', 'у ведомства']};
+    // 19.11: сторона из этапа §48 («сторона МЫ / КЛИЕНТ / ВЕДОМСТВО») главнее догадки по тексту
+    const sideSt = (t) => { const m = /сторона\s+(МЫ|КЛИЕНТ|ВЕДОМСТВ)/i.exec(String(t.stage || '')); return m ? ({'мы': 'we', 'клиент': 'cl'}[m[1].toLowerCase()] || 'ved') : ''; };
+    const SF = {'МЫ': 'we', 'ОС': 'os', 'КЛИЕНТ': 'cl', 'ВЕДОМСТВО': 'ved'};
+    const side = (t) => SF[String(t.side || '').toUpperCase()] || sideSt(t) || sideGuess(t);
+    const sideGuess = (t) => { const w = String(t.who || '') + ' ' + String(t.waiting || ''); return /ФСА|РПН|Роспотреб|Ростехнадзор|ведомств/i.test(w + ' ' + (t.next || '').slice(0, 60)) ? 'ved' : /клиент/i.test(w) || (t.wait && !t.expert) ? 'cl' : 'we'; };
+    const SIDE = {we: ['p-hot', 'на нашей стороне'], os: ['p-wait', 'у ОС / эксперта'], cl: ['p-wait', 'у клиента'], ved: ['p-wait', 'у ведомства']};
     const attn = (t) => { const d = taskYmd(t); if (d) return d; const m = lastMv(t); return m ? addD(m, side(t) === 'we' ? 2 : 3) : y; };
     const daysAgo = (d) => d ? Math.round((Date.parse(y) - Date.parse(d)) / 864e5) : null;
     const why = (t) => { const a = attn(t), dd = daysAgo(a), lm = daysAgo(lastMv(t)), we = side(t) === 'we';
-      if (taskYmd(t)) return dd > 0 ? `срок прошёл ${dd} дн назад` : we ? 'срок сегодня' : 'срок сегодня — узнать у клиента';
-      return we ? (lm ? `без движения ${lm} дн` : 'нужно взять в работу') : `клиент молчит ${lm || 0} дн — напомнить`; };
+      if (taskYmd(t)) return dd > 0 ? `срок прошёл ${dd} дн назад` : we ? 'срок сегодня' : 'срок сегодня — узнать ' + (side(t) === 'os' ? 'у ОС' : side(t) === 'ved' ? 'в ведомстве' : 'у клиента');
+      return we ? (lm ? `без движения ${lm} дн` : 'нужно взять в работу') : `${side(t) === 'os' ? 'ОС' : side(t) === 'ved' ? 'ведомство' : 'клиент'} молчит ${lm || 0} дн — напомнить`; };
     const CAN = [[/gea|геа/i, 'ГЕА'], [/вкусвилл|вёшки|аглая/i, 'ВкусВилл'], [/логика молока|эйч/i, 'Логика молока'], [/тамбов/i, 'Тамбовская индейка'], [/виртекс/i, 'Виртекс'], [/востряково/i, 'Востряково-2']];
-    const clOf = (t) => { const hit = CAN.find(([re]) => re.test(String(t.client || '') + ' ' + String(t.title || '') + ' ' + String(t.short || ''))); return hit ? hit[1] : niceCl(t.client) || 'Без клиента'; };
+    const clOf = (t) => { const sh = (D.shared_clients || []).find((c) => { try { return new RegExp(c.match || c.name, 'i').test(String(t.client || '') + ' ' + String(t.title || '') + ' ' + String(t.short || '')); } catch (e) { return false; } }); if (sh) return sh.name;
+      const hit = CAN.find(([re]) => re.test(String(t.client || '') + ' ' + String(t.title || '') + ' ' + String(t.short || ''))); return hit ? hit[1] : niceCl(t.client) || 'Без клиента'; };
     // 19.11 (Ольга): актуальность — когда работу последний раз сверяли с источником (почта, портал); старше 3 дней — на перепроверку
     const chkAge = (t) => { const d = ymdOf(t.sourceCheckedAt); return d ? daysAgo(d) : null; };
     const fresh = (t) => { const n = chkAge(t); return n === null ? '<span class="pill p-warn">не сверено</span>' : n > 3 ? `<span class="pill p-warn">сверено ${n} дн назад</span>` : ''; };
