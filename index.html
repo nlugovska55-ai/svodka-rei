@@ -338,6 +338,13 @@ details.bs ul{margin:0 0 6px 18px;display:grid;gap:3px;font-size:13.5px}
 .gr small{color:var(--muted)}
 .gr .gl{font-size:13.5px;color:var(--muted)}.gr .gl a{color:var(--accent)}
 .unk{color:var(--warn)}
+.gv .gv-cl{padding:12px 16px;border-top:1px solid var(--line)}.gv .gv-cl:first-child{border-top:0}
+.gv .gv-h{display:flex;justify-content:space-between;gap:12px;font-size:17px;margin-bottom:4px}
+.gv .gv-r{display:flex;justify-content:space-between;gap:12px;font-size:15px;line-height:1.45;padding:6px 0}
+.gv .gv-r+.gv-r{border-top:1px dashed var(--line)}
+.gv .a{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.gv .gv-chk{padding:10px 14px;border-radius:10px;font-size:15px}.gv .gv-chk.ok{background:var(--ok-soft);color:var(--ok)}.gv .gv-chk.warn{background:var(--warn-soft);color:var(--warn)}
+.gv details>summary{padding:12px 16px;cursor:pointer;font-size:15px}.gv-paid .gv-r{padding:6px 16px}
 .gline{display:grid;grid-template-columns:minmax(0,1fr) 110px 120px minmax(0,220px);gap:12px;align-items:baseline;padding:9px 14px;border-top:1px solid var(--line);font-size:14px}
 .gline:first-child{border-top:0}.gline.late{box-shadow:inset 3px 0 0 var(--hot)}
 .gline .gc{min-width:0}.gline .gc small{display:block;color:var(--muted);font-size:13.5px}.gline .ga{text-align:right;font-weight:600}
@@ -955,7 +962,35 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
       ${full ? '' : `<div class="rows glines">${top.slice(0, 3).map((r) => garLine(G, r)).join('')}</div>`}</div></section>`;
   }
   // Раздел «Гаранты» (19.11, Ольга: обязательный пункт меню): таблица Лены и полный реестр гарантов
-  function garantyTab() { return lenaCard(true) + garMoney(); }
+  // 19.11 (Ольга: «каша из букв»): гаранты — по клиентам, крупно: сколько ждём, от кого, за что, до какого числа;
+  // пришедшее — отдельным коротким списком; сверка с порталом одной строкой; полная таблица Лены — свёрнута внизу
+  function garantyTab() {
+    const G = D.garanty && D.garanty.connected ? D.garanty : null;
+    if (!G) return '<section class="sec"><div class="sh"><h2>Гаранты</h2></div><div class="empty"><b>Таблица Лены не подключена</b></div></section>';
+    const R = G.rows.filter((r) => r.stageReg !== 'Отказ'), ym = FRESH.todayYmd.slice(0, 7), PC = G.portalCheck;
+    const MN = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'], mName = (m) => MN[+m.slice(5, 7) - 1];
+    const what = (r) => [String(r.service || '').toUpperCase().replace(/\s+/g, ' ').trim(), r.doc ? '№ ' + String(r.doc).replace(/\s+/g, ' ').slice(0, 40) : ''].filter(Boolean).join(' · ');
+    const stOf = (r) => r.stageReg === 'Обсуждаем' ? ['p-wait', 'обсуждаем'] : /Пришло/.test(r.stageReg || '') ? ['p-hot', 'Лена отметила оплату, в портале и выписке нет'] : ['p-warn', 'клиент подтвердил'];
+    const due = (r) => r.date ? (r.date < FRESH.todayYmd ? `<span class="pill p-hot">срок прошёл ${dmY(r.date)}</span>` : `<span class="pill p-wait">до ${dmY(r.date)}</span>`) : '<span class="hint">срок не указан</span>';
+    const W = R.filter((r) => Number(r.remain) > 0), byCl = new Map();
+    W.forEach((r) => { const k = niceCl(r.client); if (!byCl.has(k)) byCl.set(k, []); byCl.get(k).push(r); });
+    const cls = [...byCl.entries()].map(([k, a]) => [k, a, a.reduce((x, r) => x + Number(r.remain), 0)]).sort((a, b) => b[2] - a[2]);
+    const tot = cls.reduce((x, c) => x + c[2], 0);
+    const wH = cls.map(([k, a, sum]) => `<div class="gv-cl"><div class="gv-h"><b>${esc(k)}</b><span class="a">${num(sum)}</span></div>${a.map((r) => { const [pc, pt] = stOf(r); return `<div class="gv-r"><span>${esc(what(r))}<br><span class="pill ${pc}">${esc(pt)}</span> ${due(r)}${(r.flags || []).includes('вопрос') && r.note ? `<br><small class="hint">вопрос: ${esc(String(r.note).slice(0, 140))}</small>` : ''}</span>${a.length > 1 ? `<span class="a">${num(Number(r.remain))}</span>` : ''}</div>`; }).join('')}</div>`).join('');
+    const paidM = R.filter((r) => (r.month || '').slice(0, 7) === ym && !(Number(r.remain) > 0) && (r.portal || (r.bank || []).length || r.stage === 'paid'));
+    const pTot = paidM.reduce((x, r) => x + Number(r.amount || 0), 0);
+    const pH = paidM.map((r) => { const p = r.portal, b = (r.bank || [])[0]; const src = p ? `портал${p.date ? ', ' + dmY(p.date) : ''}${p.pp ? ', п/п ' + esc(p.pp) : ''}` : b ? `выписка ${dmY(b.date)}` : 'по данным Лены'; return `<div class="gv-r"><span><b>${esc(niceCl(r.client))}</b> · ${esc(what(r))}<br><small class="hint">${src}</small></span><span class="a">${num(Number(r.amount || 0))}</span></div>`; }).join('');
+    const pm = PC && PC.months ? PC.months[ym] : null, miss = PC ? (PC.notInReestr || []).filter((x) => x.month === ym) : [];
+    const chk = !PC ? '<div class="gv-chk warn">Сверка с порталом: снимка сводной ведомости нет</div>'
+      : miss.length ? `<div class="gv-chk warn"><b>Не сходится с порталом на ${num(miss.reduce((x, m) => x + m.amount, 0))}</b>: оплачено в портале, в таблице Лены строки нет — ${miss.map((m) => esc(niceCl(m.client) + ' ' + num(m.amount) + (m.date ? ' (' + dmY(m.date) + ')' : ''))).join(', ')}</div>`
+      : `<div class="gv-chk ok">Сходится с порталом ✓ ${pm ? '· за ' + mName(ym) + ' Лене оплачено ' + num(pm.portalLena) : ''}</div>`;
+    const age = G.source && G.source.mtime ? Math.round((Date.parse(FRESH.todayYmd) - Date.parse(G.source.mtime.slice(0, 10))) / 864e5) : null;
+    return `<section class="sec gv"><div class="sh"><h2>Гаранты Лены: ждём ${num(tot)}</h2><span class="c">${plural(W.length, 'работа', 'работы', 'работ')} у ${plural(cls.length, 'клиента', 'клиентов', 'клиентов')} · «пришло» — по сводной ведомости портала${PC && PC.snapshot ? ' на ' + esc(PC.snapshot) : ''}${age !== null && age > 3 ? ` · таблицу Лены не обновляли ${age} дн` : ''}</span></div>
+      ${chk}
+      <div class="rows">${wH || '<div class="empty"><b>Ждать нечего</b><span>все гаранты оплачены</span></div>'}</div>
+      ${paidM.length ? `<details class="rows gv-paid"><summary><b>Пришло за ${mName(ym)}: ${num(pTot)}</b> <span class="hint">${plural(paidM.length, 'работа', 'работы', 'работ')}</span></summary>${pH}</details>` : ''}
+      <details class="rows"><summary><b>Таблица Лены целиком</b> <span class="hint">все строки, флаги и история</span></summary>${lenaCard(true)}${garMoney()}</details></section>`;
+  }
   function garMoney() {
     const G = D.garanty;
     if (!G || !G.connected) return '';
@@ -1119,6 +1154,31 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
   const cutS = (x, n) => x.length > n ? x.slice(0, n).replace(/[\s,;:(]+\S*$/, '') + '…' : x;
   // ---------- вкладки разделов: Мои клиенты, Клиенты Лены, Другие ----------
   let sf = 'all';
+  // 19.11 (Ольга): «Мои клиенты» — наверху «Требуют внимания», ниже все её клиенты; порядок — по дню, когда нужно обратить внимание;
+  // главный статус работы — на чьей стороне (наша / клиента / ведомства), наши первыми. Этапы — §48 (проект), поле stage дела
+  function myTab() {
+    const y = FRESH.todayYmd, L = T.filter((t) => isOpen(t) && grpOf(t) === 'my' && !personal(t));
+    const ymdOf = (v) => { const x = String(v || ''); let r = /^(\d{4})-(\d{2})-(\d{2})/.exec(x); if (r) return r[0]; r = /(\d{2})\.(\d{2})(?:\.(\d{4}))?/.exec(x); return r ? (r[3] || FRESH.year) + '-' + r[2] + '-' + r[1] : ''; };
+    const lastMv = (t) => [t.updatedAt, t.lastMove, t.sourceCheckedAt, t.checked, t.added].map(ymdOf).filter(Boolean).sort().pop() || '';
+    const side = (t) => { const w = String(t.who || '') + ' ' + String(t.waiting || ''); return /ФСА|РПН|Роспотреб|Ростехнадзор|ведомств/i.test(w + ' ' + (t.next || '').slice(0, 60)) ? 'ved' : /клиент/i.test(w) || (t.wait && !t.expert) ? 'cl' : 'we'; };
+    const SIDE = {we: ['p-hot', 'на нашей стороне'], cl: ['p-wait', 'у клиента'], ved: ['p-wait', 'у ведомства']};
+    const attn = (t) => { const d = taskYmd(t); if (d) return d; const m = lastMv(t); return m ? addD(m, side(t) === 'we' ? 2 : 3) : y; };
+    const daysAgo = (d) => d ? Math.round((Date.parse(y) - Date.parse(d)) / 864e5) : null;
+    const why = (t) => { const a = attn(t), dd = daysAgo(a), lm = daysAgo(lastMv(t)), we = side(t) === 'we';
+      if (taskYmd(t)) return dd > 0 ? `срок прошёл ${dd} дн назад` : we ? 'срок сегодня' : 'срок сегодня — узнать у клиента';
+      return we ? (lm ? `без движения ${lm} дн` : 'нужно взять в работу') : `клиент молчит ${lm || 0} дн — напомнить`; };
+    const CAN = [[/gea|геа/i, 'ГЕА'], [/вкусвилл|вёшки|аглая/i, 'ВкусВилл'], [/логика молока|эйч/i, 'Логика молока'], [/тамбов/i, 'Тамбовская индейка'], [/виртекс/i, 'Виртекс'], [/востряково/i, 'Востряково-2']];
+    const clOf = (t) => { const hit = CAN.find(([re]) => re.test(String(t.client || '') + ' ' + String(t.title || '') + ' ' + String(t.short || ''))); return hit ? hit[1] : niceCl(t.client) || 'Без клиента'; };
+    const R = L.map((t) => ({t, a: attn(t), s: side(t)}));
+    const hot = R.filter((x) => x.a <= y).sort((p, q) => (p.s === 'we' ? 0 : 1) - (q.s === 'we' ? 0 : 1) || p.a.localeCompare(q.a));
+    const row = ({t, a, s}, showCl) => { const [pc, pt] = SIDE[s]; return `<div class="rw sr" data-id="${esc(t.id)}"><div class="row"><button class="st" data-open><b>${showCl ? esc(clOf(t)) + ' — ' : ''}${esc(t.short || t.title)}</b><span><span class="pill ${pc}">${pt}</span> ${a <= y ? `<span class="pill p-warn">${esc(why(t))}</span>` : `<span class="hint">внимание ${dmY(a)}</span>`} <span class="hint">этап: ${esc(t.stage || 'не указан')}${t.expert ? ' · делает эксперт' : ''}</span></span>${t.next ? `<small class="smeta">Шаг: ${esc(String(t.next).slice(0, 160))}</small>` : ''}</button></div></div>`; };
+    const byCl = new Map(); R.forEach((x) => { const k = clOf(x.t); if (!byCl.has(k)) byCl.set(k, []); byCl.get(k).push(x); });
+    const cls = [...byCl.entries()].map(([k, a]) => [k, a.sort((p, q) => (p.s === 'we' ? 0 : 1) - (q.s === 'we' ? 0 : 1) || p.a.localeCompare(q.a)), a.reduce((m, x) => x.a < m ? x.a : m, '9999')]).sort((p, q) => p[2].localeCompare(q[2]));
+    return `<section class="sec my"><div class="sh"><h2>Требуют внимания: ${hot.length}</h2><span class="c">сначала работы на нашей стороне; клик — карточка с историей</span></div>
+      <div class="rows">${hot.length ? hot.map((x) => row(x, true)).join('') : '<div class="empty"><b>Сейчас ничего не горит</b><span>ближайшие даты — в списке ниже</span></div>'}</div></section>
+      <section class="sec my"><div class="sh"><h2>Мои клиенты: ${cls.length}</h2><span class="c">${plural(L.length, 'работа', 'работы', 'работ')}; порядок — по ближайшему дню внимания</span></div>
+      ${cls.map(([k, a, d]) => `<div class="rows"><div class="gsub"><b>${esc(k)}</b> · ${d <= y ? 'внимание сегодня' : 'внимание ' + dmY(d)} · на нашей стороне ${a.filter((x) => x.s === 'we').length} из ${a.length}</div>${a.map((x) => row(x, false)).join('')}</div>`).join('') || '<div class="empty"><b>Работ нет</b></div>'}</section>`;
+  }
   function secTab(k) {
     const all0 = T.filter((t) => isOpen(t) && grpOf(t) === k).sort(byUrg);
     // 30.10 (Ольга): в основном списке только сверенное сегодня с источником; остальное отдельно, свёрнуто и с пометкой «не сверено»
@@ -1246,7 +1306,10 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     // Деньги: пришло по банку вчера и сегодня, только от клиентов
     const BK = (D.bank && D.bank.days) || [], prev = addD(y, -1 - (new Date(y + 'T12:00:00Z').getUTCDay() === 1 ? 2 : 0));
     const INC = Array.isArray(D.income) ? D.income : null, key = (x) => niceCl(String(x || '').replace(/\(.*?\)/g, '')).toLowerCase().replace(/[^а-яёa-z0-9]/g, '');
-    const incOf = (who, a) => INC && INC.find((r) => Math.round(+r.amount) === Math.round(a) && key(r.payer) === key(who));
+    // 19.11: оплата есть в сводной ведомости портала (garanty.portalCheck.paid) — значит внесена, даже если реестр внесения её не знает
+    const PP = (D.garanty && D.garanty.portalCheck && D.garanty.portalCheck.paid) || [];
+    const incOf = (who, a) => (INC && INC.find((r) => Math.round(+r.amount) === Math.round(a) && key(r.payer) === key(who)))
+      || PP.find((r) => Math.round(+r.amount) === Math.round(a) && (key(r.client).includes(key(who)) || key(who).includes(key(r.client))));
     const day = (d) => BK.filter((x) => x.date === d).flatMap((x) => (x.inItems || []).filter((i) => !FROM_REI.test(i.who || '')).map((i) => ({who: niceCl(i.who), a: +i.amount || 0})));
     const sum = (it) => it.reduce((x, i) => x + i.a, 0);
     // 30.10 (Ольга): деньги на первом экране — только по выписке. Источник — сводная выписка kontrol/vypiski (ведёт «Бухгалтерия»);
@@ -1255,6 +1318,11 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     const alfaRead = D.ohvat && D.ohvat.fromJournal && D.ohvat.date === FRESH.todayYmd ? (D.ohvat.parts || []).find((p) => p.src === 'Альфа' && p.time) : null;
     const VP = D.vypiska && (D.vypiska.items || []).length ? D.vypiska : null, NOTCL = /рэи|альфа-банк|депозит|процент/i;
     const vItems = VP ? VP.items.filter((i) => !NOTCL.test(i.payer + ' ' + (i.basis || ''))).map((i) => ({who: niceCl(i.payer), a: +i.amount || 0, date: i.date, notif: !!i.notif, bank: i.bank || ''})) : [];
+    // 19.11 (Ольга: «блок поступлений не соответствует данности»): сводная выписка отстаёт от дней банка — добираем поступления из
+    // разобранных дней выписки (bank-oboroty) после её последней даты; одна п/п — один раз (плательщик + сумма + дата)
+    if (VP) { const vl = vItems.reduce((m, i) => i.date > m ? i.date : m, ''), seenV = new Set(vItems.map((i) => key(i.who) + '|' + Math.round(i.a) + '|' + i.date));
+      BK.filter((x) => x.date > vl && x.date <= y).forEach((x) => (x.inItems || []).forEach((i) => { const w = niceCl(i.who), k = key(w) + '|' + Math.round(+i.amount || 0) + '|' + x.date;
+        if (!FROM_REI.test(i.who || '') && !NOTCL.test((i.who || '') + ' ' + (i.basis || '')) && !seenV.has(k)) { seenV.add(k); vItems.push({who: w, a: +i.amount || 0, date: x.date, notif: false, bank: x.account || ''}); } })); }
     const stm = BK.filter((x) => x.date <= y && !bkSrc(x).note);
     const lastD = VP ? (vItems.length ? vItems[vItems.length - 1].date : '') : stm.length ? stm[stm.length - 1].date : '';
     const fromD = VP ? (lastD && lastD < prev ? lastD : prev) : lastD;
@@ -1631,7 +1699,7 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     $$('.tab').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
     const y = scrollY;
     let html;
-    try { html = tab === 'utro' ? utro() : tab === 'grafik' ? grafikPage() : tab === 'kontrol' ? kontrol() : tab === 'money' ? moneyTab() : tab === 'buh' ? buhTab() : tab === 'garanty' ? garantyTab() : tab === 'lena' ? lenaTab() : SECN[tab] ? secTab(tab) : all(); }
+    try { html = tab === 'utro' ? utro() : tab === 'grafik' ? grafikPage() : tab === 'kontrol' ? kontrol() : tab === 'money' ? moneyTab() : tab === 'buh' ? buhTab() : tab === 'garanty' ? garantyTab() : tab === 'lena' ? lenaTab() : tab === 'my' ? myTab() : SECN[tab] ? secTab(tab) : all(); }
     catch (e) { console.error(e); html = `<div class="empty"><b>Раздел не показан: ошибка в данных</b><span>${esc(String(e && e.message || e))}. Остальные разделы работают; напишите ветке «Дашборд».</span></div>`; }
     $('#view').innerHTML = `<div class="wrap" style="max-width:none">${html}</div>`;
     scrollTo(0, y);

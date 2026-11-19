@@ -676,6 +676,77 @@ def garanty_changes():
     return izmeneniya_garanty.latest(os.path.join(GARANTY_DIR, "izmeneniya"), datetime.now(MSK).strftime("%Y-%m-%d"))
 
 
+PORTAL_OPLATY = os.environ.get("PORTAL_OPLATY", "/mnt/project-files/daily-control/svodka/portal-oplaty.json")
+PORTAL_SVODNAYA_MD = os.environ.get("PORTAL_SVODNAYA_MD", "/mnt/project-files/daily-control/svodka/portal-svodnaya.md")
+
+
+def contract_of(text):
+    """Номер договора и приложения из «1248 ЛЕ ДС прил 9», «дс тр тс 010 5д (1240 прил 8)», «92/1». Коды ТР (010, 012…) не номер."""
+    t = str(text or "")
+    m = re.search(r"\(([^)]*)\)", t)
+    inner = m.group(1) if m and re.search(r"\d", m.group(1)) else t
+    nums = [x for x in re.findall(r"\d+(?:/\d+)?", inner) if not x.startswith("0") and len(x.split("/")[0]) >= 2]
+    pr = re.search(r"прил\.?\s*(\d+)", inner)
+    return (nums[0] if nums else ""), (pr.group(1) if pr else "")
+
+
+def compact(name):
+    t = re.sub(r"\b(ооо|оао|зао|пао|ао|ип|кфх|нпф|пф|тд|фирма|завод|з-д)\b", " ", str(name or "").lower())
+    return re.sub(r"[^а-яёa-z0-9]", "", t).replace("ё", "е").replace("ппп", "пп")
+
+
+def prev_month(m):
+    y, mo = int(m[:4]), int(m[5:7])
+    return f"{y - (mo == 1)}-{12 if mo == 1 else mo - 1:02d}"
+
+
+def portal_check(rows):
+    """19.11 (Ольга): гаранты должны всегда сходиться со сводной ведомостью портала. Оплата из портала гасит «ждём» по строке
+    (договор + приложение; одна п/п на несколько строк — по сумме). Оплаты Лены (ЕБ) без строки в реестре — список расхождений."""
+    md = PORTAL_SVODNAYA_MD
+    if os.path.exists(md) and (not os.path.exists(PORTAL_OPLATY) or os.path.getmtime(md) > os.path.getmtime(PORTAL_OPLATY)):
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        from portal_oplaty import parse  # снимок Браузера свежее json — разбираем его сами, без ручного шага
+        po = parse(open(md, encoding="utf-8").read())
+    elif os.path.exists(PORTAL_OPLATY):
+        po = json.load(open(PORTAL_OPLATY, encoding="utf-8-sig"))
+    else:
+        return None
+    pays = [dict(x, i=i) for i, x in enumerate(po.get("rows", []))]
+    for r in rows:
+        r["contract"], r["pril"] = contract_of(r.get("doc"))
+    seen = set()
+    for x in pays:
+        c, pr = contract_of(x.get("service"))
+        cx = [compact(v) for v in re.split(r"[()]", x.get("client") or "") if compact(v)]
+        tok = lambda v: {w for w in re.findall(r"[а-яёa-z]{5,}", re.sub(r"\b(ооо|оао|зао|пао|ао|ип|кфх)\b", " ", str(v or "").lower()))}
+        tx = tok(x.get("client"))
+        same = lambda r: any(a and b and (a in b or b in a) for a in cx for b in [compact(r.get("client"))]) or bool(tx & tok(r.get("client")))
+        fresh = lambda r: not r.get("month") or not x.get("date") or x["date"] >= (r["month"][:8] + "01" if len(r["month"]) >= 8 else r["month"]) or x["date"][:7] >= prev_month(r["month"])
+        # 1) договор (+ приложение); 2) нет номера договора в портале — тот же клиент и то же приложение или та же сумма
+        cand = [r for r in rows if c and r["contract"] == c and (not pr or not r["pril"] or r["pril"] == pr)]
+        if not cand:
+            cand = [r for r in rows if same(r) and fresh(r) and (r["pril"] == pr if pr else abs((r.get("amount") or 0) - x["amount"]) < 1)]
+        if not cand:
+            continue
+        seen.add(x["i"])
+        open_ = [r for r in cand if (r.get("remain") or 0) > 0 and not r.get("portal")]
+        hit = [r for r in open_ if abs((r.get("amount") or 0) - x["amount"]) < 1][:1]
+        if not hit and open_ and abs(sum(r.get("amount") or 0 for r in open_) - x["amount"]) < 1:
+            hit = open_
+        for r in hit:
+            r["portal"] = {"date": x.get("date"), "pp": x.get("pp"), "amount": r.get("amount"), "whole": x["amount"]}
+            r["remain"] = 0.0
+            r["status"] = "оплачено по порталу"
+    miss = [{k: x.get(k) for k in ("date", "pp", "amount", "client", "service", "month")} for x in pays if x["i"] not in seen and x.get("mgr") == "ЕБ"]
+    months = {}
+    for m, v in (po.get("months") or {}).items():
+        lena = sum(x["amount"] for x in pays if x["month"] == m and x.get("mgr") == "ЕБ")
+        months[m] = {"portal": v.get("total"), "portalLena": lena, "notInReestr": round(sum(x["amount"] for x in miss if x["month"] == m), 2)}
+    paid = [{k: x.get(k) for k in ("date", "amount", "client", "pp")} for x in pays]
+    return {"snapshot": po.get("snapshot", ""), "months": months, "notInReestr": miss, "paid": paid}
+
+
 def garanty(tasks, bank):
     """Гаранты Лены: снимок её таблицы (scripts/import_garanty.py) + связь с задачами db и выписками.
     Таблица только читается. Нет снимка — блок «источник не подключён», без нулей. Сбой импорта — прежние строки с пометкой."""
@@ -734,7 +805,8 @@ def garanty(tasks, bank):
                      "owner": (t0["waiting"] or t0["mgr"]) if t0 else (r.get("who") or "Лена")})
     acc = os.path.join(GARANTY_DIR, "access.json")  # доступ Лены к таблице: пишем только после решения Ольги
     access = json.load(open(acc, encoding="utf-8-sig")) if os.path.exists(acc) else {}
-    return {"connected": True, "live": bool((snap.get("source") or {}).get("live")), "status": st, "access": access, "importedAt": snap.get("importedAt", ""), "source": snap.get("source", {}),
+    pcheck = portal_check(rows)
+    return {"connected": True, "portalCheck": pcheck, "live": bool((snap.get("source") or {}).get("live")), "status": st, "access": access, "importedAt": snap.get("importedAt", ""), "source": snap.get("source", {}),
             "format": snap.get("format", ""), "months": snap.get("months", {}),
             "bankCovered": sorted({(d["account"], d["date"]) for d in (bank or {}).get("days", [])}), "rows": rows}
 
