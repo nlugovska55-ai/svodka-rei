@@ -919,6 +919,15 @@ def garanty(tasks, bank):
     acc = os.path.join(GARANTY_DIR, "access.json")  # доступ Лены к таблице: пишем только после решения Ольги
     access = json.load(open(acc, encoding="utf-8-sig")) if os.path.exists(acc) else {}
     pcheck = portal_check(rows)
+    # 19.11: оплаты, подтверждённые сверкой по порталу или выписке вне месяца строки (перенос аванса между заказами и т.п.):
+    # svodka/garanty-oplacheno.json {"G-0222": {"proof": "...", "by": "..."}} — строка гасится с доказательством
+    gok = os.path.join(os.path.dirname(SPISANIYA_JSON), "garanty-oplacheno.json")
+    if os.path.exists(gok):
+        with open(gok, encoding="utf-8-sig") as fh:
+            okmap = json.load(fh)
+        for r in rows:
+            if r.get("id") in okmap and isinstance(okmap[r["id"]], dict):
+                r["remain"], r["status"], r["proof"] = 0, "оплачено (сверка)", okmap[r["id"]].get("proof", "")
     return {"connected": True, "portalCheck": pcheck, "live": bool((snap.get("source") or {}).get("live")), "status": st, "access": access, "importedAt": snap.get("importedAt", ""), "source": snap.get("source", {}),
             "format": snap.get("format", ""), "months": snap.get("months", {}),
             "bankCovered": sorted({(d["account"], d["date"]) for d in (bank or {}).get("days", [])}), "rows": rows}
