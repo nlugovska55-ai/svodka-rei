@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-19T13:42:20+03:00",
+ "updated": "2026-11-19T13:44:11+03:00",
  "tasks": [
   {
    "id": "adtst1711-iso-prolong",
@@ -3763,49 +3763,6 @@
    "amountNote": ""
   },
   {
-   "id": "test-due-46",
-   "section": "Прочее",
-   "client": "",
-   "title": "ТЕСТ шлюза сроков §46 п.3 (приёмка пульта, не рабочая задача)",
-   "detail": "",
-   "next": "проверка 4 случаев, затем закрыть",
-   "lastMove": "19.11 13:41 ТЕСТ случай 2: прямая запись срока веткой без решения Ольги",
-   "amount": null,
-   "due": "26.11.2026",
-   "mgr": "",
-   "owner": "Регламент",
-   "added": "19.11.2026",
-   "money": "",
-   "pay": 0,
-   "wait": 0,
-   "expert": 0,
-   "waitSince": "",
-   "prio": 0,
-   "evening": 0,
-   "link": "",
-   "orders": [],
-   "short": "ТЕСТ шлюза сроков",
-   "waiting": "",
-   "delegated": "",
-   "urgency": "",
-   "steps": [],
-   "checked": "",
-   "src": "",
-   "thread": "Регламент",
-   "origin": "Ольга 19.11 12:17 приёмка п.2: показать на тестовой задаче",
-   "proof": "",
-   "sourceCheckedAt": "",
-   "sourceEvidence": "",
-   "updatedAt": "",
-   "invoice": "",
-   "payment": "",
-   "dedupe": "",
-   "cat": "test",
-   "kind": "",
-   "amountKind": "",
-   "amountNote": ""
-  },
-  {
    "id": "tnd2110",
    "section": "Мои клиенты",
    "client": "Логика молока",
@@ -4157,8 +4114,8 @@
    "client": "",
    "title": "ВкусВилл: Вёшки — два КП и ответы Аглае (голосовые 16.11)",
    "detail": "",
-   "next": "Ольга: убрать ли из КП на проект абзацы про счета ФБУЗ и сроки ЭЗ/СЭЗ/лицензии; ответы Аглае (подача без ПД, отдел, аренда/лицензиат) — без Александра, по разбору",
-   "lastMove": "18.11 15:45 Утро: отдано Браузеру вместе с комментариями Аглаи в Telegram (выжимка с 16.11), срок 19.11",
+   "next": "Ответы Аглае (подача без ПД, отдел, аренда/лицензиат) — без Александра, по разбору Браузера; КП не трогаем",
+   "lastMove": "19.11 13:50 Ольга (пульт 12:18): КП уже отправлены, менять нечего; вопрос про абзацы снят",
    "amount": null,
    "due": "19.11.2026",
    "mgr": "Ольга",
@@ -4261,8 +4218,8 @@
    "section": "Автоматика",
    "client": "Утро и сводка",
    "flag": "ok",
-   "text": "Сводка выложена, последняя 10:43",
-   "checked": "2026-11-19T11:41:01+03:00",
+   "text": "Сводка выложена, последняя 13:42",
+   "checked": "2026-11-19T13:42:25+03:00",
    "link": "https://svodka-rei.vercel.app",
    "proof": "коммит data/svodka.json в main svodka-rei",
    "src": "kontrol/avtomatika-status.json"
@@ -4273,7 +4230,7 @@
    "client": "Разбор почты",
    "flag": "срочно",
    "text": "Не прочитано вовремя: olga@, boroday@, ocenka@, info@, Альфа, Точка, 14.11 09",
-   "checked": "2026-11-19T11:41:01+03:00",
+   "checked": "2026-11-19T13:42:25+03:00",
    "link": "",
    "proof": "kontrol/pochta-ohvat-2026-11-19.md",
    "src": "kontrol/avtomatika-status.json"
@@ -4283,8 +4240,8 @@
    "section": "Автоматика",
    "client": "Поступления в портал",
    "flag": "ok",
-   "text": "Не разнесённых дольше 2 ч нет (проверка 11:40)",
-   "checked": "2026-11-19T11:41:01+03:00",
+   "text": "Не разнесённых дольше 2 ч нет (проверка 13:42)",
+   "checked": "2026-11-19T13:42:25+03:00",
    "link": "",
    "proof": "kontrol/postupleniya-2026-11-19.md",
    "src": "kontrol/avtomatika-status.json"
@@ -4294,8 +4251,8 @@
    "section": "Автоматика",
    "client": "Бухгалтерия",
    "flag": "ok",
-   "text": "Сводка прогона 11:14",
-   "checked": "2026-11-19T11:41:01+03:00",
+   "text": "Сводка прогона 13:41",
+   "checked": "2026-11-19T13:42:25+03:00",
    "link": "",
    "proof": "kontrol/buh-svodka-2026-11-19.md",
    "src": "kontrol/avtomatika-status.json"
@@ -4306,7 +4263,7 @@
    "client": "Контроль Лены",
    "flag": "ok",
    "text": "Прогон записан: 19.11 11:10",
-   "checked": "2026-11-19T11:41:01+03:00",
+   "checked": "2026-11-19T13:42:25+03:00",
    "link": "",
    "proof": "kontrol-leny.md",
    "src": "kontrol/avtomatika-status.json"
@@ -4315,9 +4272,9 @@
    "id": "auto-pinatel",
    "section": "Автоматика",
    "client": "Пинатель",
-   "flag": "ok",
-   "text": "Пинков 2 из 2",
-   "checked": "2026-11-19T11:41:01+03:00",
+   "flag": "warn",
+   "text": "Пинков 3 из 4, нет: 12:40",
+   "checked": "2026-11-19T13:42:25+03:00",
    "link": "",
    "proof": "kontrol/pinok-2026-11-19-ЧЧММ.md",
    "src": "kontrol/avtomatika-status.json"
@@ -4326,9 +4283,9 @@
    "id": "auto-cikl",
    "section": "Автоматика",
    "client": "Цикл пульта",
-   "flag": "ok",
-   "text": "Проверка 11:40: проблем 0, на проверке 0",
-   "checked": "2026-11-19T11:41:01+03:00",
+   "flag": "срочно",
+   "text": "Проверка 13:42: проблем 1, на проверке 0",
+   "checked": "2026-11-19T13:42:25+03:00",
    "link": "",
    "proof": "kontrol/cikl-pulta-2026-11-19.md",
    "src": "kontrol/avtomatika-status.json"
@@ -4339,7 +4296,7 @@
    "client": "Обход проектов",
    "flag": "ok",
    "text": "Обход 10:42",
-   "checked": "2026-11-19T11:41:01+03:00",
+   "checked": "2026-11-19T13:42:25+03:00",
    "link": "",
    "proof": "obkhod/2026-11-19-proekty.md",
    "src": "kontrol/avtomatika-status.json"
@@ -4350,7 +4307,7 @@
    "client": "Журнал запусков",
    "flag": "срочно",
    "text": "pochta: failed (olga@, boroday@, ocenka@, info@, Альфа, Точка); брошено запусков 1; оборван signal-20261119-092458-aa9a",
-   "checked": "2026-11-19T11:41:01+03:00",
+   "checked": "2026-11-19T13:42:25+03:00",
    "link": "",
    "proof": "kontrol/runs/2026-11-19.jsonl",
    "src": "kontrol/avtomatika-status.json"
@@ -4361,7 +4318,7 @@
    "client": "ГЕА, Телеграм, LUGA",
    "flag": "warn",
    "text": "Не проверено: результаты лежат в своих проектах",
-   "checked": "2026-11-19T11:41:01+03:00",
+   "checked": "2026-11-19T13:42:25+03:00",
    "link": "",
    "proof": "файлы других проектов недоступны",
    "src": "kontrol/avtomatika-status.json"
@@ -5180,9 +5137,34 @@
   "emwixvfoc7tzg78pr",
   "emwixvqb1432p0eys",
   "emwize3n86dmouhpx",
-  "emwized760c38obd8"
+  "emwized760c38obd8",
+  "emwnc8xq00qp8cd9t"
  ],
- "replies": [],
+ "replies": [
+  {
+   "at": "2026-11-19T12:18:59.256000+03:00",
+   "atStr": "19.11, 12:18",
+   "eventId": "emwnc8xq00qp8cd9t",
+   "title": "ВкусВилл: Вёшки — два КП и ответы Аглае (голосовые 16.11)",
+   "text": "КП уже отправлены. Ничего смысла нет менять",
+   "reply": "Принято: КП не меняем. Остаётся ответ Аглае — веду.",
+   "resultCheck": "",
+   "proof": "",
+   "action": "",
+   "appliedTo": "vv1611-veshki",
+   "status": "routed",
+   "routedTo": "Проекты и клиенты",
+   "routedAt": "2026-11-19T13:50:00+03:00",
+   "result": "",
+   "resultAt": "",
+   "resultBy": "",
+   "taskId": "vv1611-veshki",
+   "taskProof": "",
+   "taskStatus": "open",
+   "fit": "",
+   "proofFit": ""
+  }
+ ],
  "spisaniya": {
   "built": "2026-11-19 11:55",
   "note": "Ведёт ветка «Бухгалтерия»: после оплаты ставить paid: true или убирать строку. Зарплату сюда не вносим (делает Ольга сама).",
@@ -10464,6 +10446,80 @@
    }
   ]
  },
+ "banki": {
+  "date": "2026-11-19",
+  "built": "2026-11-19T13:44:15+03:00",
+  "banks": [
+   {
+    "bank": "Альфа",
+    "lastOk": {
+     "upto": "2026-11-19 11:50",
+     "at": "2026-11-19T11:47:24+03:00",
+     "items": 4,
+     "run": "signal-20261119-092458-aa9a",
+     "src": "kontrol/runs/2026-11-19.jsonl"
+    },
+    "block": null,
+    "statement": {
+     "asOf": "2026-11-19",
+     "time": "11:47",
+     "fileDate": "2026-11-19",
+     "src": "kontrol/vypiski/2026-11-19.md",
+     "lastDay": "2026-11-19",
+     "dayIn": 24000.0,
+     "daySrc": "11:50 экран Альфа-Бизнес, п/п 3340, 58, комиссия",
+     "account": "Альфа *7370"
+    },
+    "notif": {
+     "last": {
+      "date": "2026-11-17",
+      "seen": "2026-11-17 16:33",
+      "payer": "АО ЭЛЕКТРОНСТАНДАРТ-ПРИБОР",
+      "amount": 100000.0,
+      "src": "obkhod/pochta-razbor-2026-11-18.md"
+     },
+     "today": [],
+     "checkedUpto": "2026-11-19 10:37",
+     "checkSrc": "журнал запусков: Браузер:почта"
+    },
+    "portal": {
+     "pending": [],
+     "lastDone": "2026-11-18T15:49:13+03:00",
+     "checkedUpto": "2026-11-19 11:30",
+     "src": "kontrol/runs/income.json"
+    }
+   },
+   {
+    "bank": "Точка",
+    "lastOk": {
+     "upto": "2026-11-19 11:50",
+     "at": "2026-11-19T11:47:24+03:00",
+     "items": 4,
+     "run": "signal-20261119-092458-aa9a",
+     "src": "kontrol/runs/2026-11-19.jsonl"
+    },
+    "block": null,
+    "statement": {
+     "lastDay": "2026-11-19",
+     "dayIn": 0.0,
+     "daySrc": "11:50 экран Точка, после 18.11 13:10 операций нет",
+     "account": "Точка *3698"
+    },
+    "notif": {
+     "last": null,
+     "today": [],
+     "checkedUpto": "2026-11-19 10:37",
+     "checkSrc": "журнал запусков: Браузер:почта"
+    },
+    "portal": {
+     "pending": [],
+     "lastDone": "2026-11-02T14:38:31+03:00",
+     "checkedUpto": "2026-11-19 11:30",
+     "src": "kontrol/runs/income.json"
+    }
+   }
+  ]
+ },
  "accuracy": {
   "weeks": [],
   "first": "2026-10-26",
@@ -10771,8 +10827,8 @@
  },
  "grafik": {
   "date": "2026-11-19",
-  "at": "13:42",
-  "built": "2026-11-19T13:42:36+03:00",
+  "at": "13:44",
+  "built": "2026-11-19T13:44:17+03:00",
   "weekday": "чт",
   "counts": {
    "ok": 25,
@@ -11167,79 +11223,5 @@
    }
   ],
   "src": "kontrol/runs/2026-11-19.jsonl + файлы прогонов"
- },
- "banki": {
-  "date": "2026-11-19",
-  "built": "2026-11-19T13:42:46+03:00",
-  "banks": [
-   {
-    "bank": "Альфа",
-    "lastOk": {
-     "upto": "2026-11-19 11:50",
-     "at": "2026-11-19T11:47:24+03:00",
-     "items": 4,
-     "run": "signal-20261119-092458-aa9a",
-     "src": "kontrol/runs/2026-11-19.jsonl"
-    },
-    "block": null,
-    "statement": {
-     "asOf": "2026-11-19",
-     "time": "11:47",
-     "fileDate": "2026-11-19",
-     "src": "kontrol/vypiski/2026-11-19.md",
-     "lastDay": "2026-11-19",
-     "dayIn": 24000.0,
-     "daySrc": "11:50 экран Альфа-Бизнес, п/п 3340, 58, комиссия",
-     "account": "Альфа *7370"
-    },
-    "notif": {
-     "last": {
-      "date": "2026-11-17",
-      "seen": "2026-11-17 16:33",
-      "payer": "АО ЭЛЕКТРОНСТАНДАРТ-ПРИБОР",
-      "amount": 100000.0,
-      "src": "obkhod/pochta-razbor-2026-11-18.md"
-     },
-     "today": [],
-     "checkedUpto": "2026-11-19 10:37",
-     "checkSrc": "журнал запусков: Браузер:почта"
-    },
-    "portal": {
-     "pending": [],
-     "lastDone": "2026-11-18T15:49:13+03:00",
-     "checkedUpto": "2026-11-19 11:30",
-     "src": "kontrol/runs/income.json"
-    }
-   },
-   {
-    "bank": "Точка",
-    "lastOk": {
-     "upto": "2026-11-19 11:50",
-     "at": "2026-11-19T11:47:24+03:00",
-     "items": 4,
-     "run": "signal-20261119-092458-aa9a",
-     "src": "kontrol/runs/2026-11-19.jsonl"
-    },
-    "block": null,
-    "statement": {
-     "lastDay": "2026-11-19",
-     "dayIn": 0.0,
-     "daySrc": "11:50 экран Точка, после 18.11 13:10 операций нет",
-     "account": "Точка *3698"
-    },
-    "notif": {
-     "last": null,
-     "today": [],
-     "checkedUpto": "2026-11-19 10:37",
-     "checkSrc": "журнал запусков: Браузер:почта"
-    },
-    "portal": {
-     "pending": [],
-     "lastDone": "2026-11-02T14:38:31+03:00",
-     "checkedUpto": "2026-11-19 11:30",
-     "src": "kontrol/runs/income.json"
-    }
-   }
-  ]
  }
 }
