@@ -92,21 +92,23 @@ for (const [vp, size] of [['ПК 1440', {width: 1440, height: 900}], ['теле�
   const browser = await launch();  // свой браузер на каждый экран
   const phone = size.width < 820, req = REQUIRED.filter((x) => !phone || x.phone);
   const ctx = await browser.newContext({viewport: size, isMobile: phone, hasTouch: phone});
+  // внешние шрифты и логотип не грузим: без сети сборки событие load не наступает (GitHub Actions 19.11), на проверку меню они не влияют
+  await ctx.route((u) => !u.href.startsWith(URL0), (r) => r.abort());
   const p = await ctx.newPage(), errs = []; p.on('pageerror', (e) => errs.push(e.message));
-  await p.goto(URL0); await p.waitForFunction(() => document.body.dataset.tab, null, {timeout: 15000}).catch(() => {});
+  await p.goto(URL0, {waitUntil: 'domcontentloaded'}); await p.waitForFunction(() => document.body.dataset.tab, null, {timeout: 15000}).catch(() => {});
   for (const it of req) { const v = await visible(p, it); check(vp, `«${it.label}» виден на главной`, !v, v || 'виден'); }
   for (const it of req) {
     const sel = it.link ? `a.hlink[href="#${it.tab}"]` : `nav.tabs .tab[data-tab="${it.tab}"]`;
-    await p.goto(URL0 + '#utro'); await p.waitForTimeout(250);
+    await p.goto(URL0 + '#utro', {waitUntil: 'domcontentloaded'}); await p.waitForTimeout(250);
     try { await p.click(sel, {timeout: 3000}); } catch (e) { check(vp, `«${it.label}»: переход из меню`, false, 'не нажимается: ' + e.message.split('\n')[0]); continue; }
     await p.waitForTimeout(350);
     let o = await opened(p, it); check(vp, `«${it.label}»: переход из меню`, !o, o || 'раздел открыт, есть содержимое');
     const mv = (await Promise.all(req.map(async (x) => [x.label, await visible(p, x)]))).filter(([, r]) => r);
     check(vp, `«${it.label}»: меню видно после перехода`, !mv.length, mv.length ? mv.map(([l, r]) => l + ': ' + r).join('; ') : 'все пункты видны');
-    await p.reload(); await p.waitForTimeout(600);
+    await p.reload({waitUntil: 'domcontentloaded'}); await p.waitForTimeout(600);
     o = await opened(p, it); check(vp, `«${it.label}»: после обновления страницы`, !o, o || 'тот же раздел с содержимым');
     const p2 = await ctx.newPage(); p2.on('pageerror', (e) => errs.push(e.message));
-    await p2.goto(URL0 + '#' + it.tab); await p2.waitForTimeout(600);
+    await p2.goto(URL0 + '#' + it.tab, {waitUntil: 'domcontentloaded'}); await p2.waitForTimeout(600);
     o = await opened(p2, it); check(vp, `«${it.label}»: прямая ссылка #${it.tab}`, !o, o || 'открывается');
     await p2.close();
   }
