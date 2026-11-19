@@ -199,6 +199,28 @@ kbd{font:11px var(--f-body);border:1px solid var(--line);border-bottom-width:2px
 .kd.ref{background:transparent;border:1px dashed var(--line)}
 .kd.task{background:var(--sunk);color:var(--ink)}
 .kd{white-space:nowrap}
+.kd.work{background:var(--ok-soft);color:var(--ok)}
+.kd.queue{background:var(--sunk);color:var(--ink)}
+.kd.wait{background:var(--warn-soft);color:var(--warn)}
+.pf .pf-w{border-color:var(--warn)}
+.bars2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.bars{margin:0;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:12px 14px;display:grid;gap:6px}
+.bars figcaption{display:flex;justify-content:space-between;gap:8px;margin-bottom:4px}
+.br{display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) auto;gap:8px;align-items:center;font-size:13.5px;border-radius:4px}
+.br:hover{background:var(--sunk)}
+.br .bl{color:var(--ink);overflow-wrap:anywhere;line-height:1.2}
+.br .bt{height:10px;display:block}
+.br .bt i{display:block;height:100%;background:var(--accent);border-radius:0 4px 4px 0}
+.br .bv{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.flows{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:0 16px;align-items:start}
+.flows>.sec{display:block}
+.rp{display:grid}
+.rp-r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:8px 0;border-top:1px solid var(--line)}
+.rp-r:first-child{border-top:0}
+.rp-n{min-width:0;overflow-wrap:anywhere}
+.rp-a{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.rp-m{grid-column:1/-1;color:var(--muted);font-size:13.5px;overflow-wrap:anywhere}
+@media (max-width:480px){.flows{grid-template-columns:1fr}.bars2{grid-template-columns:1fr}.br{grid-template-columns:minmax(0,7.5em) minmax(0,1fr) auto}}
 @media (max-width:480px){.cd{grid-template-columns:40px minmax(0,1fr) auto;gap:8px;font-size:13.5px}.cd .dt{font-size:13.5px}}
 .src-l{display:grid;gap:4px;font-size:14px}
 .src-l span.no{color:var(--warn)}
@@ -1592,62 +1614,97 @@ details.src[open]{display:block}details.src div{font-size:14px;color:var(--muted
     if (typeof v === 'number' && isFinite(v)) return v.toLocaleString('ru-RU') + ' ₽, по счёту';
     return '';
   }
+  // 19.11 (Ольга): Бухгалтерия — «деньги сейчас» (счета + вклады − отложенное), куда ушли деньги (статьи),
+  // два потока дел (с клиентами / с поставщиками и бюджетом) со статусом «в работе / в очереди / ждём»
+  const monN = (m) => MONTHS[+m.slice(5, 7) - 1];
+  const OURS = /^(Бухгалтерия|Claude|я|Утро|Браузер)?$/;
+  function buhSt(t) {
+    const w = String(t.waiting || '').trim(), ago = daysAgo(lastMv(t));
+    if (w && !OURS.test(w) && !/^\d/.test(w)) return ['wait', 'ждём: ' + w.replace(/\s*\(.*$/, '')];
+    return ago !== null && ago <= 2 ? ['work', 'в работе'] : ['queue', 'в очереди'];
+  }
+  function buhRow(t) {
+    const [c, l] = buhSt(t), y = taskYmd(t), mv = lastMv(t);
+    return `<div class="cd rw" data-id="${esc(t.id)}" data-open style="cursor:pointer"><span class="dt">${y ? dmY(y) : '—'}</span><span class="wt"><span class="kd ${c}">${l}</span>${t.cl ? `<b>${esc(t.cl)}</b> · ` : ''}${esc(t.short)}<small>${y ? (y < FRESH.todayYmd ? 'контроль просрочен' : 'контроль') + ' ' + dmY(y) : 'без даты'}${mv ? ' · движение ' + dmY(mv) : ''}</small></span><span class="num">${t.a > 0 ? rubX(t.a) : ''}</span></div>`;
+  }
+  function barsHTML(by, title, note) {
+    const a = Object.entries(by).filter(([, v]) => v > 0).sort((x, y) => y[1] - x[1]), max = a.length ? a[0][1] : 1, tot = a.reduce((s, x) => s + x[1], 0);
+    return `<figure class="bars"><figcaption><b>${title}</b><span class="num">${rubX(Math.round(tot))}</span></figcaption>${a.length ? a.map(([k, v]) => `<div class="br" title="${esc(k)}: ${rubX(v)}, ${Math.round(v / tot * 100)}%"><span class="bl">${esc(k)}</span><span class="bt"><i style="width:${Math.max(2, v / max * 100).toFixed(1)}%"></i></span><span class="bv">${rubX(Math.round(v))}</span></div>`).join('') : '<div class="hint">данных нет</div>'}${note ? `<small class="hint">${note}</small>` : ''}</figure>`;
+  }
   function buhTab() {
-    const SP = D.spisaniya, rowsSP = SP ? SP.rows : [], src = D.buh_sources, tY = FRESH.todayYmd, end = addD(tY, calN), month = tY.slice(0, 7);
+    const SP = D.spisaniya, rowsSP = SP ? SP.rows.filter((r) => !r.superseded) : [], src = D.buh_sources, tY = FRESH.todayYmd, end = addD(tY, calN), month = tY.slice(0, 7);
     const buhT = T.filter((t) => isOpen(t) && !t.fromSummary && (t.section === 'Бухгалтерия' || t.cat === 'tax')).sort(order);
     const inc = T.filter((t) => isOpen(t) && t.a > 0 && ['ждём', 'ждём подпись', 'выставить счёт'].includes(t.money));
-    // оплата: по выписке банка, подтверждено ФНС (поступило на ЕНС) или только со слов Ольги — три разных уровня
-    const kindOf = (r) => r.kind === 'reference' ? ['ref', 'справочно'] : !r.paid ? ['pay', 'к оплате'] : r.bankConfirmed ? ['in', 'оплачено по выписке'] : r.confirmedBy ? ['in', 'подтверждено ' + r.confirmedBy] : ['ref', 'со слов Ольги, не подтверждено'];
-    // null — сумма неизвестна (есть диапазон), 0 — действительно ноль (zeroMeans), иначе сумма
+    const kindOf = (r) => r.kind === 'reference' ? ['ref', 'справочно'] : !r.paid ? ['pay', 'к оплате'] : r.bankConfirmed ? ['in', 'оплачено по выписке'] : r.confirmedBy ? ['in', 'подтверждено ' + r.confirmedBy] : ['ref', 'со слов Ольги'];
     const amt = (r) => r.amount === null || r.amount === undefined ? (rangeTxt(r.amountRange) || 'сумма неизвестна')
       : Number(r.amount) === 0 ? (r.zeroMeans ? 'списания нет' : 'сумма не указана') : (r.kind === 'reference' ? '≈ ' : '') + rubX(r.amount);
-    // календарь: списания из реестра «Бухгалтерии», ожидаемые поступления и сроки дел с датой; неоплаченное прошлое — сверху как просроченное
-    const ev = [];
-    rowsSP.forEach((r) => { if ((r.date >= tY && r.date <= end) || (r.date < tY && !r.paid && r.kind !== 'reference')) { const [c, l] = kindOf(r); ev.push({d: r.date, c, l: r.date < tY ? 'просрочено, ' + l : l, w: `${esc(r.who)}: ${esc(r.what)}`, s: esc(r.state || ''), a: amt(r)}); } });
-    // срок у дела со счётом или подписью — дата контроля задачи, а не обещанная дата денег
-    const CTRL = {'ждём': 'контроль оплаты', 'ждём подпись': 'контроль подписи', 'выставить счёт': 'выставить счёт'};
-    inc.forEach((t) => { const y = taskYmd(t); if (y && y <= end) ev.push({d: y, c: 'task', l: (y < tY ? 'просрочен ' : 'срок: ') + CTRL[t.money], w: esc(t.cl) + ': ' + esc(t.short), s: 'срок контроля задачи, не дата оплаты' + (okToday(t.checked) && t.src ? ', сверено сегодня' : ', сегодня не сверено'), a: rubX(t.a)}); });
-    // просроченные дела не раздувают календарь: одной строкой, сами дела — в рабочем плане ниже
-    const lateT = buhT.filter((t) => { const y = taskYmd(t); return y && y < tY; });
-    buhT.forEach((t) => { const y = taskYmd(t); if (y && y >= tY && y <= end) ev.push({d: y, c: 'task', l: 'срок дела', w: esc(t.short), s: esc(t.cl), a: ''}); });
-    ev.sort((a, b) => a.d.localeCompare(b.d));
-    const noDate = inc.filter((t) => !taskYmd(t));
-    const srcHTML = src ? `<div class="src-l">${src.map((x) => `<div><span class="${x.ok ? '' : 'no'}">${x.ok ? '✓' : '✕'} ${esc(x.name)}</span> <span class="hint">· ${esc(x.note)}</span></div>`).join('')}</div>`
-      : '<div class="hint" style="color:var(--warn)">Сводка собрана без раздела «Бухгалтерия»: реестр списаний и планы не получены.</div>';
-    const grp = (f) => rowsSP.filter(f);
-    const conf = (r) => r.bankConfirmed || !!r.confirmedBy;
-    const toPay = grp((r) => r.kind !== 'reference' && !r.paid), paidOk = grp((r) => r.kind !== 'reference' && r.paid && conf(r)), paid = grp((r) => r.kind !== 'reference' && r.paid && !conf(r)), ref = grp((r) => r.kind === 'reference');
     const sum = (a) => a.reduce((x, r) => x + (Number(r.amount) || 0), 0);
-    const noAmt = (a) => { const n = a.filter((r) => r.amount === null || r.amount === undefined).length; return n ? `, без точной суммы ещё ${plural(n, 'платёж', 'платежа', 'платежей')}, в итог не вошли` : ''; };
-    const list = (a) => a.map((r) => { const [c, l] = kindOf(r); return `<div class="cd"><span class="dt">${dmY(r.date)}</span><span class="wt"><span class="kd ${c}">${l}</span>${esc(r.who)}: ${esc(r.what)}<small>${r.paidOn ? 'поступило ' + dmY(r.paidOn) + (r.basis ? ' (' + esc(r.basis) + ')' : '') + (r.plan ? ', план был ' + dmY(r.plan) : '') + ' · ' : ''}${esc(r.state || '')}${conf(r) && r.bankNote ? ' · ' + esc(r.bankNote) : ''}${r.paid && !conf(r) && r.paidSrc ? ' · ' + esc(r.paidSrc) : ''}${r.paid && !conf(r) && r.bankCheck ? ' · ' + esc(r.bankCheck) : ''}</small>${srcDet(r.src)}</span><span class="num">${amt(r)}</span></div>`; }).join('');
-    const mPlan = grp((r) => r.kind !== 'reference' && r.date.slice(0, 7) === month), mOk = mPlan.filter((r) => r.paid && conf(r)), mPaid = mPlan.filter((r) => r.paid && !conf(r));
-    const bs = D.buh_svodka, BP = D.buh_plan, bal = BP && BP.balance, BK = D.bank, bkM = BK ? BK.days.filter((x) => x.date.slice(0, 7) === month) : [];
-    const bkAcc = [...new Set(bkM.map((x) => x.account))].map((a) => { const ds = bkM.filter((x) => x.account === a); return {a, dates: ds.map((x) => dmY(x.date) + (x.partial ? ' ' + x.partial : '')).join(', '), inn: ds.reduce((v, x) => v + (x.in || 0), 0), out: ds.reduce((v, x) => v + (x.out || 0), 0)}; });
+    const conf = (r) => r.bankConfirmed || !!r.confirmedBy;
+    const list = (a) => a.map((r) => { const [c, l] = kindOf(r); return `<div class="cd"><span class="dt">${dmY(r.date)}</span><span class="wt"><span class="kd ${c}">${l}</span>${esc(r.who)}: ${esc(r.what)}<small>${r.paidOn ? 'оплачено ' + esc(r.paidOn.length === 10 && r.paidOn[4] === '-' ? dmY(r.paidOn) : r.paidOn.slice(0, 5)) + ' · ' : ''}${esc(r.state || '')}</small></span><span class="num">${amt(r)}</span></div>`; }).join('');
+    const toPay = rowsSP.filter((r) => r.kind !== 'reference' && !r.paid), paidAll = rowsSP.filter((r) => r.kind !== 'reference' && r.paid), ref = rowsSP.filter((r) => r.kind === 'reference');
+    // ---- деньги сейчас ----
+    const BM = D.bank_month, VK = D.vklady, acc = BM ? BM.accounts : [];
+    const alfa = acc.find((a) => /Альфа/.test(a.account)), tochka = acc.find((a) => /Точка/.test(a.account));
+    const resv = VK ? VK.rows.filter((r) => r.reserved) : [], resvSum = resv.reduce((s, r) => s + r.amount, 0);
+    const free = alfa && VK ? alfa.close + VK.total - resvSum : null;
+    const asOf = BM ? esc(BM.asOf || '') : '';
+    const money = `<section class="sec"><div class="sh"><h2>Деньги сейчас</h2><span class="c">${BM ? 'по выпискам на ' + asOf : 'выписок за месяц нет'}</span></div>
+      <div class="pf">
+      <div><small>Свободно у РЭИ</small><b>${free !== null ? rubX(free) : 'не считаю'}</b><small>${free !== null ? `счёт + вклады${resvSum ? ' − отложено под себестоимость' : ''}` : 'нет выписки или вкладов'}</small></div>
+      <div><small>Счёт Альфа РЭИ *7370</small><b>${alfa ? rubX(alfa.close) : 'нет данных'}</b><small>${alfa ? 'остаток на ' + asOf : ''}</small></div>
+      <div><small>Вклады РЭИ</small><b>${VK ? rubX(VK.total) : 'нет данных'}</b><small>${VK ? VK.rows.map((r) => `${esc(r.account)} ${rubX(r.amount)} с ${dmY(r.since)}`).join(' · ') : 'файл svodka/vklady.json не получен'}</small></div>
+      ${resv.length ? `<div class="pf-w"><small>Отложено под себестоимость</small><b>${rubX(resvSum)}</b><small>${resv.map((r) => `${esc(r.account)}: ${esc(r.reserved)}`).join('; ')}. Вывод Бухгалтерии, подтвердите</small></div>` : ''}
+      <div><small>Точка ИП *3698</small><b>${tochka ? rubX(tochka.close) : 'нет данных'}</b><small>отдельно от РЭИ</small></div></div>
+      ${VK && VK.note ? `<div class="hint" style="padding-top:6px">${esc(VK.note)}</div>` : ''}</section>`;
+    // ---- куда ушли деньги ----
+    const R = D.rashody;
+    let spent = '';
+    if (R) {
+      const ms = [2, 1, 0].map((k) => { const d = new Date(Date.parse(month + '-15T12:00:00Z')); d.setUTCMonth(d.getUTCMonth() - k); return d.toISOString().slice(0, 7); });
+      const cur = R.months[month] || {exp: 0, non: 0, by: {}}, isExp = (k) => R.statyi.includes(k);
+      const pick = (by, f) => Object.fromEntries(Object.entries(by || {}).filter(([k]) => f(k)));
+      const three = {}; ms.forEach((m) => Object.entries(pick((R.months[m] || {}).by, isExp)).forEach(([k, v]) => { three[k] = (three[k] || 0) + v; }));
+      const have = ms.filter((m) => R.months[m]).map(monN), miss = ms.filter((m) => !R.months[m]).map(monN);
+      const non = pick(cur.by, (k) => !isExp(k)), G = R.gap;
+      spent = `<section class="sec"><div class="sh"><h2>Куда ушли деньги</h2><span class="c">только оплаты, найденные в выписках и реестре</span></div>
+        <div class="bars2">${barsHTML(pick(cur.by, isExp), 'Расходы за ' + monN(month), '')}${barsHTML(three, 'За три месяца: ' + ms.map(monN).join(', '), miss.length ? `нет данных за ${miss.join(', ')}${have.length ? '; ' + have.join(', ') + ' — частично' : ''}` : '')}</div>
+        ${Object.keys(non).length ? `<div class="hint" style="padding-top:8px">Не расходы, в диаграмму не входят: ${Object.entries(non).map(([k, v]) => `${esc(k)} ${rubX(v)}`).join(' · ')}.</div>` : ''}
+        ${G && G.rest > 1 ? `<div class="hint" style="padding-top:4px;color:var(--warn)">По выпискам за ${esc(G.period)} списано ${rubX(G.out)}, по статьям разнесено ${rubX(G.known)}, ещё ${rubX(G.rest)} не разнесено. Бухгалтерия дополнит из карточки 51.</div>` : ''}
+        <details style="padding-top:6px"><summary class="hint">Все оплаты по статьям (${R.rows.length})</summary><div class="rows" style="padding:4px 14px">${R.rows.map((r) => `<div class="cd"><span class="dt">${dmY(r.date)}</span><span class="wt"><span class="kd ${r.expense ? 'task' : 'ref'}">${esc(r.statya)}</span>${esc(r.who)}<small>${esc(r.account || '')}${r.basis ? ' · ' + esc(r.basis) : ''}</small></span><span class="num">${rubX(r.amount)}</span></div>`).join('')}</div></details></section>`;
+    } else spent = '<section class="sec"><div class="sh"><h2>Куда ушли деньги</h2></div><div class="hint" style="color:var(--warn)">Файл svodka/rashody-mesyac.json не получен.</div></section>';
+    // ---- календарь ----
+    const ev = [];
+    rowsSP.forEach((r) => { if (r.kind !== 'reference' && !r.paid && r.date <= end) { const [c, l] = kindOf(r); ev.push({d: r.date, c, l: r.date < tY ? 'просрочено, ' + l : l, w: `${esc(r.who)}: ${esc(r.what)}`, s: esc(r.state || ''), a: amt(r)}); } });
+    const CTRL = {'ждём': 'ждём оплату', 'ждём подпись': 'ждём подпись', 'выставить счёт': 'выставить счёт'};
+    inc.forEach((t) => { const y = taskYmd(t); if (y && y <= end) ev.push({d: y, c: 'in', l: CTRL[t.money], w: esc(t.cl) + ': ' + esc(t.short), s: 'дата контроля, не обещанная дата оплаты', a: rubX(t.a)}); });
+    buhT.forEach((t) => { const y = taskYmd(t); if (y && y >= tY && y <= end) { const [c, l] = buhSt(t); ev.push({d: y, c, l, w: esc(t.short), s: esc(t.cl), a: ''}); } });
+    ev.sort((a, b) => a.d.localeCompare(b.d));
+    const cal = `<section class="sec"><div class="sh"><h2>Ближайшие ${calN} дней</h2><span class="c">${dmY(tY)}–${dmY(end)}</span><span style="display:flex;gap:6px;margin-left:auto">${[7, 30].map((n) => `<button class="chip" data-cal="${n}" aria-pressed="${calN === n}">${n} дней</button>`).join('')}</span></div>
+      <div class="rows" style="padding:6px 14px">${ev.length ? lim('cal', ev, 8).map((e) => `<div class="cd"><span class="dt">${dmY(e.d)}</span><span class="wt"><span class="kd ${e.c}">${e.l}</span>${e.w}${e.s ? `<small>${e.s}</small>` : ''}</span><span class="num">${e.a}</span></div>`).join('') + moreBtn('cal', ev, 8, ['строка', 'строки', 'строк']) : '<div class="hint" style="padding:6px 0">На эти дни ничего нет.</div>'}</div></section>`;
+    // ---- два потока ----
+    const isCl = (t) => t.cat === 'client';
+    const clT = buhT.filter(isCl), suT = buhT.filter((t) => !isCl(t));
+    const stOrd = {work: 0, queue: 1, wait: 2}, byStat = (a) => a.slice().sort((x, y) => stOrd[buhSt(x)[0]] - stOrd[buhSt(y)[0]] || (taskYmd(x) || '9').localeCompare(taskYmd(y) || '9'));
+    const cnt = (a) => { const c = {work: 0, queue: 0, wait: 0}; a.forEach((t) => c[buhSt(t)[0]]++); return `в работе ${c.work} · в очереди ${c.queue} · ждём ${c.wait}`; };
+    const incS = inc.slice().sort((x, y) => (taskYmd(x) || '9').localeCompare(taskYmd(y) || '9'));
+    const flowCl = `<section class="sec flow"><div class="sh"><h2>С клиентами</h2><span class="c">поступления, акты, сверки</span><button class="link" data-go="money">Все деньги</button></div>
+      <div class="rows" style="padding:6px 14px"><div class="hint" style="padding:4px 0">Ждём денег · ${plural(inc.length, 'дело', 'дела', 'дел')} на ${rubX(inc.reduce((s, t) => s + t.a, 0))}</div>
+      ${lim('inc', incS, 5).map(buhRow).join('')}${moreBtn('inc', incS, 5)}
+      <div class="hint" style="padding:10px 0 4px">Дела бухгалтерии с клиентами · ${cnt(clT)}</div>${clT.length ? byStat(clT).map(buhRow).join('') : '<div class="hint">нет</div>'}</div></section>`;
+    const flowSu = `<section class="sec flow"><div class="sh"><h2>С поставщиками и бюджетом</h2><span class="c">оплаты, акты, налоги, сверки</span></div>
+      <div class="rows" style="padding:6px 14px"><div class="hint" style="padding:4px 0">К оплате · ${rubX(sum(toPay))}${toPay.some((r) => r.amount == null) ? ', без суммы ещё ' + toPay.filter((r) => r.amount == null).length : ''}</div>${toPay.length ? list(toPay) : '<div class="hint">нет</div>'}
+      <div class="hint" style="padding:10px 0 4px">Дела бухгалтерии · ${cnt(suT)}</div>${suT.length ? lim('buhS', byStat(suT), 6).map(buhRow).join('') + moreBtn('buhS', suT, 6) : '<div class="hint">нет</div>'}
+      ${paidAll.length ? `<details style="padding:8px 0"><summary class="hint">Уже оплачено по реестру · ${rubX(sum(paidAll))}, повторно не платить</summary>${list(paidAll)}</details>` : ''}
+      ${ref.length ? `<details style="padding:0 0 8px"><summary class="hint">Справочно, в итоги не входит · ${ref.length}</summary>${list(ref)}</details>` : ''}</div></section>`;
+    // ---- регулярные платежи ----
+    const BP = D.buh_plan, bs = D.buh_svodka;
+    const reg = BP ? `<section class="sec"><details class="rows" style="padding:6px 14px"><summary style="padding:6px 0"><b>Регулярные платежи</b> <span class="hint">${plural(BP.regular.length, 'платёж', 'платежа', 'платежей')}, реестр Бухгалтерии</span></summary>
+      <div class="rp">${BP.regular.map((r) => `<div class="rp-r"><div class="rp-n"><b>${esc(r.name || '')}</b>${r.org ? ` <span class="kd">${esc(r.org)}</span>` : ''}${r.kind === 'reference' ? '<span class="kd ref">справочно</span>' : ''}</div><div class="rp-a">${r.amountKnown === false || r.amount == null ? 'сумма неизвестна' : rubX(r.amount)}</div><div class="rp-m">${esc(r.period || '')}${r.note ? ' · ' + esc(r.note) : ''}${r.dataAsOf ? ' · данные на ' + esc(r.dataAsOf) : ''}</div></div>`).join('')}</div></details></section>` : '';
     const srcOk = src ? src.filter((x) => x.ok).length : 0;
-    return `<section class="sec"><details class="rows" style="padding:10px 14px"${src && srcOk < src.length ? ' open' : ''}><summary><b>Что получено для раздела</b> <span class="hint">${src ? `получено ${srcOk} из ${src.length}` : 'раздел «Бухгалтерия» не получен'}; план, факт и справочное не смешиваются</span></summary><div style="padding-top:8px">${srcHTML}</div></details></section>
-    <section class="sec"><div class="sh"><h2>Календарь на ${calN} дней</h2><span class="c">${dmY(tY)}–${dmY(end)}</span><span style="display:flex;gap:6px;margin-left:auto">${[7, 30].map((n) => `<button class="chip" data-cal="${n}" aria-pressed="${calN === n}">${n} дней</button>`).join('')}</span></div>
-      <div class="rows" style="padding:6px 14px">${!SP ? '<div class="hint" style="color:var(--warn);padding:6px 0">Реестр списаний не получен: календарь списаний не построен.</div>' : ''}${ev.length ? lim('cal', ev, 8).map((e) => `<div class="cd"><span class="dt">${dmY(e.d)}</span><span class="wt"><span class="kd ${e.c}">${e.l}</span>${e.w}${e.s ? `<small>${e.s}</small>` : ''}</span><span class="num">${e.a}</span></div>`).join('') + moreBtn('cal', ev, 8, ['строка', 'строки', 'строк']) : '<div class="hint" style="padding:6px 0">В эти дни в полученных данных платежей, поступлений и сроков нет.</div>'}
-      ${lateT.length ? `<div class="hint" style="padding:6px 0;color:var(--warn)">Просрочено ${plural(lateT.length, 'дело', 'дела', 'дел')} Бухгалтерии, они в рабочем плане ниже.</div>` : ''}
-      ${noDate.length ? `<div class="hint" style="padding:6px 0">Ещё ${plural(noDate.length, 'поступление', 'поступления', 'поступлений')} на ${rub(noDate.reduce((x, t) => x + t.a, 0))} без даты: в календарь не ставлю, они на вкладке «Деньги».</div>` : ''}</div></section>
-    <section class="sec"><div class="sh"><h2>План-факт за ${['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь'][+month.slice(5) - 1]}</h2><span class="c">только по полученным данным</span></div>
-      <div class="pf"><div><small>План списаний (реестр Бухгалтерии)</small><b>${SP ? (mPlan.length ? rubX(sum(mPlan)) : 'в реестре нет') : 'не получен'}</b><small>${SP ? plural(mPlan.length, 'платёж', 'платежа', 'платежей') : 'нет svodka/spisaniya.json'}</small></div>
-      <div><small>Оплачено, подтверждено ФНС</small><b>${SP ? (mOk.length ? rubX(sum(mOk)) : 'нет') : 'не получено'}</b><small>${mOk.length ? 'поступило на ЕНС, по выписке ФНС' : 'подтверждённых оплат нет'}</small></div>
-      <div><small>Со слов Ольги, не подтверждено</small><b>${SP ? (mPaid.length ? rubX(sum(mPaid)) : 'нет') : 'не получено'}</b><small>ни банк, ни ФНС пока не подтвердили</small></div>
-      ${bkAcc.length ? bkAcc.map((x) => `<div><small>Факт по банку · ${esc(x.a)}</small><b>+${rubX(x.inn)}</b><small>списано ${rubX(x.out)} · только за ${esc(x.dates)}, не полный факт месяца</small></div>`).join('') : '<div><small>Факт по банку</small><b style="color:var(--warn)">не получен</b><small>выписок банка в данных нет</small></div>'}
-      ${bal && bal.known && bal.accounts && bal.accounts.length ? bal.accounts.map((a) => `<div><small>Остаток ${esc(a.account || '')}</small><b>${rubX(a.amount)}</b><small>снимок на ${esc(a.date || '?')}, не текущий остаток · ${esc(a.src || '')}</small></div>`).join('') + '<div><small>Прогноз остатка</small><b style="color:var(--warn)">не считаю</b><small>' + esc(bal.note || 'по снимку прогноз не строим') + '; по снимку прогноз не строим</small></div>'
-        : `<div><small>Остаток на счетах и прогноз</small><b style="color:var(--warn)">не считаю</b><small>${esc(bal && bal.why ? bal.why : 'без выписок банка остаток не выдумываем')}</small></div>`}</div></section>
-    ${BK && BK.days.length ? `<section class="sec"><div class="sh"><h2>Банк: обороты по прочитанным выпискам</h2><span class="c">только эти счета и дни, не полный факт</span></div>${bankTable(BK.days)}</section>` : ''}
-    <section class="sec"><div class="sh"><h2>Предстоящие списания</h2><span class="c">${SP ? 'реестр Бухгалтерии от ' + esc(SP.built) : 'реестр не получен'}</span></div>
-      <div class="rows" style="padding:6px 14px">${SP ? `${toPay.length ? `<div class="hint" style="padding:6px 0 0">К оплате · ${rubX(sum(toPay))}${noAmt(toPay)}</div>${list(toPay)}` : '<div class="hint" style="padding:6px 0">К оплате в реестре ничего нет.</div>'}
-      ${paidOk.length ? `<div class="hint" style="padding:10px 0 0">Оплачено, подтверждено ФНС · ${rubX(sum(paidOk))}. Повторно не платить</div>${list(paidOk)}${SP.confirmedNote ? `<div class="hint" style="padding:4px 0">${esc(SP.confirmedNote)}</div>` : ''}` : ''}
-      ${paid.length ? `<div class="hint" style="padding:10px 0 0">Со слов Ольги, банком и ФНС не подтверждено · ${rubX(sum(paid))}</div>${list(paid)}` : ''}
-      ${ref.length ? `<div class="hint" style="padding:10px 0 0">Справочно, в итоги не входит</div>${list(ref)}` : ''}${SP.note ? `<div class="hint" style="padding:8px 0">${esc(SP.note)}</div>` : ''}` : '<div class="hint" style="color:var(--warn);padding:6px 0">Файл svodka/spisaniya.json не получен. Сумм не показываю.</div>'}</div></section>
-    <section class="sec"><details class="rows" style="padding:6px 14px"><summary style="padding:6px 0"><b>Регулярные платежи</b> <span class="hint">${BP ? 'реестр Бухгалтерии, ' + plural(BP.regular.length, 'платёж', 'платежа', 'платежей') : 'не получены'}</span></summary>${BP ? BP.regular.map((r) => `<div class="cd"><span class="dt">${esc(r.period || '')}</span><span class="wt">${r.kind === 'reference' ? '<span class="kd ref">справочно</span>' : ''}${esc(r.name || '')}${r.org ? ' · ' + esc(r.org) : ''}<small>${esc(r.note || '')}${r.dataAsOf ? ' · данные на ' + esc(r.dataAsOf) : ''}</small></span><span class="num">${r.amountKnown === false || r.amount === null || r.amount === undefined ? 'сумма неизвестна' : rubX(r.amount)}</span></div>`).join('') : '<div class="hint" style="color:var(--warn);padding:6px 0">Файл svodka/buh-plan.json не получен.</div>'}</details></section>
-    <section class="sec"><div class="sh"><h2>Ожидаемые поступления</h2><span class="c">дела базы; срок — дата контроля, не обещанная дата оплаты</span><button class="link" data-go="money">Все деньги</button></div>
-      ${inc.length ? `<div class="rows">${lim('inc', inc.sort((x, y) => (taskYmd(x) || '9').localeCompare(taskYmd(y) || '9')), 5).map((t) => row(t, {check: false})).join('')}</div>${moreBtn('inc', inc, 5)}` : '<div class="hint">Ожидаемых поступлений в данных нет.</div>'}</section>
-    <section class="sec"><div class="sh"><h2>Рабочий план Бухгалтерии</h2><span class="c">${plural(buhT.length, 'открытое дело', 'открытых дела', 'открытых дел')} из базы</span></div>
-      ${buhT.length ? `<div class="rows">${lim('buhT', buhT, 5).map((t) => row(t)).join('')}</div>${moreBtn('buhT', buhT, 5)}` : '<div class="hint">Открытых дел Бухгалтерии в базе нет.</div>'}
-      ${bs ? `<details class="rows" style="padding:10px 14px"><summary><b>${esc(bs.title)}</b>${srcDet(bs.file, 'файл')}</summary>${bs.sections.map((x) => `<div style="margin-top:8px"><b>${esc(x.title)}</b><ul style="margin:4px 0 0 18px;padding:0">${x.lines.map((l) => `<li style="font-size:13.5px">${esc(l)}</li>`).join('')}</ul></div>`).join('')}</details>` : '<div class="hint" style="color:var(--warn)">Дневная сводка Бухгалтерии не получена.</div>'}</section>`;
+    const srcHTML = src ? src.map((x) => `<div><span class="${x.ok ? '' : 'no'}">${x.ok ? '✓' : '✕'} ${esc(x.name)}</span> <span class="hint">· ${esc(x.note)}</span></div>`).join('') : '';
+    return money + spent + `<div class="flows">${flowCl}${flowSu}</div>` + cal + reg
+      + (bs ? `<section class="sec"><details class="rows" style="padding:10px 14px"><summary><b>${esc(bs.title)}</b>${srcDet(bs.file, 'файл')}</summary>${bs.sections.map((x) => `<div style="margin-top:8px"><b>${esc(x.title)}</b><ul style="margin:4px 0 0 18px;padding:0">${x.lines.map((l) => `<li style="font-size:13.5px">${esc(l)}</li>`).join('')}</ul></div>`).join('')}</details></section>` : '')
+      + `<section class="sec"><details class="rows" style="padding:10px 14px"${src && srcOk < src.length ? ' open' : ''}><summary><b>Источники раздела</b> <span class="hint">${src ? `получено ${srcOk} из ${src.length}` : 'не получены'}</span></summary><div class="src-l" style="padding-top:8px">${srcHTML}</div></details></section>`;
   }
   function chart(m) {
     const W = 440, H = 190, L = 34, B = 24, max = Math.max(...m.map((x) => x.potential || 0), 1), top = Math.ceil(max / 1e5) * 1e5, bw = (W - L - 8) / m.length;

@@ -164,6 +164,8 @@ SPISANIYA_JSON = "/mnt/project-files/daily-control/svodka/spisaniya.json"
 BUH_PLAN_JSON = "/mnt/project-files/daily-control/svodka/buh-plan.json"
 BANK_JSON = "/mnt/project-files/daily-control/svodka/bank-oboroty.json"
 BANK_MONTH_JSON = "/mnt/project-files/daily-control/svodka/bank-mesyac.json"
+RASHODY_JSON = "/mnt/project-files/daily-control/svodka/rashody-mesyac.json"
+VKLADY_JSON = "/mnt/project-files/daily-control/svodka/vklady.json"
 INCOME_JSON = "/mnt/project-files/daily-control/kontrol/runs/income.json"
 KONTROL_DIR = "/mnt/project-files/daily-control/kontrol"
 BUH_PLANS = {
@@ -299,6 +301,98 @@ def bank_month():
         p = json.load(fh)
     accs = [a for a in p.get("accounts", []) if a.get("account") and isinstance(a.get("in"), (int, float))]
     return {**p, "accounts": accs} if accs else None
+
+
+# 19.11 (Ольга): куда ушли деньги — статьи расходов за месяц и за три месяца. Не расходы (свои вклады,
+# переводы ИП и Ольге, наличные) считаются отдельно и в диаграмму не входят.
+STATYI = [
+    ("Свои вклады", False, r"вклад|депозит"),
+    ("Переводы ИП Пономаренко", False, r"^ИП Пономаренко$|^Пономаренко$"),
+    ("Подотчёт, наличные, переводы Ольге", False, r"подотч|Луговск|наличн|\*3081|P2P|^списание$"),
+    ("Налоги и взносы", True, r"ЕНП|налог|НДФЛ|ФНС|СФР|взнос"),
+    ("Зарплата", True, r"^ЗП|зарплат|отпускн"),
+    ("Подрядчики и эксперты", True, r"ИПБ|Подоприхин|АП-Риал|Дельта|Малышкин|АЙСТАНДАРТ|Айстандарт|эксперт"),
+    ("Связь и IT", True, r"СИПНЕТ|Сипнет|SIPNET|Грушко|сисадмин|АДВАНСДОКС"),
+    ("Аренда", True, r"Утешева|аренд"),
+    ("Бухуслуги", True, r"Лариса|Четвергова|бухуслуг"),
+    ("Доставка", True, r"СДЭК|Ольховский|доставк"),
+    ("Комиссии банка", True, r"комисси"),
+]
+
+
+def statya(text):
+    for name, exp, rx in STATYI:
+        if re.search(rx, text or "", re.I):
+            return name, exp
+    return "Прочее", True
+
+
+def _ymd(v):
+    v = str(v or "")
+    m = re.match(r"^(\d\d)\.(\d\d)\.(\d{4})", v)
+    return f"{m.group(3)}-{m.group(2)}-{m.group(1)}" if m else v[:10]
+
+
+def rashody(sp=None, bm=None, today=None, vk=None):
+    """Расходы по статьям: строки Бухгалтерии (rashody-mesyac.json) + оплаченные строки реестра списаний,
+    которых в них нет (та же сумма в том же месяце = одна оплата). Нет ни того, ни другого — None."""
+    rows = []
+    if os.path.exists(RASHODY_JSON):
+        with open(RASHODY_JSON, encoding="utf-8-sig") as fh:
+            p = json.load(fh)
+        for r in p.get("rows", []):
+            if isinstance(r.get("amount"), (int, float)) and r.get("date"):
+                rows.append({"date": r["date"], "who": r.get("who", ""), "amount": float(r["amount"]), "account": r.get("account", ""), "basis": r.get("basis", ""), "src": "выписка"})
+        cov = p.get("coverage", "")
+    else:
+        p, cov = {}, ""
+    have = {(r["date"][:7], round(r["amount"], 2)) for r in rows}
+    for r in (sp or {}).get("rows", []):
+        if r.get("kind") == "reference" or not r.get("paid") or r.get("superseded") or not isinstance(r.get("amount"), (int, float)):
+            continue
+        d = _ymd(r.get("paidOn") or r.get("date"))
+        k = (d[:7], round(float(r["amount"]), 2))
+        if k in have:
+            continue
+        have.add(k)
+        who = r.get("what", "") if r.get("who") in ("РЭИ", "", None) else f"{r.get('who')}: {r.get('what', '')}"
+        rows.append({"date": d, "who": who, "amount": float(r["amount"]), "account": "", "basis": "реестр списаний" + (", по выписке" if r.get("bankConfirmed") else ""), "src": "реестр"})
+    for r in (vk or {}).get("rows", []):
+        k = ((r.get("since") or "")[:7], round(float(r["amount"]), 2))
+        if r.get("since") and k not in have:
+            have.add(k)
+            rows.append({"date": r["since"], "who": f"свой вклад {r.get('account', '')}", "amount": float(r["amount"]), "account": "Альфа РЭИ *7370", "basis": r.get("deal", ""), "src": "вклады"})
+    if not rows:
+        return None
+    months = {}
+    for r in rows:
+        name, exp = statya(r["who"])
+        r["statya"], r["expense"] = name, exp
+        m = months.setdefault(r["date"][:7], {"exp": 0.0, "non": 0.0, "by": {}})
+        m["exp" if exp else "non"] += r["amount"]
+        m["by"][name] = round(m["by"].get(name, 0) + r["amount"], 2)
+    for m in months.values():
+        m["exp"], m["non"] = round(m["exp"], 2), round(m["non"], 2)
+    # сколько списано по выпискам за текущий месяц и сколько из этого ещё не разнесено по статьям
+    gap = None
+    if bm and bm.get("accounts"):
+        cur = (today or datetime.now(timezone(timedelta(hours=3))).date().isoformat())[:7]
+        out = round(sum(a.get("out") or 0 for a in bm["accounts"]), 2)
+        known = round(months.get(cur, {}).get("exp", 0) + months.get(cur, {}).get("non", 0), 2)
+        gap = {"month": cur, "period": bm.get("period", ""), "out": out, "known": known, "rest": round(out - known, 2)}
+    rows.sort(key=lambda r: r["date"], reverse=True)
+    return {"asOf": p.get("asOf", ""), "coverage": cov, "months": months, "rows": rows, "gap": gap,
+            "statyi": [n for n, e, _ in STATYI if e] + ["Прочее"], "src": "svodka/rashody-mesyac.json + svodka/spisaniya.json"}
+
+
+def vklady():
+    """Вклады РЭИ (ведёт «Бухгалтерия»): счёт, сумма, с какого дня, под что отложено; нет файла — None."""
+    if not os.path.exists(VKLADY_JSON):
+        return None
+    with open(VKLADY_JSON, encoding="utf-8-sig") as fh:
+        p = json.load(fh)
+    rows = [r for r in p.get("rows", []) if isinstance(r.get("amount"), (int, float))]
+    return {**p, "rows": rows, "total": round(sum(r["amount"] for r in rows), 2)} if rows else None
 
 
 def income():
@@ -1259,6 +1353,8 @@ def main():
     data.update({"spisaniya": sp, "buh_svodka": bs, "buh_plan": bp, "bank": bank, "buh_sources": buh_sources(sp, bs, bp, bank)})
     data["garanty"] = garanty(tasks, bank)
     data["bank_month"] = bank_month()
+    data["vklady"] = vklady()
+    data["rashody"] = rashody(sp, data["bank_month"], vk=data["vklady"])
     data["platezhi"] = platezhi()
     data["garanty_changes"] = garanty_changes()
     data["ozhidaem"] = ozhidaem(data["garanty"], tasks, vyp=vypiska())
