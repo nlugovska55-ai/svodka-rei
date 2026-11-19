@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-19T18:41:52.106Z",
+  "batchId": "2026-11-19T18-41-31-892Z-fj5cjdxw",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "ТехноСервис",
+      "taskId": "tehno1311-obsledovanie-opor",
+      "taskTitle": "ТехноСервис: КП на обследование опор и фундаментов насосов и новую маршевую лестницу 0–12 м (КМ, КЖ), СПб",
+      "text": "",
+      "action": "done",
+      "actionLabel": "Я выполнила",
+      "at": "2026-11-19T18:41:26.882Z",
+      "eid": "emwnwc9k2ps4xhvm9"
+    }
+  ]
+}
