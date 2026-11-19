@@ -53,7 +53,8 @@ async function launch() {
     const sp = (await import('@sparticuz/chromium')).default, {chromium} = await import('playwright-core');
     return await chromium.launch({executablePath: await sp.executablePath(), args: sp.args, headless: true});
   } catch (e) {
-    const {chromium} = require('playwright');
+    console.log('@sparticuz/chromium не запустился: ' + (e && e.stack || e) + ' | node ' + process.version + ' | VERCEL=' + (process.env.VERCEL || ''));
+    const {chromium} = require('playwright');  // локально; в сборке Vercel его нет — тогда проверка падает и выпуск блокируется
     return chromium.launch();
   }
 }
