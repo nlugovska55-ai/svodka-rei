@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-20T07:33:38.480Z",
+  "batchId": "2026-11-20T07-33-35-087Z-93argawy",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Лично вам",
+      "taskId": "kvant1911-1382-zakryt",
+      "taskTitle": "Квант: Лена «закрывающие квант» по счёту-оферте 1382-ЛЕ-ДС — акт в 1С «Луг», черновик в Диадок, письмо Лене",
+      "text": "выполнила?",
+      "action": "claude",
+      "actionLabel": "Поручено Claude",
+      "at": "2026-11-20T07:33:30.077Z",
+      "eid": "emwonx4rhpoo7p87h"
+    }
+  ]
+}
