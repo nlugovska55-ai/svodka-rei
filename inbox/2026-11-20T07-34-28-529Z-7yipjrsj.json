@@ -1,0 +1,18 @@
+{
+  "sentAt": "2026-11-20T07:34:31.948Z",
+  "batchId": "2026-11-20T07-34-28-529Z-7yipjrsj",
+  "source": "svodka-rei",
+  "status": "new",
+  "items": [
+    {
+      "client": "Диадок",
+      "taskId": "pl3010-akty-avansy",
+      "taskTitle": "Квазар: аванс 34 000 без акта (остальные из списка 30.10 закрыты)",
+      "text": "я выполнила?",
+      "action": "",
+      "actionLabel": "Сообщение Claude",
+      "at": "2026-11-20T07:34:23.515Z",
+      "eid": "emwony9zvhqzoacf9"
+    }
+  ]
+}
